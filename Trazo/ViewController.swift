@@ -8,12 +8,34 @@
 import UIKit
 
 class ViewController: UIViewController {
-
     override func viewDidLoad() {
         super.viewDidLoad()
-        // Do any additional setup after loading the view.
+        
+        setupCanvasView()
     }
-
-
+    
+    func setupCanvasView() {
+        let canvasView = CanvasView()
+        canvasView.translatesAutoresizingMaskIntoConstraints = false
+        
+        view.addSubview(canvasView)
+        
+        NSLayoutConstraint.activate(
+            [
+                canvasView.topAnchor.constraint(
+                    equalTo: view.safeAreaLayoutGuide.topAnchor
+                ),
+                canvasView.bottomAnchor.constraint(
+                    equalTo: view.safeAreaLayoutGuide.bottomAnchor
+                ),
+                canvasView.leadingAnchor.constraint(
+                    equalTo: view.safeAreaLayoutGuide.leadingAnchor
+                ),
+                canvasView.trailingAnchor.constraint(
+                    equalTo: view.safeAreaLayoutGuide.trailingAnchor
+                ),
+            ]
+        )
+    }
 }
 
