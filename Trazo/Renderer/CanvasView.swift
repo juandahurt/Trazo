@@ -30,3 +30,11 @@ class CanvasView: MTKView {
         fatalError("init(coder:) has not been implemented")
     }
 }
+
+extension CanvasView {
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard let touch = touches.first else { return }
+        
+        
+    }
+}
