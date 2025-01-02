@@ -14,11 +14,13 @@ struct VertexInput {
 
 struct VertexOutput {
     float4 position [[position]];
+    float pointSize [[point_size]];
 };
 
 vertex VertexOutput vertex_shader(VertexInput input [[stage_in]]) {
     return {
-        .position = float4(input.position, 0, 1)
+        .position = float4(input.position, 0, 1),
+        .pointSize = 5
     };
 }
 

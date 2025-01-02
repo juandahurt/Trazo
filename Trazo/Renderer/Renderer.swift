@@ -11,21 +11,15 @@ class Renderer: NSObject, MTKViewDelegate {
     var commandQueue: MTLCommandQueue?
     var renderPipelineState: MTLRenderPipelineState?
     
-    var vertexBuffer: MTLBuffer?
+    var lines: [Line] = []
     
     override init() {
         super.init()
         setup()
     }
    
-    func convertToMetalCoordinates(point: CGPoint, viewSize: CGSize) -> simd_float4 {
-        let inverseViewSize = CGSize(
-            width: 1.0 / viewSize.width,
-            height: 1.0 / viewSize.height
-        )
-        let clipX = Float((2.0 * point.x * inverseViewSize.width) - 1.0)
-        let clipY = Float((2.0 * -point.y * inverseViewSize.height) + 1.0)
-        return [clipX, clipY, 0, 1]
+    func addLine(_ line: Line) {
+        lines.append(line)
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
@@ -44,23 +38,22 @@ class Renderer: NSObject, MTKViewDelegate {
             descriptor: renderPassDescriptor
         )
         encoder?.setRenderPipelineState(renderPipelineState!)
-        
-        var vertices: [simd_float2] = [
-            [0.5, 0.5],
-            [1, 1],
-            [0.5, -0.5],
-        ]
-        vertexBuffer = view.device?.makeBuffer(
-            bytes: vertices,
-            length: MemoryLayout<simd_float2>.stride * vertices.count
-        )
-        encoder?.setVertexBuffer(
-            vertexBuffer,
-            offset: 0,
-            index: 0
-        )
-        encoder?
-            .drawPrimitives(type: .triangle, vertexStart: 0, vertexCount: vertices.count)
+       
+        for line in lines {
+            var vertices: [simd_float2] = line.points.map {
+                [Float($0.x), Float($0.y)]
+            }
+            var vertexBuffer = view.device?.makeBuffer(
+                bytes: vertices,
+                length: MemoryLayout<simd_float2>.stride * vertices.count
+            )
+            encoder?.setVertexBuffer(
+                vertexBuffer,
+                offset: 0,
+                index: 0
+            )
+            encoder?.drawPrimitives(type: .point, vertexStart: 0, vertexCount: vertices.count)
+        }
         
         commandBuffer.present(drawable)
             
