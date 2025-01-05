@@ -16,4 +16,8 @@ extension Vector {
     static func ==(lhs: Vector, rhs: Vector) -> Bool {
         lhs.x == rhs.x && lhs.y == rhs.y
     }
+    
+    static func +(lhs: Vector, rhs: Vector) -> Vector {
+        .init(x: lhs.x + rhs.x, y: lhs.y + rhs.y)
+    }
 }

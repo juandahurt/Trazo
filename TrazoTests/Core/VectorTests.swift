@@ -18,4 +18,13 @@ struct VectorTests {
         let areEqual = a == b
         #expect(areEqual == actuallyEqual)
     }
+    
+    @Test("Vector sum", arguments: [
+        (Vector(x: 1, y: 10), Vector(x: 3, y: 2), Vector(x: 4, y: 12)),
+        (Vector(x: -3, y: 1), Vector(x: -3, y: 10), Vector(x: -6, y: 11)),
+    ])
+    func testSum(a: Vector, b: Vector, actualResult: Vector) {
+        let sum = a + b
+        #expect(sum == actualResult)
+    }
 }
