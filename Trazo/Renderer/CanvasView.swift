@@ -25,7 +25,7 @@ class CanvasView: MTKView {
         super.init(frame: .zero, device: device)
         
         colorPixelFormat = RendererSettings.pixelFormat
-        clearColor = .init(red: 0.1, green: 0.3, blue: 0.3, alpha: 1)
+        clearColor = .init(red: 1, green: 1, blue: 1, alpha: 1)
         
         delegate = renderer
     }

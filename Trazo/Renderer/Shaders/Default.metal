@@ -25,5 +25,5 @@ vertex VertexOutput vertex_shader(VertexInput input [[stage_in]]) {
 }
 
 fragment half4 fragment_shader(constant VertexOutput& in) {
-    return half4(1, 0.2, 1, 1);
+    return half4(0.3, 0.2, 1, 1);
 }

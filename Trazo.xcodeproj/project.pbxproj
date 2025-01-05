@@ -6,7 +6,18 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXContainerItemProxy section */
+		2F2282CD2D2A068C00CB7B52 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 2FCD941E2D24649600413760 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 2FCD94252D24649600413760;
+			remoteInfo = Trazo;
+		};
+/* End PBXContainerItemProxy section */
+
 /* Begin PBXFileReference section */
+		2F2282C92D2A068C00CB7B52 /* TrazoTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = TrazoTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		2FCD94262D24649600413760 /* Trazo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trazo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
@@ -21,6 +32,11 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
+		2F2282CA2D2A068C00CB7B52 /* TrazoTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = TrazoTests;
+			sourceTree = "<group>";
+		};
 		2FCD94282D24649600413760 /* Trazo */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
@@ -32,6 +48,13 @@
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
+		2F2282C62D2A068C00CB7B52 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2FCD94232D24649600413760 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
@@ -46,6 +69,7 @@
 			isa = PBXGroup;
 			children = (
 				2FCD94282D24649600413760 /* Trazo */,
+				2F2282CA2D2A068C00CB7B52 /* TrazoTests */,
 				2FCD94272D24649600413760 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -54,6 +78,7 @@
 			isa = PBXGroup;
 			children = (
 				2FCD94262D24649600413760 /* Trazo.app */,
+				2F2282C92D2A068C00CB7B52 /* TrazoTests.xctest */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -61,6 +86,29 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
+		2F2282C82D2A068C00CB7B52 /* TrazoTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 2F2282CF2D2A068C00CB7B52 /* Build configuration list for PBXNativeTarget "TrazoTests" */;
+			buildPhases = (
+				2F2282C52D2A068C00CB7B52 /* Sources */,
+				2F2282C62D2A068C00CB7B52 /* Frameworks */,
+				2F2282C72D2A068C00CB7B52 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				2F2282CE2D2A068C00CB7B52 /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				2F2282CA2D2A068C00CB7B52 /* TrazoTests */,
+			);
+			name = TrazoTests;
+			packageProductDependencies = (
+			);
+			productName = TrazoTests;
+			productReference = 2F2282C92D2A068C00CB7B52 /* TrazoTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 		2FCD94252D24649600413760 /* Trazo */ = {
 			isa = PBXNativeTarget;
 			buildConfigurationList = 2FCD94392D24649700413760 /* Build configuration list for PBXNativeTarget "Trazo" */;
@@ -93,6 +141,10 @@
 				LastSwiftUpdateCheck = 1620;
 				LastUpgradeCheck = 1620;
 				TargetAttributes = {
+					2F2282C82D2A068C00CB7B52 = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = 2FCD94252D24649600413760;
+					};
 					2FCD94252D24649600413760 = {
 						CreatedOnToolsVersion = 16.2;
 					};
@@ -113,11 +165,19 @@
 			projectRoot = "";
 			targets = (
 				2FCD94252D24649600413760 /* Trazo */,
+				2F2282C82D2A068C00CB7B52 /* TrazoTests */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
+		2F2282C72D2A068C00CB7B52 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2FCD94242D24649600413760 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -128,6 +188,13 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
+		2F2282C52D2A068C00CB7B52 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 		2FCD94222D24649600413760 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
@@ -137,7 +204,53 @@
 		};
 /* End PBXSourcesBuildPhase section */
 
+/* Begin PBXTargetDependency section */
+		2F2282CE2D2A068C00CB7B52 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 2FCD94252D24649600413760 /* Trazo */;
+			targetProxy = 2F2282CD2D2A068C00CB7B52 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
 /* Begin XCBuildConfiguration section */
+		2F2282D02D2A068C00CB7B52 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9TP4HMDZ7W;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.juandahurt.TrazoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Trazo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Trazo";
+			};
+			name = Debug;
+		};
+		2F2282D12D2A068C00CB7B52 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 9TP4HMDZ7W;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.juandahurt.TrazoTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Trazo.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Trazo";
+			};
+			name = Release;
+		};
 		2FCD943A2D24649700413760 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
@@ -318,6 +431,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2F2282CF2D2A068C00CB7B52 /* Build configuration list for PBXNativeTarget "TrazoTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2F2282D02D2A068C00CB7B52 /* Debug */,
+				2F2282D12D2A068C00CB7B52 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		2FCD94212D24649600413760 /* Build configuration list for PBXProject "Trazo" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (

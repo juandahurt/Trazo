@@ -52,7 +52,19 @@ class Renderer: NSObject, MTKViewDelegate {
                 offset: 0,
                 index: 0
             )
-            encoder?.drawPrimitives(type: .point, vertexStart: 0, vertexCount: vertices.count)
+            encoder?
+                .drawPrimitives(
+                    type: .lineStrip,
+                    vertexStart: 0,
+                    vertexCount: vertices.count
+                )
+            
+            encoder?
+                .drawPrimitives(
+                    type: .point,
+                    vertexStart: 0,
+                    vertexCount: vertices.count
+                )
         }
         
         commandBuffer.present(drawable)
