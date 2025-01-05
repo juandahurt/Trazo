@@ -45,4 +45,14 @@ struct VectorTests {
         let result = vector * scalar
         #expect(result == expected)
     }
+    
+    @Test("Vector normalization", arguments: [
+        (Vector(x: 21, y: -3)),
+        (Vector(x: 2, y: 10))
+    ])
+    func normalize(vector: Vector) {
+        var vector = vector
+        vector.normalize()
+        #expect(vector.lenght() == 1)
+    }
 }

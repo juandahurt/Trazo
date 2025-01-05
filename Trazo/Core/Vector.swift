@@ -5,7 +5,7 @@
 //  Created by Juan Hurtado on 4/01/25.
 //
 
-import CoreGraphics
+import Foundation
 
 struct Vector {
     var x: Float
@@ -27,5 +27,18 @@ extension Vector {
     
     static func *(vector: Vector, scalar: Float) -> Vector {
         .init(x: vector.x * scalar, y: vector.y * scalar)
+    }
+}
+
+
+extension Vector {
+    func lenght() -> Float {
+        hypotf(x, y)
+    }
+    
+    mutating func normalize() {
+        let length = lenght()
+        x /= length
+        y /= length
     }
 }
