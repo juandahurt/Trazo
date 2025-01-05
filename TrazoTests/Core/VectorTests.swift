@@ -33,7 +33,16 @@ struct VectorTests {
         (Vector(x: -3, y: 1), Vector(x: -3, y: 10), Vector(x: 0, y: -9)),
     ])
     func substraction(a: Vector, b: Vector, actualResult: Vector) {
-        let sum = a - b
-        #expect(sum == actualResult)
+        let substraction = a - b
+        #expect(substraction == actualResult)
+    }
+    
+    @Test("Vector multiplication with scalar", arguments: [
+        (Vector(x: 1, y: 10), Float(4.0), Vector(x: 4, y: 40)),
+        (Vector(x: -3, y: 1), Float(-3.0), Vector(x: 9, y: -3)),
+    ])
+    func scalarMultiplication(vector: Vector, scalar: Float, expected: Vector) {
+        let result = vector * scalar
+        #expect(result == expected)
     }
 }

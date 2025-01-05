@@ -24,4 +24,8 @@ extension Vector {
     static func -(lhs: Vector, rhs: Vector) -> Vector {
         .init(x: lhs.x - rhs.x, y: lhs.y - rhs.y)
     }
+    
+    static func *(vector: Vector, scalar: Float) -> Vector {
+        .init(x: vector.x * scalar, y: vector.y * scalar)
+    }
 }
