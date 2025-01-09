@@ -8,16 +8,30 @@
 import UIKit
 
 class ViewController: UIViewController {
+    private lazy var canvasView: CanvasView = {
+        let canvasView = CanvasView()
+        canvasView.translatesAutoresizingMaskIntoConstraints = false
+        return canvasView
+    }()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        view.backgroundColor = .gray
+        
+        addPinchGesture()
         setupCanvasView()
     }
     
+    func addPinchGesture() {
+        let pinchRecognizer = UIPinchGestureRecognizer(
+            target: self,
+            action: #selector(onPinchGesture(_:))
+        )
+        view.addGestureRecognizer(pinchRecognizer)
+    }
+    
     func setupCanvasView() {
-        let canvasView = CanvasView()
-        canvasView.translatesAutoresizingMaskIntoConstraints = false
-        
         view.addSubview(canvasView)
         
         NSLayoutConstraint.activate(
@@ -39,3 +53,13 @@ class ViewController: UIViewController {
     }
 }
 
+extension ViewController {
+    @objc
+    func onPinchGesture(_ recognizer: UIPinchGestureRecognizer) {
+        if recognizer.state == .began || recognizer.state == .changed {
+            canvasView.transform = canvasView.transform
+                .scaledBy(x: recognizer.scale, y: recognizer.scale)
+            recognizer.scale = 1
+        }
+    }
+}
