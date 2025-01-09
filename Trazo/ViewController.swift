@@ -24,14 +24,23 @@ class GridView: UIView {
     func drawGrid(using context: CGContext) {
         let viewWidth = bounds.width
         let viewHeight = bounds.height
-        let cellSize: CGFloat = 10
+        let cellSize: CGFloat = 15
+        
+        let colorValue: CGFloat = 32 / 255
+        let lineColor = CGColor(
+            red: colorValue,
+            green: colorValue,
+            blue: colorValue,
+            alpha: 1
+        )
+        
+        context.setStrokeColor(lineColor)
+        context.setLineWidth(1)
         
         let numCols = Int(viewWidth / cellSize)
         for col in 0...numCols {
             let x = CGFloat(col) * cellSize
             context.move(to: .init(x: x, y: 0))
-            context.setStrokeColor(red: 37 / 255, green: 37 / 255, blue: 37 / 255, alpha: 1)
-            context.setLineWidth(1)
             context.addLine(to: .init(x: x, y: viewHeight))
         }
         
@@ -39,8 +48,6 @@ class GridView: UIView {
         for row in 0...numRows {
             let y = CGFloat(row) * cellSize
             context.move(to: .init(x: 0, y: y))
-            context.setStrokeColor(red: 37 / 255, green: 37 / 255, blue: 37 / 255, alpha: 1)
-            context.setLineWidth(1)
             context.addLine(to: .init(x: viewWidth, y: y))
         }
         
