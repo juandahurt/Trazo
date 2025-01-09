@@ -53,11 +53,6 @@ class Renderer: NSObject, MTKViewDelegate {
                 offset: 0,
                 index: 0
             )
-            encoder?.setFragmentBytes(
-                [0, 0, 0, 1],
-                length: MemoryLayout<simd_half4>.stride,
-                index: 10
-            )
             
             encoder?
                 .drawPrimitives(
