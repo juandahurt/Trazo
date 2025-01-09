@@ -10,7 +10,8 @@ import MetalKit
 class Renderer: NSObject, MTKViewDelegate {
     var commandQueue: MTLCommandQueue?
     var renderPipelineState: MTLRenderPipelineState?
-    
+   
+    var addedLines: [Line] = []
     var lines: [Line] = []
     
     override init() {
@@ -41,7 +42,7 @@ class Renderer: NSObject, MTKViewDelegate {
        
         for line in lines {
             var vertices: [simd_float2] = line.points.map {
-                [Float($0.x), Float($0.y)]
+                convertToMetalCoordinates(point: $0, view: view)
             }
             var vertexBuffer = view.device?.makeBuffer(
                 bytes: vertices,
@@ -52,12 +53,11 @@ class Renderer: NSObject, MTKViewDelegate {
                 offset: 0,
                 index: 0
             )
-            encoder?
-                .drawPrimitives(
-                    type: .lineStrip,
-                    vertexStart: 0,
-                    vertexCount: vertices.count
-                )
+            encoder?.setFragmentBytes(
+                [0, 0, 0, 1],
+                length: MemoryLayout<simd_half4>.stride,
+                index: 10
+            )
             
             encoder?
                 .drawPrimitives(
@@ -71,6 +71,17 @@ class Renderer: NSObject, MTKViewDelegate {
             
         encoder?.endEncoding()
         commandBuffer.commit()
+    }
+    
+    func convertToMetalCoordinates(point: simd_float2, view: MTKView) -> simd_float2 {
+        let viewSize = view.bounds
+        let inverseViewSize = CGSize(
+            width: 1.0 / viewSize.width,
+            height: 1.0 / viewSize.height
+        )
+        let clipX = (2.0 * CGFloat(point.x) * inverseViewSize.width) - 1.0
+        let clipY = (2.0 * CGFloat(-point.y) * inverseViewSize.height) + 1.0
+        return .init(x: Float(clipX), y: Float(clipY))
     }
 }
 
