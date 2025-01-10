@@ -39,27 +39,49 @@ class Renderer: NSObject, MTKViewDelegate {
             descriptor: renderPassDescriptor
         )
         encoder?.setRenderPipelineState(renderPipelineState!)
-       
+        
+        var indices: [UInt16] = [
+            0, 1, 2,
+            2, 3, 0
+        ]
+        var indexBuffer = view.device?.makeBuffer(
+            bytes: indices,
+            length: MemoryLayout<UInt16>.stride * indices.count
+        )
+        
         for line in lines {
-            var vertices: [simd_float2] = line.points.map {
-                convertToMetalCoordinates(point: $0, view: view)
-            }
-            var vertexBuffer = view.device?.makeBuffer(
-                bytes: vertices,
-                length: MemoryLayout<simd_float2>.stride * vertices.count
-            )
-            encoder?.setVertexBuffer(
-                vertexBuffer,
-                offset: 0,
-                index: 0
-            )
-            
-            encoder?
-                .drawPrimitives(
-                    type: .point,
-                    vertexStart: 0,
-                    vertexCount: vertices.count
+            let pointSize: Float = 5.0
+            for point in line.points {
+                var vertices: [simd_float2] = [
+                    [point.x - pointSize / 2, point.y - pointSize / 2],
+                    [point.x - pointSize / 2, point.y + pointSize / 2],
+                    [point.x + pointSize / 2, point.y + pointSize / 2],
+                    [point.x + pointSize / 2, point.y - pointSize / 2],
+                ]
+                
+                vertices = vertices
+                    .map { convertToMetalCoordinates(point: $0, view: view) }
+                
+                var vertexBuffer = view.device?.makeBuffer(
+                    bytes: vertices,
+                    length: MemoryLayout<simd_float2>.stride * vertices.count
                 )
+                
+                encoder?.setVertexBuffer(
+                    vertexBuffer,
+                    offset: 0,
+                    index: 0
+                )
+                
+                encoder?
+                    .drawIndexedPrimitives(
+                        type: .triangle,
+                        indexCount: indices.count,
+                        indexType: .uint16,
+                        indexBuffer: indexBuffer!,
+                        indexBufferOffset: 0
+                    )
+            }
         }
         
         commandBuffer.present(drawable)
