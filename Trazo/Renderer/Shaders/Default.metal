@@ -16,7 +16,12 @@ struct VertexOutput {
     float4 position [[position]];
 };
 
-vertex VertexOutput vertex_shader(VertexInput input [[stage_in]]) {
+vertex VertexOutput vertex_shader(
+                                  VertexInput input [[stage_in]],
+                                  constant simd_float2* positions [[buffer(1)]],
+                                  ushort iid [[instance_id]])
+{
+    auto position = positions[iid];
     return {
         .position = float4(input.position, 0, 1)
     };

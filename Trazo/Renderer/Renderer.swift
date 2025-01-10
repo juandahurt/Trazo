@@ -11,8 +11,8 @@ class Renderer: NSObject, MTKViewDelegate {
     var commandQueue: MTLCommandQueue?
     var renderPipelineState: MTLRenderPipelineState?
    
-    var addedLines: [Line] = []
     var lines: [Line] = []
+    var numInstances: Int = 0
     
     override init() {
         super.init()
@@ -21,6 +21,7 @@ class Renderer: NSObject, MTKViewDelegate {
    
     func addLine(_ line: Line) {
         lines.append(line)
+//        numInstances += line.points.count
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
@@ -40,48 +41,54 @@ class Renderer: NSObject, MTKViewDelegate {
         )
         encoder?.setRenderPipelineState(renderPipelineState!)
         
-        var indices: [UInt16] = [
+        let indices: [UInt16] = [
             0, 1, 2,
             2, 3, 0
         ]
-        var indexBuffer = view.device?.makeBuffer(
+        let indexBuffer = view.device?.makeBuffer(
             bytes: indices,
             length: MemoryLayout<UInt16>.stride * indices.count
         )
         
-        for line in lines {
-            let pointSize: Float = 5.0
-            for point in line.points {
-                var vertices: [simd_float2] = [
-                    [point.x - pointSize / 2, point.y - pointSize / 2],
-                    [point.x - pointSize / 2, point.y + pointSize / 2],
-                    [point.x + pointSize / 2, point.y + pointSize / 2],
-                    [point.x + pointSize / 2, point.y - pointSize / 2],
-                ]
-                
-                vertices = vertices
-                    .map { convertToMetalCoordinates(point: $0, view: view) }
-                
-                var vertexBuffer = view.device?.makeBuffer(
-                    bytes: vertices,
-                    length: MemoryLayout<simd_float2>.stride * vertices.count
+        if let line = lines.first {
+            numInstances = line.points.count
+            var vertices: [simd_float2] = [
+                [-0.5, -0.5],
+                [-0.5, 0.5],
+                [0.5, 0.5],
+                [0.5, -0.5],
+            ]
+            
+            let vertexBuffer = view.device?.makeBuffer(
+                bytes: vertices,
+                length: MemoryLayout<simd_float2>.stride * vertices.count
+            )
+           
+            encoder?.setVertexBuffer(
+                vertexBuffer,
+                offset: 0,
+                index: 0
+            )
+            
+            let positionsBuffer = view.device?.makeBuffer(
+                bytes: line.points,
+                length: MemoryLayout<simd_float2>.stride * numInstances
+            )
+            encoder?.setVertexBuffer(
+                positionsBuffer,
+                offset: 0,
+                index: 1
+            )
+            
+            encoder?
+                .drawIndexedPrimitives(
+                    type: .triangle,
+                    indexCount: indices.count,
+                    indexType: .uint16,
+                    indexBuffer: indexBuffer!,
+                    indexBufferOffset: 0,
+                    instanceCount: numInstances
                 )
-                
-                encoder?.setVertexBuffer(
-                    vertexBuffer,
-                    offset: 0,
-                    index: 0
-                )
-                
-                encoder?
-                    .drawIndexedPrimitives(
-                        type: .triangle,
-                        indexCount: indices.count,
-                        indexType: .uint16,
-                        indexBuffer: indexBuffer!,
-                        indexBufferOffset: 0
-                    )
-            }
         }
         
         commandBuffer.present(drawable)
