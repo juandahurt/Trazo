@@ -17,7 +17,7 @@ struct Line {
 
 class CanvasView: MTKView {
     let renderer = Renderer()
-    let desiredDistance: Float = 6
+    let desiredDistance: Float = 2
     
     init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
