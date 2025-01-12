@@ -7,10 +7,32 @@
 
 import MetalKit
 
+typealias Vector = simd_float2
+typealias Mat4x4 = simd_float4x4
+
+extension Mat4x4 {
+    init(translation: Vector) {
+        let matrix = float4x4(
+            [            1,             0, 0, 0],
+            [            0,             1, 0, 0],
+            [            0,             0, 1, 0],
+            [translation.x, translation.y, 0, 1]
+        )
+        self = matrix
+    }
+}
+
+struct Point {
+    var position: Vector = .zero
+    var modelMatrix: Mat4x4 {
+        .init(translation: position)
+    }
+}
+
 class Renderer: NSObject, MTKViewDelegate {
     var commandQueue: MTLCommandQueue?
     var renderPipelineState: MTLRenderPipelineState?
-   
+  
     var lines: [Line] = []
     var numInstances: Int = 0
     
@@ -95,17 +117,6 @@ class Renderer: NSObject, MTKViewDelegate {
             
         encoder?.endEncoding()
         commandBuffer.commit()
-    }
-    
-    func convertToMetalCoordinates(point: simd_float2, view: MTKView) -> simd_float2 {
-        let viewSize = view.bounds
-        let inverseViewSize = CGSize(
-            width: 1.0 / viewSize.width,
-            height: 1.0 / viewSize.height
-        )
-        let clipX = (2.0 * CGFloat(point.x) * inverseViewSize.width) - 1.0
-        let clipY = (2.0 * CGFloat(-point.y) * inverseViewSize.height) + 1.0
-        return .init(x: Float(clipX), y: Float(clipY))
     }
 }
 

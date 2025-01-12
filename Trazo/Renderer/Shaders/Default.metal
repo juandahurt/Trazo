@@ -8,6 +8,15 @@
 #import <metal_stdlib>
 using namespace metal;
 
+struct Uniforms {
+    float4x4 viewMatrix;
+    float4x4 projectionMatrix;
+};
+
+struct InstanceUniforms {
+    float4x4 modelMatrix;
+};
+
 struct VertexInput {
     float2 position [[attribute(0)]];
 };
@@ -18,12 +27,12 @@ struct VertexOutput {
 
 vertex VertexOutput vertex_shader(
                                   VertexInput input [[stage_in]],
-                                  constant simd_float2* positions [[buffer(1)]],
+                                  constant float4x4* modelMatrices [[buffer(1)]],
                                   ushort iid [[instance_id]])
 {
-    auto position = positions[iid];
+    auto position = modelMatrices[iid] * float4(input.position, 0, 1);
     return {
-        .position = float4(input.position, 0, 1)
+        .position = position
     };
 }
 

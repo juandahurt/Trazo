@@ -12,7 +12,7 @@ struct RendererSettings {
 }
 
 struct Line {
-    var points: [simd_float2]
+    var points: [Point]
 }
 
 class CanvasView: MTKView {
@@ -42,7 +42,7 @@ extension CanvasView {
         guard let touch = touches.first else { return }
         let cgPoint = touch.location(in: self)
         renderer.addLine(.init(points: [
-            .init(x: cgPoint.x, y: cgPoint.y)
+            .init(position: [Float(cgPoint.x), Float(cgPoint.y)])
         ]))
     }
     
@@ -52,37 +52,31 @@ extension CanvasView {
         }
         guard let touch = touches.first else { return }
         let cgPoint = touch.location(in: self)
-        var point = simd_float2(x: cgPoint.x, y: cgPoint.y)
+        var point = Point(position: [Float(cgPoint.x), Float(cgPoint.y)])
         
-        let dist = distance(point, lastPoint)
-        let dir = normalize(point - lastPoint)
+        let dist = distance(point.position, lastPoint.position)
+        let dir = normalize(point.position - lastPoint.position)
         if dist > desiredDistance {
             // get the number of points that can fit in the space
             let numOfPoints = Int(dist / desiredDistance)
             // add more points in the space
             var lastAddedPoint: simd_float2?
             for i in 0...numOfPoints {
-                let newPoint = lastPoint + (dir * desiredDistance * Float(i))
-                addPointToLine(newPoint)
-                lastAddedPoint = newPoint
+                let newPointPos = lastPoint.position + (dir * desiredDistance * Float(i))
+                addPointToLine(.init(position: newPointPos))
+                lastAddedPoint = newPointPos
             }
             if let lastAddedPoint {
-                point = lastAddedPoint + dir * desiredDistance
+                point.position = lastAddedPoint + dir * desiredDistance
                 addPointToLine(point)
             }
         } else if dist < desiredDistance {
-            point = lastPoint + dir * desiredDistance
+            point.position = lastPoint.position + dir * desiredDistance
             addPointToLine(point)
         }
     }
     
-    func addPointToLine(_ point: simd_float2) {
+    func addPointToLine(_ point: Point) {
         renderer.lines[renderer.lines.count - 1].points.append(point)
-    }
-}
-
-extension simd_float2 {
-    init(x: CGFloat, y: CGFloat) {
-        self.init(x: Float(x), y: Float(y))
     }
 }
