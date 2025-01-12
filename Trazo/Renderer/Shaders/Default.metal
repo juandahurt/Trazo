@@ -9,7 +9,6 @@
 using namespace metal;
 
 struct Uniforms {
-    float4x4 viewMatrix;
     float4x4 projectionMatrix;
 };
 
@@ -28,9 +27,10 @@ struct VertexOutput {
 vertex VertexOutput vertex_shader(
                                   VertexInput input [[stage_in]],
                                   constant float4x4* modelMatrices [[buffer(1)]],
+                                  constant Uniforms& uniforms [[buffer(2)]],
                                   ushort iid [[instance_id]])
 {
-    auto position = modelMatrices[iid] * float4(input.position, 0, 1);
+    auto position = uniforms.projectionMatrix * modelMatrices[iid] * float4(input.position, 0, 1);
     return {
         .position = position
     };

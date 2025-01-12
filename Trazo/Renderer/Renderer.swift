@@ -20,6 +20,23 @@ extension Mat4x4 {
         )
         self = matrix
     }
+    
+    init(orthographic rect: CGRect, near: Float, far: Float) {
+        let left = Float(rect.origin.x)
+        let right = Float(rect.origin.x + rect.width)
+        let top = Float(rect.origin.y)
+        let bottom = Float(rect.height)
+        let X = simd_float4(2 / (right - left), 0, 0, 0)
+        let Y = simd_float4(0, 2 / (top - bottom), 0, 0)
+        let Z = simd_float4(0, 0, 1 / (far - near), 0)
+        let W = simd_float4(
+            (left + right) / (left - right),
+            (top + bottom) / (bottom - top),
+            near / (near - far),
+            1)
+        self.init()
+        columns = (X, Y, Z, W)
+    }
 }
 
 struct Point {
@@ -29,12 +46,18 @@ struct Point {
     }
 }
 
+struct Uniforms {
+    var projectionMatrix: Mat4x4 = matrix_identity_float4x4
+}
+
 class Renderer: NSObject, MTKViewDelegate {
     var commandQueue: MTLCommandQueue?
     var renderPipelineState: MTLRenderPipelineState?
   
     var lines: [Line] = []
     var numInstances: Int = 0
+    
+    var uniforms = Uniforms()
     
     override init() {
         super.init()
@@ -47,7 +70,18 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        // TODO: is this ever going to be called?
+        let rect = CGRect(
+            x: 0,
+            y: 0,
+            width: size.width,
+            height: size.height
+        )
+        let projection: Mat4x4 = .init(
+            orthographic: rect,
+            near: 0,
+            far: 1
+        )
+        uniforms.projectionMatrix = projection
     }
     
     func draw(in view: MTKView) {
@@ -72,6 +106,12 @@ class Renderer: NSObject, MTKViewDelegate {
             length: MemoryLayout<UInt16>.stride * indices.count
         )
         
+        encoder?.setVertexBytes(
+            &uniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: 2
+        )
+        
         if let line = lines.first {
             numInstances = line.points.count
             var vertices: [simd_float2] = [
@@ -92,9 +132,12 @@ class Renderer: NSObject, MTKViewDelegate {
                 index: 0
             )
             
+            let positions = line.points.map {
+                $0.modelMatrix
+            }
             let positionsBuffer = view.device?.makeBuffer(
-                bytes: line.points,
-                length: MemoryLayout<simd_float2>.stride * numInstances
+                bytes: positions,
+                length: MemoryLayout<Mat4x4>.stride * numInstances
             )
             encoder?.setVertexBuffer(
                 positionsBuffer,

@@ -17,7 +17,7 @@ struct Line {
 
 class CanvasView: MTKView {
     let renderer = Renderer()
-    let desiredDistance: Float = 2
+    let desiredDistance: Float = 1
     
     init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -27,7 +27,6 @@ class CanvasView: MTKView {
         
         colorPixelFormat = RendererSettings.pixelFormat
         clearColor = .init(red: 1, green: 1, blue: 1, alpha: 1)
-        
         delegate = renderer
     }
 
@@ -42,7 +41,10 @@ extension CanvasView {
         guard let touch = touches.first else { return }
         let cgPoint = touch.location(in: self)
         renderer.addLine(.init(points: [
-            .init(position: [Float(cgPoint.x), Float(cgPoint.y)])
+            .init(position: [
+                Float(cgPoint.x) * Float(contentScaleFactor),
+                Float(cgPoint.y) * Float(contentScaleFactor)
+            ])
         ]))
     }
     
@@ -51,8 +53,14 @@ extension CanvasView {
             return
         }
         guard let touch = touches.first else { return }
+
         let cgPoint = touch.location(in: self)
-        var point = Point(position: [Float(cgPoint.x), Float(cgPoint.y)])
+        var point = Point(
+            position: [
+                Float(cgPoint.x) * Float(contentScaleFactor),
+                Float(cgPoint.y) * Float(contentScaleFactor)
+            ]
+        )
         
         let dist = distance(point.position, lastPoint.position)
         let dir = normalize(point.position - lastPoint.position)
