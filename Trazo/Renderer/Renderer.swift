@@ -37,12 +37,28 @@ extension Mat4x4 {
         self.init()
         columns = (X, Y, Z, W)
     }
+    
+    init(scaling scale: Vector) {
+        let matrix = float4x4(
+            [scale.x,         0, 0, 0],
+            [        0, scale.y, 0, 0],
+            [        0,         0, 1, 0],
+            [        0,         0, 0, 1]
+        )
+        self = matrix
+    }
 }
 
 struct Point {
+    var scale: Float
     var position: Vector = .zero
     var modelMatrix: Mat4x4 {
-        .init(translation: position)
+        .init(translation: position) * .init(
+            scaling: [
+                scale,
+                scale
+            ]
+        )
     }
 }
 

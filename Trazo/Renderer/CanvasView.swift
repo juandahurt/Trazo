@@ -41,10 +41,13 @@ extension CanvasView {
         guard let touch = touches.first else { return }
         let cgPoint = touch.location(in: self)
         renderer.addLine(.init(points: [
-            .init(position: [
-                Float(cgPoint.x) * Float(contentScaleFactor),
-                Float(cgPoint.y) * Float(contentScaleFactor)
-            ])
+            .init(
+                scale: touch.force == 0 ? 1 : Float(touch.force),
+                position: [
+                    Float(cgPoint.x) * Float(contentScaleFactor),
+                    Float(cgPoint.y) * Float(contentScaleFactor)
+                ]
+            )
         ]))
     }
     
@@ -56,6 +59,7 @@ extension CanvasView {
 
         let cgPoint = touch.location(in: self)
         var point = Point(
+            scale: touch.force == 0 ? 1 : Float(touch.force),
             position: [
                 Float(cgPoint.x) * Float(contentScaleFactor),
                 Float(cgPoint.y) * Float(contentScaleFactor)
@@ -71,7 +75,12 @@ extension CanvasView {
             var lastAddedPoint: simd_float2?
             for i in 0...numOfPoints {
                 let newPointPos = lastPoint.position + (dir * desiredDistance * Float(i))
-                addPointToLine(.init(position: newPointPos))
+                addPointToLine(
+                    .init(
+                        scale: lastPoint.scale,
+                        position: newPointPos
+                    )
+                )
                 lastAddedPoint = newPointPos
             }
             if let lastAddedPoint {
