@@ -7,12 +7,73 @@
 
 import MetalKit
 
+typealias Vector = simd_float2
+typealias Mat4x4 = simd_float4x4
+
+extension Mat4x4 {
+    init(translation: Vector) {
+        let matrix = float4x4(
+            [            1,             0, 0, 0],
+            [            0,             1, 0, 0],
+            [            0,             0, 1, 0],
+            [translation.x, translation.y, 0, 1]
+        )
+        self = matrix
+    }
+    
+    init(orthographic rect: CGRect, near: Float, far: Float) {
+        let left = Float(rect.origin.x)
+        let right = Float(rect.origin.x + rect.width)
+        let top = Float(rect.origin.y)
+        let bottom = Float(rect.height)
+        let X = simd_float4(2 / (right - left), 0, 0, 0)
+        let Y = simd_float4(0, 2 / (top - bottom), 0, 0)
+        let Z = simd_float4(0, 0, 1 / (far - near), 0)
+        let W = simd_float4(
+            (left + right) / (left - right),
+            (top + bottom) / (bottom - top),
+            near / (near - far),
+            1)
+        self.init()
+        columns = (X, Y, Z, W)
+    }
+    
+    init(scaling scale: Vector) {
+        let matrix = float4x4(
+            [scale.x,         0, 0, 0],
+            [        0, scale.y, 0, 0],
+            [        0,         0, 1, 0],
+            [        0,         0, 0, 1]
+        )
+        self = matrix
+    }
+}
+
+struct Point {
+    var scale: Float
+    var position: Vector = .zero
+    var modelMatrix: Mat4x4 {
+        .init(translation: position) * .init(
+            scaling: [
+                scale,
+                scale
+            ]
+        )
+    }
+}
+
+struct Uniforms {
+    var projectionMatrix: Mat4x4 = matrix_identity_float4x4
+}
+
 class Renderer: NSObject, MTKViewDelegate {
     var commandQueue: MTLCommandQueue?
     var renderPipelineState: MTLRenderPipelineState?
-   
-    var addedLines: [Line] = []
+  
     var lines: [Line] = []
+    var numInstances: Int = 0
+    
+    var uniforms = Uniforms()
     
     override init() {
         super.init()
@@ -21,10 +82,22 @@ class Renderer: NSObject, MTKViewDelegate {
    
     func addLine(_ line: Line) {
         lines.append(line)
+//        numInstances += line.points.count
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        // TODO: is this ever going to be called?
+        let rect = CGRect(
+            x: 0,
+            y: 0,
+            width: size.width,
+            height: size.height
+        )
+        let projection: Mat4x4 = .init(
+            orthographic: rect,
+            near: 0,
+            far: 1
+        )
+        uniforms.projectionMatrix = projection
     }
     
     func draw(in view: MTKView) {
@@ -40,65 +113,69 @@ class Renderer: NSObject, MTKViewDelegate {
         )
         encoder?.setRenderPipelineState(renderPipelineState!)
         
-        var indices: [UInt16] = [
+        let indices: [UInt16] = [
             0, 1, 2,
             2, 3, 0
         ]
-        var indexBuffer = view.device?.makeBuffer(
+        let indexBuffer = view.device?.makeBuffer(
             bytes: indices,
             length: MemoryLayout<UInt16>.stride * indices.count
         )
         
-        for line in lines {
-            let pointSize: Float = 5.0
-            for point in line.points {
-                var vertices: [simd_float2] = [
-                    [point.x - pointSize / 2, point.y - pointSize / 2],
-                    [point.x - pointSize / 2, point.y + pointSize / 2],
-                    [point.x + pointSize / 2, point.y + pointSize / 2],
-                    [point.x + pointSize / 2, point.y - pointSize / 2],
-                ]
-                
-                vertices = vertices
-                    .map { convertToMetalCoordinates(point: $0, view: view) }
-                
-                var vertexBuffer = view.device?.makeBuffer(
-                    bytes: vertices,
-                    length: MemoryLayout<simd_float2>.stride * vertices.count
-                )
-                
-                encoder?.setVertexBuffer(
-                    vertexBuffer,
-                    offset: 0,
-                    index: 0
-                )
-                
-                encoder?
-                    .drawIndexedPrimitives(
-                        type: .triangle,
-                        indexCount: indices.count,
-                        indexType: .uint16,
-                        indexBuffer: indexBuffer!,
-                        indexBufferOffset: 0
-                    )
+        encoder?.setVertexBytes(
+            &uniforms,
+            length: MemoryLayout<Uniforms>.stride,
+            index: 2
+        )
+        
+        if let line = lines.first {
+            numInstances = line.points.count
+            var vertices: [simd_float2] = [
+                [-0.5, -0.5],
+                [-0.5, 0.5],
+                [0.5, 0.5],
+                [0.5, -0.5],
+            ]
+            
+            let vertexBuffer = view.device?.makeBuffer(
+                bytes: vertices,
+                length: MemoryLayout<simd_float2>.stride * vertices.count
+            )
+           
+            encoder?.setVertexBuffer(
+                vertexBuffer,
+                offset: 0,
+                index: 0
+            )
+            
+            let positions = line.points.map {
+                $0.modelMatrix
             }
+            let positionsBuffer = view.device?.makeBuffer(
+                bytes: positions,
+                length: MemoryLayout<Mat4x4>.stride * numInstances
+            )
+            encoder?.setVertexBuffer(
+                positionsBuffer,
+                offset: 0,
+                index: 1
+            )
+            
+            encoder?
+                .drawIndexedPrimitives(
+                    type: .triangle,
+                    indexCount: indices.count,
+                    indexType: .uint16,
+                    indexBuffer: indexBuffer!,
+                    indexBufferOffset: 0,
+                    instanceCount: numInstances
+                )
         }
         
         commandBuffer.present(drawable)
             
         encoder?.endEncoding()
         commandBuffer.commit()
-    }
-    
-    func convertToMetalCoordinates(point: simd_float2, view: MTKView) -> simd_float2 {
-        let viewSize = view.bounds
-        let inverseViewSize = CGSize(
-            width: 1.0 / viewSize.width,
-            height: 1.0 / viewSize.height
-        )
-        let clipX = (2.0 * CGFloat(point.x) * inverseViewSize.width) - 1.0
-        let clipY = (2.0 * CGFloat(-point.y) * inverseViewSize.height) + 1.0
-        return .init(x: Float(clipX), y: Float(clipY))
     }
 }
 

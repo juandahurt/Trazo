@@ -8,6 +8,14 @@
 #import <metal_stdlib>
 using namespace metal;
 
+struct Uniforms {
+    float4x4 projectionMatrix;
+};
+
+struct InstanceUniforms {
+    float4x4 modelMatrix;
+};
+
 struct VertexInput {
     float2 position [[attribute(0)]];
 };
@@ -16,9 +24,15 @@ struct VertexOutput {
     float4 position [[position]];
 };
 
-vertex VertexOutput vertex_shader(VertexInput input [[stage_in]]) {
+vertex VertexOutput vertex_shader(
+                                  VertexInput input [[stage_in]],
+                                  constant float4x4* modelMatrices [[buffer(1)]],
+                                  constant Uniforms& uniforms [[buffer(2)]],
+                                  ushort iid [[instance_id]])
+{
+    auto position = uniforms.projectionMatrix * modelMatrices[iid] * float4(input.position, 0, 1);
     return {
-        .position = float4(input.position, 0, 1)
+        .position = position
     };
 }
 
