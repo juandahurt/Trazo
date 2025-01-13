@@ -17,7 +17,8 @@ struct Line {
 
 class CanvasView: MTKView {
     let renderer = Renderer()
-    let desiredDistance: Float = 1
+    let desiredDistance: Float = 3
+    let brushSize: Float = 10.0
     
     init() {
         guard let device = MTLCreateSystemDefaultDevice() else {
@@ -36,13 +37,18 @@ class CanvasView: MTKView {
 }
 
 extension CanvasView {
+    func computePointScale(givenAForceOf force: Float) -> Float {
+        guard force != 0 else { return brushSize }
+        return brushSize * force
+    }
+    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         // TODO: check if I need to do something if user uses more than one finger
         guard let touch = touches.first else { return }
         let cgPoint = touch.location(in: self)
         renderer.addLine(.init(points: [
             .init(
-                scale: touch.force == 0 ? 1 : Float(touch.force),
+                scale: computePointScale(givenAForceOf: Float(touch.force)),
                 position: [
                     Float(cgPoint.x) * Float(contentScaleFactor),
                     Float(cgPoint.y) * Float(contentScaleFactor)
@@ -59,7 +65,7 @@ extension CanvasView {
 
         let cgPoint = touch.location(in: self)
         var point = Point(
-            scale: touch.force == 0 ? 1 : Float(touch.force),
+            scale: computePointScale(givenAForceOf: Float(touch.force)),
             position: [
                 Float(cgPoint.x) * Float(contentScaleFactor),
                 Float(cgPoint.y) * Float(contentScaleFactor)
@@ -94,6 +100,7 @@ extension CanvasView {
     }
     
     func addPointToLine(_ point: Point) {
-        renderer.lines[renderer.lines.count - 1].points.append(point)
+//        renderer.lines[renderer.lines.count - 1].points.append(point)
+        renderer.addPoint(point)
     }
 }
