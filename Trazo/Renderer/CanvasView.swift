@@ -58,6 +58,7 @@ extension CanvasView {
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
+        guard touches.count == 1 else { return }
         guard let lastPoint = renderer.lines[renderer.lines.count - 1].points.last else {
             return
         }
@@ -79,11 +80,15 @@ extension CanvasView {
             let numOfPoints = Int(dist / desiredDistance)
             // add more points in the space
             var lastAddedPoint: simd_float2?
+            let lastScale = lastPoint.scale
+            let scaleDiff = point.scale - lastScale
+            let step = scaleDiff / Float(numOfPoints)
+            
             for i in 0...numOfPoints {
                 let newPointPos = lastPoint.position + (dir * desiredDistance * Float(i))
                 addPointToLine(
                     .init(
-                        scale: lastPoint.scale,
+                        scale: lastScale + (step * Float(i)),
                         position: newPointPos
                     )
                 )
