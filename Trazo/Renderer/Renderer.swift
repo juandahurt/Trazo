@@ -75,6 +75,15 @@ class Renderer: NSObject, MTKViewDelegate {
     
     var uniforms = Uniforms()
     
+    let indices: [UInt16] = [
+        0, 1, 2,
+        2, 3, 0
+    ]
+    
+    var vertexBuffer: MTLBuffer?
+    var indexBuffer: MTLBuffer?
+    var modelMatricesBuffer: MTLBuffer?
+    
     override init() {
         super.init()
         setup()
@@ -82,7 +91,18 @@ class Renderer: NSObject, MTKViewDelegate {
    
     func addLine(_ line: Line) {
         lines.append(line)
+        numInstances += 1
 //        numInstances += line.points.count
+    }
+    
+    func addPoint(_ point: Point) {
+        guard var modelMatricesBuffer = modelMatricesBuffer else { return }
+        modelMatricesBuffer.contents()
+            .advanced(by: numInstances * MemoryLayout<Mat4x4>.stride)
+            .storeBytes(of: point.modelMatrix, as: Mat4x4.self)
+        numInstances += 1
+        
+        lines[lines.count - 1].points.append(point)
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
@@ -113,50 +133,21 @@ class Renderer: NSObject, MTKViewDelegate {
         )
         encoder?.setRenderPipelineState(renderPipelineState!)
         
-        let indices: [UInt16] = [
-            0, 1, 2,
-            2, 3, 0
-        ]
-        let indexBuffer = view.device?.makeBuffer(
-            bytes: indices,
-            length: MemoryLayout<UInt16>.stride * indices.count
-        )
-        
         encoder?.setVertexBytes(
             &uniforms,
             length: MemoryLayout<Uniforms>.stride,
             index: 2
         )
         
-        if let line = lines.first {
-            numInstances = line.points.count
-            var vertices: [simd_float2] = [
-                [-0.5, -0.5],
-                [-0.5, 0.5],
-                [0.5, 0.5],
-                [0.5, -0.5],
-            ]
-            
-            let vertexBuffer = view.device?.makeBuffer(
-                bytes: vertices,
-                length: MemoryLayout<simd_float2>.stride * vertices.count
-            )
-           
+        if let line = lines.first, !line.points.isEmpty {
             encoder?.setVertexBuffer(
                 vertexBuffer,
                 offset: 0,
                 index: 0
             )
-            
-            let positions = line.points.map {
-                $0.modelMatrix
-            }
-            let positionsBuffer = view.device?.makeBuffer(
-                bytes: positions,
-                length: MemoryLayout<Mat4x4>.stride * numInstances
-            )
+    
             encoder?.setVertexBuffer(
-                positionsBuffer,
+                modelMatricesBuffer,
                 offset: 0,
                 index: 1
             )
@@ -185,6 +176,11 @@ extension Renderer {
         guard let device = MTLCreateSystemDefaultDevice() else {
             fatalError("GPU not available")
         }
+        
+        setupVertexBuffer(with: device)
+        setupIndexBuffer(with: device)
+        setupModelMatricesBuffer(with: device)
+        
         commandQueue = device.makeCommandQueue()
         
         guard let library = device.makeDefaultLibrary() else {
@@ -211,5 +207,35 @@ extension Renderer {
         } catch {
             debugPrint(error)
         }
+    }
+    
+    private func setupVertexBuffer(with device: MTLDevice) {
+        // quad vertices
+        let vertices: [simd_float2] = [
+            [-0.5, -0.5],
+            [-0.5, 0.5],
+            [0.5, 0.5],
+            [0.5, -0.5],
+        ]
+        
+        vertexBuffer = device.makeBuffer(
+            bytes: vertices,
+            length: MemoryLayout<simd_float2>.stride * vertices.count
+        )
+    }
+    
+    private func setupIndexBuffer(with device: MTLDevice) {
+        indexBuffer = device.makeBuffer(
+            bytes: indices,
+            length: MemoryLayout<UInt16>.stride * indices.count
+        )
+    }
+    
+    private func setupModelMatricesBuffer(with device: MTLDevice) {
+        let empty = [0]
+        modelMatricesBuffer = device.makeBuffer(
+            bytes: empty,
+            length: device.maxBufferLength
+        )
     }
 }
