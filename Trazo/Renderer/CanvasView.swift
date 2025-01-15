@@ -7,6 +7,23 @@
 
 import MetalKit
 
+struct Brush {
+    var textureName: String
+    var texture: MTLTexture?
+    
+    mutating func load(using device: MTLDevice) {
+        let textureLoader = MTKTextureLoader(device: device)
+        
+        guard let url = Bundle.main.url(
+            forResource: textureName,
+            withExtension: "png"
+        ) else {
+            return
+        }
+        texture = try? textureLoader.newTexture(URL: url)
+    }
+}
+
 struct RendererSettings {
     static let pixelFormat = MTLPixelFormat.rgba8Unorm
 }
@@ -17,7 +34,7 @@ struct Line {
 
 class CanvasView: MTKView {
     let renderer = Renderer()
-    let desiredDistance: Float = 3
+    let desiredDistance: Float = 2
     let brushSize: Float = 10.0
     
     init() {

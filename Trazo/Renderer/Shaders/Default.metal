@@ -18,10 +18,12 @@ struct InstanceUniforms {
 
 struct VertexInput {
     float2 position [[attribute(0)]];
+    float2 textCoordiante [[attribute(1)]];
 };
 
 struct VertexOutput {
     float4 position [[position]];
+    float2 textCoordinate;
 };
 
 vertex VertexOutput vertex_shader(
@@ -32,10 +34,14 @@ vertex VertexOutput vertex_shader(
 {
     auto position = uniforms.projectionMatrix * modelMatrices[iid] * float4(input.position, 0, 1);
     return {
-        .position = position
+        .position = position,
+        .textCoordinate = input.textCoordiante
     };
 }
 
-fragment half4 fragment_shader(constant VertexOutput& in) {
-    return half4(0.3, 0.2, 1, 0.1);
+fragment half4 fragment_shader(VertexOutput in [[stage_in]], texture2d<half> texture [[texture(3)]]) {
+    constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
+    half4 color = texture.sample(textureSampler, in.textCoordinate);
+    return half4(0.3, 0.2, 1, color.a);
+//    return color;
 }
