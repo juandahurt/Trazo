@@ -84,6 +84,8 @@ class Renderer: NSObject, MTKViewDelegate {
     var indexBuffer: MTLBuffer?
     var modelMatricesBuffer: MTLBuffer?
     
+    var brush = Brush(textureName: "default")
+    
     override init() {
         super.init()
         setup()
@@ -96,7 +98,7 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     func addPoint(_ point: Point) {
-        guard var modelMatricesBuffer = modelMatricesBuffer else { return }
+        guard let modelMatricesBuffer = modelMatricesBuffer else { return }
         modelMatricesBuffer.contents()
             .advanced(by: numInstances * MemoryLayout<Mat4x4>.stride)
             .storeBytes(of: point.modelMatrix, as: Mat4x4.self)
@@ -151,6 +153,11 @@ class Renderer: NSObject, MTKViewDelegate {
                 offset: 0,
                 index: 1
             )
+           
+            encoder?.setFragmentTexture(
+                brush.texture,
+                index: 3
+            )
             
             encoder?
                 .drawIndexedPrimitives(
@@ -192,35 +199,54 @@ extension Renderer {
         let vertexDescriptor = MTLVertexDescriptor()
         vertexDescriptor.attributes[0].format = .float2
         vertexDescriptor.attributes[0].offset = 0
-        vertexDescriptor.layouts[0].stride = MemoryLayout<simd_float2>.stride
         
-        let pipelineDesciptor = MTLRenderPipelineDescriptor()
-        pipelineDesciptor.vertexFunction = vertexFunction
-        pipelineDesciptor.colorAttachments[0].pixelFormat = RendererSettings.pixelFormat
-        pipelineDesciptor.fragmentFunction = fragmentFunction
-        pipelineDesciptor.vertexDescriptor = vertexDescriptor
+        vertexDescriptor.attributes[1].format = .float2
+        vertexDescriptor.attributes[1].offset = MemoryLayout<simd_float2>.stride
+        
+        vertexDescriptor
+            .layouts[0].stride = MemoryLayout<simd_float2>.stride * 2
+        
+        let pipelineDescriptor = MTLRenderPipelineDescriptor()
+        pipelineDescriptor.vertexFunction = vertexFunction
+        pipelineDescriptor.colorAttachments[0].pixelFormat = RendererSettings.pixelFormat
+        pipelineDescriptor.fragmentFunction = fragmentFunction
+        pipelineDescriptor.vertexDescriptor = vertexDescriptor
+        
+        pipelineDescriptor.colorAttachments[0].isBlendingEnabled = true
+        pipelineDescriptor.colorAttachments[0].rgbBlendOperation = .add
+        pipelineDescriptor.colorAttachments[0].alphaBlendOperation = .add
+        pipelineDescriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+        pipelineDescriptor
+            .colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+        pipelineDescriptor.colorAttachments[0].sourceAlphaBlendFactor = .blendAlpha
+        pipelineDescriptor
+            .colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+
+        
         
         do {
             renderPipelineState = try device.makeRenderPipelineState(
-                descriptor: pipelineDesciptor
+                descriptor: pipelineDescriptor
             )
         } catch {
             debugPrint(error)
         }
+        
+        brush.load(using: device)
     }
     
     private func setupVertexBuffer(with device: MTLDevice) {
         // quad vertices
-        let vertices: [simd_float2] = [
-            [-0.5, -0.5],
-            [-0.5, 0.5],
-            [0.5, 0.5],
-            [0.5, -0.5],
+        let vertices: [simd_float4] = [
+            [-0.5, -0.5, 0, 0],
+            [-0.5, 0.5, 0, 1],
+            [0.5, 0.5, 1, 1],
+            [0.5, -0.5, 1, 0],
         ]
         
         vertexBuffer = device.makeBuffer(
             bytes: vertices,
-            length: MemoryLayout<simd_float2>.stride * vertices.count
+            length: MemoryLayout<simd_float4>.stride * vertices.count
         )
     }
     
