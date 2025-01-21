@@ -64,7 +64,18 @@ struct Point {
 
 struct Uniforms {
     var projectionMatrix: Mat4x4 = matrix_identity_float4x4
+    var modelMatrix: Mat4x4 = matrix_identity_float4x4
 }
+
+//struct Tile {
+//    var position: Vector
+//    var vertexBuffer: MTLBuffer?
+//    var needsToBeRendered = false
+//    
+//    var modelMatrix: Mat4x4 {
+//        .init(translation: position)
+//    }
+//}
 
 class Renderer: NSObject, MTKViewDelegate {
     var commandQueue: MTLCommandQueue?
@@ -84,30 +95,77 @@ class Renderer: NSObject, MTKViewDelegate {
     var indexBuffer: MTLBuffer?
     var modelMatricesBuffer: MTLBuffer?
     
+//    let tileSize = 100
+//    var tiles: [[Tile]] = []
+    
     var brush = Brush(textureName: "default")
+    
+    var cols = 0
+    var rows = 0
+    
+    var canvasTexture: MTLTexture?
     
     override init() {
         super.init()
         setup()
     }
-   
+    
+    func convertToMetalCoordinates(point: Vector) -> Vector {
+        let inverseViewSize = CGSize(
+            width: 1.0 / Double(canvasWidth),
+            height: 1.0 / Double(canvasHeight)
+        )
+        let clipX = (2.0 * CGFloat(point.x) * inverseViewSize.width) - 1.0
+        let clipY = (2.0 * -CGFloat(point.y) * inverseViewSize.height) + 1.0
+        return Vector(x: Float(clipX), y: Float(clipY))
+    }
+    
     func addLine(_ line: Line) {
         lines.append(line)
-        numInstances += 1
-//        numInstances += line.points.count
     }
     
     func addPoint(_ point: Point) {
-        guard let modelMatricesBuffer = modelMatricesBuffer else { return }
-        modelMatricesBuffer.contents()
-            .advanced(by: numInstances * MemoryLayout<Mat4x4>.stride)
-            .storeBytes(of: point.modelMatrix, as: Mat4x4.self)
-        numInstances += 1
+        #warning("show point")
+    }
+    
+    func setupCanvasTexture(with device: MTLDevice) {
+        let descriptor = MTLTextureDescriptor
+            .texture2DDescriptor(
+                pixelFormat: .rgba8Unorm,
+                width: canvasWidth,
+                height: canvasHeight,
+                mipmapped: false
+            )
+        descriptor.usage = [.renderTarget, .shaderRead]
+        canvasTexture = device.makeTexture(descriptor: descriptor)
         
-        lines[lines.count - 1].points.append(point)
+        guard let canvasTexture else {
+            fatalError("couldn't create canvas texture")
+            return
+        }
+        
+        let rowBytes = 4 * canvasWidth
+        let whiteData = [UInt8](repeating: 255, count: rowBytes * canvasHeight)
+        whiteData.withUnsafeBytes { pointer in
+            let region = MTLRegion(
+                origin: .init(x: 0, y: 0, z: 0),
+                size: .init(
+                    width: canvasWidth,
+                    height: canvasHeight,
+                    depth: 1
+                )
+            )
+            canvasTexture.replace(
+                region: region,
+                mipmapLevel: 0,
+                withBytes: pointer.baseAddress!,
+                bytesPerRow: rowBytes
+            )
+        }
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        // TODO: remove?
         let rect = CGRect(
             x: 0,
             y: 0,
@@ -122,6 +180,8 @@ class Renderer: NSObject, MTKViewDelegate {
         uniforms.projectionMatrix = projection
     }
     
+    
+    
     func draw(in view: MTKView) {
         guard
             let drawable = view.currentDrawable,
@@ -134,45 +194,25 @@ class Renderer: NSObject, MTKViewDelegate {
             descriptor: renderPassDescriptor
         )
         encoder?.setRenderPipelineState(renderPipelineState!)
-        
-        encoder?.setVertexBytes(
-            &uniforms,
-            length: MemoryLayout<Uniforms>.stride,
-            index: 2
+        encoder?.setVertexBuffer(
+            vertexBuffer,
+            offset: 0,
+            index: 0
         )
         
-        if let line = lines.first, !line.points.isEmpty {
-            encoder?.setVertexBuffer(
-                vertexBuffer,
-                offset: 0,
-                index: 0
-            )
-    
-            encoder?.setVertexBuffer(
-                modelMatricesBuffer,
-                offset: 0,
-                index: 1
-            )
-           
-            encoder?.setFragmentTexture(
-                brush.texture,
-                index: 3
-            )
-            
-            encoder?
-                .drawIndexedPrimitives(
-                    type: .triangle,
-                    indexCount: indices.count,
-                    indexType: .uint16,
-                    indexBuffer: indexBuffer!,
-                    indexBufferOffset: 0,
-                    instanceCount: numInstances
-                )
-        }
+        encoder?.setFragmentTexture(canvasTexture, index: 3)
         
-        commandBuffer.present(drawable)
-            
+        encoder?
+            .drawIndexedPrimitives(
+                type: .triangle,
+                indexCount: indices.count,
+                indexType: .uint16,
+                indexBuffer: indexBuffer!,
+                indexBufferOffset: 0
+            )
+        
         encoder?.endEncoding()
+        commandBuffer.present(drawable)
         commandBuffer.commit()
     }
 }
@@ -184,9 +224,10 @@ extension Renderer {
             fatalError("GPU not available")
         }
         
-        setupVertexBuffer(with: device)
+        brush.load(using: device)
         setupIndexBuffer(with: device)
-        setupModelMatricesBuffer(with: device)
+        setupVertexBuffer(with: device)
+        setupCanvasTexture(with: device)
         
         commandQueue = device.makeCommandQueue()
         
@@ -232,16 +273,15 @@ extension Renderer {
             debugPrint(error)
         }
         
-        brush.load(using: device)
+        
     }
     
     private func setupVertexBuffer(with device: MTLDevice) {
-        // quad vertices
         let vertices: [simd_float4] = [
-            [-0.5, -0.5, 0, 0],
-            [-0.5, 0.5, 0, 1],
-            [0.5, 0.5, 1, 1],
-            [0.5, -0.5, 1, 0],
+            [-1, -1, 0, 0],
+            [-1, 1, 0, 1],
+            [1, 1, 1, 1],
+            [1, -1, 1, 0],
         ]
         
         vertexBuffer = device.makeBuffer(
@@ -249,7 +289,7 @@ extension Renderer {
             length: MemoryLayout<simd_float4>.stride * vertices.count
         )
     }
-    
+
     private func setupIndexBuffer(with device: MTLDevice) {
         indexBuffer = device.makeBuffer(
             bytes: indices,

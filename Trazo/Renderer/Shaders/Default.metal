@@ -10,9 +10,6 @@ using namespace metal;
 
 struct Uniforms {
     float4x4 projectionMatrix;
-};
-
-struct InstanceUniforms {
     float4x4 modelMatrix;
 };
 
@@ -26,22 +23,25 @@ struct VertexOutput {
     float2 textCoordinate;
 };
 
-vertex VertexOutput vertex_shader(
-                                  VertexInput input [[stage_in]],
-                                  constant float4x4* modelMatrices [[buffer(1)]],
-                                  constant Uniforms& uniforms [[buffer(2)]],
-                                  ushort iid [[instance_id]])
+vertex VertexOutput vertex_shader(VertexInput input [[stage_in]])
 {
-    auto position = uniforms.projectionMatrix * modelMatrices[iid] * float4(input.position, 0, 1);
+    auto position = float4(input.position, 0, 1);
     return {
         .position = position,
         .textCoordinate = input.textCoordiante
     };
 }
 
-fragment half4 fragment_shader(VertexOutput in [[stage_in]], texture2d<half> texture [[texture(3)]]) {
+fragment half4 fragment_shader(
+                               VertexOutput in [[stage_in]],
+                               texture2d<half> texture [[texture(3)]])
+{
     constexpr sampler textureSampler(mag_filter::linear, min_filter::linear);
     half4 color = texture.sample(textureSampler, in.textCoordinate);
-    return half4(0.3, 0.2, 1, color.a);
-//    return color;
+    return color;
+//    half4 brushColor = brushTexture.sample(textureSampler, in.textCoordinate);
+//    brushColor.rgb *= half3(1.0, 0.0, 0.0);
+//    auto mixed = mix(color, brushColor, 0.5);
+//    return mixed;
+//    return half4(0.2, 1, 0.4, 1);
 }
