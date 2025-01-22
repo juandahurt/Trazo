@@ -82,7 +82,6 @@ class Renderer: NSObject, MTKViewDelegate {
     var renderPipelineState: MTLRenderPipelineState?
   
     var lines: [Line] = []
-    var numInstances: Int = 0
     
     var uniforms = Uniforms()
     
@@ -93,15 +92,8 @@ class Renderer: NSObject, MTKViewDelegate {
     
     var vertexBuffer: MTLBuffer?
     var indexBuffer: MTLBuffer?
-    var modelMatricesBuffer: MTLBuffer?
-    
-//    let tileSize = 100
-//    var tiles: [[Tile]] = []
     
     var brush = Brush(textureName: "default")
-    
-    var cols = 0
-    var rows = 0
     
     var canvasTexture: MTLTexture?
     
@@ -125,7 +117,28 @@ class Renderer: NSObject, MTKViewDelegate {
     }
     
     func addPoint(_ point: Point) {
-        #warning("show point")
+        let size = Int(point.scale)
+        let rowBytes = 4 * size
+        let colorData = [UInt8](repeating: 100, count: rowBytes * size)
+       
+        let flippedY = canvasHeight - Int(point.position.y)
+        let region = MTLRegion(
+            origin: .init(
+                x: Int(point.position.x) - size / 2,
+                y: flippedY - (size / 2),
+                z: 0
+            ),
+            size: .init(width: size, height: size, depth: 1)
+        )
+        
+        colorData.withUnsafeBytes { pointer in
+            canvasTexture?.replace(
+                region: region,
+                mipmapLevel: 0,
+                withBytes: pointer.baseAddress!,
+                bytesPerRow: rowBytes
+            )
+        }
     }
     
     func setupCanvasTexture(with device: MTLDevice) {
@@ -294,14 +307,6 @@ extension Renderer {
         indexBuffer = device.makeBuffer(
             bytes: indices,
             length: MemoryLayout<UInt16>.stride * indices.count
-        )
-    }
-    
-    private func setupModelMatricesBuffer(with device: MTLDevice) {
-        let empty = [0]
-        modelMatricesBuffer = device.makeBuffer(
-            bytes: empty,
-            length: device.maxBufferLength
         )
     }
 }
