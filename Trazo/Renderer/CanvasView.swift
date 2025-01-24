@@ -42,31 +42,11 @@ class CanvasView: MTKView {
         super.init(frame: .zero, device: device)
         
         colorPixelFormat = RendererSettings.pixelFormat
-//        clearColor = .init(red: 1, green: 1, blue: 1, alpha: 1)
         manager.setup(with: self)
+        self.enableSetNeedsDisplay = true
     }
 
     required init(coder: NSCoder) {
         fatalError("init(coder:) has not been implemented")
-    }
-}
-
-extension CanvasView {
-    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard touches.count == 1 else { return }
-        guard let touch = touches.first else { return }
-        manager.touchBegan(touch: touch)
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard touches.count == 1 else { return }
-        guard let touch = touches.first else { return }
-        manager.touchMoved(touch: touch)
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        guard touches.count == 1 else { return }
-        guard let _ = touches.first else { return }
-        manager.touchEnded()
     }
 }
