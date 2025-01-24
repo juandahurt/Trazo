@@ -67,19 +67,10 @@ struct Uniforms {
     var modelMatrix: Mat4x4 = matrix_identity_float4x4
 }
 
-//struct Tile {
-//    var position: Vector
-//    var vertexBuffer: MTLBuffer?
-//    var needsToBeRendered = false
-//    
-//    var modelMatrix: Mat4x4 {
-//        .init(translation: position)
-//    }
-//}
-
 class Renderer: NSObject, MTKViewDelegate {
     var commandQueue: MTLCommandQueue?
     var renderPipelineState: MTLRenderPipelineState?
+    var computePipelineState: MTLComputePipelineState?
   
     var lines: [Line] = []
     
@@ -96,31 +87,71 @@ class Renderer: NSObject, MTKViewDelegate {
     var brush = Brush(textureName: "default")
     
     var canvasTexture: MTLTexture?
+    var ouputTexture: MTLTexture?
+    
+    var pendingPoints: [Point] = []
     
     override init() {
         super.init()
         setup()
     }
     
-    func convertToMetalCoordinates(point: Vector) -> Vector {
-        let inverseViewSize = CGSize(
-            width: 1.0 / Double(canvasWidth),
-            height: 1.0 / Double(canvasHeight)
-        )
-        let clipX = (2.0 * CGFloat(point.x) * inverseViewSize.width) - 1.0
-        let clipY = (2.0 * -CGFloat(point.y) * inverseViewSize.height) + 1.0
-        return Vector(x: Float(clipX), y: Float(clipY))
-    }
+//    func convertToMetalCoordinates(point: Vector) -> Vector {
+//        let inverseViewSize = CGSize(
+//            width: 1.0 / Double(canvasWidth),
+//            height: 1.0 / Double(canvasHeight)
+//        )
+//        let clipX = (2.0 * CGFloat(point.x) * inverseViewSize.width) - 1.0
+//        let clipY = (2.0 * -CGFloat(point.y) * inverseViewSize.height) + 1.0
+//        return Vector(x: Float(clipX), y: Float(clipY))
+//    }
     
     func addLine(_ line: Line) {
         lines.append(line)
     }
     
     func addPoint(_ point: Point) {
+        pendingPoints.append(point)
+//        let size = Int(point.scale)
+//        let rowBytes = 4 * size
+//        let colorData = [UInt8](repeating: 100, count: rowBytes * size)
+//       
+//        let flippedY = canvasHeight - Int(point.position.y)
+//        let region = MTLRegion(
+//            origin: .init(
+//                x: Int(point.position.x) - size / 2,
+//                y: flippedY - (size / 2),
+//                z: 0
+//            ),
+//            size: .init(width: size, height: size, depth: 1)
+//        )
+//        
+//        colorData.withUnsafeBytes { pointer in
+//            canvasTexture?.replace(
+//                region: region,
+//                mipmapLevel: 0,
+//                withBytes: pointer.baseAddress!,
+//                bytesPerRow: rowBytes
+//            )
+//        }
+    }
+    
+    func blendTexture(
+        at point: Point,
+        using commandBuffer: MTLCommandBuffer,
+        device: MTLDevice
+    ) {
+        guard let computePipelineState else { return }
+        guard let computeEncoder = commandBuffer.makeComputeCommandEncoder() else {
+            return
+        }
+        
+        computeEncoder.setComputePipelineState(computePipelineState)
+        computeEncoder.setTexture(canvasTexture, index: 0)
+        computeEncoder.setTexture(brush.texture, index: 1)
+        computeEncoder.setTexture(ouputTexture, index: 2)
+//
         let size = Int(point.scale)
-        let rowBytes = 4 * size
-        let colorData = [UInt8](repeating: 100, count: rowBytes * size)
-       
         let flippedY = canvasHeight - Int(point.position.y)
         let region = MTLRegion(
             origin: .init(
@@ -130,15 +161,31 @@ class Renderer: NSObject, MTKViewDelegate {
             ),
             size: .init(width: size, height: size, depth: 1)
         )
+//
+        let brushWidth = brush.texture!.width
+        let brushHeight = brush.texture!.height
+
+        let threadsPerThreadgroup = MTLSize(width: 8, height: 8, depth: 1)
+        let threadGroups = MTLSize(
+            width: (brushWidth + threadsPerThreadgroup.width) / threadsPerThreadgroup.width,
+            height: (brushHeight + threadsPerThreadgroup.height) / threadsPerThreadgroup.height,
+            depth: 1
+        )
         
-        colorData.withUnsafeBytes { pointer in
-            canvasTexture?.replace(
-                region: region,
-                mipmapLevel: 0,
-                withBytes: pointer.baseAddress!,
-                bytesPerRow: rowBytes
-            )
-        }
+        var offset: simd_uint2 = [
+            UInt32(point.position.x),
+            UInt32(canvasHeight) - UInt32(point.position.y)
+        ]
+        computeEncoder
+            .setBytes(&offset, length: MemoryLayout<SIMD2<UInt32>>.stride, index: 3)
+        
+        
+        computeEncoder.dispatchThreadgroups(
+            threadGroups,
+            threadsPerThreadgroup: threadsPerThreadgroup
+        )
+        
+        computeEncoder.endEncoding()
     }
     
     func setupCanvasTexture(with device: MTLDevice) {
@@ -149,26 +196,37 @@ class Renderer: NSObject, MTKViewDelegate {
                 height: canvasHeight,
                 mipmapped: false
             )
-        descriptor.usage = [.renderTarget, .shaderRead]
+        descriptor.usage = [.renderTarget, .shaderRead, .shaderWrite]
         canvasTexture = device.makeTexture(descriptor: descriptor)
+        ouputTexture = device.makeTexture(descriptor: descriptor)
         
-        guard let canvasTexture else {
+        guard let canvasTexture, let ouputTexture else {
             fatalError("couldn't create canvas texture")
             return
         }
         
         let rowBytes = 4 * canvasWidth
         let whiteData = [UInt8](repeating: 255, count: rowBytes * canvasHeight)
-        whiteData.withUnsafeBytes { pointer in
-            let region = MTLRegion(
-                origin: .init(x: 0, y: 0, z: 0),
-                size: .init(
-                    width: canvasWidth,
-                    height: canvasHeight,
-                    depth: 1
-                )
+        let region = MTLRegion(
+            origin: .init(x: 0, y: 0, z: 0),
+            size: .init(
+                width: canvasWidth,
+                height: canvasHeight,
+                depth: 1
             )
+        )
+        whiteData.withUnsafeBytes { pointer in
             canvasTexture.replace(
+                region: region,
+                mipmapLevel: 0,
+                withBytes: pointer.baseAddress!,
+                bytesPerRow: rowBytes
+            )
+        }
+        
+        let whiteData2 = [UInt8](repeating: 255, count: rowBytes * canvasHeight)
+        whiteData2.withUnsafeBytes { pointer in
+            ouputTexture.replace(
                 region: region,
                 mipmapLevel: 0,
                 withBytes: pointer.baseAddress!,
@@ -179,18 +237,18 @@ class Renderer: NSObject, MTKViewDelegate {
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
         // TODO: remove?
-        let rect = CGRect(
-            x: 0,
-            y: 0,
-            width: size.width,
-            height: size.height
-        )
-        let projection: Mat4x4 = .init(
-            orthographic: rect,
-            near: 0,
-            far: 1
-        )
-        uniforms.projectionMatrix = projection
+//        let rect = CGRect(
+//            x: 0,
+//            y: 0,
+//            width: size.width,
+//            height: size.height
+//        )
+//        let projection: Mat4x4 = .init(
+//            orthographic: rect,
+//            near: 0,
+//            far: 1
+//        )
+//        uniforms.projectionMatrix = projection
     }
     
     
@@ -203,6 +261,30 @@ class Renderer: NSObject, MTKViewDelegate {
         else {
             return
         }
+        
+        print(pendingPoints.count)
+        
+        for point in pendingPoints {
+            blendTexture(at: point, using: commandBuffer, device: view.device!)
+        }
+        pendingPoints.removeAll()
+        
+        
+        let blitEncoder = commandBuffer.makeBlitCommandEncoder()!
+        blitEncoder.copy(
+            from: ouputTexture!,
+            sourceSlice: 0,
+            sourceLevel: 0,
+            sourceOrigin: MTLOrigin(x: 0, y: 0, z: 0),
+            sourceSize: MTLSize(width: canvasWidth, height: canvasHeight, depth: 1),
+            to: canvasTexture!,
+            destinationSlice: 0,
+            destinationLevel: 0,
+            destinationOrigin: MTLOrigin(x: 0, y: 0, z: 0)
+        )
+        blitEncoder.endEncoding()
+        
+        
         let encoder = commandBuffer.makeRenderCommandEncoder(
             descriptor: renderPassDescriptor
         )
@@ -214,7 +296,6 @@ class Renderer: NSObject, MTKViewDelegate {
         )
         
         encoder?.setFragmentTexture(canvasTexture, index: 3)
-        
         encoder?
             .drawIndexedPrimitives(
                 type: .triangle,
@@ -287,6 +368,17 @@ extension Renderer {
         }
         
         
+        let computeFunction = library.makeFunction(name: "blend_textures")
+        let computePipelineDescriptor = MTLComputePipelineDescriptor()
+        computePipelineDescriptor.computeFunction = computeFunction
+        
+        do {
+            computePipelineState = try device.makeComputePipelineState(
+                function: computeFunction!
+            )
+        } catch {
+            debugPrint(error)
+        }
     }
     
     private func setupVertexBuffer(with device: MTLDevice) {
