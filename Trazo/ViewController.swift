@@ -55,6 +55,10 @@ class GridView: UIView {
     }
 }
 
+
+let canvasWidth: Int = 1000
+let canvasHeight: Int = 1000
+
 class ViewController: UIViewController {
     private lazy var gridView: GridView = {
         let gridView = GridView()
@@ -73,6 +77,9 @@ class ViewController: UIViewController {
         
         addPinchGesture()
         addSubviews()
+        
+        canvasView.transform = canvasView.transform
+            .scaledBy(x: 0.2, y: 0.2)
     }
     
     func addSubviews() {
@@ -101,22 +108,12 @@ class ViewController: UIViewController {
     func addCanvasView() {
         view.addSubview(canvasView)
         
-        NSLayoutConstraint.activate(
-            [
-                canvasView.topAnchor.constraint(
-                    equalTo: view.safeAreaLayoutGuide.topAnchor
-                ),
-                canvasView.bottomAnchor.constraint(
-                    equalTo: view.safeAreaLayoutGuide.bottomAnchor
-                ),
-                canvasView.leadingAnchor.constraint(
-                    equalTo: view.safeAreaLayoutGuide.leadingAnchor
-                ),
-                canvasView.trailingAnchor.constraint(
-                    equalTo: view.safeAreaLayoutGuide.trailingAnchor
-                ),
-            ]
-        )
+        NSLayoutConstraint.activate([
+            canvasView.heightAnchor.constraint(equalToConstant: CGFloat(canvasHeight)),
+            canvasView.widthAnchor.constraint(equalToConstant: CGFloat(canvasWidth)),
+            canvasView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            canvasView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
     }
 }
 

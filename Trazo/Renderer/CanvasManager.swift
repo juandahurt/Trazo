@@ -31,8 +31,8 @@ class CanvasManager {
     private func location(of touch: UITouch) -> Vector {
         let cgPoint = touch.location(in: canvasView)
         return .init(
-            x: Float(cgPoint.x) * contentScaleFactor,
-            y: Float(cgPoint.y) * contentScaleFactor
+            x: Float(cgPoint.x),
+            y: Float(cgPoint.y)
         )
     }
     
@@ -54,9 +54,9 @@ extension CanvasManager: TouchHandler {
     }
     
     func touchMoved(touch: UITouch) {
-        guard var lastAddedPoint else { return }
+        guard let lastAddedPoint else { return }
         let location = location(of: touch)
-        var point = Point(
+        let point = Point(
             scale: computePointScale(givenAForceOf: Float(touch.force)),
             position: location
         )
