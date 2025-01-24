@@ -69,6 +69,9 @@ class ViewController: UIViewController {
     private lazy var canvasView: CanvasView = {
         let canvasView = CanvasView()
         canvasView.translatesAutoresizingMaskIntoConstraints = false
+        let pencilGesture = PencilGestureRecognizer()
+        pencilGesture.pencilGestureDelegate = self
+        canvasView.addGestureRecognizer(pencilGesture)
         return canvasView
     }()
     
@@ -115,6 +118,8 @@ class ViewController: UIViewController {
             canvasView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
+    
+    var touches: [UITouch] = []
 }
 
 extension ViewController {
@@ -125,5 +130,15 @@ extension ViewController {
                 .scaledBy(x: recognizer.scale, y: recognizer.scale)
             recognizer.scale = 1
         }
+    }
+}
+
+extension ViewController: PencilGestureRecognizerDelegate {
+    func onPencilEstimatedTouches(_ touches: Set<UITouch>) {
+        // TODO: send estimated touches
+    }
+    
+    func onPencilActualTocuhes(_ touches: Set<UITouch>) {
+        // TODO: send actual touches
     }
 }
