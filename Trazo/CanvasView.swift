@@ -9,15 +9,22 @@ import MetalKit
 
 class CanvasView: MTKView, MTKViewDelegate {
     private var _canvasTexture: MTLTexture?
+    private var _renderer: Renderer?
     
-    init() {
-        super.init(frame: .zero, device: Metal.device)
-       
+    init(frame: CGRect) {
+        super.init(frame: frame, device: Metal.device)
+      
+        colorPixelFormat = .rgba8Unorm
+        
         // TODO: move texture creation to another place
         let textureDescriptor = MTLTextureDescriptor()
         textureDescriptor.pixelFormat = .rgba8Unorm
-        textureDescriptor.usage = [.shaderWrite]
+        textureDescriptor.usage = [.shaderWrite, .shaderRead]
+        textureDescriptor.width = Int(bounds.width)
+        textureDescriptor.height = Int(bounds.height)
         _canvasTexture = Metal.device.makeTexture(descriptor: textureDescriptor)
+        
+        _renderer = Renderer()
         
         delegate = self
     }
@@ -31,9 +38,23 @@ class CanvasView: MTKView, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
+        guard let renderer = _renderer else { return }
         guard let currentDrawable else { return }
-        let commandBuffer = Metal.commandQueue.makeCommandBuffer()
-        commandBuffer?.commit()
-        commandBuffer?.present(currentDrawable)
+        guard let commandBuffer = Metal.commandQueue.makeCommandBuffer() else { return }
+        
+        renderer.fillTexture(
+            texture: _canvasTexture!,
+            with: (r: 255, g: 255, b: 255),
+            using: commandBuffer
+        )
+        
+        renderer.drawTexture(
+            texture: _canvasTexture!,
+            on: currentDrawable.texture,
+            using: commandBuffer
+        )
+        
+        commandBuffer.present(currentDrawable)
+        commandBuffer.commit()
     }
 }

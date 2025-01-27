@@ -62,8 +62,55 @@ class Renderer {
         passDescriptor.colorAttachments[0].texture = outputTexture
         passDescriptor.colorAttachments[0].loadAction = .load
         
+        // TODO: move buffers creation at the start of the app
+        let vertices: [Float] = [
+            -1, -1,
+            1, -1,
+            -1, 1,
+             1, 1
+        ]
+        let indices: [UInt16] = [
+            0, 1, 2,
+            1, 2, 3
+        ]
+        
+        let textCoord: [Float] = [
+            0, 1,
+            1, 1,
+            0, 0,
+            1, 0
+        ]
+        
+        let vertexBuffer = Metal.device.makeBuffer(
+            bytes: vertices,
+            length: MemoryLayout<Float>.stride * vertices.count
+        )
+        let indexBuffer = Metal.device.makeBuffer(
+            bytes: indices,
+            length: MemoryLayout<UInt16>.stride * indices.count
+        )
+        
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
-        // TODO: draw texture
+        encoder?.setRenderPipelineState(pipelineManager.drawTexturePipeline)
+        encoder?.setFragmentTexture(texture, index: 3)
+        encoder?.setVertexBuffer(
+            vertexBuffer,
+            offset: 0,
+            index: 0
+        )
+        encoder?.setVertexBytes(
+            textCoord,
+            length: MemoryLayout<Float>.stride * textCoord.count,
+            index: 1
+        )
+        encoder?
+            .drawIndexedPrimitives(
+                type: .triangle,
+                indexCount: 6,
+                indexType: .uint16,
+                indexBuffer: indexBuffer!,
+                indexBufferOffset: 0
+            )
         encoder?.endEncoding()
     }
 }

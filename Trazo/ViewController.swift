@@ -67,7 +67,7 @@ class ViewController: UIViewController {
     }()
     
     private lazy var canvasView: CanvasView = {
-        let canvasView = CanvasView()
+        let canvasView = CanvasView(frame: view.frame)
         canvasView.translatesAutoresizingMaskIntoConstraints = false
         let pencilGesture = PencilGestureRecognizer()
         pencilGesture.pencilGestureDelegate = self
