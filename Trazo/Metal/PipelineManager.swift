@@ -12,10 +12,10 @@ class PipelineManager {
     private(set) var drawTexturePipeline: MTLRenderPipelineState!
     
     init() {
-        loadPipelines()
+        _loadPipelines()
     }
     
-    private func loadPipelines() {
+    private func _loadPipelines() {
         fillColorPipeline = _makeComputePipelineState(usingFunctionNamed: "fill_color")
         drawTexturePipeline = _makeRenderPipelieState(
             withLabel: "Draw Texture",

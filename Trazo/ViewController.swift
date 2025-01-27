@@ -82,7 +82,7 @@ class ViewController: UIViewController {
         addSubviews()
         
         canvasView.transform = canvasView.transform
-            .scaledBy(x: 0.2, y: 0.2)
+            .scaledBy(x: 0.5, y: 0.5)
     }
     
     func addSubviews() {

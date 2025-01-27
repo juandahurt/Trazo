@@ -8,29 +8,42 @@
 import MetalKit
 
 class CanvasView: MTKView, MTKViewDelegate {
-    private var _canvasTexture: MTLTexture?
-    private var _renderer: Renderer?
+    private var _canvasTexture: MTLTexture!
+    private let _renderer = Renderer()
+    private let _textureManager = TextureManager()
+    
+    private var _commandBuffer: MTLCommandBuffer?
     
     init(frame: CGRect) {
         super.init(frame: frame, device: Metal.device)
       
         colorPixelFormat = .rgba8Unorm
         
-        // TODO: move texture creation to another place
-        let textureDescriptor = MTLTextureDescriptor()
-        textureDescriptor.pixelFormat = .rgba8Unorm
-        textureDescriptor.usage = [.shaderWrite, .shaderRead]
-        textureDescriptor.width = Int(bounds.width)
-        textureDescriptor.height = Int(bounds.height)
-        _canvasTexture = Metal.device.makeTexture(descriptor: textureDescriptor)
-        
-        _renderer = Renderer()
+        _makeCommandBuffer()
+        _setupCanvasTexture()
         
         delegate = self
+        enableSetNeedsDisplay = true
     }
     
     required init(coder: NSCoder) {
         fatalError("not implemented")
+    }
+    
+    private func _setupCanvasTexture() {
+        guard let _commandBuffer else {
+            return
+        }
+        _canvasTexture = _textureManager.createTexture(ofSize: frame)
+        _renderer.fillTexture(
+            texture: _canvasTexture,
+            with: (r: 255, g: 255, b: 255),
+            using: _commandBuffer
+        )
+    }
+    
+    private func _makeCommandBuffer() {
+        _commandBuffer = Metal.commandQueue.makeCommandBuffer()
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
@@ -38,23 +51,20 @@ class CanvasView: MTKView, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
-        guard let renderer = _renderer else { return }
-        guard let currentDrawable else { return }
-        guard let commandBuffer = Metal.commandQueue.makeCommandBuffer() else { return }
+        guard
+            let currentDrawable,
+            let _commandBuffer
+        else { return }
         
-        renderer.fillTexture(
-            texture: _canvasTexture!,
-            with: (r: 255, g: 255, b: 255),
-            using: commandBuffer
-        )
-        
-        renderer.drawTexture(
-            texture: _canvasTexture!,
+        _renderer.drawTexture(
+            texture: _canvasTexture,
             on: currentDrawable.texture,
-            using: commandBuffer
+            using: _commandBuffer
         )
         
-        commandBuffer.present(currentDrawable)
-        commandBuffer.commit()
+        _commandBuffer.present(currentDrawable)
+        _commandBuffer.commit()
+        
+        _makeCommandBuffer()
     }
 }
