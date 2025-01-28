@@ -8,9 +8,8 @@
 import MetalKit
 
 class CanvasView: MTKView, MTKViewDelegate {
-    private var _canvasTexture: MTLTexture!
+    private var _canvasTexture: Texture!
     private let _renderer = Renderer()
-    private let _textureManager = TextureManager()
     
     private var _commandBuffer: MTLCommandBuffer?
     
@@ -18,7 +17,7 @@ class CanvasView: MTKView, MTKViewDelegate {
         super.init(frame: frame, device: Metal.device)
       
         colorPixelFormat = .rgba8Unorm
-        
+
         _makeCommandBuffer()
         _setupCanvasTexture()
         
@@ -34,7 +33,7 @@ class CanvasView: MTKView, MTKViewDelegate {
         guard let _commandBuffer else {
             return
         }
-        _canvasTexture = _textureManager.createTexture(ofSize: frame)
+        _canvasTexture = TextureManager().createTexture(ofSize: bounds)
         _renderer.fillTexture(
             texture: _canvasTexture,
             with: (r: 255, g: 255, b: 255),

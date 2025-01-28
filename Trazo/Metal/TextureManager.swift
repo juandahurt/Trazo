@@ -8,7 +8,7 @@
 import Metal
 
 class TextureManager {
-    func createTexture(ofSize size: CGRect) -> MTLTexture {
+    func createTexture(ofSize size: CGRect) -> Texture {
         let descriptor = MTLTextureDescriptor()
         descriptor.width = Int(size.width)
         descriptor.height = Int(size.height)
@@ -16,8 +16,10 @@ class TextureManager {
         descriptor.usage = [.shaderRead, .shaderWrite]
         // I don't think we'll find any issues if se create them all using
         // the same descriptor :)
-        let texture = Metal.device.makeTexture(descriptor: descriptor)
-        assert(texture != nil, "The texture couldn't be created.")
-        return texture!
+        guard let metalTexture = Metal.device.makeTexture(descriptor: descriptor) else {
+            fatalError("The texture couldn't be created.")
+        }
+        
+        return Texture(metalTexture: metalTexture)
     }
 }

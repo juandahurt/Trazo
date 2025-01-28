@@ -17,7 +17,7 @@ class Renderer {
     }
     
     func fillTexture(
-        texture: MTLTexture,
+        texture: Texture,
         with color: Color,
         using commandBuffer: MTLCommandBuffer
     ) {
@@ -29,20 +29,20 @@ class Renderer {
         ]
         let encoder = commandBuffer.makeComputeCommandEncoder()
         encoder?.setComputePipelineState(pipelineManager.fillColorPipeline)
-        encoder?.setTexture(texture, index: 0)
+        encoder?.setTexture(texture.actualTexture, index: 0)
         encoder?.setBytes(colorBuffer, length: MemoryLayout<Float>.stride * 4, index: 1)
         
         
-        let threadGroupLength = 8
+        let threadGroupLength = 8 // TODO: move this to some global scope?
         let threadsGroupSize = MTLSize(
-            width: (texture.width) / threadGroupLength,
-            height: texture.height / threadGroupLength,
+            width: (texture.actualTexture.width) / threadGroupLength,
+            height: texture.actualTexture.height / threadGroupLength,
             depth: 1
         )
         // TODO: check this little equation
         let threadsPerThreadGroup = MTLSize(
-            width: (texture.width) / threadsGroupSize.width,
-            height: (texture.height) / threadsGroupSize.height,
+            width: (texture.actualTexture.width) / threadsGroupSize.width,
+            height: (texture.actualTexture.height) / threadsGroupSize.height,
             depth: 1
         )
         
@@ -54,7 +54,7 @@ class Renderer {
     }
     
     func drawTexture(
-        texture: MTLTexture,
+        texture: Texture,
         on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer
     ) {
@@ -62,53 +62,25 @@ class Renderer {
         passDescriptor.colorAttachments[0].texture = outputTexture
         passDescriptor.colorAttachments[0].loadAction = .load
         
-        // TODO: move buffers creation at the start of the app
-        let vertices: [Float] = [
-            -1, -1,
-            1, -1,
-            -1, 1,
-             1, 1
-        ]
-        let indices: [UInt16] = [
-            0, 1, 2,
-            1, 2, 3
-        ]
-        
-        let textCoord: [Float] = [
-            0, 1,
-            1, 1,
-            0, 0,
-            1, 0
-        ]
-        
-        let vertexBuffer = Metal.device.makeBuffer(
-            bytes: vertices,
-            length: MemoryLayout<Float>.stride * vertices.count
-        )
-        let indexBuffer = Metal.device.makeBuffer(
-            bytes: indices,
-            length: MemoryLayout<UInt16>.stride * indices.count
-        )
-        
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(pipelineManager.drawTexturePipeline)
-        encoder?.setFragmentTexture(texture, index: 3)
+        encoder?.setFragmentTexture(texture.actualTexture, index: 3)
         encoder?.setVertexBuffer(
-            vertexBuffer,
+            texture.buffers.vertexBuffer,
             offset: 0,
             index: 0
         )
         encoder?.setVertexBytes(
-            textCoord,
-            length: MemoryLayout<Float>.stride * textCoord.count,
+            texture.buffers.textCoordinates,
+            length: texture.buffers.textCoordSize,
             index: 1
         )
         encoder?
             .drawIndexedPrimitives(
                 type: .triangle,
-                indexCount: 6,
+                indexCount: texture.buffers.numIndices,
                 indexType: .uint16,
-                indexBuffer: indexBuffer!,
+                indexBuffer: texture.buffers.indexBuffer,
                 indexBufferOffset: 0
             )
         encoder?.endEncoding()
