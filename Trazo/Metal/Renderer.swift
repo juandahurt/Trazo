@@ -15,7 +15,7 @@ final class Renderer {
     static let instance = Renderer()
     
     func fillTexture(
-        texture: Texture,
+        texture: DrawableTexture,
         with color: Color,
         using commandBuffer: MTLCommandBuffer
     ) {
@@ -52,7 +52,7 @@ final class Renderer {
     }
     
     func drawTexture(
-        texture: Texture,
+        texture: DrawableTexture,
         on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer
     ) {

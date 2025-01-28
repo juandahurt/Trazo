@@ -1,5 +1,5 @@
 //
-//  Texture.swift
+//  DrawableTexture.swift
 //  Trazo
 //
 //  Created by Juan Hurtado on 28/01/25.
@@ -7,7 +7,7 @@
 
 import Metal
 
-struct Texture {
+struct DrawableTexture {
     var actualTexture: MTLTexture
     var buffers: DrawingBuffers
     

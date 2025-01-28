@@ -14,6 +14,7 @@ class ViewController: UIViewController {
     private lazy var _canvasView: CanvasView = {
         let canvasView = CanvasView(frame: view.frame)
         canvasView.translatesAutoresizingMaskIntoConstraints = false
+        canvasView.canvasDelegate = self
         
         let pencilGesture = PencilGestureRecognizer()
         pencilGesture.pencilGestureDelegate = self
@@ -36,7 +37,7 @@ class ViewController: UIViewController {
         addPinchGesture()
         addSubviews()
         
-//        _viewModel.canvasView = _canvasView
+        _viewModel.loadCanvas(ofSize: _canvasView.bounds)
     }
     
     func addSubviews() {
@@ -74,6 +75,12 @@ extension ViewController {
     }
 }
 
+extension ViewController: CanvasViewDelegate {
+    func drawCanvas(onDrawable drawable: CAMetalDrawable) {
+        _viewModel.presentCanvas(drawable)
+    }
+}
+
 extension ViewController: PencilGestureRecognizerDelegate {
     func onPencilEstimatedTouches(_ touches: Set<UITouch>) {
         // TODO: send estimated touches
@@ -89,4 +96,3 @@ extension ViewController: FingerGestureRecognizerDelegate {
         _viewModel.onFingerTouches(touches)
     }
 }
-
