@@ -11,14 +11,22 @@ let canvasWidth: Int = 500
 let canvasHeight: Int = 500
 
 class ViewController: UIViewController {
-    private lazy var canvasView: CanvasView = {
+    private lazy var _canvasView: CanvasView = {
         let canvasView = CanvasView(frame: view.frame)
         canvasView.translatesAutoresizingMaskIntoConstraints = false
+        
         let pencilGesture = PencilGestureRecognizer()
         pencilGesture.pencilGestureDelegate = self
+        
+        let fingerGestureRecognizer = FingerGestureRecognizer()
+        fingerGestureRecognizer.fingerGestureDelegate = self
+        
         canvasView.addGestureRecognizer(pencilGesture)
+        canvasView.addGestureRecognizer(fingerGestureRecognizer)
         return canvasView
     }()
+    
+    private var _viewModel = ViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -27,6 +35,8 @@ class ViewController: UIViewController {
         
         addPinchGesture()
         addSubviews()
+        
+        _viewModel.canvasView = _canvasView
     }
     
     func addSubviews() {
@@ -42,24 +52,22 @@ class ViewController: UIViewController {
     }
     
     func addCanvasView() {
-        view.addSubview(canvasView)
+        view.addSubview(_canvasView)
         
         NSLayoutConstraint.activate([
-            canvasView.heightAnchor.constraint(equalToConstant: CGFloat(canvasHeight)),
-            canvasView.widthAnchor.constraint(equalToConstant: CGFloat(canvasWidth)),
-            canvasView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            canvasView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            _canvasView.heightAnchor.constraint(equalToConstant: CGFloat(canvasHeight)),
+            _canvasView.widthAnchor.constraint(equalToConstant: CGFloat(canvasWidth)),
+            _canvasView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            _canvasView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
-    
-    var touches: [UITouch] = []
 }
 
 extension ViewController {
     @objc
     func onPinchGesture(_ recognizer: UIPinchGestureRecognizer) {
         if recognizer.state == .began || recognizer.state == .changed {
-            canvasView.transform = canvasView.transform
+            _canvasView.transform = _canvasView.transform
                 .scaledBy(x: recognizer.scale, y: recognizer.scale)
             recognizer.scale = 1
         }
@@ -73,5 +81,21 @@ extension ViewController: PencilGestureRecognizerDelegate {
     
     func onPencilActualTocuhes(_ touches: Set<UITouch>) {
         // TODO: send actual touches
+    }
+}
+
+extension ViewController: FingerGestureRecognizerDelegate {
+    func onFingerTouches(_ touches: Set<UITouch>) {
+        _viewModel.onFingerTouches(touches)
+    }
+}
+
+class ViewModel {
+    var canvasView: UIView?
+    
+    func onFingerTouches(_ touches: Set<UITouch>) {
+        for touch in touches {
+            print(touch.location(in: canvasView))
+        }
     }
 }
