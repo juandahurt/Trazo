@@ -9,7 +9,6 @@ import MetalKit
 
 class CanvasView: MTKView, MTKViewDelegate {
     private var _canvasTexture: Texture!
-    private let _renderer = Renderer()
     
     private var _commandBuffer: MTLCommandBuffer?
     
@@ -34,7 +33,7 @@ class CanvasView: MTKView, MTKViewDelegate {
             return
         }
         _canvasTexture = TextureManager().createTexture(ofSize: bounds)
-        _renderer.fillTexture(
+        Renderer.instance.fillTexture(
             texture: _canvasTexture,
             with: (r: 255, g: 255, b: 255),
             using: _commandBuffer
@@ -55,7 +54,7 @@ class CanvasView: MTKView, MTKViewDelegate {
             let _commandBuffer
         else { return }
         
-        _renderer.drawTexture(
+        Renderer.instance.drawTexture(
             texture: _canvasTexture,
             on: currentDrawable.texture,
             using: _commandBuffer

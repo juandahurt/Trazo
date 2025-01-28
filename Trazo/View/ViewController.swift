@@ -36,7 +36,7 @@ class ViewController: UIViewController {
         addPinchGesture()
         addSubviews()
         
-        _viewModel.canvasView = _canvasView
+//        _viewModel.canvasView = _canvasView
     }
     
     func addSubviews() {
@@ -90,12 +90,3 @@ extension ViewController: FingerGestureRecognizerDelegate {
     }
 }
 
-class ViewModel {
-    var canvasView: UIView?
-    
-    func onFingerTouches(_ touches: Set<UITouch>) {
-        for touch in touches {
-            print(touch.location(in: canvasView))
-        }
-    }
-}

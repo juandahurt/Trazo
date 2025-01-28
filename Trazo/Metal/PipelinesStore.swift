@@ -1,5 +1,5 @@
 //
-//  PipelineManager.swift
+//  PipelinesStore.swift
 //  Trazo
 //
 //  Created by Juan Hurtado on 24/01/25.
@@ -7,11 +7,13 @@
 
 import MetalKit
 
-class PipelineManager {
+final class PipelinesStore {
     private(set) var fillColorPipeline: MTLComputePipelineState!
     private(set) var drawTexturePipeline: MTLRenderPipelineState!
     
-    init() {
+    static let instance = PipelinesStore()
+    
+    private init() {
         _loadPipelines()
     }
     
@@ -28,7 +30,7 @@ class PipelineManager {
     }
 }
 
-extension PipelineManager {
+extension PipelinesStore {
     private func _makeRenderPipelieState(
         withLabel label: String,
         vertexFunction: String,
