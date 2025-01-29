@@ -9,15 +9,13 @@ import Metal
 
 typealias Color = (r: Float, g: Float, b: Float)
 
-class Renderer {
-    let pipelineManager: PipelineManager
-    
-    init() {
-        pipelineManager = PipelineManager()
-    }
+final class Renderer {
+    private init() {}
+   
+    static let instance = Renderer()
     
     func fillTexture(
-        texture: Texture,
+        texture: DrawableTexture,
         with color: Color,
         using commandBuffer: MTLCommandBuffer
     ) {
@@ -28,7 +26,7 @@ class Renderer {
             1
         ]
         let encoder = commandBuffer.makeComputeCommandEncoder()
-        encoder?.setComputePipelineState(pipelineManager.fillColorPipeline)
+        encoder?.setComputePipelineState(PipelinesStore.instance.fillColorPipeline)
         encoder?.setTexture(texture.actualTexture, index: 0)
         encoder?.setBytes(colorBuffer, length: MemoryLayout<Float>.stride * 4, index: 1)
         
@@ -54,7 +52,7 @@ class Renderer {
     }
     
     func drawTexture(
-        texture: Texture,
+        texture: DrawableTexture,
         on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer
     ) {
@@ -63,7 +61,7 @@ class Renderer {
         passDescriptor.colorAttachments[0].loadAction = .load
         
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
-        encoder?.setRenderPipelineState(pipelineManager.drawTexturePipeline)
+        encoder?.setRenderPipelineState(PipelinesStore.instance.drawTexturePipeline)
         encoder?.setFragmentTexture(texture.actualTexture, index: 3)
         encoder?.setVertexBuffer(
             texture.buffers.vertexBuffer,

@@ -8,7 +8,7 @@
 import Metal
 
 class TextureManager {
-    func createTexture(ofSize size: CGRect) -> Texture {
+    func createTexture(ofSize size: CGRect) -> DrawableTexture {
         let descriptor = MTLTextureDescriptor()
         descriptor.width = Int(size.width)
         descriptor.height = Int(size.height)
@@ -20,6 +20,6 @@ class TextureManager {
             fatalError("The texture couldn't be created.")
         }
         
-        return Texture(metalTexture: metalTexture)
+        return DrawableTexture(metalTexture: metalTexture)
     }
 }
