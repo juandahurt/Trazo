@@ -7,7 +7,7 @@
 
 import Metal
 
-typealias Color = (r: Float, g: Float, b: Float)
+typealias Color = (r: Float, g: Float, b: Float, a: Float)
 
 final class Renderer {
     private init() {}
@@ -23,7 +23,7 @@ final class Renderer {
             color.r,
             color.g,
             color.b,
-            1
+            color.a
         ]
         let encoder = commandBuffer.makeComputeCommandEncoder()
         encoder?.setComputePipelineState(PipelinesStore.instance.fillColorPipeline)
@@ -81,6 +81,31 @@ final class Renderer {
                 indexBuffer: texture.buffers.indexBuffer,
                 indexBufferOffset: 0
             )
+        encoder?.endEncoding()
+    }
+    
+    // TODO: create model for grayscale positions
+    func drawGrayPoints(
+        positionsBuffer: MTLBuffer,
+        numPoints: Int,
+        on grayScaleTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = grayScaleTexture
+        passDescriptor.colorAttachments[0].loadAction = .load
+        passDescriptor.colorAttachments[0].storeAction = .store
+        
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        encoder?.setRenderPipelineState(
+            PipelinesStore.instance.drawGrayScalePointPipeline
+        )
+        encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+        encoder?.drawPrimitives(
+            type: .point,
+            vertexStart: 0,
+            vertexCount: numPoints
+        )
         encoder?.endEncoding()
     }
 }

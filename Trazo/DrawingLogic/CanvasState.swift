@@ -18,7 +18,7 @@ class CanvasState {
     init() {}
     
     func load(canvasSize: CGRect) {
-        _canvasTexture = TextureManager().createTexture(ofSize: canvasSize)
+        _canvasTexture = TextureManager().createDrawableTexture(ofSize: canvasSize)
         initialized = true
     }
 }

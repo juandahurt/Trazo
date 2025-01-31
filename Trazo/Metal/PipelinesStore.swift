@@ -10,6 +10,7 @@ import MetalKit
 final class PipelinesStore {
     private(set) var fillColorPipeline: MTLComputePipelineState!
     private(set) var drawTexturePipeline: MTLRenderPipelineState!
+    private(set) var drawGrayScalePointPipeline: MTLRenderPipelineState!
     
     static let instance = PipelinesStore()
     
@@ -26,6 +27,15 @@ final class PipelinesStore {
         ) { descriptor in
             descriptor.colorAttachments[0].isBlendingEnabled = true
             descriptor.colorAttachments[0].rgbBlendOperation = .add
+        }
+        drawGrayScalePointPipeline = _makeRenderPipelieState(
+            withLabel: "Draw Gray Scale Point",
+            vertexFunction: "gray_scale_point_vert",
+            fragmentFunction: "gray_scale_point_frag"
+        ) { descriptor in
+            descriptor.colorAttachments[0].isBlendingEnabled = true
+            descriptor.colorAttachments[0].rgbBlendOperation = .max
+            descriptor.colorAttachments[0].alphaBlendOperation = .max
         }
     }
 }

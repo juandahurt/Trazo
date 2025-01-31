@@ -5,17 +5,73 @@
 //  Created by Juan Hurtado on 28/01/25.
 //
 
-import Metal
+import MetalKit
+import UIKit
+
+protocol PainterDelegate: AnyObject {
+    func canvasViewNeedsUpdate()
+}
 
 class Painter {
+    private var _drawingTexture: MTLTexture?
+    private var _grayScaleTexture: MTLTexture?
     private var _commandBuffer: MTLCommandBuffer?
+   
+    weak var delegate: PainterDelegate?
+    
+    func handle(fingerTouches touches: [DrawableTouch]) {
+        guard let _grayScaleTexture, let _commandBuffer else { return }
+        // TODO: check current phase
+        // TODO: stop creating buffer per function call
+        for touch in touches {
+            print(touch.position, touch.positionInTextCoord)
+        }
+        let touchesPos: [simd_float2] = touches.map {
+            [Float($0.positionInTextCoord.x), Float($0.positionInTextCoord.y)]
+        }
+        let positionsBuffer = Metal.device
+            .makeBuffer(
+                bytes: touchesPos,
+                length: MemoryLayout<simd_float2>.stride * touches.count
+            )
+        // draw grayscale points
+        Renderer.instance.drawGrayPoints(
+            positionsBuffer: positionsBuffer!,
+            numPoints: touches.count,
+            on: _grayScaleTexture,
+            using: _commandBuffer
+        )
+        
+        
+        
+        delegate?.canvasViewNeedsUpdate()
+    }
     
     func present(_ drawable: MTLDrawable) {
         _commandBuffer?.present(drawable)
         _commandBuffer?.commit()
     }
     
-    func reset() {
+    func load(canvasSize: CGRect) {
+        resetCommandBuffer()
+        _grayScaleTexture = TextureManager().createMetalTexture(ofSize: canvasSize)
+        _drawingTexture = TextureManager().createMetalTexture(ofSize: canvasSize)
+        guard let _grayScaleTexture, let _commandBuffer, let _drawingTexture else {
+            return
+        }
+        Renderer.instance.fillTexture(
+            texture: .init(metalTexture: _grayScaleTexture),
+            with: (r: 0, g: 0, b: 0, a: 0),
+            using: _commandBuffer
+        )
+        Renderer.instance.fillTexture(
+            texture: .init(metalTexture: _drawingTexture),
+            with: (r: 0, g: 0, b: 0, a: 0),
+            using: _commandBuffer
+        )
+    }
+    
+    func resetCommandBuffer() {
         _commandBuffer = Metal.commandQueue.makeCommandBuffer()
     }
     
