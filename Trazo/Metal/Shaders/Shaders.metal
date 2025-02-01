@@ -65,3 +65,15 @@ fragment float4 gray_scale_point_frag(
     float alpha = smoothstep(0.5, 0, dist);
     return float4(alpha, alpha, alpha, alpha);
 }
+
+// MARK: - Colorization
+kernel void colorize(
+                     texture2d<float, access::read> grayscaleTexture [[texture(0)]],
+                     texture2d<float, access::write> outputTexture [[texture(1)]],
+                     constant float3& color [[buffer(0)]],
+                     uint2 gid [[thread_position_in_grid]])
+{
+    float alpha = grayscaleTexture.read(gid).a;
+    float4 newColor = float4(alpha * color[0], alpha * color[1], alpha * color[2], alpha);
+    outputTexture.write(newColor, gid);
+}

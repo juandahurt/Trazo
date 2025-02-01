@@ -12,6 +12,8 @@ typealias Color = (r: Float, g: Float, b: Float, a: Float)
 final class Renderer {
     private init() {}
    
+    
+    let threadGroupLength = 8 // TODO: move this to some global scope?
     static let instance = Renderer()
     
     func fillTexture(
@@ -30,8 +32,6 @@ final class Renderer {
         encoder?.setTexture(texture.actualTexture, index: 0)
         encoder?.setBytes(colorBuffer, length: MemoryLayout<Float>.stride * 4, index: 1)
         
-        
-        let threadGroupLength = 8 // TODO: move this to some global scope?
         let threadsGroupSize = MTLSize(
             width: (texture.actualTexture.width) / threadGroupLength,
             height: texture.actualTexture.height / threadGroupLength,
@@ -106,6 +106,42 @@ final class Renderer {
             vertexStart: 0,
             vertexCount: numPoints
         )
+        encoder?.endEncoding()
+    }
+    
+    func colorize(
+        grayscaleTexture texture: MTLTexture,
+        withColor color: Color,
+        on outputTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        let threadsGroupSize = MTLSize(
+            width: (texture.width) / threadGroupLength,
+            height: texture.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (texture.width) / threadsGroupSize.width,
+            height: (texture.height) / threadsGroupSize.height,
+            depth: 1
+        )
+        
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(PipelinesStore.instance.colorizePipeline)
+        encoder?.setTexture(texture, index: 0)
+        encoder?.setTexture(outputTexture, index: 1)
+        var color = color
+        encoder?.setBytes(
+            &color,
+            length: MemoryLayout<Color>.stride,
+            index: 0
+        )
+        encoder?
+            .dispatchThreadgroups(
+                threadsGroupSize,
+                threadsPerThreadgroup: threadsPerThreadGroup
+            )
         encoder?.endEncoding()
     }
 }

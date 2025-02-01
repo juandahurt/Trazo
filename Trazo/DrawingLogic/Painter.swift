@@ -20,7 +20,9 @@ class Painter {
     weak var delegate: PainterDelegate?
     
     func handle(fingerTouches touches: [DrawableTouch]) {
-        guard let _grayScaleTexture, let _commandBuffer else { return }
+        guard let _grayScaleTexture, let _drawingTexture, let _commandBuffer else {
+            return
+        }
         // TODO: check current phase
         // TODO: stop creating buffer per function call
         for touch in touches {
@@ -42,7 +44,13 @@ class Painter {
             using: _commandBuffer
         )
         
-        
+        // colorize points
+        Renderer.instance.colorize(
+            grayscaleTexture: _grayScaleTexture,
+            withColor: (0, 0, 1, 1),
+            on: _drawingTexture,
+            using: _commandBuffer
+        )
         
         delegate?.canvasViewNeedsUpdate()
     }
