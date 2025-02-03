@@ -7,11 +7,13 @@
 
 import Metal
 
-typealias Color = (r: Float, g: Float, b: Float)
+typealias Color = (r: Float, g: Float, b: Float, a: Float)
 
 final class Renderer {
     private init() {}
    
+    
+    let threadGroupLength = 8 // TODO: move this to some global scope?
     static let instance = Renderer()
     
     func fillTexture(
@@ -23,15 +25,13 @@ final class Renderer {
             color.r,
             color.g,
             color.b,
-            1
+            color.a
         ]
         let encoder = commandBuffer.makeComputeCommandEncoder()
         encoder?.setComputePipelineState(PipelinesStore.instance.fillColorPipeline)
         encoder?.setTexture(texture.actualTexture, index: 0)
         encoder?.setBytes(colorBuffer, length: MemoryLayout<Float>.stride * 4, index: 1)
         
-        
-        let threadGroupLength = 8 // TODO: move this to some global scope?
         let threadsGroupSize = MTLSize(
             width: (texture.actualTexture.width) / threadGroupLength,
             height: texture.actualTexture.height / threadGroupLength,
@@ -80,6 +80,67 @@ final class Renderer {
                 indexType: .uint16,
                 indexBuffer: texture.buffers.indexBuffer,
                 indexBufferOffset: 0
+            )
+        encoder?.endEncoding()
+    }
+    
+    // TODO: create model for grayscale positions
+    func drawGrayPoints(
+        positionsBuffer: MTLBuffer,
+        numPoints: Int,
+        on grayScaleTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = grayScaleTexture
+        passDescriptor.colorAttachments[0].loadAction = .load
+        passDescriptor.colorAttachments[0].storeAction = .store
+        
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        encoder?.setRenderPipelineState(
+            PipelinesStore.instance.drawGrayScalePointPipeline
+        )
+        encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+        encoder?.drawPrimitives(
+            type: .point,
+            vertexStart: 0,
+            vertexCount: numPoints
+        )
+        encoder?.endEncoding()
+    }
+    
+    func colorize(
+        grayscaleTexture texture: MTLTexture,
+        withColor color: Color,
+        on outputTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        let threadsGroupSize = MTLSize(
+            width: (texture.width) / threadGroupLength,
+            height: texture.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (texture.width) / threadsGroupSize.width,
+            height: (texture.height) / threadsGroupSize.height,
+            depth: 1
+        )
+        
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(PipelinesStore.instance.colorizePipeline)
+        encoder?.setTexture(texture, index: 0)
+        encoder?.setTexture(outputTexture, index: 1)
+        var color = color
+        encoder?.setBytes(
+            &color,
+            length: MemoryLayout<Color>.stride,
+            index: 0
+        )
+        encoder?
+            .dispatchThreadgroups(
+                threadsGroupSize,
+                threadsPerThreadgroup: threadsPerThreadGroup
             )
         encoder?.endEncoding()
     }

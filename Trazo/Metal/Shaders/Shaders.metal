@@ -41,3 +41,39 @@ fragment float4 draw_texture_frag(TextureOuput data [[stage_in]],
     float4 color = texture.sample(s, data.textCoord);
     return color;
 }
+
+
+// MARK: - Grayscale points
+struct GrayScalePoint {
+    float4 position [[position]];
+    float pointSize [[point_size]];
+};
+
+vertex GrayScalePoint gray_scale_point_vert(constant float2* positions [[buffer(0)]], uint vid [[vertex_id]]) {
+    return {
+        .position = float4(positions[vid], 0, 1),
+        .pointSize = 15
+    };
+}
+
+fragment float4 gray_scale_point_frag(
+                                      GrayScalePoint pointData [[stage_in]],
+                                      float2 pointCoord [[point_coord]])
+{
+    float2 center = float2(0.5, 0.5);
+    float dist = distance(center, pointCoord);
+    float alpha = smoothstep(0.5, 0, dist);
+    return float4(alpha, alpha, alpha, alpha);
+}
+
+// MARK: - Colorization
+kernel void colorize(
+                     texture2d<float, access::read> grayscaleTexture [[texture(0)]],
+                     texture2d<float, access::write> outputTexture [[texture(1)]],
+                     constant float3& color [[buffer(0)]],
+                     uint2 gid [[thread_position_in_grid]])
+{
+    float alpha = grayscaleTexture.read(gid).a;
+    float4 newColor = float4(alpha * color[0], alpha * color[1], alpha * color[2], alpha);
+    outputTexture.write(newColor, gid);
+}

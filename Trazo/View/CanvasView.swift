@@ -21,6 +21,7 @@ class CanvasView: MTKView, MTKViewDelegate {
         
         delegate = self
         enableSetNeedsDisplay = true
+        isPaused = true
     }
     
     required init(coder: NSCoder) {

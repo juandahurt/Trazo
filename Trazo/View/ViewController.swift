@@ -37,7 +37,7 @@ class ViewController: UIViewController {
         addPinchGesture()
         addSubviews()
         
-        _viewModel.loadCanvas(ofSize: _canvasView.bounds)
+        _viewModel.loadCanvas(using: _canvasView)
     }
     
     func addSubviews() {
