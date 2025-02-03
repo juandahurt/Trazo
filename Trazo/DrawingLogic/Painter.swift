@@ -13,13 +13,14 @@ protocol PainterDelegate: AnyObject {
 }
 
 class Painter {
+    private var _canvasTexture: DrawableTexture?
     private var _drawingTexture: MTLTexture?
     private var _grayScaleTexture: MTLTexture?
     private var _commandBuffer: MTLCommandBuffer?
    
     weak var delegate: PainterDelegate?
     
-    func handle(fingerTouches touches: [DrawableTouch]) {
+    func draw(fingerTouches touches: [DrawableTouch]) {
         guard let _grayScaleTexture, let _drawingTexture, let _commandBuffer else {
             return
         }
@@ -43,32 +44,61 @@ class Painter {
         // colorize points
         Renderer.instance.colorize(
             grayscaleTexture: _grayScaleTexture,
-            withColor: (0, 0, 1, 1),
+            withColor: (0, 0, 1, 1), //TODO: remove mock color
             on: _drawingTexture,
             using: _commandBuffer
         )
+        
+        // merge `drawingTexture` with `canvasTexture`
+        Renderer.instance.merge(
+            _drawingTexture,
+            to: _canvasTexture!.actualTexture,
+            using: _commandBuffer
+        )
+        
+        _clearTextures()
         
         delegate?.canvasViewNeedsUpdate()
         
         let phase = touches.first?.phase
         if phase == .cancelled || phase == .ended {
-            // TODO: clear textures
             print("stroke ended")
         }
     }
     
-    func present(drawable: MTLDrawable, withState state: CanvasState) {
+    private func _clearTextures() {
+        Renderer.instance.fillTexture(
+            texture: .init(metalTexture: _grayScaleTexture!),
+            with: (r: 0, g: 0, b: 0, a: 0),
+            using: _commandBuffer!
+        )
+        Renderer.instance.fillTexture(
+            texture: .init(metalTexture: _drawingTexture!),
+            with: (r: 0, g: 0, b: 0, a: 0),
+            using: _commandBuffer!
+        )
+    }
+    
+    func present(drawable: CAMetalDrawable) {
+        drawTexture(_canvasTexture!, on: drawable.texture)
         _commandBuffer?.present(drawable)
         _commandBuffer?.commit()
+        _commandBuffer?.waitUntilCompleted()
     }
     
     func load(canvasSize: CGRect) {
         resetCommandBuffer()
+        _canvasTexture = TextureManager().createDrawableTexture(ofSize: canvasSize)
         _grayScaleTexture = TextureManager().createMetalTexture(ofSize: canvasSize)
         _drawingTexture = TextureManager().createMetalTexture(ofSize: canvasSize)
         guard let _grayScaleTexture, let _commandBuffer, let _drawingTexture else {
             return
         }
+        Renderer.instance.fillTexture(
+            texture: _canvasTexture!,
+            with: (r: 1, g: 1, b: 1, a: 1),
+            using: _commandBuffer
+        )
         Renderer.instance.fillTexture(
             texture: .init(metalTexture: _grayScaleTexture),
             with: (r: 0, g: 0, b: 0, a: 0),

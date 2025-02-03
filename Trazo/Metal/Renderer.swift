@@ -144,4 +144,37 @@ final class Renderer {
             )
         encoder?.endEncoding()
     }
+    
+    func merge(
+        _ sourceTexture: MTLTexture,
+        to destinationTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        assert(sourceTexture.width == destinationTexture.width)
+        assert(sourceTexture.height == destinationTexture.height)
+        
+        let threadsGroupSize = MTLSize(
+            width: (destinationTexture.width) / threadGroupLength,
+            height: destinationTexture.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (destinationTexture.width) / threadsGroupSize.width,
+            height: (destinationTexture.height) / threadsGroupSize.height,
+            depth: 1
+        )
+        
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(PipelinesStore.instance.mergePipeline)
+        encoder?.setTexture(sourceTexture, index: 0)
+        encoder?.setTexture(destinationTexture, index: 1)
+        encoder?.setTexture(destinationTexture, index: 2)
+        encoder?
+            .dispatchThreadgroups(
+                threadsGroupSize,
+                threadsPerThreadgroup: threadsPerThreadGroup
+            )
+        encoder?.endEncoding()
+    }
 }

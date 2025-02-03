@@ -12,6 +12,7 @@ final class PipelinesStore {
     private(set) var drawTexturePipeline: MTLRenderPipelineState!
     private(set) var drawGrayScalePointPipeline: MTLRenderPipelineState!
     private(set) var colorizePipeline: MTLComputePipelineState!
+    private(set) var mergePipeline: MTLComputePipelineState!
     
     static let instance = PipelinesStore()
     
@@ -39,6 +40,7 @@ final class PipelinesStore {
             descriptor.colorAttachments[0].alphaBlendOperation = .max
         }
         colorizePipeline = _makeComputePipelineState(usingFunctionNamed: "colorize")
+        mergePipeline = _makeComputePipelineState(usingFunctionNamed: "merge_textures")
     }
 }
 
