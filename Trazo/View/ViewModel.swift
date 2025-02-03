@@ -35,19 +35,19 @@ class ViewModel {
                 phase: $0.phase
             )
         }
-        _painter.handle(fingerTouches: drawableTouches)
+        _painter.draw(fingerTouches: drawableTouches)
     }
     
     func loadCanvas(using canvasView: CanvasView) {
-        _state.load(canvasSize: canvasView.bounds)
+//        _state.load(canvasSize: canvasView.bounds)
+//        _painter.load(canvasSize: canvasView.bounds)
+//        _painter.fillTexture(_state.canvasTexture, with: (r: 1, g: 1, b: 1, a: 1))
         _painter.load(canvasSize: canvasView.bounds)
-        _painter.fillTexture(_state.canvasTexture, with: (r: 1, g: 1, b: 1, a: 1))
         self.canvasView = canvasView
     }
     
     func presentCanvas(_ drawable: CAMetalDrawable) {
-        _painter.drawTexture(_state.canvasTexture, on: drawable.texture)
-        _painter.present(drawable: drawable, withState: _state)
+        _painter.present(drawable: drawable)
         _painter.resetCommandBuffer()
     }
 }
