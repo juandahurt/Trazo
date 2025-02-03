@@ -23,11 +23,7 @@ class Painter {
         guard let _grayScaleTexture, let _drawingTexture, let _commandBuffer else {
             return
         }
-        // TODO: check current phase
-        // TODO: stop creating buffer per function call
-        for touch in touches {
-            print(touch.position, touch.positionInTextCoord)
-        }
+        // TODO: stop creating buffer per function cal
         let touchesPos: [simd_float2] = touches.map {
             [Float($0.positionInTextCoord.x), Float($0.positionInTextCoord.y)]
         }
@@ -53,9 +49,15 @@ class Painter {
         )
         
         delegate?.canvasViewNeedsUpdate()
+        
+        let phase = touches.first?.phase
+        if phase == .cancelled || phase == .ended {
+            // TODO: clear textures
+            print("stroke ended")
+        }
     }
     
-    func present(_ drawable: MTLDrawable) {
+    func present(drawable: MTLDrawable, withState state: CanvasState) {
         _commandBuffer?.present(drawable)
         _commandBuffer?.commit()
     }

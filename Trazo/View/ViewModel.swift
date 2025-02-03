@@ -27,8 +27,6 @@ class ViewModel {
         guard let canvasView else { return }
         let drawableTouches = touches.map {
             let position = $0.location(in: canvasView)
-//            let x = position.x / canvasView.bounds.width
-//            let y = 1 - (position.y / canvasView.bounds.height)
             let x = (position.x / canvasView.bounds.width) * 2 - 1
             let y = 1 - (position.y / canvasView.bounds.height) * 2
             return DrawableTouch(
@@ -49,7 +47,7 @@ class ViewModel {
     
     func presentCanvas(_ drawable: CAMetalDrawable) {
         _painter.drawTexture(_state.canvasTexture, on: drawable.texture)
-        _painter.present(drawable)
+        _painter.present(drawable: drawable, withState: _state)
         _painter.resetCommandBuffer()
     }
 }
