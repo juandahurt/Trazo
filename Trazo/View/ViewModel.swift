@@ -8,52 +8,33 @@
 import UIKit
 
 struct DrawableTouch {
-    var position: CGPoint
     var positionInTextCoord: CGPoint
     var phase: UITouch.Phase
 }
 
 class ViewModel {
-    var canvasView: CanvasView?
-    private var _state: CanvasState
-    private let _painter = Painter()
-    
-    init() {
-        _state = CanvasState()
-        _painter.delegate = self
-    }
+    private var _workflow: WorkflowStep?
+    private var _workflowState = WorkflowState()
     
     func onFingerTouches(_ touches: Set<UITouch>) {
-        guard let canvasView else { return }
-        let drawableTouches = touches.map {
-            let position = $0.location(in: canvasView)
-            let x = (position.x / canvasView.bounds.width) * 2 - 1
-            let y = 1 - (position.y / canvasView.bounds.height) * 2
-            return DrawableTouch(
-                position: position,
-                positionInTextCoord: .init(x: x, y: y),
-                phase: $0.phase
-            )
-        }
-        _painter.draw(fingerTouches: drawableTouches)
+        guard let _workflow else { return }
+        // TODO: check what I need to do when usser uses more than one finger
+        guard touches.count == 1 else { return }
+        guard let touch = touches.first else { return }
+        _workflowState.inputTouch = touch
+        _workflow.excecute(using: &_workflowState)
     }
     
-    func loadCanvas(using canvasView: CanvasView) {
-//        _state.load(canvasSize: canvasView.bounds)
-//        _painter.load(canvasSize: canvasView.bounds)
-//        _painter.fillTexture(_state.canvasTexture, with: (r: 1, g: 1, b: 1, a: 1))
-        _painter.load(canvasSize: canvasView.bounds)
-        self.canvasView = canvasView
-    }
-    
-    func presentCanvas(_ drawable: CAMetalDrawable) {
-        _painter.present(drawable: drawable)
-        _painter.resetCommandBuffer()
-    }
-}
-
-extension ViewModel: PainterDelegate {
-    func canvasViewNeedsUpdate() {
-        canvasView?.setNeedsDisplay()
+    func load(using canvasView: CanvasView) {
+        let inputProcessor = InputProcessorStep(canvasView: canvasView)
+        _workflow = inputProcessor
+        
+        let drawingStep = DrawingStep(
+            painter: Painter(canvasView: canvasView)
+        )
+        inputProcessor.next = drawingStep
+        
+        // execute the workflow so the canvas is presented for the first time
+        _workflow?.excecute(using: &_workflowState)
     }
 }

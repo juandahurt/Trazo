@@ -7,13 +7,7 @@
 
 import MetalKit
 
-protocol CanvasViewDelegate: AnyObject {
-    func drawCanvas(onDrawable drawable: CAMetalDrawable)
-}
-
 class CanvasView: MTKView, MTKViewDelegate {
-    weak var canvasDelegate: CanvasViewDelegate?
-    
     init(frame: CGRect) {
         super.init(frame: frame, device: Metal.device)
       
@@ -33,7 +27,6 @@ class CanvasView: MTKView, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
-        guard let currentDrawable else { return }
-        canvasDelegate?.drawCanvas(onDrawable: currentDrawable)
+        // TODO: check if I need to do something here
     }
 }

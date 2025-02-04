@@ -8,17 +8,18 @@
 import MetalKit
 import UIKit
 
-protocol PainterDelegate: AnyObject {
-    func canvasViewNeedsUpdate()
-}
-
 class Painter {
     private var _canvasTexture: DrawableTexture?
     private var _drawingTexture: MTLTexture?
     private var _grayScaleTexture: MTLTexture?
     private var _commandBuffer: MTLCommandBuffer?
    
-    weak var delegate: PainterDelegate?
+    private let _canvasView: MTKView
+    
+    init(canvasView: MTKView) {
+        _canvasView = canvasView
+        load()
+    }
     
     func draw(fingerTouches touches: [DrawableTouch]) {
         guard let _grayScaleTexture, let _drawingTexture, let _commandBuffer else {
@@ -56,17 +57,13 @@ class Painter {
             using: _commandBuffer
         )
         
-        _clearTextures()
-        
-        delegate?.canvasViewNeedsUpdate()
-        
         let phase = touches.first?.phase
         if phase == .cancelled || phase == .ended {
             print("stroke ended")
         }
     }
     
-    private func _clearTextures() {
+    func clearTextures() {
         Renderer.instance.fillTexture(
             texture: .init(metalTexture: _grayScaleTexture!),
             with: (r: 0, g: 0, b: 0, a: 0),
@@ -78,15 +75,19 @@ class Painter {
             using: _commandBuffer!
         )
     }
-    
-    func present(drawable: CAMetalDrawable) {
+   
+    func present() {
+        guard let drawable = _canvasView.currentDrawable else { return }
         drawTexture(_canvasTexture!, on: drawable.texture)
         _commandBuffer?.present(drawable)
         _commandBuffer?.commit()
         _commandBuffer?.waitUntilCompleted()
+        
+        _canvasView.setNeedsDisplay()
     }
     
-    func load(canvasSize: CGRect) {
+    func load() {
+        let canvasSize = _canvasView.bounds
         resetCommandBuffer()
         _canvasTexture = TextureManager().createDrawableTexture(ofSize: canvasSize)
         _grayScaleTexture = TextureManager().createMetalTexture(ofSize: canvasSize)

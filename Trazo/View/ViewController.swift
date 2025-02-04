@@ -7,14 +7,13 @@
 
 import UIKit
 
-let canvasWidth: Int = 500
-let canvasHeight: Int = 500
+let canvasWidth: Int = 800
+let canvasHeight: Int = 800
 
 class ViewController: UIViewController {
     private lazy var _canvasView: CanvasView = {
         let canvasView = CanvasView(frame: view.frame)
         canvasView.translatesAutoresizingMaskIntoConstraints = false
-        canvasView.canvasDelegate = self
         
         let pencilGesture = PencilGestureRecognizer()
         pencilGesture.pencilGestureDelegate = self
@@ -37,7 +36,7 @@ class ViewController: UIViewController {
         addPinchGesture()
         addSubviews()
         
-        _viewModel.loadCanvas(using: _canvasView)
+        _viewModel.load(using: _canvasView)
     }
     
     func addSubviews() {
@@ -72,12 +71,6 @@ extension ViewController {
                 .scaledBy(x: recognizer.scale, y: recognizer.scale)
             recognizer.scale = 1
         }
-    }
-}
-
-extension ViewController: CanvasViewDelegate {
-    func drawCanvas(onDrawable drawable: CAMetalDrawable) {
-        _viewModel.presentCanvas(drawable)
     }
 }
 
