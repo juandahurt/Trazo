@@ -8,10 +8,6 @@
 import MetalKit
 import UIKit
 
-protocol PainterDelegate: AnyObject {
-    func canvasViewNeedsUpdate()
-}
-
 class Painter {
     private var _canvasTexture: DrawableTexture?
     private var _drawingTexture: MTLTexture?
@@ -19,8 +15,6 @@ class Painter {
     private var _commandBuffer: MTLCommandBuffer?
    
     private let _canvasView: MTKView
-    
-    weak var delegate: PainterDelegate?
     
     init(canvasView: MTKView) {
         _canvasView = canvasView

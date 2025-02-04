@@ -25,7 +25,7 @@ class ViewModel {
         _workflow.excecute(using: &_workflowState)
     }
     
-    func loadCanvas(using canvasView: CanvasView) {
+    func load(using canvasView: CanvasView) {
         let inputProcessor = InputProcessorStep(canvasView: canvasView)
         _workflow = inputProcessor
         
