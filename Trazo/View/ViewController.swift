@@ -14,7 +14,6 @@ class ViewController: UIViewController {
     private lazy var _canvasView: CanvasView = {
         let canvasView = CanvasView(frame: view.frame)
         canvasView.translatesAutoresizingMaskIntoConstraints = false
-        canvasView.canvasDelegate = self
         
         let pencilGesture = PencilGestureRecognizer()
         pencilGesture.pencilGestureDelegate = self
@@ -72,12 +71,6 @@ extension ViewController {
                 .scaledBy(x: recognizer.scale, y: recognizer.scale)
             recognizer.scale = 1
         }
-    }
-}
-
-extension ViewController: CanvasViewDelegate {
-    func drawCanvas(onDrawable drawable: CAMetalDrawable) {
-        _viewModel.presentCanvas(drawable)
     }
 }
 
