@@ -17,7 +17,7 @@ class ViewModel {
     private var _workflowState = WorkflowState()
    
     func scaleUpdated(newValue scale: CGFloat) {
-//        print("old scale: ", _workflowState.scale)
+        // TODO: fix issue where canvas keeps drawing the last point
         _workflowState.scale *= Float(scale)
         _workflow?.excecute(using: &_workflowState)
     }
