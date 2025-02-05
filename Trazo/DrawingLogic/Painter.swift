@@ -59,7 +59,7 @@ class Painter {
         
         let phase = touches.first?.phase
         if phase == .cancelled || phase == .ended {
-            print("stroke ended")
+            // end of stroke
         }
     }
     
@@ -81,7 +81,7 @@ class Painter {
         drawTexture(
             _canvasTexture!,
             on: drawable.texture,
-            backgroundColor: (r: 0, g: 0, b: 0, a: 0),
+            backgroundColor: (r: 0.125, g: 0.125, b: 0.125, a: 1),
             scale: scale
         )
         _commandBuffer?.present(drawable)

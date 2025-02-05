@@ -34,6 +34,7 @@ class ViewController: UIViewController {
         view.backgroundColor = .init(red: 32 / 255, green: 32 / 255, blue: 32 / 255, alpha: 1)
         
         addPinchGesture()
+        addRotationGesture()
         addSubviews()
         
         _viewModel.load(using: _canvasView)
@@ -48,7 +49,17 @@ class ViewController: UIViewController {
             target: self,
             action: #selector(onPinchGesture(_:))
         )
+        pinchRecognizer.delegate = self
         view.addGestureRecognizer(pinchRecognizer)
+    }
+    
+    func addRotationGesture() {
+        let rotationRecognizer = UIRotationGestureRecognizer(
+            target: self,
+            action: #selector(onRotationGesture(_:))
+        )
+        rotationRecognizer.delegate = self
+        view.addGestureRecognizer(rotationRecognizer)
     }
     
     func addCanvasView() {
@@ -67,8 +78,30 @@ extension ViewController {
     @objc
     func onPinchGesture(_ recognizer: UIPinchGestureRecognizer) {
         if recognizer.state == .began || recognizer.state == .changed {
+            self._canvasView.transform = self._canvasView.transform
+                .scaledBy(x: recognizer.scale, y: recognizer.scale)
             _viewModel.scaleUpdated(newValue: recognizer.scale)
             recognizer.scale = 1
+        }
+    }
+}
+
+extension ViewController: UIGestureRecognizerDelegate {
+    func gestureRecognizer(
+        _ gestureRecognizer: UIGestureRecognizer,
+        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
+    ) -> Bool {
+        true
+    }
+}
+
+extension ViewController {
+    @objc
+    func onRotationGesture(_ recognizer: UIRotationGestureRecognizer) {
+        if recognizer.state == .began || recognizer.state == .changed {
+            self._canvasView.transform = self._canvasView.transform
+                .rotated(by: recognizer.rotation)
+            recognizer.rotation = 0
         }
     }
 }
