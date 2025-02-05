@@ -16,14 +16,14 @@ class DrawingStep: WorkflowStep {
     func excecute(using data: inout WorkflowState) {
         if !data.canvasHasLoaded {
             data.canvasHasLoaded = true
-            painter.present()
+            painter.present(scale: data.scale)
             painter.resetCommandBuffer()
             return
         }
         
         painter.draw(fingerTouches: [data.convertedtouch])
         painter.clearTextures()
-        painter.present()
+        painter.present(scale: data.scale)
         painter.resetCommandBuffer()
     }
 }

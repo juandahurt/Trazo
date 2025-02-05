@@ -8,6 +8,7 @@
 import UIKit
 
 struct WorkflowState {
+    var scale: Float = 1
     var canvasHasLoaded = false
     var inputTouch = UITouch()
     var convertedtouch = DrawableTouch(

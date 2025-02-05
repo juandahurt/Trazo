@@ -54,17 +54,36 @@ final class Renderer {
     func drawTexture(
         texture: DrawableTexture,
         on outputTexture: MTLTexture,
-        using commandBuffer: MTLCommandBuffer
+        using commandBuffer: MTLCommandBuffer,
+        backgroundColor: Color? = nil,
+        scale: Float
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
         passDescriptor.colorAttachments[0].texture = outputTexture
         passDescriptor.colorAttachments[0].loadAction = .load
         
+        if let backgroundColor {
+            passDescriptor.colorAttachments[0].loadAction = .clear
+            passDescriptor
+                .colorAttachments[0].clearColor = .init(
+                    red: Double(backgroundColor.r),
+                    green: Double(backgroundColor.g),
+                    blue: Double(backgroundColor.b),
+                    alpha: Double(backgroundColor.a)
+                )
+        }
+        
+        
+        let vertices = Buffers.texture(scaledBy: scale)
+        
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(PipelinesStore.instance.drawTexturePipeline)
         encoder?.setFragmentTexture(texture.actualTexture, index: 3)
         encoder?.setVertexBuffer(
-            texture.buffers.vertexBuffer,
+            Metal.device.makeBuffer(
+                bytes: vertices,
+                length: MemoryLayout<Float>.stride * vertices.count
+            ) ,
             offset: 0,
             index: 0
         )

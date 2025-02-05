@@ -15,6 +15,12 @@ struct DrawableTouch {
 class ViewModel {
     private var _workflow: WorkflowStep?
     private var _workflowState = WorkflowState()
+   
+    func scaleUpdated(newValue scale: CGFloat) {
+//        print("old scale: ", _workflowState.scale)
+        _workflowState.scale *= Float(scale)
+        _workflow?.excecute(using: &_workflowState)
+    }
     
     func onFingerTouches(_ touches: Set<UITouch>) {
         guard let _workflow else { return }
