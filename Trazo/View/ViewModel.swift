@@ -15,6 +15,12 @@ struct DrawableTouch {
 class ViewModel {
     private var _workflow: WorkflowStep?
     private var _workflowState = WorkflowState()
+   
+    func scaleUpdated(newValue scale: CGFloat) {
+        // TODO: fix issue where canvas keeps drawing the last point
+        _workflowState.scale *= Float(scale)
+        _workflow?.excecute(using: &_workflowState)
+    }
     
     func onFingerTouches(_ touches: Set<UITouch>) {
         guard let _workflow else { return }

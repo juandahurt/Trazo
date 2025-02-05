@@ -54,12 +54,12 @@ class ViewController: UIViewController {
     func addCanvasView() {
         view.addSubview(_canvasView)
         
-        NSLayoutConstraint.activate([
-            _canvasView.heightAnchor.constraint(equalToConstant: CGFloat(canvasHeight)),
-            _canvasView.widthAnchor.constraint(equalToConstant: CGFloat(canvasWidth)),
-            _canvasView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-            _canvasView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-        ])
+//        NSLayoutConstraint.activate([
+//            _canvasView.heightAnchor.constraint(equalToConstant: CGFloat(canvasHeight)),
+//            _canvasView.widthAnchor.constraint(equalToConstant: CGFloat(canvasWidth)),
+//            _canvasView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            _canvasView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+//        ])
     }
 }
 
@@ -67,8 +67,7 @@ extension ViewController {
     @objc
     func onPinchGesture(_ recognizer: UIPinchGestureRecognizer) {
         if recognizer.state == .began || recognizer.state == .changed {
-            _canvasView.transform = _canvasView.transform
-                .scaledBy(x: recognizer.scale, y: recognizer.scale)
+            _viewModel.scaleUpdated(newValue: recognizer.scale)
             recognizer.scale = 1
         }
     }
