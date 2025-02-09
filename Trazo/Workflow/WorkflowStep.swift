@@ -5,7 +5,8 @@
 //  Created by Juan Hurtado on 4/02/25.
 //
 
-protocol WorkflowStep {
-    var next: WorkflowStep? { get set }
-    func excecute(using data: inout WorkflowState)
+class WorkflowStep {
+    func excecute(using state: inout CanvasState) {
+        fatalError("this method should be overriden")
+    }
 }

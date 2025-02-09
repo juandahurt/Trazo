@@ -6,24 +6,17 @@
 //
 
 class DrawingStep: WorkflowStep {
-    let painter: Painter
-    var next: (any WorkflowStep)?
+//    let painter: Painter
 
-    init(painter: Painter) {
-        self.painter = painter
-    }
+//    init(painter: Painter) {
+//        self.painter = painter
+//    }
     
-    func excecute(using data: inout WorkflowState) {
-        if !data.canvasHasLoaded {
-            data.canvasHasLoaded = true
-            painter.present(scale: data.scale)
-            painter.resetCommandBuffer()
-            return
-        }
-        
-        painter.draw(fingerTouches: [data.convertedtouch])
-        painter.clearTextures()
-        painter.present(scale: data.scale)
-        painter.resetCommandBuffer()
+    override func excecute(using state: inout CanvasState) {
+        print("executing drawing step")
+//        painter.draw(fingerTouches: [data.convertedtouch])
+//        painter.clearTextures()
+//        painter.present(scale: data.scale)
+//        painter.resetCommandBuffer()
     }
 }
