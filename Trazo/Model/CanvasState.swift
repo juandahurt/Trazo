@@ -25,6 +25,11 @@ struct CanvasState {
     var commandBuffer: MTLCommandBuffer?
     
     var scale: CGFloat = 1
+    var transformScale: CGFloat = 1
+    
+    // used when we need to clear the background
+    // for example, when user zooms or rotated the canvas
+    var canvasBackgroundColor: Color?
     
     init(canvasView: CanvasView) {
         self.canvasView = canvasView

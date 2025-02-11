@@ -16,3 +16,17 @@ class SetupCanvasWorkflow: Workflow {
         ]
     }
 }
+
+
+class TransformCanvasWorkflow: Workflow {
+    override init() {
+        super.init()
+        steps = [
+            TransformCanvasStep(),
+            CanvasPresentationStep()
+        ]
+    }
+}
+
+
+

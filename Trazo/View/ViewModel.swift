@@ -16,11 +16,14 @@ class ViewModel {
     private var _canvasState: CanvasState!
     private var _drawingWorkflow = DrawingWorkflow()
     private let _setupWorkflow = SetupCanvasWorkflow()
+    private let _transformWorkflow = TransformCanvasWorkflow()
    
     func scaleUpdated(newValue scale: CGFloat) {
-        // TODO: fix issue where canvas keeps drawing the last point
-        // TODO: update scale
-        // TODO: redraw canvas clearing the background
+        if _canvasState.scale > 4 && scale > 1 { return }
+        if _canvasState.scale < 0.3 && scale < 1 { return }
+        _canvasState.scale *= scale
+        _canvasState.transformScale = scale
+        _transformWorkflow.run(withState: &_canvasState)
     }
     
     func onFingerTouches(_ touches: Set<UITouch>) {

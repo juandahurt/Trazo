@@ -78,8 +78,6 @@ extension ViewController {
     @objc
     func onPinchGesture(_ recognizer: UIPinchGestureRecognizer) {
         if recognizer.state == .began || recognizer.state == .changed {
-            self._canvasView.transform = self._canvasView.transform
-                .scaledBy(x: recognizer.scale, y: recognizer.scale)
             _viewModel.scaleUpdated(newValue: recognizer.scale)
             recognizer.scale = 1
         }
