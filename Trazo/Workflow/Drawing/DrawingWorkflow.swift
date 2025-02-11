@@ -11,7 +11,9 @@ class DrawingWorkflow: Workflow {
         super.init()
         steps = [
             InputProcessorStep(),
-            DrawingStep()
+            DrawingStep(),
+            CanvasPresentationStep(),
+            ClearInputTexturesStep()
         ]
     }
 }
