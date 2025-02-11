@@ -13,34 +13,29 @@ struct DrawableTouch {
 }
 
 class ViewModel {
-    private var _workflow: WorkflowStep?
-    private var _workflowState = WorkflowState()
+    private var _canvasState: CanvasState!
+    private var _drawingWorkflow = DrawingWorkflow()
+    private let _setupWorkflow = SetupCanvasWorkflow()
+    private let _transformWorkflow = TransformCanvasWorkflow()
    
     func scaleUpdated(newValue scale: CGFloat) {
-        // TODO: fix issue where canvas keeps drawing the last point
-        _workflowState.scale *= Float(scale)
-        _workflow?.excecute(using: &_workflowState)
+        if _canvasState.scale > 4 && scale > 1 { return }
+        if _canvasState.scale < 0.3 && scale < 1 { return }
+        _canvasState.scale *= scale
+        _canvasState.transformScale = scale
+        _transformWorkflow.run(withState: &_canvasState)
     }
     
     func onFingerTouches(_ touches: Set<UITouch>) {
-        guard let _workflow else { return }
-        // TODO: check what I need to do when usser uses more than one finger
         guard touches.count == 1 else { return }
         guard let touch = touches.first else { return }
-        _workflowState.inputTouch = touch
-        _workflow.excecute(using: &_workflowState)
+        _canvasState.inputTouch = touch
+        
+        _drawingWorkflow.run(withState: &_canvasState)
     }
     
     func load(using canvasView: CanvasView) {
-        let inputProcessor = InputProcessorStep(canvasView: canvasView)
-        _workflow = inputProcessor
-        
-        let drawingStep = DrawingStep(
-            painter: Painter(canvasView: canvasView)
-        )
-        inputProcessor.next = drawingStep
-        
-        // execute the workflow so the canvas is presented for the first time
-        _workflow?.excecute(using: &_workflowState)
+        _canvasState = CanvasState(canvasView: canvasView)
+        _setupWorkflow.run(withState: &_canvasState)
     }
 }

@@ -5,25 +5,46 @@
 //  Created by Juan Hurtado on 4/02/25.
 //
 
-class DrawingStep: WorkflowStep {
-    let painter: Painter
-    var next: (any WorkflowStep)?
+import simd
 
-    init(painter: Painter) {
-        self.painter = painter
-    }
-    
-    func excecute(using data: inout WorkflowState) {
-        if !data.canvasHasLoaded {
-            data.canvasHasLoaded = true
-            painter.present(scale: data.scale)
-            painter.resetCommandBuffer()
-            return
-        }
+class DrawingStep: WorkflowStep {
+    override func excecute(using state: inout CanvasState) {
+        print("executing drawing step")
         
-        painter.draw(fingerTouches: [data.convertedtouch])
-        painter.clearTextures()
-        painter.present(scale: data.scale)
-        painter.resetCommandBuffer()
+        let touchesPos: [simd_float2] = [state.drawableTouch].map {
+            [Float($0.positionInTextCoord.x), Float($0.positionInTextCoord.y)]
+        }
+        // TODO: find a way to prevent creating a buffer per draw
+        let positionsBuffer = Metal.device
+            .makeBuffer(
+                bytes: touchesPos,
+                length: MemoryLayout<simd_float2>.stride * touchesPos.count
+            )
+        // draw grayscale points
+        Renderer.instance.drawGrayPoints(
+            positionsBuffer: positionsBuffer!,
+            numPoints: touchesPos.count,
+            on: state.grayScaleTexture!,
+            using: state.commandBuffer!
+        )
+        
+        // colorization
+        Renderer.instance.colorize(
+            grayscaleTexture: state.grayScaleTexture!,
+            withColor: (0, 1, 1, 1),
+            on: state.drawingTexture!,
+            using: state.commandBuffer!
+        )
+        
+        // merge drawing texture with the canvas texture
+        Renderer.instance.merge(
+            state.drawingTexture!,
+            to: state.canvasTexture!.actualTexture,
+            using: state.commandBuffer!
+        )
+        
+        // make sure the background is not cleared on the presentation step
+        state.canvasBackgroundColor = nil
     }
 }
+

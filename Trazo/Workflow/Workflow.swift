@@ -5,10 +5,14 @@
 //  Created by Juan Hurtado on 4/02/25.
 //
 
-class Workflow {
-    
-}
+import UIKit
 
-class DrawingWorkflow {
+class Workflow {
+    var steps: [WorkflowStep] = []
     
+    func run(withState state: inout CanvasState) {
+        for step in steps {
+            step.excecute(using: &state)
+        }
+    }
 }

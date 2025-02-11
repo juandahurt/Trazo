@@ -5,6 +5,7 @@
 //  Created by Juan Hurtado on 24/01/25.
 //
 
+import Combine
 import MetalKit
 
 class CanvasView: MTKView, MTKViewDelegate {
