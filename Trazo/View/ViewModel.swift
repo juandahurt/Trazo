@@ -21,8 +21,13 @@ class ViewModel {
     func scaleUpdated(newValue scale: CGFloat) {
         if _canvasState.scale > 4 && scale > 1 { return }
         if _canvasState.scale < 0.3 && scale < 1 { return }
-        _canvasState.scale *= scale
-        _canvasState.transformScale = scale
+        _canvasState.scale = scale
+        _canvasState.currScale *= scale
+        _transformWorkflow.run(withState: &_canvasState)
+    }
+   
+    func rotationUpdated(newValue angle: CGFloat) {
+        _canvasState.rotation = angle
         _transformWorkflow.run(withState: &_canvasState)
     }
     

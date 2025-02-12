@@ -97,8 +97,7 @@ extension ViewController {
     @objc
     func onRotationGesture(_ recognizer: UIRotationGestureRecognizer) {
         if recognizer.state == .began || recognizer.state == .changed {
-            self._canvasView.transform = self._canvasView.transform
-                .rotated(by: recognizer.rotation)
+            _viewModel.rotationUpdated(newValue: recognizer.rotation)
             recognizer.rotation = 0
         }
     }

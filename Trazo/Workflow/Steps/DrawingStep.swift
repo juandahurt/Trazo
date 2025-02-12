@@ -44,7 +44,7 @@ class DrawingStep: WorkflowStep {
         )
         
         // make sure the background is not cleared on the presentation step
-        state.canvasBackgroundColor = nil
+//        state.canvasBackgroundColor = nil
     }
 }
 

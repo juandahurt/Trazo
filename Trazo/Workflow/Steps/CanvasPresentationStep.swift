@@ -13,7 +13,7 @@ class CanvasPresentationStep: WorkflowStep {
             on: state.canvasView.currentDrawable!.texture,
             using: state.commandBuffer!,
             backgroundColor: state.canvasBackgroundColor,
-            scale: Float(state.scale)
+            ctm: state.ctm
         )
         state.commandBuffer?.present(state.canvasView.currentDrawable!)
         state.commandBuffer?.commit()

@@ -22,13 +22,19 @@ struct TextureOuput {
     float2 textCoord;
 };
 
+struct TextureUniforms {
+    float3x3 transformation;
+};
+
 vertex TextureOuput draw_texture_vert(
                                       constant float2* positions [[buffer(0)]],
                                       constant float2* textCoordinates [[buffer(1)]],
+                                      constant TextureUniforms& uniforms [[buffer(2)]],
                                       uint vid [[vertex_id]])
 {
+    float3 position = uniforms.transformation * float3(positions[vid], 0);
     return {
-        .position = float4(positions[vid], 0, 1),
+        .position = float4(position, 1),
         .textCoord = textCoordinates[vid]
     };
 }
