@@ -76,20 +76,20 @@ class Painter {
         )
     }
    
-    func present(scale: Float) {
-        guard let drawable = _canvasView.currentDrawable else { return }
-        drawTexture(
-            _canvasTexture!,
-            on: drawable.texture,
-            backgroundColor: (r: 0.125, g: 0.125, b: 0.125, a: 1),
-            scale: scale
-        )
-        _commandBuffer?.present(drawable)
-        _commandBuffer?.commit()
-        _commandBuffer?.waitUntilCompleted()
-        
-        _canvasView.setNeedsDisplay()
-    }
+//    func present(scale: Float) {
+//        guard let drawable = _canvasView.currentDrawable else { return }
+//        drawTexture(
+//            _canvasTexture!,
+//            on: drawable.texture,
+//            backgroundColor: (r: 0.125, g: 0.125, b: 0.125, a: 1),
+//            scale: scale
+//        )
+//        _commandBuffer?.present(drawable)
+//        _commandBuffer?.commit()
+//        _commandBuffer?.waitUntilCompleted()
+//        
+//        _canvasView.setNeedsDisplay()
+//    }
     
     func load() {
         let canvasSize = _canvasView.bounds
@@ -133,19 +133,19 @@ class Painter {
         )
     }
     
-    func drawTexture(
-        _ texture: DrawableTexture,
-        on ouputTexture: MTLTexture,
-        backgroundColor: Color? = nil,
-        scale: Float
-    ) {
-        guard let _commandBuffer else { return }
-        Renderer.instance.drawTexture(
-            texture: texture,
-            on: ouputTexture,
-            using: _commandBuffer,
-            backgroundColor: backgroundColor,
-            scale: scale
-        )
-    }
+//    func drawTexture(
+//        _ texture: DrawableTexture,
+//        on ouputTexture: MTLTexture,
+//        backgroundColor: Color? = nil,
+//        scale: Float
+//    ) {
+//        guard let _commandBuffer else { return }
+//        Renderer.instance.drawTexture(
+//            texture: texture,
+//            on: ouputTexture,
+//            using: _commandBuffer,
+//            backgroundColor: backgroundColor,
+//            scale: scale
+//        )
+//    }
 }

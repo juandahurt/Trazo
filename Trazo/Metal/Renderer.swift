@@ -5,7 +5,7 @@
 //  Created by Juan Hurtado on 26/01/25.
 //
 
-import Metal
+import MetalKit
 
 typealias Color = (r: Float, g: Float, b: Float, a: Float)
 
@@ -56,7 +56,7 @@ final class Renderer {
         on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer,
         backgroundColor: Color? = nil,
-        scale: Float
+        ctm: CGAffineTransform = .identity
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
         passDescriptor.colorAttachments[0].texture = outputTexture
@@ -73,17 +73,11 @@ final class Renderer {
                 )
         }
         
-        
-        let vertices = Buffers.texture(scaledBy: scale)
-        
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(PipelinesStore.instance.drawTexturePipeline)
         encoder?.setFragmentTexture(texture.actualTexture, index: 3)
         encoder?.setVertexBuffer(
-            Metal.device.makeBuffer(
-                bytes: vertices,
-                length: MemoryLayout<Float>.stride * vertices.count
-            ) ,
+            texture.buffers.vertexBuffer,
             offset: 0,
             index: 0
         )
@@ -91,6 +85,19 @@ final class Renderer {
             texture.buffers.textCoordinates,
             length: texture.buffers.textCoordSize,
             index: 1
+        )
+        
+        // matrix transform
+        var matrix = float3x3([
+            [Float(ctm.a), Float(ctm.b), 0],
+            [Float(ctm.c), Float(ctm.d), 0],
+            [Float(ctm.tx), Float(ctm.ty), 1]
+        ])
+        
+        encoder?.setVertexBytes(
+            &matrix,
+            length: MemoryLayout<float3x3>.stride,
+            index: 2
         )
         encoder?
             .drawIndexedPrimitives(
