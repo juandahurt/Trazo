@@ -151,6 +151,7 @@ final class Renderer {
         positionsBuffer: MTLBuffer,
         numPoints: Int,
         on grayScaleTexture: MTLTexture,
+        ctm: CGAffineTransform,
         using commandBuffer: MTLCommandBuffer
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
@@ -163,6 +164,43 @@ final class Renderer {
             PipelinesStore.instance.drawGrayScalePointPipeline
         )
         encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+        
+        let width = Float(grayScaleTexture.width)
+        let height = Float(grayScaleTexture.height)
+        
+        // matrix transform
+        var matrix = float4x4([
+            [Float(ctm.a), Float(ctm.b), 0, 0],
+            [Float(ctm.c), Float(ctm.d), 0, 0],
+            [0, 0, 1, 0],
+            [Float(ctm.tx), Float(ctm.ty), 1, 1]
+        ])
+
+        let viewSize: Float = height
+        let aspect = width / height
+        let rect = CGRect(
+            x: Double(-viewSize * aspect) * 0.5,
+            y: Double(viewSize) * 0.5,
+            width: Double(viewSize * aspect),
+            height: Double(viewSize))
+        var projection = float4x4(
+            orthographic: rect,
+            near: 0,
+            far: 1
+        )
+        
+        encoder?.setVertexBytes(
+            &matrix,
+            length: MemoryLayout<float4x4>.stride,
+            index: 1
+        )
+        encoder?.setVertexBytes(
+            &projection,
+            length: MemoryLayout<float4x4>.stride,
+            index: 2
+        )
+        
+        
         encoder?.drawPrimitives(
             type: .point,
             vertexStart: 0,

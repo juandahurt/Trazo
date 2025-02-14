@@ -52,9 +52,14 @@ struct GrayScalePoint {
     float pointSize [[point_size]];
 };
 
-vertex GrayScalePoint gray_scale_point_vert(constant float2* positions [[buffer(0)]], uint vid [[vertex_id]]) {
+vertex GrayScalePoint gray_scale_point_vert(constant float2* positions [[buffer(0)]],
+                                            uint vid [[vertex_id]],
+                                            constant float4x4& modelMatrix [[buffer(1)]],
+                                            constant float4x4& projectionMatrix [[buffer(2)]])
+{
+    float4 position = projectionMatrix * modelMatrix * float4(positions[vid], 0, 1);
     return {
-        .position = float4(positions[vid], 0, 1),
+        .position = position,
         .pointSize = 15
     };
 }

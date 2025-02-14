@@ -5,18 +5,25 @@
 //  Created by Juan Hurtado on 4/02/25.
 //
 
+import simd
 import UIKit
 
 class InputProcessorStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
         print("executing iput processor step")
+        let center = state.canvasView.center
         var location = state.inputTouch.location(in: state.canvasView)
-        
-        // convert to metal coords
-        let x = (location.x / state.canvasView.bounds.width) * 2 - 1
-        let y = 1 - (location.y / state.canvasView.bounds.height) * 2
-        
-        location = CGPoint(x: x, y: y).applying(state.ctm.inverted())
+        location.y = state.canvasView.bounds.height - location.y
+        location = location.applying(
+            .init(
+                translationX: -state.canvasView.bounds.width / 2,
+                y: -state.canvasView.bounds.height / 2
+            )
+        )
+        let distX = abs(center.x - location.x)
+        let distY = abs(center.y - location.y)
+        print(distX, distY)
+
         
         state.drawableTouch.positionInTextCoord = .init(x: location.x, y: location.y)
     }

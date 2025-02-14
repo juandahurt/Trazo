@@ -12,7 +12,7 @@ class TransformCanvasStep: WorkflowStep {
         print("transform canvas step")
        
         state.ctm = state.ctm
-            .rotated(by: 2 * .pi - state.rotation)
+            .rotated(by: -state.rotation)
             .scaledBy(x: state.scale, y: state.scale)
             
         // make sure the background is cleared on the presetation step
