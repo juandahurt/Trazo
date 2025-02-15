@@ -9,9 +9,7 @@ import simd
 import CoreGraphics
 
 class DrawingStep: WorkflowStep {
-    override func excecute(using state: inout CanvasState) {
-        print("executing drawing step")
-        
+    override func excecute(using state: inout CanvasState) {        
         let touchesPos: [simd_float2] = [state.drawableTouch].map {
             [Float($0.positionInTextCoord.x), Float($0.positionInTextCoord.y)]
         }
@@ -22,13 +20,12 @@ class DrawingStep: WorkflowStep {
                 length: MemoryLayout<simd_float2>.stride * touchesPos.count
             )
         
-//        let ctm = state.ctm.scaledBy(x: state.currScale, y: state.currScale).inverted()
         // draw grayscale points
         Renderer.instance.drawGrayPoints(
             positionsBuffer: positionsBuffer!,
             numPoints: touchesPos.count,
             on: state.grayScaleTexture!,
-            ctm: state.ctm.inverted(),
+            ctm: state.ctm.inverted(), // inverted bc the this texture is not really afected by the transformations
             using: state.commandBuffer!
         )
         
@@ -46,23 +43,6 @@ class DrawingStep: WorkflowStep {
             to: state.canvasTexture!.actualTexture,
             using: state.commandBuffer!
         )
-        
-        // make sure the background is not cleared on the presentation step
-//        state.canvasBackgroundColor = nil
-    }
-    
-    func removeScaling(from transform: CGAffineTransform) -> CGAffineTransform {
-        // Extract scale components
-        let scaleX = hypot(transform.a, transform.b)  // Scale along X-axis
-        let scaleY = hypot(transform.c, transform.d)  // Scale along Y-axis
-        
-        // Normalize rotation components
-        let newA = transform.a / scaleX
-        let newB = transform.b / scaleX
-        let newC = transform.c / scaleY
-        let newD = transform.d / scaleY
-
-        return CGAffineTransform(a: newA, b: newB, c: newC, d: newD, tx: transform.tx, ty: transform.ty)
     }
 }
 

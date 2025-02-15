@@ -22,7 +22,6 @@ class ViewModel {
         if _canvasState.scale > 4 && scale > 1 { return }
         if _canvasState.scale < 0.3 && scale < 1 { return }
         _canvasState.scale = scale
-        _canvasState.currScale *= scale
         _transformWorkflow.run(withState: &_canvasState)
     }
    

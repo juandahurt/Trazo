@@ -55,23 +55,18 @@ final class Renderer {
         texture: DrawableTexture,
         on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer,
-        backgroundColor: Color? = nil,
+        backgroundColor: Color,
         ctm: CGAffineTransform = .identity
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
         passDescriptor.colorAttachments[0].texture = outputTexture
-        passDescriptor.colorAttachments[0].loadAction = .load
-        
-        if let backgroundColor {
-            passDescriptor.colorAttachments[0].loadAction = .clear
-            passDescriptor
-                .colorAttachments[0].clearColor = .init(
-                    red: Double(backgroundColor.r),
-                    green: Double(backgroundColor.g),
-                    blue: Double(backgroundColor.b),
-                    alpha: Double(backgroundColor.a)
-                )
-        }
+        passDescriptor.colorAttachments[0].loadAction = .clear
+        passDescriptor.colorAttachments[0].clearColor = .init(
+            red: Double(backgroundColor.r),
+            green: Double(backgroundColor.g),
+            blue: Double(backgroundColor.b),
+            alpha: Double(backgroundColor.a)
+        )
         
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(PipelinesStore.instance.drawTexturePipeline)

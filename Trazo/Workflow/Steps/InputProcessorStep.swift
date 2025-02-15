@@ -10,7 +10,6 @@ import UIKit
 
 class InputProcessorStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
-        print("executing iput processor step")
         let center = state.canvasView.center
         var location = state.inputTouch.location(in: state.canvasView)
         location.y = state.canvasView.bounds.height - location.y
@@ -20,11 +19,6 @@ class InputProcessorStep: WorkflowStep {
                 y: -state.canvasView.bounds.height / 2
             )
         )
-        let distX = abs(center.x - location.x)
-        let distY = abs(center.y - location.y)
-        print(distX, distY)
-
-        
         state.drawableTouch.positionInTextCoord = .init(x: location.x, y: location.y)
     }
 }
