@@ -26,14 +26,10 @@ struct CanvasState {
    
     // current transformation matrix
     var ctm: CGAffineTransform = .identity
-    var currScale: CGFloat = 1
     var scale: CGFloat = 1
-    var transformScale: CGFloat = 1
     var rotation: CGFloat = 0
     
-    // used when we need to clear the background
-    // for example, when user zooms or rotate the canvas
-    var canvasBackgroundColor: Color?
+    let canvasBackgroundColor: Color = (0.125, 0.125, 0.125, 1)
     
     init(canvasView: CanvasView) {
         self.canvasView = canvasView

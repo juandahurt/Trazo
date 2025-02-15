@@ -22,19 +22,16 @@ struct TextureOuput {
     float2 textCoord;
 };
 
-struct TextureUniforms {
-    float3x3 transformation;
-};
-
 vertex TextureOuput draw_texture_vert(
                                       constant float2* positions [[buffer(0)]],
                                       constant float2* textCoordinates [[buffer(1)]],
-                                      constant TextureUniforms& uniforms [[buffer(2)]],
+                                      constant float4x4& modelMatrix [[buffer(2)]],
+                                      constant float4x4& projectionMatrix [[buffer(3)]],
                                       uint vid [[vertex_id]])
 {
-    float3 position = uniforms.transformation * float3(positions[vid], 0);
+    float4 position = projectionMatrix * modelMatrix * float4(positions[vid], 0, 1);
     return {
-        .position = float4(position, 1),
+        .position = position,
         .textCoord = textCoordinates[vid]
     };
 }
@@ -55,9 +52,14 @@ struct GrayScalePoint {
     float pointSize [[point_size]];
 };
 
-vertex GrayScalePoint gray_scale_point_vert(constant float2* positions [[buffer(0)]], uint vid [[vertex_id]]) {
+vertex GrayScalePoint gray_scale_point_vert(constant float2* positions [[buffer(0)]],
+                                            uint vid [[vertex_id]],
+                                            constant float4x4& modelMatrix [[buffer(1)]],
+                                            constant float4x4& projectionMatrix [[buffer(2)]])
+{
+    float4 position = projectionMatrix * modelMatrix * float4(positions[vid], 0, 1);
     return {
-        .position = float4(positions[vid], 0, 1),
+        .position = position,
         .pointSize = 15
     };
 }

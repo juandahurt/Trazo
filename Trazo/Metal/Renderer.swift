@@ -55,32 +55,44 @@ final class Renderer {
         texture: DrawableTexture,
         on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer,
-        backgroundColor: Color? = nil,
+        backgroundColor: Color,
         ctm: CGAffineTransform = .identity
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
         passDescriptor.colorAttachments[0].texture = outputTexture
-        passDescriptor.colorAttachments[0].loadAction = .load
-        
-        if let backgroundColor {
-            passDescriptor.colorAttachments[0].loadAction = .clear
-            passDescriptor
-                .colorAttachments[0].clearColor = .init(
-                    red: Double(backgroundColor.r),
-                    green: Double(backgroundColor.g),
-                    blue: Double(backgroundColor.b),
-                    alpha: Double(backgroundColor.a)
-                )
-        }
+        passDescriptor.colorAttachments[0].loadAction = .clear
+        passDescriptor.colorAttachments[0].clearColor = .init(
+            red: Double(backgroundColor.r),
+            green: Double(backgroundColor.g),
+            blue: Double(backgroundColor.b),
+            alpha: Double(backgroundColor.a)
+        )
         
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(PipelinesStore.instance.drawTexturePipeline)
         encoder?.setFragmentTexture(texture.actualTexture, index: 3)
+        
+        let width = Float(outputTexture.width)
+        let height = Float(outputTexture.height)
+        let vertices: [Float] = [
+             -width / 2, -height / 2,
+              width / 2, -height / 2,
+              -width / 2, height / 2,
+            width / 2, height / 2,
+        ]
+        
+        let vertexBuffer = Metal.device.makeBuffer(
+            bytes: vertices,
+            length: MemoryLayout<Float>.stride * vertices.count
+        )
+        
         encoder?.setVertexBuffer(
-            texture.buffers.vertexBuffer,
+            vertexBuffer,
             offset: 0,
             index: 0
         )
+        
+        
         encoder?.setVertexBytes(
             texture.buffers.textCoordinates,
             length: texture.buffers.textCoordSize,
@@ -88,16 +100,35 @@ final class Renderer {
         )
         
         // matrix transform
-        var matrix = float3x3([
-            [Float(ctm.a), Float(ctm.b), 0],
-            [Float(ctm.c), Float(ctm.d), 0],
-            [Float(ctm.tx), Float(ctm.ty), 1]
+        var matrix = float4x4([
+            [Float(ctm.a), Float(ctm.b), 0, 0],
+            [Float(ctm.c), Float(ctm.d), 0, 0],
+            [0, 0, 1, 0],
+            [Float(ctm.tx), Float(ctm.ty), 1, 1]
         ])
+       
+        let viewSize: Float = height
+        let aspect = width / height
+        let rect = CGRect(
+            x: Double(-viewSize * aspect) * 0.5,
+            y: Double(viewSize) * 0.5,
+            width: Double(viewSize * aspect),
+            height: Double(viewSize))
+        var projection = float4x4(
+            orthographic: rect,
+            near: 0,
+            far: 1
+        )
         
         encoder?.setVertexBytes(
             &matrix,
-            length: MemoryLayout<float3x3>.stride,
+            length: MemoryLayout<float4x4>.stride,
             index: 2
+        )
+        encoder?.setVertexBytes(
+            &projection,
+            length: MemoryLayout<float4x4>.stride,
+            index: 3
         )
         encoder?
             .drawIndexedPrimitives(
@@ -115,6 +146,7 @@ final class Renderer {
         positionsBuffer: MTLBuffer,
         numPoints: Int,
         on grayScaleTexture: MTLTexture,
+        ctm: CGAffineTransform,
         using commandBuffer: MTLCommandBuffer
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
@@ -127,6 +159,43 @@ final class Renderer {
             PipelinesStore.instance.drawGrayScalePointPipeline
         )
         encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+        
+        let width = Float(grayScaleTexture.width)
+        let height = Float(grayScaleTexture.height)
+        
+        // matrix transform
+        var matrix = float4x4([
+            [Float(ctm.a), Float(ctm.b), 0, 0],
+            [Float(ctm.c), Float(ctm.d), 0, 0],
+            [0, 0, 1, 0],
+            [Float(ctm.tx), Float(ctm.ty), 1, 1]
+        ])
+
+        let viewSize: Float = height
+        let aspect = width / height
+        let rect = CGRect(
+            x: Double(-viewSize * aspect) * 0.5,
+            y: Double(viewSize) * 0.5,
+            width: Double(viewSize * aspect),
+            height: Double(viewSize))
+        var projection = float4x4(
+            orthographic: rect,
+            near: 0,
+            far: 1
+        )
+        
+        encoder?.setVertexBytes(
+            &matrix,
+            length: MemoryLayout<float4x4>.stride,
+            index: 1
+        )
+        encoder?.setVertexBytes(
+            &projection,
+            length: MemoryLayout<float4x4>.stride,
+            index: 2
+        )
+        
+        
         encoder?.drawPrimitives(
             type: .point,
             vertexStart: 0,
@@ -202,5 +271,24 @@ final class Renderer {
                 threadsPerThreadgroup: threadsPerThreadGroup
             )
         encoder?.endEncoding()
+    }
+}
+
+extension float4x4 {
+    init(orthographic rect: CGRect, near: Float, far: Float) {
+        let left = Float(rect.origin.x)
+        let right = Float(rect.origin.x + rect.width)
+        let top = Float(rect.origin.y)
+        let bottom = Float(rect.origin.y - rect.height)
+        let X = float4(2 / (right - left), 0, 0, 0)
+        let Y = float4(0, 2 / (top - bottom), 0, 0)
+        let Z = float4(0, 0, 1 / (far - near), 0)
+        let W = float4(
+            (left + right) / (left - right),
+            (top + bottom) / (bottom - top),
+            near / (near - far),
+            1)
+        self.init()
+        columns = (X, Y, Z, W)
     }
 }

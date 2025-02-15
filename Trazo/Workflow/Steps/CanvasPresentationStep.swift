@@ -7,7 +7,6 @@
 
 class CanvasPresentationStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
-        print("executing canvas presentation step")
         Renderer.instance.drawTexture(
             texture: state.canvasTexture!,
             on: state.canvasView.currentDrawable!.texture,
