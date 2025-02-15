@@ -100,12 +100,7 @@ final class Renderer {
         )
         
         // matrix transform
-        var matrix = float4x4([
-            [Float(ctm.a), Float(ctm.b), 0, 0],
-            [Float(ctm.c), Float(ctm.d), 0, 0],
-            [0, 0, 1, 0],
-            [Float(ctm.tx), Float(ctm.ty), 1, 1]
-        ])
+        var modelMatrix = ctm.toFloat4x4()
        
         let viewSize: Float = height
         let aspect = width / height
@@ -121,7 +116,7 @@ final class Renderer {
         )
         
         encoder?.setVertexBytes(
-            &matrix,
+            &modelMatrix,
             length: MemoryLayout<float4x4>.stride,
             index: 2
         )
@@ -163,13 +158,7 @@ final class Renderer {
         let width = Float(grayScaleTexture.width)
         let height = Float(grayScaleTexture.height)
         
-        // matrix transform
-        var matrix = float4x4([
-            [Float(ctm.a), Float(ctm.b), 0, 0],
-            [Float(ctm.c), Float(ctm.d), 0, 0],
-            [0, 0, 1, 0],
-            [Float(ctm.tx), Float(ctm.ty), 1, 1]
-        ])
+        var modelMatrix = ctm.toFloat4x4()
 
         let viewSize: Float = height
         let aspect = width / height
@@ -185,7 +174,7 @@ final class Renderer {
         )
         
         encoder?.setVertexBytes(
-            &matrix,
+            &modelMatrix,
             length: MemoryLayout<float4x4>.stride,
             index: 1
         )
@@ -271,24 +260,5 @@ final class Renderer {
                 threadsPerThreadgroup: threadsPerThreadGroup
             )
         encoder?.endEncoding()
-    }
-}
-
-extension float4x4 {
-    init(orthographic rect: CGRect, near: Float, far: Float) {
-        let left = Float(rect.origin.x)
-        let right = Float(rect.origin.x + rect.width)
-        let top = Float(rect.origin.y)
-        let bottom = Float(rect.origin.y - rect.height)
-        let X = float4(2 / (right - left), 0, 0, 0)
-        let Y = float4(0, 2 / (top - bottom), 0, 0)
-        let Z = float4(0, 0, 1 / (far - near), 0)
-        let W = float4(
-            (left + right) / (left - right),
-            (top + bottom) / (bottom - top),
-            near / (near - far),
-            1)
-        self.init()
-        columns = (X, Y, Z, W)
     }
 }
