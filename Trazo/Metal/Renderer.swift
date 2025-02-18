@@ -51,6 +51,89 @@ final class Renderer {
         encoder?.endEncoding()
     }
     
+    
+    func substractTexture(
+        texture: DrawableTexture,
+        from destTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer,
+        ctm: CGAffineTransform = .identity
+    ) {
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = destTexture
+        passDescriptor.colorAttachments[0].storeAction = .store
+        passDescriptor.colorAttachments[0].loadAction = .load
+        
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        encoder?.setRenderPipelineState(PipelinesStore.instance.removePointsPipeline)
+        encoder?.setFragmentTexture(texture.actualTexture, index: 0)
+        encoder?.setFragmentTexture(destTexture, index: 1)
+        
+        let width = Float(destTexture.width)
+        let height = Float(destTexture.height)
+        let vertices: [Float] = [
+             -width / 2, -height / 2,
+              width / 2, -height / 2,
+              -width / 2, height / 2,
+            width / 2, height / 2,
+        ]
+        
+        let vertexBuffer = Metal.device.makeBuffer(
+            bytes: vertices,
+            length: MemoryLayout<Float>.stride * vertices.count
+        )
+        
+        encoder?.setVertexBuffer(
+            vertexBuffer,
+            offset: 0,
+            index: 0
+        )
+        
+        
+        encoder?.setVertexBytes(
+            texture.buffers.textCoordinates,
+            length: texture.buffers.textCoordSize,
+            index: 1
+        )
+        
+        // matrix transform
+        var modelMatrix = ctm.toFloat4x4()
+       
+        let viewSize: Float = height
+        let aspect = width / height
+        let rect = CGRect(
+            x: Double(-viewSize * aspect) * 0.5,
+            y: Double(viewSize) * 0.5,
+            width: Double(viewSize * aspect),
+            height: Double(viewSize))
+        var projection = float4x4(
+            orthographic: rect,
+            near: 0,
+            far: 1
+        )
+        
+        encoder?.setVertexBytes(
+            &modelMatrix,
+            length: MemoryLayout<float4x4>.stride,
+            index: 2
+        )
+        encoder?.setVertexBytes(
+            &projection,
+            length: MemoryLayout<float4x4>.stride,
+            index: 3
+        )
+        encoder?
+            .drawIndexedPrimitives(
+                type: .triangle,
+                indexCount: texture.buffers.numIndices,
+                indexType: .uint16,
+                indexBuffer: texture.buffers.indexBuffer,
+                indexBufferOffset: 0
+            )
+        encoder?.endEncoding()
+    }
+    
+    
+    
     func drawTexture(
         texture: DrawableTexture,
         on outputTexture: MTLTexture,

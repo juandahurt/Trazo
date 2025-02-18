@@ -13,13 +13,13 @@ struct CanvasState {
     
     // touches
     var inputTouch: UITouch = UITouch()
-    var drawableTouch = DrawableTouch(
-        positionInTextCoord: .zero,
-        phase: .cancelled
-    )
+    var currentCurve = Curve()
+    
+    var curveSectionToDraw = Curve()
     
     // textures state
     var canvasTexture: DrawableTexture?
+    var strokeTexture: MTLTexture?
     var drawingTexture: MTLTexture?
     var grayScaleTexture: MTLTexture?
     var commandBuffer: MTLCommandBuffer?

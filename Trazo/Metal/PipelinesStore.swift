@@ -13,6 +13,7 @@ final class PipelinesStore {
     private(set) var drawGrayScalePointPipeline: MTLRenderPipelineState!
     private(set) var colorizePipeline: MTLComputePipelineState!
     private(set) var mergePipeline: MTLComputePipelineState!
+    private(set) var removePointsPipeline: MTLRenderPipelineState!
     
     static let instance = PipelinesStore()
     
@@ -29,6 +30,12 @@ final class PipelinesStore {
         ) { descriptor in
             descriptor.colorAttachments[0].isBlendingEnabled = true
             descriptor.colorAttachments[0].rgbBlendOperation = .add
+            descriptor.colorAttachments[0].alphaBlendOperation = .add
+            descriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+            descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+            descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+            descriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+
         }
         drawGrayScalePointPipeline = _makeRenderPipelieState(
             withLabel: "Draw Gray Scale Point",
@@ -38,9 +45,19 @@ final class PipelinesStore {
             descriptor.colorAttachments[0].isBlendingEnabled = true
             descriptor.colorAttachments[0].rgbBlendOperation = .max
             descriptor.colorAttachments[0].alphaBlendOperation = .max
+            descriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+            descriptor.colorAttachments[0].destinationRGBBlendFactor = .zero
+            descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+            descriptor.colorAttachments[0].destinationAlphaBlendFactor = .zero
+
         }
         colorizePipeline = _makeComputePipelineState(usingFunctionNamed: "colorize")
         mergePipeline = _makeComputePipelineState(usingFunctionNamed: "merge_textures")
+        removePointsPipeline = _makeRenderPipelieState(
+            withLabel: "Remove Gray Scale Point",
+            vertexFunction: "draw_texture_vert",
+            fragmentFunction: "substract"
+        ) { _ in }
     }
 }
 

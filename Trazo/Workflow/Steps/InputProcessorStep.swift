@@ -18,6 +18,7 @@ class InputProcessorStep: WorkflowStep {
                 y: -state.canvasView.bounds.height / 2
             )
         )
-        state.drawableTouch.positionInTextCoord = .init(x: location.x, y: location.y)
+        let touchPoint = CGPoint(x: location.x, y: location.y)
+        state.currentCurve.addPoint(touchPoint)
     }
 }

@@ -78,10 +78,10 @@ fragment float4 gray_scale_point_frag(
 kernel void colorize(
                      texture2d<float, access::read> grayscaleTexture [[texture(0)]],
                      texture2d<float, access::write> outputTexture [[texture(1)]],
-                     constant float3& color [[buffer(0)]],
+                     constant float4& color [[buffer(0)]],
                      uint2 gid [[thread_position_in_grid]])
 {
-    float alpha = grayscaleTexture.read(gid).a;
+    float alpha = grayscaleTexture.read(gid).a * color[3];
     float4 newColor = float4(alpha * color[0], alpha * color[1], alpha * color[2], alpha);
     outputTexture.write(newColor, gid);
 }
@@ -104,4 +104,24 @@ kernel void merge_textures(
     float a = srcPixel[3] + destPixel[3] * (1 - srcAlpha);
     
     resultTexture.write(float4(r, g, b, a), gid);
+}
+
+
+// MARK: - Substraction
+fragment float4 substract(TextureOuput data [[stage_in]],
+                                          texture2d<float> sourceTexture [[texture(0)]],
+                                          texture2d<float> destinationTexture [[texture(1)]])
+{
+    constexpr sampler s;
+    float4 srcColor = sourceTexture.sample(s, data.textCoord);
+    float4 destColor = destinationTexture.sample(s, data.textCoord);
+    
+    float r = destColor.r - srcColor.r;
+    float g = destColor.g - srcColor.g;
+    float b = destColor.b - srcColor.b;
+    float a = destColor.a - srcColor.a;
+    
+    return float4(r, g, b, a);
+    
+//    return destColor;
 }
