@@ -9,7 +9,7 @@
 class BlankCanvasTextureStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
         Renderer.instance.fillTexture(
-            texture: state.canvasTexture!,
+            texture: .init(metalTexture: state.backgroundTexture!),
             with: (1, 1, 1, 1),
             using: state.commandBuffer!
         )

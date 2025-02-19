@@ -22,6 +22,8 @@ struct CanvasState {
     var strokeTexture: MTLTexture?
     var drawingTexture: MTLTexture?
     var grayScaleTexture: MTLTexture?
+    var backgroundTexture: MTLTexture?
+    var layerTexture: MTLTexture?
     var commandBuffer: MTLCommandBuffer?
    
     // current transformation matrix

@@ -18,7 +18,10 @@ class SetupTexturesStep: WorkflowStep {
         state.grayScaleTexture = TextureManager().createMetalTexture(
             ofSize: canvasView.bounds
         )
-        state.strokeTexture = TextureManager().createMetalTexture(
+        state.backgroundTexture = TextureManager().createMetalTexture(
+            ofSize: canvasView.bounds
+        )
+        state.layerTexture = TextureManager().createMetalTexture(
             ofSize: canvasView.bounds
         )
     }

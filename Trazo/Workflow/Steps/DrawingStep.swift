@@ -10,21 +10,24 @@ import CoreGraphics
 
 class DrawingStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
-        
+       
+        state.commandBuffer?.pushDebugGroup("colorization")
         // colorization
         Renderer.instance.colorize(
             grayscaleTexture: state.grayScaleTexture!,
-            withColor: (1, 0, 0, 0.5),
+            withColor: (1, 0, 0, 1),
             on: state.drawingTexture!,
             using: state.commandBuffer!
         )
+        state.commandBuffer?.popDebugGroup()
         
-        // merge drawing texture with the canvas texture
+        state.commandBuffer?.pushDebugGroup("merge drawing texture with layer texture")
         Renderer.instance.merge(
             state.drawingTexture!,
-            to: state.canvasTexture!.actualTexture,
+            to: state.layerTexture!,
             using: state.commandBuffer!
         )
+        state.commandBuffer?.popDebugGroup()
     }
 }
 

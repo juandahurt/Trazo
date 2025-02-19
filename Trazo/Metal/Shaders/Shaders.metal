@@ -116,12 +116,14 @@ fragment float4 substract(TextureOuput data [[stage_in]],
     float4 srcColor = sourceTexture.sample(s, data.textCoord);
     float4 destColor = destinationTexture.sample(s, data.textCoord);
     
-    float r = destColor.r - srcColor.r;
-    float g = destColor.g - srcColor.g;
-    float b = destColor.b - srcColor.b;
+    float r = max(0.0, destColor.r - srcColor.r);
+    float g = max(0.0, destColor.g - srcColor.g);
+    float b = max(0.0, destColor.b - srcColor.b);
     float a = destColor.a - srcColor.a;
-    
+//
     return float4(r, g, b, a);
     
-//    return destColor;
+//    return srcColor;
+//    float4 subtracted = destColor - srcColor;
+//    return subtracted;
 }

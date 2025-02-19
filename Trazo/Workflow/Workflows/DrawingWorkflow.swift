@@ -51,19 +51,12 @@ class DrawingWorkflow: Workflow {
 }
 
 
-class UpdateDrawingTextureStep: WorkflowStep {
-    override func excecute(using state: inout CanvasState) {
-        
-    }
-}
-
-
 class RemoveCurrentCurvePoints: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
         Renderer.instance
             .substractTexture(
                 texture: .init(metalTexture: state.drawingTexture!),
-                from: state.canvasTexture!.actualTexture,
+                from: state.layerTexture!,
                 using: state.commandBuffer!
             )
     }
