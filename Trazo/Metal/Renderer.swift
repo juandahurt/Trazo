@@ -63,72 +63,29 @@ final class Renderer {
         passDescriptor.colorAttachments[0].storeAction = .store
         passDescriptor.colorAttachments[0].loadAction = .load
         
-        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
-        encoder?.setRenderPipelineState(PipelinesStore.instance.removePointsPipeline)
-        encoder?.setFragmentTexture(texture.actualTexture, index: 0)
-        encoder?.setFragmentTexture(destTexture, index: 1)
-        
-        let width = Float(destTexture.width)
-        let height = Float(destTexture.height)
-        let vertices: [Float] = [
-             -width / 2, -height / 2,
-              width / 2, -height / 2,
-              -width / 2, height / 2,
-            width / 2, height / 2,
-        ]
-        
-        let vertexBuffer = Metal.device.makeBuffer(
-            bytes: vertices,
-            length: MemoryLayout<Float>.stride * vertices.count
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(PipelinesStore.instance.removePointsPipeline)
+        encoder?.setTexture(texture.actualTexture, index: 0)
+        encoder?.setTexture(destTexture, index: 1)
+        encoder?.setTexture(destTexture, index: 2)
+            
+        let threadsGroupSize = MTLSize(
+            width: (texture.actualTexture.width) / threadGroupLength,
+            height: texture.actualTexture.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (texture.actualTexture.width) / threadsGroupSize.width,
+            height: (texture.actualTexture.height) / threadsGroupSize.height,
+            depth: 1
         )
         
-        encoder?.setVertexBuffer(
-            vertexBuffer,
-            offset: 0,
-            index: 0
+        encoder?.dispatchThreadgroups(
+            threadsGroupSize,
+            threadsPerThreadgroup: threadsPerThreadGroup
         )
-        
-        
-        encoder?.setVertexBytes(
-            texture.buffers.textCoordinates,
-            length: texture.buffers.textCoordSize,
-            index: 1
-        )
-        
-        // matrix transform
-        var modelMatrix = ctm.toFloat4x4()
        
-        let viewSize: Float = height
-        let aspect = width / height
-        let rect = CGRect(
-            x: Double(-viewSize * aspect) * 0.5,
-            y: Double(viewSize) * 0.5,
-            width: Double(viewSize * aspect),
-            height: Double(viewSize))
-        var projection = float4x4(
-            orthographic: rect,
-            near: 0,
-            far: 1
-        )
-        
-        encoder?.setVertexBytes(
-            &modelMatrix,
-            length: MemoryLayout<float4x4>.stride,
-            index: 2
-        )
-        encoder?.setVertexBytes(
-            &projection,
-            length: MemoryLayout<float4x4>.stride,
-            index: 3
-        )
-        encoder?
-            .drawIndexedPrimitives(
-                type: .triangle,
-                indexCount: texture.buffers.numIndices,
-                indexType: .uint16,
-                indexBuffer: texture.buffers.indexBuffer,
-                indexBufferOffset: 0
-            )
         encoder?.endEncoding()
     }
     

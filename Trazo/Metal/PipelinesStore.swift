@@ -13,7 +13,7 @@ final class PipelinesStore {
     private(set) var drawGrayScalePointPipeline: MTLRenderPipelineState!
     private(set) var colorizePipeline: MTLComputePipelineState!
     private(set) var mergePipeline: MTLComputePipelineState!
-    private(set) var removePointsPipeline: MTLRenderPipelineState!
+    private(set) var removePointsPipeline: MTLComputePipelineState!
     
     static let instance = PipelinesStore()
     
@@ -53,11 +53,7 @@ final class PipelinesStore {
         }
         colorizePipeline = _makeComputePipelineState(usingFunctionNamed: "colorize")
         mergePipeline = _makeComputePipelineState(usingFunctionNamed: "merge_textures")
-        removePointsPipeline = _makeRenderPipelieState(
-            withLabel: "Remove Gray Scale Point",
-            vertexFunction: "draw_texture_vert",
-            fragmentFunction: "substract"
-        ) { _ in }
+        removePointsPipeline = _makeComputePipelineState(usingFunctionNamed: "substract")
     }
 }
 

@@ -108,22 +108,20 @@ kernel void merge_textures(
 
 
 // MARK: - Substraction
-fragment float4 substract(TextureOuput data [[stage_in]],
-                                          texture2d<float> sourceTexture [[texture(0)]],
-                                          texture2d<float> destinationTexture [[texture(1)]])
+kernel void substract(texture2d<float, access::read> firstTexture [[texture(0)]],
+                      texture2d<float, access::read> secondTexture [[texture(1)]],
+                      texture2d<float, access::write> outputTexture [[texture(2)]],
+                      uint2 gid [[thread_position_in_grid]])
 {
-    constexpr sampler s;
-    float4 srcColor = sourceTexture.sample(s, data.textCoord);
-    float4 destColor = destinationTexture.sample(s, data.textCoord);
+    float4 srcColor = firstTexture.read(gid);
+    float4 destColor = secondTexture.read(gid);
     
-    float r = max(0.0, destColor.r - srcColor.r);
-    float g = max(0.0, destColor.g - srcColor.g);
-    float b = max(0.0, destColor.b - srcColor.b);
-    float a = destColor.a - srcColor.a;
-//
-    return float4(r, g, b, a);
+    float r = max(0.05, destColor.r - srcColor.r);
+    float g = max(0.05, destColor.g - srcColor.g);
+    float b = max(0.05, destColor.b - srcColor.b);
+    float a = max(0.05, destColor.a - srcColor.a);
+
+    float4 color = float4(r, g, b, a);
     
-//    return srcColor;
-//    float4 subtracted = destColor - srcColor;
-//    return subtracted;
+    outputTexture.write(color, gid);
 }
