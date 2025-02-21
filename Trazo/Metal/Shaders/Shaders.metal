@@ -60,7 +60,7 @@ vertex GrayScalePoint gray_scale_point_vert(constant float2* positions [[buffer(
     float4 position = projectionMatrix * modelMatrix * float4(positions[vid], 0, 1);
     return {
         .position = position,
-        .pointSize = 15
+        .pointSize = 20
     };
 }
 
@@ -113,15 +113,14 @@ kernel void substract(texture2d<float, access::read> firstTexture [[texture(0)]]
                       texture2d<float, access::write> outputTexture [[texture(2)]],
                       uint2 gid [[thread_position_in_grid]])
 {
-    float4 srcColor = firstTexture.read(gid);
-    float4 destColor = secondTexture.read(gid);
+    float4 colorA = firstTexture.read(gid);
+    float4 colorB = secondTexture.read(gid);
     
-    float r = max(0.05, destColor.r - srcColor.r);
-    float g = max(0.05, destColor.g - srcColor.g);
-    float b = max(0.05, destColor.b - srcColor.b);
-    float a = max(0.05, destColor.a - srcColor.a);
-
-    float4 color = float4(r, g, b, a);
+    float4 color = colorB - colorA;
+//    if (color.a <= 0.001) { color = colorB; }
+//    float alpha = colorA.a > 0 ? colorB.a : 0;
+//    
+//    float4 color = colorA.a > 0 ? float4(0, 0, 0, 0) : colorB;
     
     outputTexture.write(color, gid);
 }

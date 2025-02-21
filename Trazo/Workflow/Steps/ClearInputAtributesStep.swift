@@ -14,13 +14,11 @@ class ClearInputAtributesStep: WorkflowStep {
             with: (r: 0, g: 0, b: 0, a: 0),
             using: state.commandBuffer!
         )
-        Renderer.instance.fillTexture(
-            texture: .init(metalTexture: state.drawingTexture!),
-            with: (r: 0, g: 0, b: 0, a: 0),
+        Renderer.instance.merge(
+            state.strokeTexture!,
+            to: state.layerTexture!,
             using: state.commandBuffer!
         )
         state.commandBuffer?.popDebugGroup()
-        
-        state.curveSectionToDraw = .init()
     }
 }

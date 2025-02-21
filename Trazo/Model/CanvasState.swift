@@ -19,9 +19,9 @@ struct CanvasState {
     
     // textures state
     var canvasTexture: DrawableTexture?
-    var strokeTexture: MTLTexture?
     var drawingTexture: MTLTexture?
     var grayScaleTexture: MTLTexture?
+    var strokeTexture: MTLTexture?
     var backgroundTexture: MTLTexture?
     var layerTexture: MTLTexture?
     var commandBuffer: MTLCommandBuffer?

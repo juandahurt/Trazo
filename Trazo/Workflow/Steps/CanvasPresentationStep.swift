@@ -9,7 +9,7 @@ class CanvasPresentationStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
         state.commandBuffer?.pushDebugGroup("merge background texture with layer texture")
         Renderer.instance.merge(
-            state.layerTexture!,
+            state.drawingTexture!,
             with: state.backgroundTexture!,
             on: state.canvasTexture!.actualTexture,
             using: state.commandBuffer!
@@ -28,6 +28,8 @@ class CanvasPresentationStep: WorkflowStep {
             with: (r: 0, g: 0, b: 0, a: 0),
             using: state.commandBuffer!
         )
+        
+        state.curveSectionToDraw = .init()
         
         state.commandBuffer?.present(state.canvasView.currentDrawable!)
         state.commandBuffer?.commit()

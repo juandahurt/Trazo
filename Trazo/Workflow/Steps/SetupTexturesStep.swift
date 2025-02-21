@@ -24,5 +24,8 @@ class SetupTexturesStep: WorkflowStep {
         state.layerTexture = TextureManager().createMetalTexture(
             ofSize: canvasView.bounds
         )
+        state.strokeTexture = TextureManager().createMetalTexture(
+            ofSize: canvasView.bounds
+        )
     }
 }

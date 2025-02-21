@@ -53,8 +53,9 @@ final class Renderer {
     
     
     func substractTexture(
-        texture: DrawableTexture,
+        _ texture: MTLTexture,
         from destTexture: MTLTexture,
+        on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer,
         ctm: CGAffineTransform = .identity
     ) {
@@ -65,19 +66,19 @@ final class Renderer {
         
         let encoder = commandBuffer.makeComputeCommandEncoder()
         encoder?.setComputePipelineState(PipelinesStore.instance.removePointsPipeline)
-        encoder?.setTexture(texture.actualTexture, index: 0)
+        encoder?.setTexture(texture, index: 0)
         encoder?.setTexture(destTexture, index: 1)
-        encoder?.setTexture(destTexture, index: 2)
+        encoder?.setTexture(outputTexture, index: 2)
             
         let threadsGroupSize = MTLSize(
-            width: (texture.actualTexture.width) / threadGroupLength,
-            height: texture.actualTexture.height / threadGroupLength,
+            width: (texture.width) / threadGroupLength,
+            height: texture.height / threadGroupLength,
             depth: 1
         )
         // TODO: check this little equation
         let threadsPerThreadGroup = MTLSize(
-            width: (texture.actualTexture.width) / threadsGroupSize.width,
-            height: (texture.actualTexture.height) / threadsGroupSize.height,
+            width: (texture.width) / threadsGroupSize.width,
+            height: (texture.height) / threadsGroupSize.height,
             depth: 1
         )
         

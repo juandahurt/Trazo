@@ -43,12 +43,13 @@ final class PipelinesStore {
             fragmentFunction: "gray_scale_point_frag"
         ) { descriptor in
             descriptor.colorAttachments[0].isBlendingEnabled = true
-            descriptor.colorAttachments[0].rgbBlendOperation = .max
-            descriptor.colorAttachments[0].alphaBlendOperation = .max
+            descriptor.colorAttachments[0].rgbBlendOperation = .add
+            descriptor.colorAttachments[0].alphaBlendOperation = .add
             descriptor.colorAttachments[0].sourceRGBBlendFactor = .one
-            descriptor.colorAttachments[0].destinationRGBBlendFactor = .zero
+            descriptor.colorAttachments[0].destinationRGBBlendFactor = .one
             descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
-            descriptor.colorAttachments[0].destinationAlphaBlendFactor = .zero
+            descriptor
+                .colorAttachments[0].destinationAlphaBlendFactor = .one
 
         }
         colorizePipeline = _makeComputePipelineState(usingFunctionNamed: "colorize")

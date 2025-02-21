@@ -42,7 +42,7 @@ class DrawingWorkflow: Workflow {
         steps = [
             InputProcessorStep(),
             CurveFittingStep(),
-            RemoveCurrentCurvePoints(),
+//            RemoveCurrentCurvePoints(),
             DrawGrayPointsStep(),
             DrawingStep(),
             CanvasPresentationStep()
@@ -53,12 +53,13 @@ class DrawingWorkflow: Workflow {
 
 class RemoveCurrentCurvePoints: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
-        Renderer.instance
-            .substractTexture(
-                texture: .init(metalTexture: state.drawingTexture!),
-                from: state.layerTexture!,
-                using: state.commandBuffer!
-            )
+//        Renderer.instance
+//            .substractTexture(
+//                .init(metalTexture: state.drawingTexture!),
+//                from: state.layerTexture!,
+//                on: state.layerTexture!,
+//                using: state.commandBuffer!
+//            )
     }
 }
 

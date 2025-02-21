@@ -21,6 +21,27 @@ class DrawGrayPointsStep: WorkflowStep {
                 length: MemoryLayout<simd_float2>.stride * state.curveSectionToDraw.numPoints
             )
         
+//        state.commandBuffer?.pushDebugGroup("gray points on stroke grayscale")
+//        // draw grayscale points
+//        Renderer.instance.drawGrayPoints(
+//            positionsBuffer: positionsBuffer!,
+//            numPoints: touchesPos.count,
+//            on: state.grayScaleStrokeTexture!,
+//            ctm: state.ctm.inverted(), // inverted bc the this texture is not really afected by the transformations
+//            using: state.commandBuffer!
+//        )
+//        state.commandBuffer?.popDebugGroup()
+//        
+//        state.commandBuffer?.pushDebugGroup("substract previous grayscale from stroke grayscale")
+//        Renderer.instance.substractTexture(
+//            state.grayScaleTexture!,
+//            from: state.grayScaleStrokeTexture!,
+//            on: state.grayScaleStrokeTexture!,
+//            using: state.commandBuffer!
+//        )
+//        state.commandBuffer?.popDebugGroup()
+        
+        state.commandBuffer?.pushDebugGroup("gray points on grayscale")
         // draw grayscale points
         Renderer.instance.drawGrayPoints(
             positionsBuffer: positionsBuffer!,
@@ -29,5 +50,6 @@ class DrawGrayPointsStep: WorkflowStep {
             ctm: state.ctm.inverted(), // inverted bc the this texture is not really afected by the transformations
             using: state.commandBuffer!
         )
+        state.commandBuffer?.popDebugGroup()
     }
 }
