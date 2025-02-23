@@ -13,6 +13,7 @@ final class PipelinesStore {
     private(set) var drawGrayScalePointPipeline: MTLRenderPipelineState!
     private(set) var colorizePipeline: MTLComputePipelineState!
     private(set) var mergePipeline: MTLComputePipelineState!
+    private(set) var removePointsPipeline: MTLComputePipelineState!
     
     static let instance = PipelinesStore()
     
@@ -29,6 +30,12 @@ final class PipelinesStore {
         ) { descriptor in
             descriptor.colorAttachments[0].isBlendingEnabled = true
             descriptor.colorAttachments[0].rgbBlendOperation = .add
+            descriptor.colorAttachments[0].alphaBlendOperation = .add
+            descriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+            descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+            descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+            descriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+
         }
         drawGrayScalePointPipeline = _makeRenderPipelieState(
             withLabel: "Draw Gray Scale Point",
@@ -36,11 +43,18 @@ final class PipelinesStore {
             fragmentFunction: "gray_scale_point_frag"
         ) { descriptor in
             descriptor.colorAttachments[0].isBlendingEnabled = true
-            descriptor.colorAttachments[0].rgbBlendOperation = .max
-            descriptor.colorAttachments[0].alphaBlendOperation = .max
+            descriptor.colorAttachments[0].rgbBlendOperation = .add
+            descriptor.colorAttachments[0].alphaBlendOperation = .add
+            descriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+            descriptor.colorAttachments[0].destinationRGBBlendFactor = .one
+            descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+            descriptor
+                .colorAttachments[0].destinationAlphaBlendFactor = .one
+
         }
         colorizePipeline = _makeComputePipelineState(usingFunctionNamed: "colorize")
         mergePipeline = _makeComputePipelineState(usingFunctionNamed: "merge_textures")
+        removePointsPipeline = _makeComputePipelineState(usingFunctionNamed: "substract")
     }
 }
 

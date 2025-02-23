@@ -51,6 +51,47 @@ final class Renderer {
         encoder?.endEncoding()
     }
     
+    
+    func substractTexture(
+        _ texture: MTLTexture,
+        from destTexture: MTLTexture,
+        on outputTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer,
+        ctm: CGAffineTransform = .identity
+    ) {
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = destTexture
+        passDescriptor.colorAttachments[0].storeAction = .store
+        passDescriptor.colorAttachments[0].loadAction = .load
+        
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(PipelinesStore.instance.removePointsPipeline)
+        encoder?.setTexture(texture, index: 0)
+        encoder?.setTexture(destTexture, index: 1)
+        encoder?.setTexture(outputTexture, index: 2)
+            
+        let threadsGroupSize = MTLSize(
+            width: (texture.width) / threadGroupLength,
+            height: texture.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (texture.width) / threadsGroupSize.width,
+            height: (texture.height) / threadsGroupSize.height,
+            depth: 1
+        )
+        
+        encoder?.dispatchThreadgroups(
+            threadsGroupSize,
+            threadsPerThreadgroup: threadsPerThreadGroup
+        )
+       
+        encoder?.endEncoding()
+    }
+    
+    
+    
     func drawTexture(
         texture: DrawableTexture,
         on outputTexture: MTLTexture,
@@ -234,8 +275,22 @@ final class Renderer {
         to destinationTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer
     ) {
-        assert(sourceTexture.width == destinationTexture.width)
-        assert(sourceTexture.height == destinationTexture.height)
+        merge(
+            sourceTexture,
+            with: destinationTexture,
+            on: destinationTexture,
+            using: commandBuffer
+        )
+    }
+    
+    func merge(
+        _ sourceTexture: MTLTexture,
+        with secondTexture: MTLTexture,
+        on destinationTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        assert(sourceTexture.width == secondTexture.width)
+        assert(sourceTexture.height == secondTexture.height)
         
         let threadsGroupSize = MTLSize(
             width: (destinationTexture.width) / threadGroupLength,
@@ -252,7 +307,7 @@ final class Renderer {
         let encoder = commandBuffer.makeComputeCommandEncoder()
         encoder?.setComputePipelineState(PipelinesStore.instance.mergePipeline)
         encoder?.setTexture(sourceTexture, index: 0)
-        encoder?.setTexture(destinationTexture, index: 1)
+        encoder?.setTexture(secondTexture, index: 1)
         encoder?.setTexture(destinationTexture, index: 2)
         encoder?
             .dispatchThreadgroups(

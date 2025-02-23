@@ -60,7 +60,7 @@ vertex GrayScalePoint gray_scale_point_vert(constant float2* positions [[buffer(
     float4 position = projectionMatrix * modelMatrix * float4(positions[vid], 0, 1);
     return {
         .position = position,
-        .pointSize = 15
+        .pointSize = 20
     };
 }
 
@@ -70,7 +70,7 @@ fragment float4 gray_scale_point_frag(
 {
     float2 center = float2(0.5, 0.5);
     float dist = distance(center, pointCoord);
-    float alpha = smoothstep(0.5, 0, dist);
+    float alpha = smoothstep(0.35, 0, dist);
     return float4(alpha, alpha, alpha, alpha);
 }
 
@@ -78,10 +78,10 @@ fragment float4 gray_scale_point_frag(
 kernel void colorize(
                      texture2d<float, access::read> grayscaleTexture [[texture(0)]],
                      texture2d<float, access::write> outputTexture [[texture(1)]],
-                     constant float3& color [[buffer(0)]],
+                     constant float4& color [[buffer(0)]],
                      uint2 gid [[thread_position_in_grid]])
 {
-    float alpha = grayscaleTexture.read(gid).a;
+    float alpha = grayscaleTexture.read(gid).a * color[3];
     float4 newColor = float4(alpha * color[0], alpha * color[1], alpha * color[2], alpha);
     outputTexture.write(newColor, gid);
 }
@@ -104,4 +104,23 @@ kernel void merge_textures(
     float a = srcPixel[3] + destPixel[3] * (1 - srcAlpha);
     
     resultTexture.write(float4(r, g, b, a), gid);
+}
+
+
+// MARK: - Substraction
+kernel void substract(texture2d<float, access::read> firstTexture [[texture(0)]],
+                      texture2d<float, access::read> secondTexture [[texture(1)]],
+                      texture2d<float, access::write> outputTexture [[texture(2)]],
+                      uint2 gid [[thread_position_in_grid]])
+{
+    float4 colorA = firstTexture.read(gid);
+    float4 colorB = secondTexture.read(gid);
+    
+    float4 color = colorB - colorA;
+//    if (color.a <= 0.001) { color = colorB; }
+//    float alpha = colorA.a > 0 ? colorB.a : 0;
+//    
+//    float4 color = colorA.a > 0 ? float4(0, 0, 0, 0) : colorB;
+    
+    outputTexture.write(color, gid);
 }

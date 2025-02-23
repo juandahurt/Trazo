@@ -9,40 +9,25 @@ import simd
 import CoreGraphics
 
 class DrawingStep: WorkflowStep {
-    override func excecute(using state: inout CanvasState) {        
-        let touchesPos: [simd_float2] = [state.drawableTouch].map {
-            [Float($0.positionInTextCoord.x), Float($0.positionInTextCoord.y)]
-        }
-        // TODO: find a way to prevent creating a buffer per draw
-        let positionsBuffer = Metal.device
-            .makeBuffer(
-                bytes: touchesPos,
-                length: MemoryLayout<simd_float2>.stride * touchesPos.count
-            )
-        
-        // draw grayscale points
-        Renderer.instance.drawGrayPoints(
-            positionsBuffer: positionsBuffer!,
-            numPoints: touchesPos.count,
-            on: state.grayScaleTexture!,
-            ctm: state.ctm.inverted(), // inverted bc the this texture is not really afected by the transformations
-            using: state.commandBuffer!
-        )
-        
+    override func excecute(using state: inout CanvasState) {
+        state.commandBuffer?.pushDebugGroup("colorization")
         // colorization
         Renderer.instance.colorize(
             grayscaleTexture: state.grayScaleTexture!,
-            withColor: (0, 0, 0, 1),
+            withColor: (1, 0.5, 0.5, 0.5), // TODO: use selected color
+            on: state.strokeTexture!,
+            using: state.commandBuffer!
+        )
+        state.commandBuffer?.popDebugGroup()
+        
+        state.commandBuffer?.pushDebugGroup("merge drawing texture with stroke texture")
+        Renderer.instance.merge(
+            state.layerTexture!,
+            with: state.strokeTexture!,
             on: state.drawingTexture!,
             using: state.commandBuffer!
         )
-        
-        // merge drawing texture with the canvas texture
-        Renderer.instance.merge(
-            state.drawingTexture!,
-            to: state.canvasTexture!.actualTexture,
-            using: state.commandBuffer!
-        )
+        state.commandBuffer?.popDebugGroup()
     }
 }
 
