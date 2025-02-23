@@ -7,7 +7,7 @@
 
 class CanvasPresentationStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
-        state.commandBuffer?.pushDebugGroup("merge background texture with layer texture")
+        state.commandBuffer?.pushDebugGroup("merge drawing texture with background texture on canvas texture")
         Renderer.instance.merge(
             state.drawingTexture!,
             with: state.backgroundTexture!,
@@ -16,6 +16,7 @@ class CanvasPresentationStep: WorkflowStep {
         )
         state.commandBuffer?.popDebugGroup()
         
+        state.commandBuffer?.pushDebugGroup("draw canvas texture")
         Renderer.instance.drawTexture(
             texture: state.canvasTexture!,
             on: state.canvasView.currentDrawable!.texture,
@@ -23,6 +24,8 @@ class CanvasPresentationStep: WorkflowStep {
             backgroundColor: state.canvasBackgroundColor,
             ctm: state.ctm
         )
+        state.commandBuffer?.popDebugGroup()
+        
         Renderer.instance.fillTexture(
             texture: state.canvasTexture!,
             with: (r: 0, g: 0, b: 0, a: 0),
@@ -37,6 +40,7 @@ class CanvasPresentationStep: WorkflowStep {
         
         _resetCommandBuffer(currentState: &state)
         
+        // notifiy view that it needs to re-render itself
         state.canvasView.setNeedsDisplay()
     }
     

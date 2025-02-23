@@ -70,7 +70,7 @@ fragment float4 gray_scale_point_frag(
 {
     float2 center = float2(0.5, 0.5);
     float dist = distance(center, pointCoord);
-    float alpha = smoothstep(0.5, 0, dist);
+    float alpha = smoothstep(0.35, 0, dist);
     return float4(alpha, alpha, alpha, alpha);
 }
 
