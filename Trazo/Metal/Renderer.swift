@@ -94,6 +94,7 @@ final class Renderer {
     
     func drawTexture(
         texture: DrawableTexture,
+        withSize size: CGSize,
         on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer,
         backgroundColor: Color,
@@ -113,13 +114,13 @@ final class Renderer {
         encoder?.setRenderPipelineState(PipelinesStore.instance.drawTexturePipeline)
         encoder?.setFragmentTexture(texture.actualTexture, index: 3)
         
-        let width = Float(outputTexture.width)
-        let height = Float(outputTexture.height)
+        let textureWidth = Float(size.width)
+        let textureHeight = Float(size.height)
         let vertices: [Float] = [
-             -width / 2, -height / 2,
-              width / 2, -height / 2,
-              -width / 2, height / 2,
-            width / 2, height / 2,
+             -textureWidth / 2, -textureHeight / 2,
+              textureWidth / 2, -textureHeight / 2,
+              -textureWidth / 2, textureHeight / 2,
+              textureWidth / 2, textureHeight / 2,
         ]
         
         let vertexBuffer = Metal.device.makeBuffer(
@@ -141,8 +142,10 @@ final class Renderer {
         )
         
         // matrix transform
+        let width = Float(outputTexture.width)
+        let height = Float(outputTexture.height)
+        
         var modelMatrix = ctm.toFloat4x4()
-       
         let viewSize: Float = height
         let aspect = width / height
         let rect = CGRect(

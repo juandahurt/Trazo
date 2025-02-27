@@ -10,7 +10,7 @@ import UIKit
 
 class InputProcessorStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
-        var location = state.inputTouch.location(in: state.canvasView)
+        var location = state.inputTouch.location(in: state.canvasView).applying(state.ctm)
         location.y = state.canvasView.bounds.height - location.y
         location = location.applying(
             .init(

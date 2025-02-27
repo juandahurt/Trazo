@@ -28,10 +28,13 @@ struct CanvasState {
    
     // current transformation matrix
     var ctm: CGAffineTransform = .identity
+    var translation: CGPoint = .zero
     var scale: CGFloat = 1
     var rotation: CGFloat = 0
     
     let canvasBackgroundColor: Color = (0.125, 0.125, 0.125, 1)
+    
+    let canvasSize: CGSize = .init(width: 500, height: 700)
     
     init(canvasView: CanvasView) {
         self.canvasView = canvasView

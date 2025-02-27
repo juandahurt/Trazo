@@ -35,6 +35,7 @@ class ViewController: UIViewController {
         
         addPinchGesture()
         addRotationGesture()
+        addPanGesture()
         addSubviews()
         
         _viewModel.load(using: _canvasView)
@@ -42,6 +43,16 @@ class ViewController: UIViewController {
     
     func addSubviews() {
         addCanvasView()
+    }
+    
+    func addPanGesture() {
+        let panRecognizer = UIPanGestureRecognizer(
+            target: self,
+            action: #selector(onPanGesture(_:))
+        )
+        panRecognizer.minimumNumberOfTouches = 2
+        panRecognizer.delegate = self
+        view.addGestureRecognizer(panRecognizer)
     }
     
     func addPinchGesture() {
@@ -65,15 +76,16 @@ class ViewController: UIViewController {
     func addCanvasView() {
         view.addSubview(_canvasView)
         
-//        NSLayoutConstraint.activate([
-//            _canvasView.heightAnchor.constraint(equalToConstant: CGFloat(canvasHeight)),
-//            _canvasView.widthAnchor.constraint(equalToConstant: CGFloat(canvasWidth)),
-//            _canvasView.centerXAnchor.constraint(equalTo: view.centerXAnchor),
-//            _canvasView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
-//        ])
+        NSLayoutConstraint.activate([
+            _canvasView.topAnchor.constraint(equalTo: view.topAnchor),
+            _canvasView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            _canvasView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            _canvasView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
+        ])
     }
 }
 
+// MARK: - Gestures
 extension ViewController {
     @objc
     func onPinchGesture(_ recognizer: UIPinchGestureRecognizer) {
@@ -81,6 +93,21 @@ extension ViewController {
             _viewModel.scaleUpdated(newValue: recognizer.scale)
             recognizer.scale = 1
         }
+    }
+    
+    @objc
+    func onRotationGesture(_ recognizer: UIRotationGestureRecognizer) {
+        if recognizer.state == .began || recognizer.state == .changed {
+            _viewModel.rotationUpdated(newValue: recognizer.rotation)
+            recognizer.rotation = 0
+        }
+    }
+    
+    @objc
+    func onPanGesture(_ recognizer: UIPanGestureRecognizer) {
+        let translation = recognizer.translation(in: view)
+        _viewModel.translationUpdated(newValue: translation)
+        recognizer.setTranslation(.zero, in: view)
     }
 }
 
@@ -90,16 +117,6 @@ extension ViewController: UIGestureRecognizerDelegate {
         shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
     ) -> Bool {
         true
-    }
-}
-
-extension ViewController {
-    @objc
-    func onRotationGesture(_ recognizer: UIRotationGestureRecognizer) {
-        if recognizer.state == .began || recognizer.state == .changed {
-            _viewModel.rotationUpdated(newValue: recognizer.rotation)
-            recognizer.rotation = 0
-        }
     }
 }
 

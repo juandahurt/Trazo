@@ -44,6 +44,11 @@ extension CGPoint {
         )
     }
     
+    static func +=(lhs: inout CGPoint, rhs: CGPoint) {
+        lhs.x += rhs.x
+        lhs.y += rhs.y
+    }
+    
     func distance(to point: CGPoint) -> CGFloat {
         simd.distance(simd_double2([x, y]), [point.x, point.y])
     }
