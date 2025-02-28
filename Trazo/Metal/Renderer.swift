@@ -114,8 +114,8 @@ final class Renderer {
         encoder?.setRenderPipelineState(PipelinesStore.instance.drawTexturePipeline)
         encoder?.setFragmentTexture(texture.actualTexture, index: 3)
         
-        let textureWidth = Float(size.width)
-        let textureHeight = Float(size.height)
+        let textureWidth = Float(outputTexture.width)
+        let textureHeight = Float(outputTexture.height)
         let vertices: [Float] = [
              -textureWidth / 2, -textureHeight / 2,
               textureWidth / 2, -textureHeight / 2,
