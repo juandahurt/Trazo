@@ -19,6 +19,7 @@ class CanvasPresentationStep: WorkflowStep {
         state.commandBuffer?.pushDebugGroup("draw canvas texture")
         Renderer.instance.drawTexture(
             texture: state.canvasTexture!,
+            withSize: state.canvasSize,
             on: state.canvasView.currentDrawable!.texture,
             using: state.commandBuffer!,
             backgroundColor: state.canvasBackgroundColor,

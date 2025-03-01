@@ -22,12 +22,15 @@ class DrawGrayPointsStep: WorkflowStep {
             )
         
         state.commandBuffer?.pushDebugGroup("gray points on grayscale")
-        // draw grayscale points
+        var ctm = state.ctm
+        ctm.ty /= 2
+        ctm.tx /= 2
         Renderer.instance.drawGrayPoints(
             positionsBuffer: positionsBuffer!,
             numPoints: touchesPos.count,
             on: state.grayScaleTexture!,
-            ctm: state.ctm.inverted(), // inverted bc the this texture is not really afected by the transformations
+            ctm: ctm.inverted(),
+            // inverted bc the this texture is not really afected by the transformations
             using: state.commandBuffer!
         )
         state.commandBuffer?.popDebugGroup()
