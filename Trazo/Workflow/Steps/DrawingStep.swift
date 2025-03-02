@@ -14,7 +14,7 @@ class DrawingStep: WorkflowStep {
         // colorization
         Renderer.instance.colorize(
             grayscaleTexture: state.grayScaleTexture!,
-            withColor: (1, 0.5, 0.5, 0.5), // TODO: use selected color
+            withColor: state.selectedColor,
             on: state.strokeTexture!,
             using: state.commandBuffer!
         )
@@ -22,8 +22,8 @@ class DrawingStep: WorkflowStep {
         
         state.commandBuffer?.pushDebugGroup("merge drawing texture with stroke texture")
         Renderer.instance.merge(
-            state.layerTexture!,
-            with: state.strokeTexture!,
+            state.strokeTexture!,
+            with: state.layerTexture!,
             on: state.drawingTexture!,
             using: state.commandBuffer!
         )

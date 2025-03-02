@@ -19,6 +19,16 @@ class ViewModel {
     private let _transformWorkflow = TransformCanvasWorkflow()
     private let _endOfCurveWorkflow = EndOfCurveWorkflow()
     
+    func colorSelected(newColor color: UIColor) {
+        guard let components = color.cgColor.components else { return }
+        _canvasState.selectedColor = (
+            Float(components[0]),
+            Float(components[1]),
+            Float(components[2]),
+            0.5 // TODO: use selected opacity value
+        )
+    }
+    
     func scaleUpdated(newValue scale: CGFloat) {
         if _canvasState.scale > 4 && scale > 1 { return }
         if _canvasState.scale < 0.3 && scale < 1 { return }
