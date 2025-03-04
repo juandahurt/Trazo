@@ -18,6 +18,10 @@ class ViewModel {
     private let _setupWorkflow = SetupCanvasWorkflow()
     private let _transformWorkflow = TransformCanvasWorkflow()
     private let _endOfCurveWorkflow = EndOfCurveWorkflow()
+   
+    func brushSizeChanged(newValue value: Float) {
+        _canvasState.brushSize = value
+    }
     
     func colorSelected(newColor color: UIColor) {
         guard let components = color.cgColor.components else { return }
