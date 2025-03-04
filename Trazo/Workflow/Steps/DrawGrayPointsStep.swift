@@ -28,6 +28,7 @@ class DrawGrayPointsStep: WorkflowStep {
         Renderer.instance.drawGrayPoints(
             positionsBuffer: positionsBuffer!,
             numPoints: touchesPos.count,
+            pointSize: state.brushSize,
             on: state.grayScaleTexture!,
             ctm: ctm.inverted(),
             // inverted bc the this texture is not really afected by the transformations

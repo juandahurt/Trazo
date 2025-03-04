@@ -184,6 +184,7 @@ final class Renderer {
     func drawGrayPoints(
         positionsBuffer: MTLBuffer,
         numPoints: Int,
+        pointSize: Float,
         on grayScaleTexture: MTLTexture,
         ctm: CGAffineTransform,
         using commandBuffer: MTLCommandBuffer
@@ -226,6 +227,12 @@ final class Renderer {
             &projection,
             length: MemoryLayout<float4x4>.stride,
             index: 2
+        )
+        var pointSizeCopy = pointSize
+        encoder?.setVertexBytes(
+            &pointSizeCopy,
+            length: MemoryLayout<Float>.stride,
+            index: 3
         )
         
         

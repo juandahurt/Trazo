@@ -33,6 +33,8 @@ struct CanvasState {
     var rotation: CGFloat = 0
     
     let canvasBackgroundColor: Color = (0.125, 0.125, 0.125, 1)
+    var selectedColor: Color = (r: 1, g: 0, b: 0, a: 0.5)
+    var brushSize: Float = 6
     
     let canvasSize: CGSize = .init(width: 500, height: 700)
     
