@@ -50,14 +50,11 @@ class ViewModel {
         _transformWorkflow.run(withState: &_canvasState)
     }
     
-    func onFingerTouches(_ touches: Set<UITouch>) {
-        guard touches.count == 1 else { return }
-        guard let touch = touches.first else { return }
-        
+    func onFingerTouch(_ touch: UITouch) {
         _canvasState.inputTouch = touch
         _drawingWorkflow.run(withState: &_canvasState)
         
-        if touch.phase == .ended || touch.phase == .cancelled {
+        if touch.phase == .ended {
             _endOfCurveWorkflow.run(withState: &_canvasState)
             return
         }

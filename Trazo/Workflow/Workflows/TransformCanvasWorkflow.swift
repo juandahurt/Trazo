@@ -11,7 +11,8 @@ class TransformCanvasWorkflow: Workflow {
         super.init()
         steps = [
             TransformCanvasStep(),
-            CanvasPresentationStep()
+            CanvasPresentationStep(),
+            ClearCurveStep()
         ]
     }
 }

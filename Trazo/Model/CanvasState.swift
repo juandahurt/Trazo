@@ -12,7 +12,7 @@ struct CanvasState {
     var canvasView: CanvasView
     
     // touches
-    var inputTouch: UITouch = UITouch()
+    var inputTouch: UITouch?
     var currentCurve = Curve()
     
     var curveSectionToDraw = Curve()
