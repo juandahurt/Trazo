@@ -7,9 +7,6 @@
 
 import UIKit
 
-let canvasWidth: Int = 800
-let canvasHeight: Int = 800
-
 class ViewController: UIViewController {
     private lazy var _brushSizeSliderView: UISlider = {
         let slider = UISlider()
@@ -29,6 +26,12 @@ class ViewController: UIViewController {
         return pickerView
     }()
     
+    private lazy var _fingerGestureRecognizer: FingerGestureRecognizer = {
+        let fingerGestureRecognizer = FingerGestureRecognizer()
+        fingerGestureRecognizer.fingerGestureDelegate = self
+        return fingerGestureRecognizer
+    }()
+    
     private lazy var _canvasView: CanvasView = {
         let canvasView = CanvasView(frame: view.frame)
         canvasView.translatesAutoresizingMaskIntoConstraints = false
@@ -36,11 +39,8 @@ class ViewController: UIViewController {
         let pencilGesture = PencilGestureRecognizer()
         pencilGesture.pencilGestureDelegate = self
         
-        let fingerGestureRecognizer = FingerGestureRecognizer()
-        fingerGestureRecognizer.fingerGestureDelegate = self
-        
         canvasView.addGestureRecognizer(pencilGesture)
-        canvasView.addGestureRecognizer(fingerGestureRecognizer)
+        canvasView.addGestureRecognizer(_fingerGestureRecognizer)
         return canvasView
     }()
     
@@ -124,7 +124,7 @@ class ViewController: UIViewController {
         )
         panRecognizer.minimumNumberOfTouches = 2
         panRecognizer.delegate = self
-        view.addGestureRecognizer(panRecognizer)
+        _canvasView.addGestureRecognizer(panRecognizer)
     }
     
     func addPinchGesture() {
@@ -133,7 +133,7 @@ class ViewController: UIViewController {
             action: #selector(onPinchGesture(_:))
         )
         pinchRecognizer.delegate = self
-        view.addGestureRecognizer(pinchRecognizer)
+        _canvasView.addGestureRecognizer(pinchRecognizer)
     }
     
     func addRotationGesture() {
@@ -142,7 +142,7 @@ class ViewController: UIViewController {
             action: #selector(onRotationGesture(_:))
         )
         rotationRecognizer.delegate = self
-        view.addGestureRecognizer(rotationRecognizer)
+        _canvasView.addGestureRecognizer(rotationRecognizer)
     }
     
     func addCanvasView() {
@@ -161,7 +161,7 @@ class ViewController: UIViewController {
 extension ViewController {
     @objc
     func onPinchGesture(_ recognizer: UIPinchGestureRecognizer) {
-        if recognizer.state == .began || recognizer.state == .changed {
+        if recognizer.state == .changed {
             _viewModel.scaleUpdated(newValue: recognizer.scale)
             recognizer.scale = 1
         }
@@ -169,7 +169,7 @@ extension ViewController {
     
     @objc
     func onRotationGesture(_ recognizer: UIRotationGestureRecognizer) {
-        if recognizer.state == .began || recognizer.state == .changed {
+        if recognizer.state == .changed {
             _viewModel.rotationUpdated(newValue: recognizer.rotation)
             recognizer.rotation = 0
         }
@@ -177,6 +177,7 @@ extension ViewController {
     
     @objc
     func onPanGesture(_ recognizer: UIPanGestureRecognizer) {
+        guard recognizer.state == .changed else { return }
         let translation = recognizer.translation(in: view)
         _viewModel.translationUpdated(newValue: translation)
         recognizer.setTranslation(.zero, in: view)
@@ -203,8 +204,8 @@ extension ViewController: PencilGestureRecognizerDelegate {
 }
 
 extension ViewController: FingerGestureRecognizerDelegate {
-    func onFingerTouches(_ touches: Set<UITouch>) {
-        _viewModel.onFingerTouches(touches)
+    func onFingerTouch(_ touch: UITouch) {
+        _viewModel.onFingerTouch(touch)
     }
 }
 
