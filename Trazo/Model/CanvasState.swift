@@ -27,13 +27,13 @@ struct CanvasState {
     var commandBuffer: MTLCommandBuffer?
    
     // current transformation matrix
-    var ctm: CGAffineTransform = .identity
+    var ctm: CGAffineTransform = .init(scaleX: 0.95, y: 0.95)
     var translation: CGPoint = .zero
     var scale: CGFloat = 1
     var rotation: CGFloat = 0
     
     let canvasBackgroundColor: Color = (0.125, 0.125, 0.125, 1)
-    var selectedColor: Color = (r: 1, g: 0, b: 0, a: 0.5)
+    var selectedColor: Color = (r: 0, g: 0, b: 0, a: 0.5)
     var brushSize: Float = 6
     
     let canvasSize: CGSize = .init(width: 500, height: 700)
