@@ -95,7 +95,7 @@ class ViewController: UIViewController {
         ])
         
         _colorPickerView.layer.cornerRadius = 20
-        _colorPickerView.backgroundColor = .red
+        _colorPickerView.backgroundColor = .black
     }
    
     @objc

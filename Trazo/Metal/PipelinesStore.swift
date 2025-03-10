@@ -48,8 +48,7 @@ final class PipelinesStore {
             descriptor.colorAttachments[0].sourceRGBBlendFactor = .one
             descriptor.colorAttachments[0].destinationRGBBlendFactor = .one
             descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
-            descriptor
-                .colorAttachments[0].destinationAlphaBlendFactor = .one
+            descriptor.colorAttachments[0].destinationAlphaBlendFactor = .one
 
         }
         colorizePipeline = _makeComputePipelineState(usingFunctionNamed: "colorize")
