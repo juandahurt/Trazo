@@ -32,7 +32,7 @@ vector_t operator*(float scalar, const vector_t& vector) {
 
 // MARK: Methods
 float vector_t::distance_to(const vector_t &vector) const {
-    return sqrt(pow(vector.x, 2) + pow(vector.y, 2));
+    return sqrt(pow(x - vector.x, 2) + pow(y - vector.y, 2));
 }
 
 
