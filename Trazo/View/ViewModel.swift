@@ -6,11 +6,7 @@
 //
 
 import UIKit
-
-struct DrawableTouch {
-    var positionInTextCoord: CGPoint
-    var phase: UITouch.Phase
-}
+import TrazoCore
 
 class ViewModel {
     private var _canvasState: CanvasState!

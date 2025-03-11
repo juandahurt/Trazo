@@ -6,6 +6,23 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		2F5EE7412D80917900A0B2B3 /* TrazoCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2F5EE7402D80917900A0B2B3 /* TrazoCore */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		2F1593FF2D7FB2580079B6CF /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
 /* Begin PBXFileReference section */
 		2FCD94262D24649600413760 /* Trazo.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Trazo.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				2F5EE7412D80917900A0B2B3 /* TrazoCore in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -68,6 +86,7 @@
 				2FCD94222D24649600413760 /* Sources */,
 				2FCD94232D24649600413760 /* Frameworks */,
 				2FCD94242D24649600413760 /* Resources */,
+				2F1593FF2D7FB2580079B6CF /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -78,6 +97,7 @@
 			);
 			name = Trazo;
 			packageProductDependencies = (
+				2F5EE7402D80917900A0B2B3 /* TrazoCore */,
 			);
 			productName = Trazo;
 			productReference = 2FCD94262D24649600413760 /* Trazo.app */;
@@ -107,6 +127,9 @@
 			);
 			mainGroup = 2FCD941D2D24649600413760;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				2F5EE73F2D80917900A0B2B3 /* XCLocalSwiftPackageReference "TrazoCore" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2FCD94272D24649600413760 /* Products */;
 			projectDirPath = "";
@@ -151,6 +174,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -180,6 +204,7 @@
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
@@ -255,6 +280,7 @@
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 			};
 			name = Debug;
@@ -311,6 +337,7 @@
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OBJC_INTEROP_MODE = objcxx;
 				VALIDATE_PRODUCT = YES;
 			};
 			name = Release;
@@ -337,6 +364,20 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCLocalSwiftPackageReference section */
+		2F5EE73F2D80917900A0B2B3 /* XCLocalSwiftPackageReference "TrazoCore" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = TrazoCore;
+		};
+/* End XCLocalSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2F5EE7402D80917900A0B2B3 /* TrazoCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TrazoCore;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 2FCD941E2D24649600413760 /* Project object */;
 }

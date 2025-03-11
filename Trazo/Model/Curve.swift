@@ -6,12 +6,13 @@
 //
 
 import CoreGraphics
+import TrazoCore
 
 struct Curve {
-    var points: [CGPoint] = []
+    var points: [vector_t] = []
     var numPoints = 0
     
-    mutating func addPoint(_ point: CGPoint) {
+    mutating func addPoint(_ point: vector_t) {
         points.append(point)
         numPoints += 1
     }

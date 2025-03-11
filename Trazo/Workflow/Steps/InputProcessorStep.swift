@@ -5,7 +5,7 @@
 //  Created by Juan Hurtado on 4/02/25.
 //
 
-import simd
+import TrazoCore
 import UIKit
 
 class InputProcessorStep: WorkflowStep {
@@ -19,7 +19,7 @@ class InputProcessorStep: WorkflowStep {
                 y: -state.canvasView.bounds.height / 2
             )
         )
-        let touchPoint = CGPoint(x: location.x, y: location.y)
+        let touchPoint = vector_t(Float(location.x), Float(location.y))
         state.currentCurve.addPoint(touchPoint)
     }
 }
