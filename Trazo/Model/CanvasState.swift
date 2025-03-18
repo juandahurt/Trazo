@@ -12,7 +12,7 @@ struct CanvasState {
     var canvasView: CanvasView
     
     // touches
-    var inputTouch: UITouch?
+    var inputTouch: Touch?
     var currentCurve = Curve()
     
     var curveSectionToDraw = Curve()
@@ -27,7 +27,7 @@ struct CanvasState {
     var commandBuffer: MTLCommandBuffer?
    
     // current transformation matrix
-    var ctm: CGAffineTransform = .init(scaleX: 0.95, y: 0.95)
+    var ctm: CGAffineTransform = .identity
     var translation: CGPoint = .zero
     var scale: CGFloat = 1
     var rotation: CGFloat = 0

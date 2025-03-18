@@ -11,7 +11,7 @@ import UIKit
 class InputProcessorStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
         guard let touch = state.inputTouch else { return }
-        var location = touch.location(in: state.canvasView)
+        var location = CGPoint(x: CGFloat(touch.location.x), y: CGFloat(touch.location.y))
         location.y = state.canvasView.bounds.height - location.y
         location = location.applying(
             .init(
