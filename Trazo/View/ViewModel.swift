@@ -200,7 +200,10 @@ class FingerTouchesOrchestator {
     private var hasUserLiftedFingers: Bool {
         touchStore.touchesDict.keys
 //            .flatMap({ touchStore.touchesDict[$0] })
-            .reduce(false, { $0 || touchStore.touchesDict[$1]?.last?.phase == .ended })
+            .reduce(
+                true,
+                { $0 && (touchStore.touchesDict[$1]?.last?.phase == .ended || touchStore.touchesDict[$1]?.last?.phase == .cancelled)
+                })
     }
    
 //    private var hasUserLiftOffFingers: Bool {
@@ -210,6 +213,7 @@ class FingerTouchesOrchestator {
 //    }
     
     func receivedTouches(_ touches: [Touch]) {
+        print(touchStore.numberOfTouches)
         // first, we store the touches
         touchStore.save(touches)
         
@@ -226,14 +230,16 @@ class FingerTouchesOrchestator {
                     ctmSubject.send(matrix)
                 }
             } else {
-                
                 transformer.reset()
             }
+        } else {
+            // TODO: draw
+            transformer.reset()
         }
         
-        // check if the touches need to be removed (aka. the gesture has finished)
+        // check if the touches need to be removed (aka. the touch has finished)
         for touch in touches {
-            if touch.phase == .ended {
+            if touch.phase == .ended || touch.phase == .cancelled {
                 touchStore.removeTouch(byID: touch.id)
             }
         }
