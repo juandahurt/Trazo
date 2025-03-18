@@ -23,6 +23,7 @@ public:
     vector_t operator /(float scalar) const;
     
     float distance_to(const vector_t& vector) const;
+    float length() const;
 };
 
 vector_t operator *(const vector_t& vector, float scalar);

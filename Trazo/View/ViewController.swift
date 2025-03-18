@@ -44,19 +44,16 @@ class ViewController: UIViewController {
         return canvasView
     }()
     
-    private var _viewModel = ViewModel()
+    private var viewModel = ViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
         view.backgroundColor = .init(red: 32 / 255, green: 32 / 255, blue: 32 / 255, alpha: 1)
         
-        addPinchGesture()
-        addRotationGesture()
-        addPanGesture()
         addSubviews()
         
-        _viewModel.load(using: _canvasView)
+        viewModel.load(using: _canvasView)
     }
     
     func addSubviews() {
@@ -100,7 +97,7 @@ class ViewController: UIViewController {
    
     @objc
     func onBrushSizeSliderChange(_ sender: UISlider) {
-        _viewModel.brushSizeChanged(newValue: sender.value)
+        viewModel.brushSizeChanged(newValue: sender.value)
     }
     
     // There's a memory leak when presenting this color picker, I tested it and it's not my fault.
@@ -117,34 +114,6 @@ class ViewController: UIViewController {
         present(pickerViewController, animated: true)
     }
     
-    func addPanGesture() {
-        let panRecognizer = UIPanGestureRecognizer(
-            target: self,
-            action: #selector(onPanGesture(_:))
-        )
-        panRecognizer.minimumNumberOfTouches = 2
-        panRecognizer.delegate = self
-        _canvasView.addGestureRecognizer(panRecognizer)
-    }
-    
-    func addPinchGesture() {
-        let pinchRecognizer = UIPinchGestureRecognizer(
-            target: self,
-            action: #selector(onPinchGesture(_:))
-        )
-        pinchRecognizer.delegate = self
-        _canvasView.addGestureRecognizer(pinchRecognizer)
-    }
-    
-    func addRotationGesture() {
-        let rotationRecognizer = UIRotationGestureRecognizer(
-            target: self,
-            action: #selector(onRotationGesture(_:))
-        )
-        rotationRecognizer.delegate = self
-        _canvasView.addGestureRecognizer(rotationRecognizer)
-    }
-    
     func addCanvasView() {
         view.addSubview(_canvasView)
         
@@ -154,33 +123,6 @@ class ViewController: UIViewController {
             _canvasView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             _canvasView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
         ])
-    }
-}
-
-// MARK: - Gestures
-extension ViewController {
-    @objc
-    func onPinchGesture(_ recognizer: UIPinchGestureRecognizer) {
-        if recognizer.state == .changed {
-            _viewModel.scaleUpdated(newValue: recognizer.scale)
-            recognizer.scale = 1
-        }
-    }
-    
-    @objc
-    func onRotationGesture(_ recognizer: UIRotationGestureRecognizer) {
-        if recognizer.state == .changed {
-            _viewModel.rotationUpdated(newValue: recognizer.rotation)
-            recognizer.rotation = 0
-        }
-    }
-    
-    @objc
-    func onPanGesture(_ recognizer: UIPanGestureRecognizer) {
-        guard recognizer.state == .changed else { return }
-        let translation = recognizer.translation(in: view)
-        _viewModel.translationUpdated(newValue: translation)
-        recognizer.setTranslation(.zero, in: view)
     }
 }
 
@@ -204,8 +146,8 @@ extension ViewController: PencilGestureRecognizerDelegate {
 }
 
 extension ViewController: FingerGestureRecognizerDelegate {
-    func onFingerTouch(_ touch: UITouch) {
-        _viewModel.onFingerTouch(touch)
+    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
+        viewModel.didReceiveFingerTouches(touches)
     }
 }
 
@@ -216,6 +158,6 @@ extension ViewController: UIColorPickerViewControllerDelegate {
         continuously: Bool
     ) {
         _colorPickerView.backgroundColor = color
-        _viewModel.colorSelected(newColor: color)
+        viewModel.colorSelected(newColor: color)
     }
 }
