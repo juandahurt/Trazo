@@ -8,7 +8,7 @@
 import UIKit
 
 protocol FingerGestureRecognizerDelegate: AnyObject {
-    func onFingerTouch(_ touch: UITouch)
+    func didReceiveFingerTouches(_ touches: Set<UITouch>)
 }
 
 class FingerGestureRecognizer: UIGestureRecognizer {
@@ -21,26 +21,18 @@ class FingerGestureRecognizer: UIGestureRecognizer {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
-        guard touches.count == 1 else { return }
-        guard let touch = touches.first else { return }
-        fingerGestureDelegate?.onFingerTouch(touch)
+        fingerGestureDelegate?.didReceiveFingerTouches(touches)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
-        guard touches.count == 1 else { return }
-        guard let touch = touches.first else { return }
-        fingerGestureDelegate?.onFingerTouch(touch)
+        fingerGestureDelegate?.didReceiveFingerTouches(touches)
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
-        guard touches.count == 1 else { return }
-        guard let touch = touches.first else { return }
-        fingerGestureDelegate?.onFingerTouch(touch)
+        fingerGestureDelegate?.didReceiveFingerTouches(touches)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
-        guard touches.count == 1 else { return }
-        guard let touch = touches.first else { return }
-        fingerGestureDelegate?.onFingerTouch(touch)
+        fingerGestureDelegate?.didReceiveFingerTouches(touches)
     }
 }

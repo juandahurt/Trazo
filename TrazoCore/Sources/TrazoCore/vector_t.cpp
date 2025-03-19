@@ -35,4 +35,6 @@ float vector_t::distance_to(const vector_t &vector) const {
     return sqrt(pow(x - vector.x, 2) + pow(y - vector.y, 2));
 }
 
-
+float vector_t::length() const {
+    return sqrt(pow(x, 2) + pow(y, 2));
+}

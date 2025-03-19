@@ -10,9 +10,9 @@ class TransformCanvasWorkflow: Workflow {
     override init() {
         super.init()
         steps = [
-            TransformCanvasStep(),
+//            TransformCanvasStep(),
             CanvasPresentationStep(),
-            ClearCurveStep()
+//            ClearCurveStep()
         ]
     }
 }

@@ -29,35 +29,71 @@ class ViewModel {
         )
     }
     
-    func scaleUpdated(newValue scale: CGFloat) {
-        if _canvasState.scale > 4 && scale > 1 { return }
-        if _canvasState.scale < 0.3 && scale < 1 { return }
-        _canvasState.scale *= scale
-        _transformWorkflow.run(withState: &_canvasState)
-    }
-   
-    func rotationUpdated(newValue angle: CGFloat) {
-        _canvasState.rotation += angle
-        _transformWorkflow.run(withState: &_canvasState)
-    }
-   
-    func translationUpdated(newValue translation: CGPoint) {
-        _canvasState.translation += translation
-        _transformWorkflow.run(withState: &_canvasState)
+    private let fingerTouchesOrchestator = FingerTouchesOrchestator()
+    
+    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
+        let touches = touches.map {
+            let point = $0.location(in: _canvasState.canvasView)
+            return Touch(
+                id: $0.hashValue,
+                location: .init(Float(point.x), Float(point.y)),
+                phase: $0.phase
+            )
+        }
+        fingerTouchesOrchestator.receivedTouches(touches)
     }
     
-    func onFingerTouch(_ touch: UITouch) {
-        _canvasState.inputTouch = touch
-        _drawingWorkflow.run(withState: &_canvasState)
-        
-        if touch.phase == .ended {
-            _endOfCurveWorkflow.run(withState: &_canvasState)
-            return
-        }
-    }
+    private var disposeBag = Set<AnyCancellable>()
     
     func load(using canvasView: CanvasView) {
         _canvasState = CanvasState(canvasView: canvasView)
         _setupWorkflow.run(withState: &_canvasState)
+        
+        fingerTouchesOrchestator.onTransformChange = { [weak self] t in
+            guard let self else { return }
+            _canvasState.ctm = t
+            _transformWorkflow.run(withState: &_canvasState)
+        }
+        
+        fingerTouchesOrchestator.onDrawIntent = { [weak self] touch in
+            guard let self else { return }
+            _canvasState.inputTouch = touch
+            _drawingWorkflow.run(withState: &_canvasState)
+        }
+        
+        fingerTouchesOrchestator.onDrawFinished = { [weak self] in
+            guard let self else { return }
+            _endOfCurveWorkflow.run(withState: &_canvasState)
+        }
     }
 }
+
+
+
+
+class FingerTouchStore {
+    private(set) var touchesDict: [Touch.ID: [Touch]] = [:]
+    
+    var numberOfTouches: Int {
+        touchesDict.count
+    }
+    
+    func save(_ touches: [Touch]) {
+        for touch in touches {
+            let key = touch.id
+            if touchesDict[key] == nil {
+                // if this is a new touch, we create an empty entry
+                touchesDict[key] = []
+            }
+            // we append the touch to its corresponding key
+            touchesDict[key]?.append(touch)
+        }
+    }
+    
+    func removeTouch(byID id: Touch.ID) {
+        touchesDict.removeValue(forKey: id)
+    }
+}
+
+import Combine
+
