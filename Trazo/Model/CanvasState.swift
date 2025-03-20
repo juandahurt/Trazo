@@ -9,7 +9,7 @@ import Metal
 import UIKit
 
 struct CanvasState {
-    var canvasView: CanvasView
+    var canvasView: UIView
     
     // touches
     var inputTouch: Touch?
@@ -38,7 +38,7 @@ struct CanvasState {
     
     let canvasSize: CGSize = .init(width: 500, height: 700)
     
-    init(canvasView: CanvasView) {
+    init(canvasView: UIView) {
         self.canvasView = canvasView
         
         commandBuffer = Metal.commandQueue.makeCommandBuffer()

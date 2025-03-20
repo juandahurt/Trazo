@@ -1,12 +1,13 @@
 //
 //  FingerGestureRecognizer.swift
-//  Trazo
+//  TrazoEngine
 //
-//  Created by Juan Hurtado on 28/01/25.
+//  Created by Juan Hurtado on 19/03/25.
 //
 
 import UIKit
 
+@MainActor
 protocol FingerGestureRecognizerDelegate: AnyObject {
     func didReceiveFingerTouches(_ touches: Set<UITouch>)
 }
