@@ -5,16 +5,22 @@
 //  Created by Juan Hurtado on 21/03/25.
 //
 
+import TrazoCore
+
+protocol FingerTouchControllerDelegate: AnyObject {
+    /// Notifies the delegate that a transform gesture has occurred.
+    /// - Parameter transform: The generated transformation.
+    func didTransformGestureOccur(_ transform: Mat3x3)
+    /// Notifies the delegate that a transform gesture has finished.
+    func didTransfromGestureFinish()
+}
+
 /// It manages the touches that the user makes with their finger.
 class FingerTouchController {
     /// It holds the touches of the current gesture.
-    var touchStore = FingerInputStore()
-//    /// Transforms the canvas, given the current touches.
-//    let transformer = CanvasTransformer()
-   
-//    var onTransformChange: ((CGAffineTransform) -> Void)?
-//    var onDrawIntent: ((Touch) -> Void)?
-//    var onDrawFinished: (() -> Void)?
+    private var touchStore = FingerInputStore()
+    
+    weak var delegate: FingerTouchControllerDelegate?
     
     private var isUserTransforming: Bool {
         touchStore.numberOfTouches == 2
@@ -35,36 +41,37 @@ class FingerTouchController {
     func handle(_ touches: [TouchInput]) {
         // first, we store the touches
         touchStore.save(touches)
-//
-//        // then, we check which kind of action the user is trying to do
-//        if isUserTransforming {
+
+        // then, we check which kind of action the user is trying to do
+        if isUserTransforming {
+            
 //            if !transformer.isInitialized {
 //                transformer.initialize(withTouches: touchStore.touchesDict)
 //            }
-//            if !hasUserLiftedFingers {
+            if !hasUserLiftedFingers {
 //                if let matrix = transformer.tranform(
 //                    usingCurrentTouches: touchStore.touchesDict,
 //                    canvasCenter: .init(1640 / 2, 2360 / 2)
 //                ) {
 //                    onTransformChange?(matrix)
 //                }
-//            } else {
+            } else {
 //                transformer.reset()
-//                
-//            }
-//        } else {
-//            // TODO: draw
+                
+            }
+        } else {
+            // TODO: draw
 //            transformer.reset()
-//        }
-//        
-//        if isUserDrawing {
-//            if let touch = touches.first {
+        }
+        
+        if isUserDrawing {
+            if let touch = touches.first {
 //                onDrawIntent?(touch)
-//            }
-//            if hasUserLiftedFingers {
+            }
+            if hasUserLiftedFingers {
 //                onDrawFinished?()
-//            }
-//        }
+            }
+        }
         // check if the touches need to be removed (aka. the touch has finished)
         for touch in touches {
             if touch.phase == .ended || touch.phase == .cancelled {

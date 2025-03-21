@@ -6,9 +6,8 @@
 //
 
 import CoreGraphics
-import TrazoCore
 
-extension Vector2 {
+public extension Vector2 {
     init(_ point: CGPoint) {
         self.init()
         x = Float(point.x)

@@ -1,25 +1,20 @@
 import UIKit
-import simd
 
 public struct TrazoCanvas {
-    var currentEnvironment: CanvasEnvironment?
+    /// To hold the controller in memory
+    var controller: CanvasController?
     
     public init() {}
     
     @MainActor
     mutating public func makeCanvas() -> UIView {
-        let canvasController = CanvasController()
+        let state = CanvasState()
+        let canvasController = CanvasController(state: state)
         let canvasView = CanvasView(fingerGestureDelegate: canvasController)
         canvasController.canvasView = canvasView
-        currentEnvironment = .init(
-            canvasView: canvasView,
-            canvasController: canvasController
-        )
+        
+        controller = canvasController
+        
         return canvasView
     }
-}
-
-struct CanvasEnvironment {
-    let canvasView: CanvasView
-    let canvasController: CanvasController
 }
