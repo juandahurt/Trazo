@@ -8,6 +8,6 @@
       location = "group:TrazoCanvas">
    </FileRef>
    <FileRef
-      location = "container:TrazoCore">
+      location = "group:TrazoCore">
    </FileRef>
 </Workspace>

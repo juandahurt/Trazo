@@ -7,6 +7,7 @@
 
 // TODO: remove UIKit dependency
 import UIKit
+import TrazoCore
 
 struct TouchInput {
     typealias ID = Int

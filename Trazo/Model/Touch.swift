@@ -12,6 +12,6 @@ struct Touch {
     typealias ID = Int
     
     var id: ID
-    var location: vector_t
+    var location: CGPoint
     var phase: UITouch.Phase
 }

@@ -19,7 +19,7 @@ class InputProcessorStep: WorkflowStep {
                 y: -state.canvasView.bounds.height / 2
             )
         )
-        let touchPoint = vector_t(Float(location.x), Float(location.y))
-        state.currentCurve.addPoint(touchPoint)
+//        let touchPoint = CGPoint(Float(location.x), Float(location.y))
+//        state.currentCurve.addPoint(touchPoint)
     }
 }

@@ -1,8 +1,6 @@
 import UIKit
 import simd
 
-typealias Vector2 = simd_float2
-
 public struct TrazoCanvas {
     var currentEnvironment: CanvasEnvironment?
     

@@ -8,6 +8,6 @@
 
 class ClearCurveStep: WorkflowStep {
     override func excecute(using state: inout CanvasState) {
-        state.currentCurve = .init()
+//        state.currentCurve = .init()
     }
 }

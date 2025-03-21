@@ -13,9 +13,9 @@ struct CanvasState {
     
     // touches
     var inputTouch: Touch?
-    var currentCurve = Curve()
-    
-    var curveSectionToDraw = Curve()
+//    var currentCurve = Curve()
+//    
+//    var curveSectionToDraw = Curve()
     
     // textures state
     var canvasTexture: DrawableTexture?

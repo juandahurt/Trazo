@@ -37,7 +37,7 @@ class CanvasTransformer {
     
     func tranform(
         usingCurrentTouches touchesDict: [Touch.ID: [Touch]],
-        canvasCenter center: vector_t
+        canvasCenter center: CGPoint
     ) -> CGAffineTransform? {
         // logic found at: https://mortoray.com/a-pan-zoom-and-rotate-gesture-model-for-touch-devices/
         guard
@@ -76,7 +76,8 @@ class CanvasTransformer {
         let rotationMatrix = CGAffineTransform(rotationAngle: -CGFloat(deltaAngle))
        
         // zooming
-        let scale = currentVector.length() / startVector.length()
+//        let scale = currentVector.length() / startVector.length()
+        let scale = 0.0
         
         let scaleMatrix = CGAffineTransform(scaleX: CGFloat(scale), y: CGFloat(scale))
         

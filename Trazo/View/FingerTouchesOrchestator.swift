@@ -44,12 +44,12 @@ class FingerTouchesOrchestator {
                 transformer.initialize(withTouches: touchStore.touchesDict)
             }
             if !hasUserLiftedFingers {
-                if let matrix = transformer.tranform(
-                    usingCurrentTouches: touchStore.touchesDict,
-                    canvasCenter: .init(1640 / 2, 2360 / 2)
-                ) {
-                    onTransformChange?(matrix)
-                }
+//                if let matrix = transformer.tranform(
+//                    usingCurrentTouches: touchStore.touchesDict,
+//                    canvasCenter: .init(1640 / 2, 2360 / 2)
+//                ) {
+//                    onTransformChange?(matrix)
+//                }
             } else {
                 transformer.reset()
                 

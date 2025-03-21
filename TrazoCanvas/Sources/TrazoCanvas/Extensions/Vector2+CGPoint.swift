@@ -6,6 +6,7 @@
 //
 
 import CoreGraphics
+import TrazoCore
 
 extension Vector2 {
     init(_ point: CGPoint) {
