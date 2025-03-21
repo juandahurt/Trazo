@@ -1,6 +1,6 @@
 //
 //  FingerGestureRecognizer.swift
-//  TrazoEngine
+//  TrazoCanvas
 //
 //  Created by Juan Hurtado on 19/03/25.
 //

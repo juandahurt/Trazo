@@ -1,17 +1,17 @@
 //
 //  CanvasView.swift
-//  TrazoEngine
+//  TrazoCanvas
 //
 //  Created by Juan Hurtado on 19/03/25.
 //
 
 import MetalKit
 
-class CanvasView: MTKView, MTKViewDelegate {
-    init(frame: CGRect) {
+class CanvasView: MTKView, MTKViewDelegate {    
+    init(fingerGestureDelegate: FingerGestureRecognizerDelegate) {
         // TODO: remove device creation from here
         guard let device = MTLCreateSystemDefaultDevice() else { fatalError("") }
-        super.init(frame: frame, device: device)
+        super.init(frame: .zero, device: device)
       
         colorPixelFormat = .rgba8Unorm
         
@@ -22,7 +22,7 @@ class CanvasView: MTKView, MTKViewDelegate {
         translatesAutoresizingMaskIntoConstraints = false
         
         let fingerGesture = FingerGestureRecognizer()
-        fingerGesture.fingerGestureDelegate = self
+        fingerGesture.fingerGestureDelegate = fingerGestureDelegate
         addGestureRecognizer(fingerGesture)
     }
     
@@ -36,11 +36,5 @@ class CanvasView: MTKView, MTKViewDelegate {
 
     func draw(in view: MTKView) {
         // TODO: present canvas
-    }
-}
-
-extension CanvasView: FingerGestureRecognizerDelegate {
-    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
-        print(touches.count)
     }
 }

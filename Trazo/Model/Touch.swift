@@ -1,5 +1,5 @@
 //
-//  Touch.swift
+//  TouchInput.swift
 //  Trazo
 //
 //  Created by Juan Hurtado on 18/03/25.
