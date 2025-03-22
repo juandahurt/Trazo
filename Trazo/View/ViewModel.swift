@@ -11,11 +11,6 @@ import TrazoCanvas
 
 @MainActor
 class ViewModel {
-//    private var _canvasState: CanvasState!
-//    private var _drawingWorkflow = DrawingWorkflow()
-//    private let _setupWorkflow = SetupCanvasWorkflow()
-//    private let _transformWorkflow = TransformCanvasWorkflow()
-//    private let _endOfCurveWorkflow = EndOfCurveWorkflow()
     private var canvas = TrazoCanvas()
     
     /// Publishes the canvas view when it has been created

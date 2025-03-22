@@ -5,6 +5,7 @@
 //  Created by Juan Hurtado on 21/03/25.
 //
 
+import TrazoCore
 import UIKit
 
 @MainActor
@@ -16,10 +17,10 @@ class CanvasController {
     
     init(state: CanvasState) {
         self.state = state
+        
+        fingerTouchController.delegate = self
     }
 }
-
-
 
 extension CanvasController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
@@ -32,5 +33,17 @@ extension CanvasController: FingerGestureRecognizerDelegate {
                 )
             }
         )
+    }
+}
+
+
+extension CanvasController: FingerTouchControllerDelegate {
+    func didTransformGestureOccur(_ transform: Mat3x3) {
+        // TODO: update canvas using the transform
+        debugPrint(transform)
+    }
+
+    func didTransfromGestureEnd() {
+       // TODO: update ctm
     }
 }
