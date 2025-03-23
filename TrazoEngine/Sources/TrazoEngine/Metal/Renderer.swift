@@ -15,9 +15,9 @@ final class Renderer {
     private init() {}
    
     
-    let threadGroupLength = 8 // TODO: move this to some global scope?
+    static let threadGroupLength = 8 // TODO: move this to some global scope?
     
-    func fillTexture(
+    static func fillTexture(
         texture: MTLTexture,
         with color: Vector4,
         using commandBuffer: MTLCommandBuffer

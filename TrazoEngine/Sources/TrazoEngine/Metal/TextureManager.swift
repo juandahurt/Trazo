@@ -6,13 +6,14 @@
 //
 
 import Metal
+import TrazoCore
 
 @MainActor
 class TextureManager {
-    func createMetalTexture(ofSize size: CGRect) -> MTLTexture {
+    func createMetalTexture(ofSize size: Vector2) -> MTLTexture {
         let descriptor = MTLTextureDescriptor()
-        descriptor.width = Int(size.width)
-        descriptor.height = Int(size.height)
+        descriptor.width = Int(size.x)
+        descriptor.height = Int(size.y)
         descriptor.pixelFormat = .rgba8Unorm
         descriptor.usage = [.shaderRead, .shaderWrite, .renderTarget]
         // I don't think we'll find any issues if se create them all using

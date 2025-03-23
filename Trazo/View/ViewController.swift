@@ -33,16 +33,19 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .init(red: 32 / 255, green: 32 / 255, blue: 32 / 255, alpha: 1)
-        setupObservers()
-        viewModel.viewDidLoad()
+
+        setupSubviews()
+//        viewModel.viewDidLoad()
     }
     
-    private func setupObservers() {
-        viewModel.canvasViewSubject.sink { [weak self] canvasView in
-            guard let self else { return }
-            view.addSubview(canvasView)
-            canvasView.makeEgdes(equalTo: view)
-        }.store(in: &disposeBag)
+    override func viewDidLayoutSubviews() {
+        viewModel.viewDidLayoutSubviews()
+    }
+    
+    private func setupSubviews() {
+        let canvasView = viewModel.canvasView
+        view.addSubview(canvasView)
+        canvasView.makeEgdes(equalTo: view)
     }
 }
 

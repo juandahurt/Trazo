@@ -5,8 +5,8 @@
 //  Created by Juan Hurtado on 22/03/25.
 //
 
-import Metal
+import TrazoEngine
 
 struct Layer {
-    let texture: MTLTexture
+    let texture: Texture
 }

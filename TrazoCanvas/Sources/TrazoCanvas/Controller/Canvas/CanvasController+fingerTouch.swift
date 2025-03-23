@@ -1,26 +1,12 @@
 //
-//  CanvasController.swift
+//  CanvasController+fingerTouch.swift
 //  TrazoCanvas
 //
-//  Created by Juan Hurtado on 21/03/25.
+//  Created by Juan Hurtado on 23/03/25.
 //
 
 import TrazoCore
 import UIKit
-
-@MainActor
-class CanvasController {
-    weak var canvasView: CanvasView?
-    
-    private var state: CanvasState
-    private let fingerTouchController = FingerTouchController()
-    
-    init(state: CanvasState) {
-        self.state = state
-        
-        fingerTouchController.delegate = self
-    }
-}
 
 extension CanvasController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {

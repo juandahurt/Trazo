@@ -11,13 +11,16 @@ import TrazoCanvas
 
 @MainActor
 class ViewModel {
+    private var isCanvasLoaded = false
     private var canvas = TrazoCanvas()
     
-    /// Publishes the canvas view when it has been created
-    let canvasViewSubject = PassthroughSubject<UIView, Never>()
+    var canvasView: UIView {
+        canvas.canvasView
+    }
     
-    func viewDidLoad() {
-        let canvasView = canvas.makeCanvas()
-        canvasViewSubject.send(canvasView)
+    func viewDidLayoutSubviews() {
+        guard !isCanvasLoaded else { return }
+        canvas.load()
+        isCanvasLoaded = true
     }
 }
