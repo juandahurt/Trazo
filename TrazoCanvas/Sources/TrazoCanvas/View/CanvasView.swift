@@ -35,6 +35,6 @@ class CanvasView: MTKView, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
-        // TODO: present canvas
+        guard let currentDrawable else { return }
     }
 }
