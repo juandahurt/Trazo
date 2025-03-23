@@ -10,4 +10,7 @@
    <FileRef
       location = "group:TrazoCore">
    </FileRef>
+   <FileRef
+      location = "group:TrazoEngine">
+   </FileRef>
 </Workspace>
