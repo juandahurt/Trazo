@@ -5,12 +5,19 @@
 //  Created by Juan Hurtado on 23/03/25.
 //
 
-import Metal
+import MetalKit
 import TrazoCore
 
 
-
 extension TrazoEngine {
+    public static func present(_ drawable: CAMetalDrawable) {
+        commandBuffer?.present(drawable)
+    }
+    
+    /// Fills a texture with a desired color.
+    /// - Parameters:
+    ///   - texture: Texture to be filled.
+    ///   - color: Color to be used.
     public static func fillTexture(_ texture: Texture, withColor color: Vector4) {
         guard let commandBuffer else { return }
         Renderer.fillTexture(

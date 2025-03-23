@@ -12,4 +12,5 @@ struct CanvasState {
     /// Current tranformation matrix.
     var ctm: Mat3x3 = .identity
     var layers: [Layer] = []
+    var currentLayerIndex = -1
 }

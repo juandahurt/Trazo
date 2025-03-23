@@ -10,7 +10,10 @@ import TrazoCore
 
 @MainActor
 class TextureManager {
-    func createMetalTexture(ofSize size: Vector2) -> MTLTexture {
+    func createMetalTexture(
+        ofSize size: Vector2,
+        label: String? = nil
+    ) -> MTLTexture {
         let descriptor = MTLTextureDescriptor()
         descriptor.width = Int(size.x)
         descriptor.height = Int(size.y)
@@ -21,6 +24,7 @@ class TextureManager {
         guard let metalTexture = GPU.device.makeTexture(descriptor: descriptor) else {
             fatalError("The texture couldn't be created.")
         }
+        metalTexture.label = label
         return metalTexture
     }
 }

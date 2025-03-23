@@ -14,11 +14,11 @@ extension CanvasController: MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
-        // guard let currentDrawable else { return }
+        guard let currentDrawable = view.currentDrawable else { return }
         
         // TrazoEngine.drawTexture(..., on: currentDrawable.texture)
         
-        // TrazoEngine.present(currentDrawable)
+        TrazoEngine.present(currentDrawable)
         
         TrazoEngine.commit()
         TrazoEngine.reset()

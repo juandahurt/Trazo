@@ -8,8 +8,11 @@
 import TrazoCore
 
 public extension TrazoEngine {
-    static func makeTexture(ofSize size: Vector2) -> Texture {
-        let metalTexture = TextureManager().createMetalTexture(ofSize: size)
+    static func makeTexture(ofSize size: Vector2, debugLabel: String? = nil) -> Texture {
+        let metalTexture = TextureManager().createMetalTexture(
+            ofSize: size,
+            label: debugLabel
+        )
         return .init(metalTexture: metalTexture)
     }
 }
