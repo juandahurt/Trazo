@@ -21,7 +21,8 @@ let package = Package(
         .target(
             name: "TrazoCanvas",
             dependencies: [
-                .product(name: "TrazoCore", package: "TrazoCore")
+                .product(name: "TrazoCore", package: "TrazoCore"),
+                .product(name: "TrazoEngine", package: "TrazoEngine")
             ]
         ),
     ]

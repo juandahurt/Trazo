@@ -8,9 +8,9 @@
       location = "group:TrazoCanvas">
    </FileRef>
    <FileRef
-      location = "group:TrazoCore">
+      location = "group:TrazoEngine">
    </FileRef>
    <FileRef
-      location = "group:TrazoEngine">
+      location = "group:TrazoCore">
    </FileRef>
 </Workspace>

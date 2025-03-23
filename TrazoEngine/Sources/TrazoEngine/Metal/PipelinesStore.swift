@@ -65,7 +65,7 @@ extension PipelinesStore {
         fragmentFunction: String,
         factory: (MTLRenderPipelineDescriptor) -> Void
     ) -> MTLRenderPipelineState {
-        let library = Metal.defaultLibrary
+        let library = GPU.defaultLibrary
         let descriptor = MTLRenderPipelineDescriptor()
         descriptor.vertexFunction = library.makeFunction(name: vertexFunction)
         descriptor.fragmentFunction = library.makeFunction(name: fragmentFunction)
@@ -75,7 +75,7 @@ extension PipelinesStore {
         factory(descriptor)
         
         do {
-            return try Metal.device.makeRenderPipelineState(descriptor: descriptor)
+            return try GPU.device.makeRenderPipelineState(descriptor: descriptor)
         } catch {
             debugPrint(error)
             fatalError()
@@ -85,12 +85,12 @@ extension PipelinesStore {
     private func _makeComputePipelineState(
         usingFunctionNamed functionName: String
     ) -> MTLComputePipelineState {
-        let library = Metal.defaultLibrary
+        let library = GPU.defaultLibrary
         guard let function = library.makeFunction(name: functionName) else {
             fatalError("Function \(functionName) not found in library.")
         }
         do {
-            return try Metal.device.makeComputePipelineState(function: function)
+            return try GPU.device.makeComputePipelineState(function: function)
         } catch {
             debugPrint(error)
             fatalError()

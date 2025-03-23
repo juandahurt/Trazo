@@ -1,5 +1,5 @@
 //
-//  Metal.swift
+//  GPU.swift
 //  Trazo
 //
 //  Created by Juan Hurtado on 26/01/25.
@@ -8,7 +8,7 @@
 import Metal
 
 @MainActor
-struct Metal {
+struct GPU {
     static private var _device: MTLDevice?
     static var device: MTLDevice {
         if _device == nil {

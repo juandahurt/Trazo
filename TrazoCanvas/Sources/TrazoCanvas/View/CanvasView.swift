@@ -6,6 +6,7 @@
 //
 
 import MetalKit
+import TrazoEngine
 
 class CanvasView: MTKView, MTKViewDelegate {    
     init(fingerGestureDelegate: FingerGestureRecognizerDelegate) {
@@ -35,6 +36,13 @@ class CanvasView: MTKView, MTKViewDelegate {
     }
 
     func draw(in view: MTKView) {
-        guard let currentDrawable else { return }
+        // guard let currentDrawable else { return }
+        
+        // TrazoEngine.drawTexture(..., on: currentDrawable.texture)
+        
+        // TrazoEngine.present(currentDrawable)
+        
+        TrazoEngine.commit()
+        TrazoEngine.reset()
     }
 }

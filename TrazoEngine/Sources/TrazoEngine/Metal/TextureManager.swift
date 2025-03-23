@@ -17,7 +17,7 @@ class TextureManager {
         descriptor.usage = [.shaderRead, .shaderWrite, .renderTarget]
         // I don't think we'll find any issues if se create them all using
         // the same descriptor :)
-        guard let metalTexture = Metal.device.makeTexture(descriptor: descriptor) else {
+        guard let metalTexture = GPU.device.makeTexture(descriptor: descriptor) else {
             fatalError("The texture couldn't be created.")
         }
         return metalTexture

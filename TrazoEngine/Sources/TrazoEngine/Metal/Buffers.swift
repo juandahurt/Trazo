@@ -16,7 +16,7 @@ struct Buffers {
             0, 0,
             1, 0
         ]
-        let buffer = Metal.device.makeBuffer(
+        let buffer = GPU.device.makeBuffer(
             bytes: textCoord,
             length: MemoryLayout<Float>.stride * textCoord.count
         )
