@@ -7,6 +7,7 @@
 
 import MetalKit
 
+@MainActor
 final class PipelinesStore {
     private(set) var fillColorPipeline: MTLComputePipelineState!
     private(set) var drawTexturePipeline: MTLRenderPipelineState!

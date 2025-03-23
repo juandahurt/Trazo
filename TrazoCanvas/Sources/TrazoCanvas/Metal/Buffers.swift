@@ -9,7 +9,7 @@ import Metal
 
 @MainActor
 struct Buffers {
-    static let texture: MTLTexture = {
+    static let texture: MTLBuffer = {
         let textCoord: [Float] = [
             0, 1,
             1, 1,
@@ -21,5 +21,6 @@ struct Buffers {
             length: MemoryLayout<Float>.stride * textCoord.count
         )
         assert(buffer != nil, "Texture buffer couldn't be created.")
+        return buffer!
     }()
 }

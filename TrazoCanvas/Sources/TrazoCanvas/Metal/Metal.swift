@@ -7,6 +7,7 @@
 
 import Metal
 
+@MainActor
 struct Metal {
     static private var _device: MTLDevice?
     static var device: MTLDevice {
