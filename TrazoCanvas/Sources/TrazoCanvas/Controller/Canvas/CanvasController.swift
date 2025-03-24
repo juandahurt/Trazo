@@ -36,13 +36,23 @@ class CanvasController: NSObject {
         // user starts drawing on the layer which is on top of the background layer
         state.currentLayerIndex = 1
         
+        state.renderableTexture = TrazoEngine
+            .makeTexture(ofSize: canvasSize, debugLabel: "Renderable Texture")
+        
         // fill background layer with white color
         TrazoEngine.fillTexture(
             state.layers.last!.texture,
             withColor: [1, 1, 1, 1]
         )
         
-        // TODO: merge all layers into the renderable texture
+        // merge layers to the renderable texture
+        for layer in state.layers {
+            TrazoEngine.merge(
+                texture: layer.texture,
+                with: state.renderableTexture!,
+                on: state.renderableTexture!
+            )
+        }
         
         // display canvas
         canvasView.setNeedsDisplay()

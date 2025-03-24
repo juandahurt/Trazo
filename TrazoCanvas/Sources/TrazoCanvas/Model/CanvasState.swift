@@ -6,6 +6,7 @@
 //
 
 import TrazoCore
+import TrazoEngine
 
 /// Holds the current state of the canvas.
 struct CanvasState {
@@ -13,4 +14,7 @@ struct CanvasState {
     var ctm: Mat3x3 = .identity
     var layers: [Layer] = []
     var currentLayerIndex = -1
+    
+    // textures
+    var renderableTexture: Texture?
 }

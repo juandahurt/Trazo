@@ -14,6 +14,25 @@ extension TrazoEngine {
         commandBuffer?.present(drawable)
     }
     
+    /// Merges two textures into a destination texture.
+    /// - Parameters:
+    ///   - textureA: Texture A.
+    ///   - textureB: Texture B.
+    ///   - destTexture: Destination texture.
+    public static func merge(
+        texture textureA: Texture,
+        with textureB: Texture,
+        on destTexture: Texture
+    ) {
+        guard let commandBuffer else { return }
+        Renderer.merge(
+            textureA.metalTexture,
+            with: textureB.metalTexture,
+            on: destTexture.metalTexture,
+            using: commandBuffer
+        )
+    }
+    
     /// Fills a texture with a desired color.
     /// - Parameters:
     ///   - texture: Texture to be filled.
