@@ -33,7 +33,7 @@ class Transformer {
     
     func tranform(
         usingCurrentTouches touchesDict: [TouchInput.ID: [TouchInput]]
-    ) -> Mat3x3? {
+    ) -> Mat4x4? {
         // logic found at: https://mortoray.com/a-pan-zoom-and-rotate-gesture-model-for-touch-devices/
         guard
             let initialTouchA,
@@ -64,7 +64,7 @@ class Transformer {
         
         let deltaAngle = endAngle - startAngle
         
-        let rotationMatrix = Mat3x3(rotatedBy: deltaAngle)
+        let rotationMatrix = Mat4x4(rotateZ: deltaAngle)
        
         return rotationMatrix
         // zooming

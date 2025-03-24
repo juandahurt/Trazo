@@ -11,10 +11,10 @@ import TrazoEngine
 /// Holds the current state of the canvas.
 struct CanvasState {
     /// Current tranformation matrix.
-    var ctm: Mat3x3 = .identity
+    var ctm: Mat4x4 = .identity
     var layers: [Layer] = []
     var currentLayerIndex = -1
     
     // textures
-    var renderableTexture: Texture?
+    var renderableTexture: Texture! // TODO: find a way of making this var not an optional
 }

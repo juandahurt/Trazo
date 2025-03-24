@@ -13,7 +13,7 @@ import UIKit
 class CanvasController: NSObject {
     weak var canvasView: CanvasView?
     
-    private var state: CanvasState
+    var state: CanvasState
     let fingerTouchController = FingerTouchController()
     
     init(state: CanvasState) {

@@ -24,9 +24,9 @@ extension CanvasController: FingerGestureRecognizerDelegate {
 
 
 extension CanvasController: FingerTouchControllerDelegate {
-    func didTransformGestureOccur(_ transform: Mat3x3) {
-        // TODO: update canvas using the transform
-        debugPrint(transform)
+    func didTransformGestureOccur(_ transform: Mat4x4) {
+        state.ctm = transform
+        canvasView?.setNeedsDisplay()
     }
 
     func didTransfromGestureEnd() {

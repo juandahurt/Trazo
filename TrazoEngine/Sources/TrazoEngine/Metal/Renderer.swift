@@ -81,4 +81,96 @@ final class Renderer {
             )
         encoder?.endEncoding()
     }
+    
+    static func drawTexture(
+        _ texture: MTLTexture,
+        on outputTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer,
+        clearColor: Vector4,
+        transform: Mat4x4
+    ) {
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = outputTexture
+        passDescriptor.colorAttachments[0].loadAction = .clear
+        passDescriptor.colorAttachments[0].clearColor = .init(
+            red: Double(clearColor.x),
+            green: Double(clearColor.y),
+            blue: Double(clearColor.z),
+            alpha: Double(clearColor.w)
+        )
+        
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        encoder?.setRenderPipelineState(PipelinesStore.instance.drawTexturePipeline)
+        encoder?.setFragmentTexture(texture, index: 3)
+        
+        let textureWidth = Float(outputTexture.width)
+        let textureHeight = Float(outputTexture.height)
+        let vertices: [Float] = [
+            -textureWidth / 2, -textureHeight / 2,
+             textureWidth / 2, -textureHeight / 2,
+             -textureWidth / 2, textureHeight / 2,
+             textureWidth / 2, textureHeight / 2,
+        ]
+        
+        let vertexBuffer = GPU.device.makeBuffer(
+            bytes: vertices,
+            length: MemoryLayout<Float>.stride * vertices.count
+        )
+        
+        encoder?.setVertexBuffer(
+            vertexBuffer,
+            offset: 0,
+            index: 0
+        )
+        
+        
+//        encoder?.setVertexBytes(
+//            texture.buffers.textCoordinates,
+//            length: texture.buffers.textCoordSize,
+//            index: 1
+//        )
+        encoder?.setVertexBuffer(
+            QuadBuffers.textureBuffer,
+            offset: 0,
+            index: 1
+        )
+        
+        // matrix transform
+        let width = Float(outputTexture.width)
+        let height = Float(outputTexture.height)
+
+        var modelMatrix = transform
+        let viewSize: Float = height
+        let aspect = width / height
+        let rect = CGRect(
+            x: Double(-viewSize * aspect) * 0.5,
+            y: Double(viewSize) * 0.5,
+            width: Double(viewSize * aspect),
+            height: Double(viewSize))
+        var projection = Mat4x4(
+            orthographic: rect,
+            near: 0,
+            far: 1
+        )
+        
+        encoder?.setVertexBytes(
+            &modelMatrix,
+            length: MemoryLayout<Mat4x4>.stride,
+            index: 2
+        )
+        encoder?.setVertexBytes(
+            &projection,
+            length: MemoryLayout<Mat4x4>.stride,
+            index: 3
+        )
+        encoder?
+            .drawIndexedPrimitives(
+                type: .triangle,
+                indexCount: QuadBuffers.indexCount,
+                indexType: .uint16,
+                indexBuffer: QuadBuffers.indexBuffer,
+                indexBufferOffset: 0
+            )
+        encoder?.endEncoding()
+    }
 }

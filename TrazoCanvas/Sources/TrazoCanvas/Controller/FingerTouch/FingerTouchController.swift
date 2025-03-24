@@ -11,7 +11,7 @@ import TrazoCore
 protocol FingerTouchControllerDelegate: AnyObject {
     /// Notifies the delegate that a transform gesture has occurred.
     /// - Parameter transform: The generated transformation.
-    func didTransformGestureOccur(_ transform: Mat3x3)
+    func didTransformGestureOccur(_ transform: Mat4x4)
     /// Notifies the delegate that a transform gesture has ended.
     func didTransfromGestureEnd()
 }
