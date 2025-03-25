@@ -17,4 +17,5 @@ struct CanvasState {
     
     // textures
     var renderableTexture: Texture! // TODO: find a way of making this var not an optional
+    var grayscaleTexture: Texture!
 }

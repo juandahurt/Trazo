@@ -6,6 +6,7 @@
 //
 
 import TrazoCore
+import TrazoEngine
 import UIKit
 
 extension CanvasController: FingerGestureRecognizerDelegate {
@@ -31,5 +32,29 @@ extension CanvasController: FingerTouchControllerDelegate {
 
     func didTransfromGestureEnd() {
        // TODO: update ctm
+    }
+    
+    func didDrawingGestureOccur(withTouch touch: TouchInput) {
+        guard let canvasView else { return }
+        
+        let canvasSzie = canvasView.bounds
+        var location = touch.location
+        location.x -= Float(canvasSzie.width) / 2
+        location.y -= Float(canvasSzie.height) / 2
+        
+        drawGrayscalePoints([location])
+        
+        canvasView.setNeedsDisplay()
+    }
+    
+    func drawGrayscalePoints(_ points: [Vector2]) {
+        TrazoEngine.pushDebugGroup("Draw grayscale points")
+        TrazoEngine.drawGrayscalePoints(
+                points,
+                size: 4,
+                transform: state.ctm.inverse,
+                on: state.grayscaleTexture
+            )
+        TrazoEngine.popDebugGroup()
     }
 }

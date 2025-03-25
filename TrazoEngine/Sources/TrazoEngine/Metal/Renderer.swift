@@ -8,13 +8,73 @@
 import Metal
 import TrazoCore
 
-
-
 @MainActor
 final class Renderer {
     private init() {}
     
     static let threadGroupLength = 8 // TODO: move this to some global scope?
+   
+    static func drawGrayscalePoints(
+            positionsBuffer: MTLBuffer,
+            numPoints: Int,
+            pointSize: Float,
+            on grayScaleTexture: MTLTexture,
+            transform: Mat4x4,
+            using commandBuffer: MTLCommandBuffer
+        ) {
+            let passDescriptor = MTLRenderPassDescriptor()
+            passDescriptor.colorAttachments[0].texture = grayScaleTexture
+            passDescriptor.colorAttachments[0].loadAction = .load
+            passDescriptor.colorAttachments[0].storeAction = .store
+            
+            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+            encoder?.setRenderPipelineState(
+                PipelinesStore.instance.drawGrayScalePointPipeline
+            )
+            encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+            
+            let width = Float(grayScaleTexture.width)
+            let height = Float(grayScaleTexture.height)
+
+            let viewSize: Float = height
+            let aspect = width / height
+            let rect = CGRect(
+                x: Double(-viewSize * aspect) * 0.5,
+                y: Double(viewSize) * 0.5,
+                width: Double(viewSize * aspect),
+                height: Double(viewSize))
+            var projection = Mat4x4(
+                orthographic: rect,
+                near: 0,
+                far: 1
+            )
+            var modelMatrix = transform
+            encoder?.setVertexBytes(
+                &modelMatrix,
+                length: MemoryLayout<Mat4x4>.stride,
+                index: 1
+            )
+            encoder?.setVertexBytes(
+                &projection,
+                length: MemoryLayout<Mat4x4>.stride,
+                index: 2
+            )
+            var pointSizeCopy = pointSize
+            encoder?.setVertexBytes(
+                &pointSizeCopy,
+                length: MemoryLayout<Float>.stride,
+                index: 3
+            )
+            
+            
+            encoder?.drawPrimitives(
+                type: .point,
+                vertexStart: 0,
+                vertexCount: numPoints
+            )
+            encoder?.endEncoding()
+        }
+        
     
     static func fillTexture(
         texture: MTLTexture,

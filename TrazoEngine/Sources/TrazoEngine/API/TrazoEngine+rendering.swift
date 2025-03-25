@@ -10,8 +10,37 @@ import TrazoCore
 
 
 public extension TrazoEngine {
+    /// Presents the metal drawable.
+    /// - Parameter drawable: Metal drawable to be presented.
     static func present(_ drawable: CAMetalDrawable) {
         commandBuffer?.present(drawable)
+    }
+    
+    /// Draws a set of grayscale points on a certain texture.
+    /// - Parameters:
+    ///   - points: Positions.
+    ///   - size: Point size.
+    ///   - transform: Matrix that will be applied to every point.
+    ///   - grayscaleTexture: The texture where the points will be drawn into.
+    static func drawGrayscalePoints(
+        _ points: [Vector2],
+        size: Float,
+        transform: Mat4x4,
+        on grayscaleTexture: Texture
+    ) {
+        guard let commandBuffer else { return }
+        guard let buffer = GPU.device.makeBuffer(
+            bytes: points,
+            length: MemoryLayout<Vector2>.stride * points.count
+        ) else { return }
+        Renderer.drawGrayscalePoints(
+            positionsBuffer: buffer,
+            numPoints: 1,
+            pointSize: size,
+            on: grayscaleTexture.metalTexture,
+            transform: transform,
+            using: commandBuffer
+        )
     }
     
     static func drawTexture(

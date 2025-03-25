@@ -14,6 +14,8 @@ protocol FingerTouchControllerDelegate: AnyObject {
     func didTransformGestureOccur(_ transform: Mat4x4)
     /// Notifies the delegate that a transform gesture has ended.
     func didTransfromGestureEnd()
+    
+    func didDrawingGestureOccur(withTouch touch: TouchInput)
 }
 
 /// It manages the touches that the user makes with their finger.
@@ -61,19 +63,15 @@ class FingerTouchController {
             } else {
                 transformer.reset()
             }
-        } else {
-            // TODO: draw
-//            transformer.reset()
         }
         
-//        if isUserDrawing {
-//            if let touch = touches.first {
-//                onDrawIntent?(touch)
-//            }
-//            if hasUserLiftedFingers {
-//                onDrawFinished?()
-//            }
-//        }
+        if isUserDrawing {
+            // notify delegate of this new drawing touch
+            if let touch = touches.first {
+                delegate?.didDrawingGestureOccur(withTouch: touch)
+            }
+        }
+        
         // check if the touches need to be removed (aka. the touch has finished)
         for touch in touches {
             if touch.phase == .ended || touch.phase == .cancelled {
