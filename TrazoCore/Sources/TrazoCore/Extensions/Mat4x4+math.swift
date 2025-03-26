@@ -18,6 +18,16 @@ public extension Mat4x4 {
         ]
         self.init(rows: rows)
     }
+   
+    init(scaledBy value: Vector3) {
+        let rows: [Vector4] = [
+            [value.x,         0,         0, 0],
+            [        0, value.y,         0, 0],
+            [        0,       0,   value.z, 0],
+            [        0,       0,         0, 1]
+        ]
+        self.init(rows: rows)
+    }
     
     init(orthographic rect: CGRect, near: Float, far: Float) {
         let left = Float(rect.origin.x)

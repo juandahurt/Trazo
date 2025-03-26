@@ -7,6 +7,7 @@
 
 import Foundation
 import TrazoCore
+import simd
 
 class Transformer {
     /// First touch of finger A
@@ -66,25 +67,23 @@ class Transformer {
         
         let rotationMatrix = Mat4x4(rotateZ: deltaAngle)
        
-        return rotationMatrix
         // zooming
-//        let scale = currentVector.length() / startVector.length()
-//        let scale = 0.0
-//        
-//        let scaleMatrix = CGAffineTransform(scaleX: CGFloat(scale), y: CGFloat(scale))
-//        
+        let scale = length(currentVector) / length(startVector)
+        
+        let scaleMatrix = Mat4x4(scaledBy: [scale, scale, 1])
+        
+        
 //        let translation = rawTranslation.applying(rotationMatrix) / CGFloat(scale)
 //        
 //        let translationMatrix = CGAffineTransform(
 //            translationX: translation.x,
 //            y: -translation.y
 //        )
+        let matrix = rotationMatrix * scaleMatrix
 //        let matrix = translationMatrix.concatenating(rotationMatrix).concatenating(
 //            scaleMatrix
 //        )
-//        
-//        ltm = ctm.concatenating(matrix)
-//        return ctm.concatenating(matrix)
+        return matrix
     }
     
     func reset() {
