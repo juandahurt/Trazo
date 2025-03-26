@@ -41,20 +41,17 @@ extension CanvasController: FingerTouchControllerDelegate {
         var location = touch.location
         location.x -= Float(canvasSzie.width) / 2
         location.y -= Float(canvasSzie.height) / 2
+        location.y *= -1
         
         drawGrayscalePoints([location])
+        colorizeGrayscaleTexture()
+        updateDrawingTexture()
+        mergeLayers(usingDrawingTexture: true)
         
         canvasView.setNeedsDisplay()
     }
     
-    func drawGrayscalePoints(_ points: [Vector2]) {
-        TrazoEngine.pushDebugGroup("Draw grayscale points")
-        TrazoEngine.drawGrayscalePoints(
-                points,
-                size: 4,
-                transform: state.ctm.inverse,
-                on: state.grayscaleTexture
-            )
-        TrazoEngine.popDebugGroup()
+    func didDrawingGestureEnd() {
+        clearDrawingTexture()
     }
 }

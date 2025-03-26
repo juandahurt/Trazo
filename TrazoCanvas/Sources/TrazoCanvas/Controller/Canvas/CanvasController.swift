@@ -15,6 +15,10 @@ class CanvasController: NSObject {
     
     var state: CanvasState
     let fingerTouchController = FingerTouchController()
+   
+    var currentLayer: Layer {
+        state.layers[state.currentLayerIndex]
+    }
     
     init(state: CanvasState) {
         self.state = state
@@ -34,7 +38,7 @@ class CanvasController: NSObject {
             .init(size: canvasSize, debubLabel: "Background Texture")
         ]
         // user starts drawing on the layer which is on top of the background layer
-        state.currentLayerIndex = 1
+        state.currentLayerIndex = 0
         
         state.renderableTexture = TrazoEngine.makeTexture(
             ofSize: canvasSize,
@@ -44,6 +48,14 @@ class CanvasController: NSObject {
             ofSize: canvasSize,
             debugLabel: "Grayscale Texture"
         )
+        state.strokeTexture = TrazoEngine.makeTexture(
+            ofSize: canvasSize,
+            debugLabel: "Stroke Texture"
+        )
+        state.drawingTexture = TrazoEngine.makeTexture(
+            ofSize: canvasSize,
+            debugLabel: "Drawing Texture"
+        )
         
         // fill background layer with white color
         TrazoEngine.fillTexture(
@@ -51,15 +63,7 @@ class CanvasController: NSObject {
             withColor: [1, 1, 1, 1]
         )
         
-        TrazoEngine.pushDebugGroup("Merge layers")
-        for layer in state.layers {
-            TrazoEngine.merge(
-                texture: layer.texture,
-                with: state.renderableTexture!,
-                on: state.renderableTexture!
-            )
-        }
-        TrazoEngine.popDebugGroup()
+        mergeLayers(usingDrawingTexture: false)
         
         // display canvas
         canvasView.setNeedsDisplay()

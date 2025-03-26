@@ -12,10 +12,21 @@ import TrazoEngine
 struct CanvasState {
     /// Current tranformation matrix.
     var ctm: Mat4x4 = .identity
+    
+    // MARK: Layers
     var layers: [Layer] = []
+    /// Current layer index.
     var currentLayerIndex = -1
     
-    // textures
+    // MARK: textures
+    /// Intermidiate representation of the final canvas texture.
     var renderableTexture: Texture! // TODO: find a way of making this var not an optional
     var grayscaleTexture: Texture!
+    var strokeTexture: Texture!
+    /// It contains the merge between the stroke texture and the current layer texture.
+    var drawingTexture: Texture!
+    
+    // MARK: updatable by user
+    /// Brush color.
+    var color: Vector4 = [0, 1, 0, 0.5]
 }

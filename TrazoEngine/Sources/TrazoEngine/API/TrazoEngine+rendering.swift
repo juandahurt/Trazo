@@ -10,6 +10,20 @@ import TrazoCore
 
 
 public extension TrazoEngine {
+    static func colorize(
+        grayscaleTexture: Texture,
+        withColor color: Vector4,
+        on outputTexture: Texture
+    ) {
+        guard let commandBuffer else { return }
+        Renderer.colorize(
+            grayscaleTexture: grayscaleTexture.metalTexture,
+            withColor: color,
+            on: outputTexture.metalTexture,
+            using: commandBuffer
+        )
+    }
+    
     /// Presents the metal drawable.
     /// - Parameter drawable: Metal drawable to be presented.
     static func present(_ drawable: CAMetalDrawable) {

@@ -13,68 +13,104 @@ final class Renderer {
     private init() {}
     
     static let threadGroupLength = 8 // TODO: move this to some global scope?
-   
-    static func drawGrayscalePoints(
-            positionsBuffer: MTLBuffer,
-            numPoints: Int,
-            pointSize: Float,
-            on grayScaleTexture: MTLTexture,
-            transform: Mat4x4,
-            using commandBuffer: MTLCommandBuffer
-        ) {
-            let passDescriptor = MTLRenderPassDescriptor()
-            passDescriptor.colorAttachments[0].texture = grayScaleTexture
-            passDescriptor.colorAttachments[0].loadAction = .load
-            passDescriptor.colorAttachments[0].storeAction = .store
-            
-            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
-            encoder?.setRenderPipelineState(
-                PipelinesStore.instance.drawGrayScalePointPipeline
-            )
-            encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
-            
-            let width = Float(grayScaleTexture.width)
-            let height = Float(grayScaleTexture.height)
-
-            let viewSize: Float = height
-            let aspect = width / height
-            let rect = CGRect(
-                x: Double(-viewSize * aspect) * 0.5,
-                y: Double(viewSize) * 0.5,
-                width: Double(viewSize * aspect),
-                height: Double(viewSize))
-            var projection = Mat4x4(
-                orthographic: rect,
-                near: 0,
-                far: 1
-            )
-            var modelMatrix = transform
-            encoder?.setVertexBytes(
-                &modelMatrix,
-                length: MemoryLayout<Mat4x4>.stride,
-                index: 1
-            )
-            encoder?.setVertexBytes(
-                &projection,
-                length: MemoryLayout<Mat4x4>.stride,
-                index: 2
-            )
-            var pointSizeCopy = pointSize
-            encoder?.setVertexBytes(
-                &pointSizeCopy,
-                length: MemoryLayout<Float>.stride,
-                index: 3
-            )
-            
-            
-            encoder?.drawPrimitives(
-                type: .point,
-                vertexStart: 0,
-                vertexCount: numPoints
-            )
-            encoder?.endEncoding()
-        }
+    
+    static func colorize(
+        grayscaleTexture texture: MTLTexture,
+        withColor color: Vector4,
+        on outputTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        let threadsGroupSize = MTLSize(
+            width: (texture.width) / threadGroupLength,
+            height: texture.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (texture.width) / threadsGroupSize.width,
+            height: (texture.height) / threadsGroupSize.height,
+            depth: 1
+        )
         
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(PipelinesStore.instance.colorizePipeline)
+        encoder?.setTexture(texture, index: 0)
+        encoder?.setTexture(outputTexture, index: 1)
+        var color = color
+        encoder?.setBytes(
+            &color,
+            length: MemoryLayout<Vector4>.stride,
+            index: 0
+        )
+        encoder?
+            .dispatchThreadgroups(
+                threadsGroupSize,
+                threadsPerThreadgroup: threadsPerThreadGroup
+            )
+        encoder?.endEncoding()
+    }
+    
+    static func drawGrayscalePoints(
+        positionsBuffer: MTLBuffer,
+        numPoints: Int,
+        pointSize: Float,
+        on grayScaleTexture: MTLTexture,
+        transform: Mat4x4,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = grayScaleTexture
+        passDescriptor.colorAttachments[0].loadAction = .load
+        passDescriptor.colorAttachments[0].storeAction = .store
+        
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        encoder?.setRenderPipelineState(
+            PipelinesStore.instance.drawGrayScalePointPipeline
+        )
+        encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+        
+        let width = Float(grayScaleTexture.width)
+        let height = Float(grayScaleTexture.height)
+        
+        let viewSize: Float = height
+        let aspect = width / height
+        let rect = CGRect(
+            x: Double(-viewSize * aspect) * 0.5,
+            y: Double(viewSize) * 0.5,
+            width: Double(viewSize * aspect),
+            height: Double(viewSize))
+        var projection = Mat4x4(
+            orthographic: rect,
+            near: 0,
+            far: 1
+        )
+        var modelMatrix = transform
+        encoder?.setVertexBytes(
+            &modelMatrix,
+            length: MemoryLayout<Mat4x4>.stride,
+            index: 1
+        )
+        encoder?.setVertexBytes(
+            &projection,
+            length: MemoryLayout<Mat4x4>.stride,
+            index: 2
+        )
+        var pointSizeCopy = pointSize
+        encoder?.setVertexBytes(
+            &pointSizeCopy,
+            length: MemoryLayout<Float>.stride,
+            index: 3
+        )
+        
+        
+        encoder?.drawPrimitives(
+            type: .point,
+            vertexStart: 0,
+            vertexCount: numPoints
+        )
+        encoder?.endEncoding()
+    }
+    
     
     static func fillTexture(
         texture: MTLTexture,
@@ -183,12 +219,6 @@ final class Renderer {
             index: 0
         )
         
-        
-//        encoder?.setVertexBytes(
-//            texture.buffers.textCoordinates,
-//            length: texture.buffers.textCoordSize,
-//            index: 1
-//        )
         encoder?.setVertexBuffer(
             QuadBuffers.textureBuffer,
             offset: 0,
@@ -198,7 +228,7 @@ final class Renderer {
         // matrix transform
         let width = Float(outputTexture.width)
         let height = Float(outputTexture.height)
-
+        
         var modelMatrix = transform
         let viewSize: Float = height
         let aspect = width / height
