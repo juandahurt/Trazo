@@ -21,7 +21,7 @@ struct GPU {
     static private var _defaultLibrary: MTLLibrary?
     static var defaultLibrary: MTLLibrary {
         if _defaultLibrary == nil {
-            _defaultLibrary = device.makeDefaultLibrary()
+            _defaultLibrary = try? device.makeDefaultLibrary(bundle: .module)
             assert(_defaultLibrary != nil, "No Metal files found.")
         }
         return _defaultLibrary!
