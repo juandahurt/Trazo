@@ -9,8 +9,12 @@ import TrazoCore
 import TrazoEngine
 
 extension CanvasController {
-    func updateCurrentLayerWithDrawingLayer() {
-        // TODO: implement
+    func updateCurrentLayerWithDrawingTexture() {
+        TrazoEngine.merge(
+            texture: state.drawingTexture,
+            with: currentLayer.texture,
+            on: currentLayer.texture
+        )
     }
     
     func mergeLayers(usingDrawingTexture: Bool) {
