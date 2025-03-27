@@ -19,6 +19,11 @@ class Transformer {
         initialTouchA != nil && initialTouchB != nil
     }
     
+    private var baseTransform: Mat4x4 = .identity
+    private var currentTransfrom: Mat4x4 = .identity
+    
+    var transform: Mat4x4 { baseTransform * currentTransfrom }
+    
     func initialize(withTouches touchesDict: [TouchInput.ID: [TouchInput]]) {
         guard
             let keyA = touchesDict.keys.sorted().first,
@@ -34,7 +39,7 @@ class Transformer {
     
     func tranform(
         usingCurrentTouches touchesDict: [TouchInput.ID: [TouchInput]]
-    ) -> Mat4x4? {
+    ) {
         // logic found at: https://mortoray.com/a-pan-zoom-and-rotate-gesture-model-for-touch-devices/
         guard
             let initialTouchA,
@@ -42,7 +47,7 @@ class Transformer {
             let lastTouchA = touchesDict[initialTouchA.id]?.last,
             let lastTouchB = touchesDict[initialTouchB.id]?.last
         else {
-            return nil
+            return
         }
         
         let initialPointA = initialTouchA.location
@@ -55,7 +60,7 @@ class Transformer {
         let currentCenter = (currentPointA - currentPointB) / 2 + currentPointB
         
         let translationVector = currentCenter - startCenter
-        
+    
         // rotation
         let startVector = initialPointA - initialPointB
         let currentVector = currentPointA - currentPointB
@@ -72,22 +77,14 @@ class Transformer {
         
         let scaleMatrix = Mat4x4(scaledBy: [scale, scale, 1])
         
+        // TODO: apply translation
         
-//        let translation = rawTranslation.applying(rotationMatrix) / CGFloat(scale)
-//        
-//        let translationMatrix = CGAffineTransform(
-//            translationX: translation.x,
-//            y: -translation.y
-//        )
-        let matrix = rotationMatrix * scaleMatrix
-//        let matrix = translationMatrix.concatenating(rotationMatrix).concatenating(
-//            scaleMatrix
-//        )
-        return matrix
+        currentTransfrom = rotationMatrix * scaleMatrix
     }
     
     func reset() {
         initialTouchA = nil
         initialTouchB = nil
+        baseTransform *= currentTransfrom
     }
 }

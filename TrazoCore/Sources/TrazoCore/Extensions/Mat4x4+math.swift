@@ -46,5 +46,5 @@ public extension Mat4x4 {
         columns = (X, Y, Z, W)
     }
     
-    static let identity = matrix_identity_float4x4
+    static let identity: Mat4x4 = matrix_identity_float4x4
 }

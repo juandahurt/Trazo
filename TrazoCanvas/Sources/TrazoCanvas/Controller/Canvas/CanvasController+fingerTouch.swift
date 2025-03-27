@@ -8,6 +8,7 @@
 import TrazoCore
 import TrazoEngine
 import UIKit
+import simd
 
 extension CanvasController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
@@ -29,14 +30,11 @@ extension CanvasController: FingerTouchControllerDelegate {
         state.ctm = transform
         canvasView?.setNeedsDisplay()
     }
-
-    func didTransfromGestureEnd() {
-       // TODO: update ctm
-    }
     
     func didDrawingGestureOccur(withTouch touch: TouchInput) {
         guard let canvasView else { return }
         
+        // translate the location relative to the center of the canvas
         let canvasSzie = canvasView.bounds
         var location = touch.location
         location.x -= Float(canvasSzie.width) / 2
