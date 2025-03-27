@@ -9,6 +9,10 @@ import TrazoCore
 import TrazoEngine
 
 extension CanvasController {
+    func updateCurrentLayerWithDrawingLayer() {
+        // TODO: implement
+    }
+    
     func mergeLayers(usingDrawingTexture: Bool) {
         TrazoEngine.pushDebugGroup("Merge layers")
         for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
@@ -25,7 +29,8 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
     
-    func clearDrawingTexture() {
+    func clearInputTextures() {
+        TrazoEngine.pushDebugGroup("Clear input textures")
         TrazoEngine.fillTexture(
             state.grayscaleTexture,
             withColor: [0, 0, 0, 0]
@@ -34,6 +39,7 @@ extension CanvasController {
             state.drawingTexture,
             withColor: [0, 0, 0, 0]
         )
+        TrazoEngine.popDebugGroup()
     }
     
     func updateDrawingTexture() {

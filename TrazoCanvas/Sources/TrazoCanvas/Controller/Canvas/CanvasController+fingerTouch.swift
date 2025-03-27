@@ -52,6 +52,6 @@ extension CanvasController: FingerTouchControllerDelegate {
     }
     
     func didDrawingGestureEnd() {
-        clearDrawingTexture()
+        clearInputTextures()
     }
 }
