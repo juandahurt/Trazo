@@ -31,6 +31,5 @@ struct CanvasState {
     var drawingTexture: Texture!
     
     // MARK: updatable by user
-    /// Brush color.
-    var color: Vector4 = [0, 0, 0, 0.5]
+    var brushColor: Vector4
 }

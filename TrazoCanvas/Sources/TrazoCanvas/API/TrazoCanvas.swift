@@ -1,4 +1,5 @@
 import UIKit
+import TrazoCore
 import TrazoEngine
 
 @MainActor
@@ -8,10 +9,12 @@ public struct TrazoCanvas {
     
     public private(set) var canvasView: UIView
     
-    public init() {
+    public init(descriptor: TrazoCanvasDescriptor) {
         TrazoEngine.load()
         
-        let state = CanvasState()
+        let state = CanvasState(
+            brushColor: descriptor.brushColor
+        )
         let canvasController = CanvasController(state: state)
         let canvasView = CanvasView(fingerGestureDelegate: canvasController)
         canvasView.delegate = canvasController
@@ -24,5 +27,11 @@ public struct TrazoCanvas {
     
     public func load() {
         controller?.load()
+    }
+}
+
+public extension TrazoCanvas {
+    func setBrushColor(_ color: Vector4) {
+        controller?.setBrushColor(color)
     }
 }

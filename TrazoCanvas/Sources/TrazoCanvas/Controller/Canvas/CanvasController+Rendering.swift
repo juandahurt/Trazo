@@ -67,7 +67,7 @@ extension CanvasController {
         TrazoEngine.pushDebugGroup("Colorize grayscale texture")
         TrazoEngine.colorize(
             grayscaleTexture: state.grayscaleTexture,
-            withColor: state.color,
+            withColor: state.brushColor,
             on: state.strokeTexture
         )
         TrazoEngine.popDebugGroup()
