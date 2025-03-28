@@ -137,7 +137,7 @@ extension ViewController: UIColorPickerViewControllerDelegate {
         didSelect color: UIColor,
         continuously: Bool
     ) {
-        colorPickerView.backgroundColor = color
+        colorPickerView.backgroundColor = color.withAlphaComponent(1)
         viewModel.didSelectColor(color)
     }
 }
