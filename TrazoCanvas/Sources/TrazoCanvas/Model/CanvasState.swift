@@ -32,4 +32,5 @@ struct CanvasState {
     
     // MARK: updatable by user
     var brushColor: Vector4
+    var brushSize: Float
 }

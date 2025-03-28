@@ -77,7 +77,7 @@ extension CanvasController {
         TrazoEngine.pushDebugGroup("Draw grayscale points")
         TrazoEngine.drawGrayscalePoints(
             points.map { $0.position },
-            size: 10,
+            size: state.brushSize,
             transform: state.ctm.inverse,
             on: state.grayscaleTexture
         )

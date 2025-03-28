@@ -15,9 +15,15 @@ class ViewModel {
     private var isCanvasLoaded = false
     private var canvas: TrazoCanvas
    
+    private(set) var initialBrushColor: UIColor = .init(red: 0, green: 0, blue: 0, alpha: 1)
+    private(set) var initialBrushSize: Float = 5
+    private(set) var minBrushSize: Float = 3
+    private(set) var maxBrushSize: Float = 30
+    
     init() {
         let canvasDescriptor = TrazoCanvasDescriptor(
-            brushColor: [0, 0, 0, 0.5]
+            brushColor: initialBrushColor.toVector4(),
+            brushSize: initialBrushSize
         )
         canvas = .init(descriptor: canvasDescriptor)
     }
@@ -33,11 +39,10 @@ class ViewModel {
     }
     
     func didSelectColor(_ color: UIColor) {
-        guard let components = color.cgColor.components?.map({ Float($0) }) else { return }
-        guard components.count == 4 else {
-            print("Color components has a wrong format")
-            return
-        }
-        canvas.setBrushColor([components[0], components[1], components[2], components[3]])
+        canvas.setBrushColor(color.toVector4())
+    }
+    
+    func didBrushSizeChange(_ value: Float) {
+        canvas.setBrushSize(value)
     }
 }

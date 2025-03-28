@@ -11,4 +11,8 @@ extension CanvasController {
     func setBrushColor(_ color: Vector4) {
         state.brushColor = color
     }
+    
+    func setBrushSize(_ size: Float) {
+        state.brushSize = size
+    }
 }

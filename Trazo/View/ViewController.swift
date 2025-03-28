@@ -9,16 +9,16 @@ import Combine
 import UIKit
 
 class ViewController: UIViewController {
-    //    private lazy var _brushSizeSliderView: UISlider = {
-    //        let slider = UISlider()
-    //        slider.translatesAutoresizingMaskIntoConstraints = false
-    //        slider.minimumValue = 3
-    //        slider.maximumValue = 30
-    //        slider.value = 6
-    //        slider.addTarget(self, action: #selector(onBrushSizeSliderChange(_:)), for: .valueChanged)
-    //        return slider
-    //    }()
-    //
+    private lazy var _brushSizeSliderView: UISlider = {
+        let slider = UISlider()
+        slider.translatesAutoresizingMaskIntoConstraints = false
+        slider.minimumValue = viewModel.minBrushSize
+        slider.maximumValue = viewModel.maxBrushSize
+        slider.value = viewModel.initialBrushSize
+        slider.addTarget(self, action: #selector(onBrushSizeSliderChange(_:)), for: .valueChanged)
+        return slider
+    }()
+    
     private lazy var colorPickerView: UIView = {
         let pickerView = UIButton()
         pickerView
@@ -46,25 +46,26 @@ class ViewController: UIViewController {
         canvasView.makeEgdes(equalTo: view)
         
         addColorPickerView()
+        addBrushSizeSlider()
     }
-    //
-    //    func addOpacitySlider() {
-    //        view.addSubview(_brushSizeSliderView)
-    //
-    //        NSLayoutConstraint.activate([
-    //            view.bottomAnchor.constraint(
-    //                equalTo: _brushSizeSliderView.bottomAnchor,
-    //                constant: 40
-    //            ),
-    //            view.centerXAnchor.constraint(
-    //                equalTo: _brushSizeSliderView.centerXAnchor
-    //            ),
-    //            _brushSizeSliderView.widthAnchor.constraint(
-    //                equalToConstant: 200
-    //            )
-    //        ])
-    //    }
-    //
+    
+    func addBrushSizeSlider() {
+        view.addSubview(_brushSizeSliderView)
+        
+        NSLayoutConstraint.activate([
+            view.bottomAnchor.constraint(
+                equalTo: _brushSizeSliderView.bottomAnchor,
+                constant: 40
+            ),
+            view.centerXAnchor.constraint(
+                equalTo: _brushSizeSliderView.centerXAnchor
+            ),
+            _brushSizeSliderView.widthAnchor.constraint(
+                equalToConstant: 200
+            )
+        ])
+    }
+    
     func addColorPickerView() {
         view.addSubview(colorPickerView)
         
@@ -78,14 +79,14 @@ class ViewController: UIViewController {
         ])
         
         colorPickerView.layer.cornerRadius = 20
-        colorPickerView.backgroundColor = .black
+        colorPickerView.backgroundColor = viewModel.initialBrushColor
     }
-    //
-    //    @objc
-    //    func onBrushSizeSliderChange(_ sender: UISlider) {
-    //        viewModel.brushSizeChanged(newValue: sender.value)
-    //    }
-    //
+    
+    @objc
+    func onBrushSizeSliderChange(_ sender: UISlider) {
+        viewModel.didBrushSizeChange(sender.value)
+    }
+    
     // There's a memory leak when presenting this color picker, I tested it and it's not my fault.
     // Some internal CGRetain or something like that doesn't release the CGColor obj... so,
     // basically everty time you select a color you will leak 96 bytes of memory :)
@@ -99,38 +100,7 @@ class ViewController: UIViewController {
         present(pickerViewController, animated: true)
     }
 }
-//
-//    func addCanvasView() {
-//
-//    }
 
-
-//
-//extension ViewController: UIGestureRecognizerDelegate {
-//    func gestureRecognizer(
-//        _ gestureRecognizer: UIGestureRecognizer,
-//        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
-//    ) -> Bool {
-//        true
-//    }
-//}
-//
-//extension ViewController: PencilGestureRecognizerDelegate {
-//    func onPencilEstimatedTouches(_ touches: Set<UITouch>) {
-//        // TODO: send estimated touches
-//    }
-//    
-//    func onPencilActualTocuhes(_ touches: Set<UITouch>) {
-//        // TODO: send actual touches
-//    }
-//}
-//
-//extension ViewController: FingerGestureRecognizerDelegate {
-//    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
-//        viewModel.didReceiveFingerTouches(touches)
-//    }
-//}
-//
 extension ViewController: UIColorPickerViewControllerDelegate {
     func colorPickerViewController(
         _ viewController: UIColorPickerViewController,
