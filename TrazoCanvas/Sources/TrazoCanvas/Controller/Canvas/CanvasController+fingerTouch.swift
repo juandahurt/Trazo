@@ -40,8 +40,18 @@ extension CanvasController: FingerTouchControllerDelegate {
         location.x -= Float(canvasSzie.width) / 2
         location.y -= Float(canvasSzie.height) / 2
         location.y *= -1
+       
+        state.currentAnchorPoints.append(
+            .init(
+                id: touch.id,
+                location: location,
+                phase: touch.phase
+            )
+        )
         
-        drawGrayscalePoints([location])
+        let drawablePoints = generateDrawablePoints()
+        if drawablePoints.isEmpty { return }
+        drawGrayscalePoints(drawablePoints)
         colorizeGrayscaleTexture()
         updateDrawingTexture()
         mergeLayers(usingDrawingTexture: true)
@@ -52,5 +62,6 @@ extension CanvasController: FingerTouchControllerDelegate {
     func didDrawingGestureEnd() {
         updateCurrentLayerWithDrawingTexture()
         clearInputTextures()
+        clearCurrentStroke()
     }
 }

@@ -42,14 +42,16 @@ public extension TrazoEngine {
         transform: Mat4x4,
         on grayscaleTexture: Texture
     ) {
+        // TODO: create a struct for the gray points containg the location, size, etc.
         guard let commandBuffer else { return }
+        let numPoints = points.count
         guard let buffer = GPU.device.makeBuffer(
             bytes: points,
-            length: MemoryLayout<Vector2>.stride * points.count
+            length: MemoryLayout<Vector2>.stride * numPoints
         ) else { return }
         Renderer.drawGrayscalePoints(
             positionsBuffer: buffer,
-            numPoints: 1,
+            numPoints: numPoints,
             pointSize: size,
             on: grayscaleTexture.metalTexture,
             transform: transform,

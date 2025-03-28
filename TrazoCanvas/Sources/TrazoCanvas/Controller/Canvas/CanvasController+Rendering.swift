@@ -9,12 +9,19 @@ import TrazoCore
 import TrazoEngine
 
 extension CanvasController {
+    func clearCurrentStroke() {
+        state.currentStroke = []
+        state.currentAnchorPoints = []
+    }
+    
     func updateCurrentLayerWithDrawingTexture() {
+        TrazoEngine.pushDebugGroup("Update current layer with stroke texture")
         TrazoEngine.merge(
-            texture: state.drawingTexture,
+            texture: state.strokeTexture,
             with: currentLayer.texture,
             on: currentLayer.texture
         )
+        TrazoEngine.popDebugGroup()
     }
     
     func mergeLayers(usingDrawingTexture: Bool) {
@@ -66,14 +73,30 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
     
-    func drawGrayscalePoints(_ points: [Vector2]) {
+    func drawGrayscalePoints(_ points: [DrawablePoint]) {
         TrazoEngine.pushDebugGroup("Draw grayscale points")
         TrazoEngine.drawGrayscalePoints(
-                points,
-                size: 10,
-                transform: state.ctm.inverse,
-                on: state.grayscaleTexture
-            )
+            points.map { $0.position },
+            size: 10,
+            transform: state.ctm.inverse,
+            on: state.grayscaleTexture
+        )
         TrazoEngine.popDebugGroup()
+    }
+    
+    func generateDrawablePoints() -> [DrawablePoint] {
+        let numAnchorPoints = state.currentAnchorPoints.count
+        guard numAnchorPoints > 3 else { return [] }
+        
+        let i = numAnchorPoints - 3
+        
+        return CatmullRom().generateDrawablePoints(
+            anchorPoints: .init(
+                p0: state.currentAnchorPoints[i - 1].location,
+                p1: state.currentAnchorPoints[i].location,
+                p2: state.currentAnchorPoints[i + 1].location,
+                p3: state.currentAnchorPoints[i + 2].location
+            )
+        )
     }
 }

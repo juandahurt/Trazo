@@ -17,10 +17,14 @@ struct CanvasState {
     var layers: [Layer] = []
     /// Current layer index.
     var currentLayerIndex = -1
+   
+    var currentAnchorPoints: [TouchInput] = []
+    var currentStroke: [DrawablePoint] = []
     
     // MARK: textures
     /// Intermidiate representation of the final canvas texture.
     var renderableTexture: Texture! // TODO: find a way of making this var not an optional
+    /// Contains the grayscale points of the stroke.
     var grayscaleTexture: Texture!
     var strokeTexture: Texture!
     /// It contains the merge between the stroke texture and the current layer texture.
@@ -28,5 +32,5 @@ struct CanvasState {
     
     // MARK: updatable by user
     /// Brush color.
-    var color: Vector4 = [0, 1, 0, 0.5]
+    var color: Vector4 = [0, 0, 0, 0.5]
 }
