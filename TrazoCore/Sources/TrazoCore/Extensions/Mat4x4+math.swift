@@ -46,5 +46,12 @@ public extension Mat4x4 {
         columns = (X, Y, Z, W)
     }
     
+    var scale: Vector3 {
+        let sx = length(columns.0)
+        let sy = length(columns.1)
+        let sz = length(columns.2)
+        return [sx, sy, sz]
+    }
+    
     static let identity: Mat4x4 = matrix_identity_float4x4
 }

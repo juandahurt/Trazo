@@ -18,7 +18,7 @@ class CatmullRom: CurveFittingAlgorithm {
     
     struct Segment {
         let a, b, c, d: Vector2
-        let p1p2Dist: Float
+        let pis: Int // points in segment
     }
     
     var alpha: Float = 0.5
@@ -26,10 +26,9 @@ class CatmullRom: CurveFittingAlgorithm {
     
     private func generatePoints(forSegment segment: Segment) -> [DrawablePoint] {
         var points: [DrawablePoint] = []
-        let steps = Int(segment.p1p2Dist)
         
-        for i in 0..<steps {
-            let t = Float(i) / Float(steps)
+        for i in 0..<segment.pis {
+            let t = Float(i) / Float(segment.pis)
             let newPointPos = segment.a * pow(t, 3) +
             segment.b * pow(t, 2) +
             segment.c * t +
@@ -41,7 +40,7 @@ class CatmullRom: CurveFittingAlgorithm {
         return points
     }
     
-    private func generateSegment(anchorPoints: CatmullRomAnchorPoints) -> Segment {
+    private func generateSegment(anchorPoints: CatmullRomAnchorPoints, scale: Float) -> Segment {
         let p0 = anchorPoints.p0
         let p1 = anchorPoints.p1
         let p2 = anchorPoints.p2
@@ -60,17 +59,20 @@ class CatmullRom: CurveFittingAlgorithm {
         let m2b = ((p2 - p1) / (t2 - t1) - (p3 - p1) / (t3 - t1) + (p3 - p2) / (t3 - t2))
         let m2 = m2a * m2b
         
+        // the number of points in the segment will be given by the linear distance between
+        // p1 and p2 divided by the scale. We use the scale beacuse the distance varies depending on it.
+        
         return .init(
             a: 2 * (p1 - p2) + m1 + m2,
             b: -3 * (p1 - p2) - m1 - m1 - m2,
             c: m1,
             d: p1,
-            p1p2Dist: distance(p1, p2)
+            pis: Int(distance(p1, p2) / scale)
         )
     }
     
-    func generateDrawablePoints(anchorPoints: CatmullRomAnchorPoints) -> [DrawablePoint] {
-        let segment = generateSegment(anchorPoints: anchorPoints)
+    func generateDrawablePoints(anchorPoints: CatmullRomAnchorPoints, scale: Float) -> [DrawablePoint] {
+        let segment = generateSegment(anchorPoints: anchorPoints, scale: scale)
         return generatePoints(forSegment: segment)
     }
 }

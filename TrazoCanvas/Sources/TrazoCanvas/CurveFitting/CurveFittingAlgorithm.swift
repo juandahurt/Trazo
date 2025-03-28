@@ -7,5 +7,5 @@
 
 protocol CurveFittingAlgorithm {
     associatedtype AnchorPoints
-    func generateDrawablePoints(anchorPoints: AnchorPoints) -> [DrawablePoint]
+    func generateDrawablePoints(anchorPoints: AnchorPoints, scale: Float) -> [DrawablePoint]
 }

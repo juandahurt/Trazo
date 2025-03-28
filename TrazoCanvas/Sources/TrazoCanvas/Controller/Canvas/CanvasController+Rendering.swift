@@ -96,7 +96,8 @@ extension CanvasController {
                 p1: state.currentAnchorPoints[i].location,
                 p2: state.currentAnchorPoints[i + 1].location,
                 p3: state.currentAnchorPoints[i + 2].location
-            )
+            ),
+            scale: state.ctm.scale.x // since the scale should be the same on any axis
         )
     }
 }
