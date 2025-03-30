@@ -97,6 +97,10 @@ class FingerTouchController {
         case .unknown: break
         }
         
+        if hasUserLiftedFingers {
+            currentGestureType = .unknown
+        }
+        
         // check if the touches need to be removed (aka. the touch has finished)
         for touch in touches {
             if touch.phase == .ended || touch.phase == .cancelled {
