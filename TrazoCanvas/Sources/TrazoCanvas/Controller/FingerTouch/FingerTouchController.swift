@@ -24,22 +24,19 @@ protocol FingerTouchControllerDelegate: AnyObject {
 /// It manages the touches that the user makes with their finger.
 @MainActor
 class FingerTouchController {
+    private enum FingerGestureType {
+        case draw, transform, unknown
+    }
     /// It holds the touches of the current gesture.
     private var touchStore = FingerInputStore()
     
     /// Transforms the canvas
     private let transformer = Transformer()
     private var currentTransform: Mat4x4 = .identity
+   
+    private var currentGestureType: FingerGestureType = .unknown
     
     weak var delegate: FingerTouchControllerDelegate?
-    
-    private var isUserTransforming: Bool {
-        touchStore.numberOfTouches == 2
-    }
-    
-    private var isUserDrawing: Bool {
-        touchStore.numberOfTouches == 1
-    }
     
     private var hasUserLiftedFingers: Bool {
         touchStore.touchesDict.keys
@@ -49,24 +46,39 @@ class FingerTouchController {
                 })
     }
     
+    private func getEstimatedGestureType() -> FingerGestureType {
+        let numberOfTouches = touchStore.numberOfTouches
+        switch numberOfTouches {
+        case 1: return .draw
+        case 2: return .transform
+        default: return .unknown
+        }
+    }
+    
     func handle(_ touches: [TouchInput]) {
         // first, we store the touches
         touchStore.save(touches)
-
-        // then, we check which kind of action the user is trying to do
-        if isUserTransforming {
-            if !transformer.isInitialized {
-                transformer.initialize(withTouches: touchStore.touchesDict)
-            }
-            if !hasUserLiftedFingers {
-                transformer.tranform(usingCurrentTouches: touchStore.touchesDict)
-                delegate?.didTransformGestureOccur(transformer.transform)
+        
+        let estimatedGestureType = getEstimatedGestureType()
+        switch estimatedGestureType {
+        case .draw:
+            if currentGestureType == .transform {
+                currentGestureType = .unknown
             } else {
+                currentGestureType = .draw
+            }
+        case .transform:
+            if currentGestureType != .transform {
+                if currentGestureType == .draw { delegate?.didDrawingGestureEnd() }
                 transformer.reset()
             }
+            currentGestureType = .transform
+        case .unknown:
+            currentGestureType = estimatedGestureType
         }
         
-        if isUserDrawing {
+        switch currentGestureType {
+        case .draw:
             // notify delegate of this new drawing touch
             if let touch = touches.first {
                 delegate?.didDrawingGestureOccur(withTouch: touch)
@@ -74,6 +86,15 @@ class FingerTouchController {
             if hasUserLiftedFingers {
                 delegate?.didDrawingGestureEnd()
             }
+        case .transform:
+            if !transformer.isInitialized {
+                transformer.initialize(withTouches: touchStore.touchesDict)
+            }
+            if !hasUserLiftedFingers {
+                transformer.tranform(usingCurrentTouches: touchStore.touchesDict)
+                delegate?.didTransformGestureOccur(transformer.transform)
+            }
+        case .unknown: break
         }
         
         // check if the touches need to be removed (aka. the touch has finished)
