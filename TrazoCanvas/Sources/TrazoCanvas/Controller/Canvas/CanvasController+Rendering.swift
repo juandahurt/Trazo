@@ -50,6 +50,10 @@ extension CanvasController {
             state.drawingTexture,
             withColor: [0, 0, 0, 0]
         )
+        TrazoEngine.fillTexture(
+            state.strokeTexture,
+            withColor: [0, 0, 0, 0]
+        )
         TrazoEngine.popDebugGroup()
     }
     
