@@ -37,7 +37,7 @@ class Transformer {
         initialTouchB = touchB
     }
     
-    func tranform(
+    func transform(
         usingCurrentTouches touchesDict: [TouchInput.ID: [TouchInput]]
     ) {
         // logic found at: https://mortoray.com/a-pan-zoom-and-rotate-gesture-model-for-touch-devices/
@@ -59,7 +59,7 @@ class Transformer {
         let startCenter = (initialPointA - initialPointB) / 2 + initialPointB
         let currentCenter = (currentPointA - currentPointB) / 2 + currentPointB
         
-        let translationVector = currentCenter - startCenter
+        let rawTranslation = currentCenter - startCenter
     
         // rotation
         let startVector = initialPointA - initialPointB
@@ -71,13 +71,22 @@ class Transformer {
         let deltaAngle = endAngle - startAngle
         
         let rotationMatrix = Mat4x4(rotateZ: deltaAngle)
-       
+        
         // zooming
         let scale = length(currentVector) / length(startVector)
         
+        var translation = [
+            rawTranslation.x,
+            rawTranslation.y,
+            0,
+            1
+        ] * rotationMatrix / scale
+        translation.w = 1
+        
         let scaleMatrix = Mat4x4(scaledBy: [scale, scale, 1])
         
-        // TODO: apply translation
+        
+        // TODO: fix translation bug
         
         currentTransfrom = rotationMatrix * scaleMatrix
     }

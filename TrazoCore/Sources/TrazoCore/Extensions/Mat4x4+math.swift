@@ -46,6 +46,16 @@ public extension Mat4x4 {
         columns = (X, Y, Z, W)
     }
     
+    init(translateBy translation: Vector3) {
+        let rows: [Vector4] = [
+            [            1,             0,             0, 0],
+            [            0,             1,             0, 0],
+            [            0,             0,             1, 0],
+            [translation.x, translation.y, translation.z, 1]
+        ]
+        self.init(rows: rows)
+    }
+    
     var scale: Vector3 {
         let sx = length(columns.0)
         let sy = length(columns.1)

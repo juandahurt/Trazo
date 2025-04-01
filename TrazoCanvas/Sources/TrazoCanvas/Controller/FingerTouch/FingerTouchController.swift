@@ -91,7 +91,7 @@ class FingerTouchController {
                 transformer.initialize(withTouches: touchStore.touchesDict)
             }
             if !hasUserLiftedFingers {
-                transformer.tranform(usingCurrentTouches: touchStore.touchesDict)
+                transformer.transform(usingCurrentTouches: touchStore.touchesDict)
                 delegate?.didTransformGestureOccur(transformer.transform)
             }
         case .unknown: break
