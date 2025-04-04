@@ -5,95 +5,44 @@
 //  Created by Juan Hurtado on 28/01/25.
 //
 
+import Combine
 import UIKit
+import TrazoCanvas
 import TrazoCore
 
+@MainActor
 class ViewModel {
-    private var _canvasState: CanvasState!
-    private var _drawingWorkflow = DrawingWorkflow()
-    private let _setupWorkflow = SetupCanvasWorkflow()
-    private let _transformWorkflow = TransformCanvasWorkflow()
-    private let _endOfCurveWorkflow = EndOfCurveWorkflow()
+    private var isCanvasLoaded = false
+    private var canvas: TrazoCanvas
    
-    func brushSizeChanged(newValue value: Float) {
-        _canvasState.brushSize = value
-    }
+    private(set) var initialBrushColor: UIColor = .init(red: 0, green: 0, blue: 0, alpha: 1)
+    private(set) var initialBrushSize: Float = 5
+    private(set) var minBrushSize: Float = 3
+    private(set) var maxBrushSize: Float = 30
     
-    func colorSelected(newColor color: UIColor) {
-        guard let components = color.cgColor.components else { return }
-        _canvasState.selectedColor = (
-            Float(components[0]),
-            Float(components[1]),
-            Float(components[2]),
-            0.5 // TODO: use selected opacity value
+    init() {
+        let canvasDescriptor = TrazoCanvasDescriptor(
+            brushColor: initialBrushColor.toVector4(),
+            brushSize: initialBrushSize
         )
+        canvas = .init(descriptor: canvasDescriptor)
     }
     
-    private let fingerTouchesOrchestator = FingerTouchesOrchestator()
-    
-    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
-        let touches = touches.map {
-            let point = $0.location(in: _canvasState.canvasView)
-            return Touch(
-                id: $0.hashValue,
-                location: .init(Float(point.x), Float(point.y)),
-                phase: $0.phase
-            )
-        }
-        fingerTouchesOrchestator.receivedTouches(touches)
+    var canvasView: UIView {
+        canvas.canvasView
     }
     
-    private var disposeBag = Set<AnyCancellable>()
+    func viewDidLayoutSubviews() {
+        guard !isCanvasLoaded else { return }
+        canvas.load()
+        isCanvasLoaded = true
+    }
     
-    func load(using canvasView: CanvasView) {
-        _canvasState = CanvasState(canvasView: canvasView)
-        _setupWorkflow.run(withState: &_canvasState)
-        
-        fingerTouchesOrchestator.onTransformChange = { [weak self] t in
-            guard let self else { return }
-            _canvasState.ctm = t
-            _transformWorkflow.run(withState: &_canvasState)
-        }
-        
-        fingerTouchesOrchestator.onDrawIntent = { [weak self] touch in
-            guard let self else { return }
-            _canvasState.inputTouch = touch
-            _drawingWorkflow.run(withState: &_canvasState)
-        }
-        
-        fingerTouchesOrchestator.onDrawFinished = { [weak self] in
-            guard let self else { return }
-            _endOfCurveWorkflow.run(withState: &_canvasState)
-        }
+    func didSelectColor(_ color: UIColor) {
+        canvas.setBrushColor(color.toVector4())
+    }
+    
+    func didBrushSizeChange(_ value: Float) {
+        canvas.setBrushSize(value)
     }
 }
-
-
-
-
-class FingerTouchStore {
-    private(set) var touchesDict: [Touch.ID: [Touch]] = [:]
-    
-    var numberOfTouches: Int {
-        touchesDict.count
-    }
-    
-    func save(_ touches: [Touch]) {
-        for touch in touches {
-            let key = touch.id
-            if touchesDict[key] == nil {
-                // if this is a new touch, we create an empty entry
-                touchesDict[key] = []
-            }
-            // we append the touch to its corresponding key
-            touchesDict[key]?.append(touch)
-        }
-    }
-    
-    func removeTouch(byID id: Touch.ID) {
-        touchesDict.removeValue(forKey: id)
-    }
-}
-
-import Combine
-

@@ -7,7 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		2F5EE7412D80917900A0B2B3 /* TrazoCore in Frameworks */ = {isa = PBXBuildFile; productRef = 2F5EE7402D80917900A0B2B3 /* TrazoCore */; };
+		2FC4D9052D8DE3DE00206CDF /* TrazoCanvas in Frameworks */ = {isa = PBXBuildFile; productRef = 2FC4D9042D8DE3DE00206CDF /* TrazoCanvas */; };
+		2FC4D9672D8E0DBB00206CDF /* TrazoCanvas in Frameworks */ = {isa = PBXBuildFile; productRef = 2FC4D9662D8E0DBB00206CDF /* TrazoCanvas */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,7 +54,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				2F5EE7412D80917900A0B2B3 /* TrazoCore in Frameworks */,
+				2FC4D9052D8DE3DE00206CDF /* TrazoCanvas in Frameworks */,
+				2FC4D9672D8E0DBB00206CDF /* TrazoCanvas in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,7 +99,8 @@
 			);
 			name = Trazo;
 			packageProductDependencies = (
-				2F5EE7402D80917900A0B2B3 /* TrazoCore */,
+				2FC4D9042D8DE3DE00206CDF /* TrazoCanvas */,
+				2FC4D9662D8E0DBB00206CDF /* TrazoCanvas */,
 			);
 			productName = Trazo;
 			productReference = 2FCD94262D24649600413760 /* Trazo.app */;
@@ -128,7 +131,7 @@
 			mainGroup = 2FCD941D2D24649600413760;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				2F5EE73F2D80917900A0B2B3 /* XCLocalSwiftPackageReference "TrazoCore" */,
+				2FC4D9652D8E0DBB00206CDF /* XCLocalSwiftPackageReference "TrazoCanvas" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2FCD94272D24649600413760 /* Products */;
@@ -366,16 +369,20 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		2F5EE73F2D80917900A0B2B3 /* XCLocalSwiftPackageReference "TrazoCore" */ = {
+		2FC4D9652D8E0DBB00206CDF /* XCLocalSwiftPackageReference "TrazoCanvas" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = TrazoCore;
+			relativePath = TrazoCanvas;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		2F5EE7402D80917900A0B2B3 /* TrazoCore */ = {
+		2FC4D9042D8DE3DE00206CDF /* TrazoCanvas */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = TrazoCore;
+			productName = TrazoCanvas;
+		};
+		2FC4D9662D8E0DBB00206CDF /* TrazoCanvas */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TrazoCanvas;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

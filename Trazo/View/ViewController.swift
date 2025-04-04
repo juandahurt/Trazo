@@ -5,20 +5,21 @@
 //  Created by Juan Hurtado on 31/12/24.
 //
 
+import Combine
 import UIKit
 
 class ViewController: UIViewController {
     private lazy var _brushSizeSliderView: UISlider = {
         let slider = UISlider()
         slider.translatesAutoresizingMaskIntoConstraints = false
-        slider.minimumValue = 3
-        slider.maximumValue = 30
-        slider.value = 6
+        slider.minimumValue = viewModel.minBrushSize
+        slider.maximumValue = viewModel.maxBrushSize
+        slider.value = viewModel.initialBrushSize
         slider.addTarget(self, action: #selector(onBrushSizeSliderChange(_:)), for: .valueChanged)
         return slider
     }()
     
-    private lazy var _colorPickerView: UIView = {
+    private lazy var colorPickerView: UIView = {
         let pickerView = UIButton()
         pickerView
             .addTarget(self, action: #selector(onColorPickerTap), for: .touchUpInside)
@@ -26,43 +27,29 @@ class ViewController: UIViewController {
         return pickerView
     }()
     
-    private lazy var _fingerGestureRecognizer: FingerGestureRecognizer = {
-        let fingerGestureRecognizer = FingerGestureRecognizer()
-        fingerGestureRecognizer.fingerGestureDelegate = self
-        return fingerGestureRecognizer
-    }()
-    
-    private lazy var _canvasView: CanvasView = {
-        let canvasView = CanvasView(frame: view.frame)
-        canvasView.translatesAutoresizingMaskIntoConstraints = false
-        
-        let pencilGesture = PencilGestureRecognizer()
-        pencilGesture.pencilGestureDelegate = self
-        
-        canvasView.addGestureRecognizer(pencilGesture)
-        canvasView.addGestureRecognizer(_fingerGestureRecognizer)
-        return canvasView
-    }()
-    
     private var viewModel = ViewModel()
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         view.backgroundColor = .init(red: 32 / 255, green: 32 / 255, blue: 32 / 255, alpha: 1)
         
-        addSubviews()
+        setupSubviews()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        viewModel.viewDidLayoutSubviews()
+    }
+    
+    private func setupSubviews() {
+        let canvasView = viewModel.canvasView
+        view.addSubview(canvasView)
+        canvasView.makeEgdes(equalTo: view)
         
-        viewModel.load(using: _canvasView)
-    }
-    
-    func addSubviews() {
-        addCanvasView()
         addColorPickerView()
-        addOpacitySlider()
+        addBrushSizeSlider()
     }
     
-    func addOpacitySlider() {
+    func addBrushSizeSlider() {
         view.addSubview(_brushSizeSliderView)
         
         NSLayoutConstraint.activate([
@@ -80,24 +67,24 @@ class ViewController: UIViewController {
     }
     
     func addColorPickerView() {
-        view.addSubview(_colorPickerView)
+        view.addSubview(colorPickerView)
         
         NSLayoutConstraint.activate([
             view.trailingAnchor
-                .constraint(equalTo: _colorPickerView.trailingAnchor, constant: 40),
+                .constraint(equalTo: colorPickerView.trailingAnchor, constant: 40),
             view.bottomAnchor
-                .constraint(equalTo: _colorPickerView.bottomAnchor, constant: 40),
-            _colorPickerView.heightAnchor.constraint(equalToConstant: 60),
-            _colorPickerView.widthAnchor.constraint(equalToConstant: 60)
+                .constraint(equalTo: colorPickerView.bottomAnchor, constant: 40),
+            colorPickerView.heightAnchor.constraint(equalToConstant: 60),
+            colorPickerView.widthAnchor.constraint(equalToConstant: 60)
         ])
         
-        _colorPickerView.layer.cornerRadius = 20
-        _colorPickerView.backgroundColor = .black
+        colorPickerView.layer.cornerRadius = 20
+        colorPickerView.backgroundColor = viewModel.initialBrushColor
     }
-   
+    
     @objc
     func onBrushSizeSliderChange(_ sender: UISlider) {
-        viewModel.brushSizeChanged(newValue: sender.value)
+        viewModel.didBrushSizeChange(sender.value)
     }
     
     // There's a memory leak when presenting this color picker, I tested it and it's not my fault.
@@ -108,46 +95,9 @@ class ViewController: UIViewController {
     func onColorPickerTap() {
         let pickerViewController = UIColorPickerViewController()
         pickerViewController.modalPresentationStyle = .popover
-        pickerViewController.popoverPresentationController?.sourceView = _colorPickerView
-        pickerViewController.supportsAlpha = false
+        pickerViewController.popoverPresentationController?.sourceView = colorPickerView
         pickerViewController.delegate = self
         present(pickerViewController, animated: true)
-    }
-    
-    func addCanvasView() {
-        view.addSubview(_canvasView)
-        
-        NSLayoutConstraint.activate([
-            _canvasView.topAnchor.constraint(equalTo: view.topAnchor),
-            _canvasView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            _canvasView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            _canvasView.trailingAnchor.constraint(equalTo: view.trailingAnchor)
-        ])
-    }
-}
-
-extension ViewController: UIGestureRecognizerDelegate {
-    func gestureRecognizer(
-        _ gestureRecognizer: UIGestureRecognizer,
-        shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer
-    ) -> Bool {
-        true
-    }
-}
-
-extension ViewController: PencilGestureRecognizerDelegate {
-    func onPencilEstimatedTouches(_ touches: Set<UITouch>) {
-        // TODO: send estimated touches
-    }
-    
-    func onPencilActualTocuhes(_ touches: Set<UITouch>) {
-        // TODO: send actual touches
-    }
-}
-
-extension ViewController: FingerGestureRecognizerDelegate {
-    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
-        viewModel.didReceiveFingerTouches(touches)
     }
 }
 
@@ -157,7 +107,7 @@ extension ViewController: UIColorPickerViewControllerDelegate {
         didSelect color: UIColor,
         continuously: Bool
     ) {
-        _colorPickerView.backgroundColor = color
-        viewModel.colorSelected(newColor: color)
+        colorPickerView.backgroundColor = color.withAlphaComponent(1)
+        viewModel.didSelectColor(color)
     }
 }
