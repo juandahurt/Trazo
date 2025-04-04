@@ -24,6 +24,9 @@ class Transformer {
     
     var transform: Mat4x4 { baseTransform * currentTransfrom }
     
+    private var accAngle: Float = 0
+    private var currAngle: Float = 0
+    
     func initialize(withTouches touchesDict: [TouchInput.ID: [TouchInput]]) {
         guard
             let keyA = touchesDict.keys.sorted().first,
@@ -58,42 +61,45 @@ class Transformer {
         // translation
         let startCenter = (initialPointA - initialPointB) / 2 + initialPointB
         let currentCenter = (currentPointA - currentPointB) / 2 + currentPointB
+        let deltaTranslation = currentCenter - startCenter
         
-        let rawTranslation = currentCenter - startCenter
-    
         // rotation
         let startVector = initialPointA - initialPointB
         let currentVector = currentPointA - currentPointB
-        
         let startAngle = atan2(startVector.y, startVector.x)
         let endAngle = atan2(currentVector.y, currentVector.x)
-        
         let deltaAngle = endAngle - startAngle
-        
-        let rotationMatrix = Mat4x4(rotateZ: deltaAngle)
-        
+
         // zooming
         let scale = length(currentVector) / length(startVector)
         
-        var translation = [
-            rawTranslation.x,
-            rawTranslation.y,
-            0,
-            1
-        ] * rotationMatrix / scale
-        translation.w = 1
-        
+        // matrices
         let scaleMatrix = Mat4x4(scaledBy: [scale, scale, 1])
         
+        let rotationMatrix = Mat4x4(rotateZ: deltaAngle)
+        let adjustedTranslation = Mat4x4(rotateZ: accAngle) * [
+            deltaTranslation.x,
+            deltaTranslation.y,
+            0,
+            1
+        ]
+        let translationMatrix = Mat4x4(
+            translateBy: [
+                adjustedTranslation.x,
+                -adjustedTranslation.y,
+                0
+            ]
+        )
         
-        // TODO: fix translation bug
-        
-        currentTransfrom = rotationMatrix * scaleMatrix
+        currentTransfrom = translationMatrix * rotationMatrix * scaleMatrix
+        currAngle = deltaAngle
     }
     
     func reset() {
         initialTouchA = nil
         initialTouchB = nil
         baseTransform *= currentTransfrom
+        currentTransfrom = .identity
+        accAngle += currAngle
     }
 }
