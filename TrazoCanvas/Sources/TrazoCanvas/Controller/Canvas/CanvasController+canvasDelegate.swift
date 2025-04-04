@@ -19,7 +19,7 @@ extension CanvasController: MTKViewDelegate {
         TrazoEngine.drawTexture(
             state.renderableTexture,
             on: currentDrawable.texture,
-            clearColor: [0.25, 0.25, 0.25, 1],
+            clearColor: [0.15, 0.15, 0.15, 1],
             transform: state.ctm
         )
         
