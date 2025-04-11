@@ -35,10 +35,13 @@ extension CanvasController: FingerTouchControllerDelegate {
         guard let canvasView else { return }
         
         // translate the location relative to the center of the canvas
-        let canvasSzie = canvasView.bounds
-        var location = touch.location
-        location.x -= Float(canvasSzie.width) / 2
-        location.y -= Float(canvasSzie.height) / 2
+        let canvasSize = Vector2(
+            x: Float(canvasView.bounds.width),
+            y: Float(canvasView.bounds.height)
+        ) * Float(canvasView.contentScaleFactor)
+        var location = touch.location * Float(canvasView.contentScaleFactor)
+        location.x -= Float(canvasSize.x) / 2
+        location.y -= Float(canvasSize.y) / 2
         location.y *= -1
        
         state.currentAnchorPoints.append(

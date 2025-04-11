@@ -12,6 +12,8 @@ import TrazoEngine
 struct CanvasState {
     /// Current tranformation matrix.
     var ctm: Mat4x4 = .identity
+    /// Current projecton matrix.
+    var cpm: Mat4x4 = .identity
     
     // MARK: Layers
     var layers: [Layer] = []

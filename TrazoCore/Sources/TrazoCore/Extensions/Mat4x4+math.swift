@@ -64,14 +64,4 @@ public extension Mat4x4 {
     }
     
     static let identity: Mat4x4 = matrix_identity_float4x4
-    
-    // don't know why... but... it's like the translation is being applied twice
-    // so I have to divide that by 2...
-    var inverseWithHalfTranslation: Mat4x4 {
-        var inverse = self.inverse
-        inverse.columns.3.x /= 2
-        inverse.columns.3.y /= 2
-        inverse.columns.3.z /= 2
-        return inverse
-    }
 }

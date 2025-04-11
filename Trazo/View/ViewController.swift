@@ -65,7 +65,7 @@ class ViewController: UIViewController {
             view.topAnchor.constraint(equalTo: toolbarView.topAnchor),
             view.leadingAnchor.constraint(equalTo: toolbarView.leadingAnchor),
             view.trailingAnchor.constraint(equalTo: toolbarView.trailingAnchor),
-            toolbarView.heightAnchor.constraint(equalToConstant: 45)
+            toolbarView.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
