@@ -23,7 +23,7 @@ class ToolbarView: UIView {
             for: .touchUpInside
         )
         preview.translatesAutoresizingMaskIntoConstraints = false
-        preview.layer.cornerRadius = 25 / 2
+        preview.layer.cornerRadius = 30 / 2
         preview.backgroundColor = .blue
         preview.layer.borderColor = .init(
             red: 0.61,
@@ -31,7 +31,7 @@ class ToolbarView: UIView {
             blue: 0.61,
             alpha: 1
         )
-        preview.layer.borderWidth = 1
+        preview.layer.borderWidth = 1.5
         return preview
     }()
     
@@ -129,7 +129,8 @@ extension ToolbarView {
         itemsCenterStackView.addArrangedSubview(colorPreviewView)
         
         NSLayoutConstraint.activate([
-            colorPreviewView.widthAnchor.constraint(equalToConstant: 25)
+            colorPreviewView.widthAnchor.constraint(equalToConstant: 30),
+            layersItemView.widthAnchor.constraint(equalToConstant: 30)
         ])
     }
 }
