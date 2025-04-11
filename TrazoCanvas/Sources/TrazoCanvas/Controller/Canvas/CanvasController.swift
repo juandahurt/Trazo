@@ -30,8 +30,8 @@ class CanvasController: NSObject {
     func load() {
         guard let canvasView else { return }
         let canvasSize: Vector2 = .init(
-            x: Float(canvasView.bounds.width),
-            y: Float(canvasView.bounds.height)
+            x: Float(canvasView.bounds.width * canvasView.contentScaleFactor),
+            y: Float(canvasView.bounds.height * canvasView.contentScaleFactor)
         )
         state.layers = [
             .init(size: canvasSize),
@@ -64,8 +64,5 @@ class CanvasController: NSObject {
         )
         
         mergeLayers(usingDrawingTexture: false)
-        
-        // display canvas
-        canvasView.setNeedsDisplay()
     }
 }

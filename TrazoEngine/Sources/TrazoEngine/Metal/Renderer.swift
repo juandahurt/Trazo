@@ -56,6 +56,7 @@ final class Renderer {
         pointSize: Float,
         on grayScaleTexture: MTLTexture,
         transform: Mat4x4,
+        projection: Mat4x4,
         using commandBuffer: MTLCommandBuffer
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
@@ -69,29 +70,32 @@ final class Renderer {
         )
         encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
         
-        let width = Float(grayScaleTexture.width)
-        let height = Float(grayScaleTexture.height)
-        
-        let viewSize: Float = height
-        let aspect = width / height
-        let rect = CGRect(
-            x: Double(-viewSize * aspect) * 0.5,
-            y: Double(viewSize) * 0.5,
-            width: Double(viewSize * aspect),
-            height: Double(viewSize))
-        var projection = Mat4x4(
-            orthographic: rect,
-            near: 0,
-            far: 1
-        )
+//        let width = Float(grayScaleTexture.width)
+//        let height = Float(grayScaleTexture.height)
+//        
+//        let viewSize: Float = height
+//        let aspect = width / height
+//        let rect = CGRect(
+//            x: Double(-viewSize * aspect) * 0.5,
+//            y: Double(viewSize) * 0.5,
+//            width: Double(viewSize * aspect),
+//            height: Double(viewSize))
+//        var projection = Mat4x4(
+//            orthographic: rect,
+//            near: 0,
+//            far: 1
+//        )
+//        print("renderer: ", viewSize, aspect, width, height)
         var modelMatrix = transform
+        var projectionMatrix = projection
+        
         encoder?.setVertexBytes(
             &modelMatrix,
             length: MemoryLayout<Mat4x4>.stride,
             index: 1
         )
         encoder?.setVertexBytes(
-            &projection,
+            &projectionMatrix,
             length: MemoryLayout<Mat4x4>.stride,
             index: 2
         )
@@ -183,7 +187,8 @@ final class Renderer {
         on outputTexture: MTLTexture,
         using commandBuffer: MTLCommandBuffer,
         clearColor: Vector4,
-        transform: Mat4x4
+        transform: Mat4x4,
+        projection: Mat4x4
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
         passDescriptor.colorAttachments[0].texture = outputTexture
@@ -225,23 +230,8 @@ final class Renderer {
             index: 1
         )
         
-        // matrix transform
-        let width = Float(outputTexture.width)
-        let height = Float(outputTexture.height)
-        
         var modelMatrix = transform
-        let viewSize: Float = height
-        let aspect = width / height
-        let rect = CGRect(
-            x: Double(-viewSize * aspect) * 0.5,
-            y: Double(viewSize) * 0.5,
-            width: Double(viewSize * aspect),
-            height: Double(viewSize))
-        var projection = Mat4x4(
-            orthographic: rect,
-            near: 0,
-            far: 1
-        )
+        var projectionMatrix = projection
         
         encoder?.setVertexBytes(
             &modelMatrix,
@@ -249,7 +239,7 @@ final class Renderer {
             index: 2
         )
         encoder?.setVertexBytes(
-            &projection,
+            &projectionMatrix,
             length: MemoryLayout<Mat4x4>.stride,
             index: 3
         )
