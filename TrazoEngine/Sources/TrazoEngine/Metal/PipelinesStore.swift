@@ -44,8 +44,8 @@ final class PipelinesStore {
             fragmentFunction: "gray_scale_point_frag"
         ) { descriptor in
             descriptor.colorAttachments[0].isBlendingEnabled = true
-            descriptor.colorAttachments[0].rgbBlendOperation = .add
-            descriptor.colorAttachments[0].alphaBlendOperation = .add
+            descriptor.colorAttachments[0].rgbBlendOperation = .max
+            descriptor.colorAttachments[0].alphaBlendOperation = .max
             descriptor.colorAttachments[0].sourceRGBBlendFactor = .one
             descriptor.colorAttachments[0].destinationRGBBlendFactor = .one
             descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
