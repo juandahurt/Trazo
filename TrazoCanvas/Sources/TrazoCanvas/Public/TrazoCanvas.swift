@@ -3,11 +3,12 @@ import TrazoCore
 import TrazoEngine
 
 @MainActor
-public struct TrazoCanvas {
+public class TrazoCanvas {
     /// To hold the controller in memory
     var controller: CanvasController?
     
     public private(set) var canvasView: UIView
+    public weak var delegate: TrazoCanvasDelegate?
     
     public init(descriptor: TrazoCanvasDescriptor) {
         TrazoEngine.load()
@@ -24,6 +25,8 @@ public struct TrazoCanvas {
         controller = canvasController
         
         self.canvasView = canvasView
+        
+        canvasController.delegate = self
     }
     
     public func load() {

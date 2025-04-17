@@ -9,7 +9,7 @@ import TrazoEngine
 import TrazoCore
 
 @MainActor
-struct Layer {
+class Layer {
     let texture: Texture
     
     init(size: Vector2, debubLabel: String? = nil) {

@@ -12,6 +12,7 @@ protocol ToolbarViewDelegate: AnyObject {
         _ toolbarView: ToolbarView
     ) -> UIViewController
     func toolbarView(_ toolbarView: ToolbarView, didSelect color: UIColor)
+    func toolbarViewDidSelectLayers(_ toolbarView: ToolbarView)
 }
 
 class ToolbarView: UIView {
@@ -44,14 +45,23 @@ class ToolbarView: UIView {
         return stackView
     }()
     
-    private lazy var layersItemView: UIButton = {
+    lazy var layersItemView: UIButton = {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(systemName: "square.2.layers.3d.fill")
         config.contentInsets = .zero
+        config.imageColorTransformer = .init({ color in
+            .white
+        })
 
         let button = UIButton(configuration: config)
         button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = .white.withAlphaComponent(0.85)
+        button.tintColor = .white
+        button.addTarget(
+            self,
+            action: #selector(onLayersTap),
+            for: .touchUpInside
+        )
+        button.alpha = 1
         
         return button
     }()
@@ -94,7 +104,12 @@ class ToolbarView: UIView {
         pickerViewController.modalPresentationStyle = .popover
         pickerViewController.popoverPresentationController?.sourceView = colorPreviewView
         pickerViewController.delegate = self
-        viewController.present(pickerViewController, animated: true)
+        viewController.present(pickerViewController, animated: false)
+    }
+    
+    @objc
+    private func onLayersTap() {
+        delegate?.toolbarViewDidSelectLayers(self)
     }
 }
 

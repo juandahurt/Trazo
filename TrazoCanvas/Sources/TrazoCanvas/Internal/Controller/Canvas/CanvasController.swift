@@ -10,8 +10,15 @@ import TrazoEngine
 import UIKit
 
 @MainActor
+protocol CanvasControllerDelegate: AnyObject {
+    func didLoadLayers(_ layers: [Layer])
+    func didUpdateLayer(_ layer: Layer, atIndex index: Int)
+}
+
+@MainActor
 class CanvasController: NSObject {
     weak var canvasView: CanvasView?
+    weak var delegate: CanvasControllerDelegate?
     
     var state: CanvasState
     let fingerTouchController = FingerTouchController()
@@ -64,5 +71,7 @@ class CanvasController: NSObject {
         )
         
         mergeLayers(usingDrawingTexture: false)
+        
+        delegate?.didLoadLayers(state.layers)
     }
 }

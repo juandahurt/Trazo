@@ -66,5 +66,7 @@ extension CanvasController: FingerTouchControllerDelegate {
         updateCurrentLayerWithDrawingTexture()
         clearInputTextures()
         clearCurrentStroke()
+        
+        delegate?.didUpdateLayer(currentLayer, atIndex: state.currentLayerIndex)
     }
 }

@@ -24,8 +24,18 @@ class ViewController: UIViewController {
     }()
     
     private var toolbarView = ToolbarView()
-    
-    private var viewModel = ViewModel()
+   
+    private let layersViewController: LayersViewController
+    private var viewModel: ViewModel
+
+    required init?(coder: NSCoder) {
+        viewModel = ViewModel()
+        let layersViewModel = LayersViewModel()
+        layersViewModel.observer = viewModel
+        viewModel.observer = layersViewModel
+        layersViewController = .init(viewModel: layersViewModel)
+        super.init(coder: coder)
+    }
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -101,5 +111,11 @@ extension ViewController: ToolbarViewDelegate {
     
     func toolbarView(_ toolbarView: ToolbarView, didSelect color: UIColor) {
         viewModel.didSelectColor(color)
+    }
+    
+    func toolbarViewDidSelectLayers(_ toolbarView: ToolbarView) {
+        layersViewController.modalPresentationStyle = .popover
+        layersViewController.popoverPresentationController?.sourceView = toolbarView.layersItemView
+        present(layersViewController, animated: false)
     }
 }
