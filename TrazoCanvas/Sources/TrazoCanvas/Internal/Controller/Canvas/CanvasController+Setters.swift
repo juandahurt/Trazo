@@ -15,4 +15,10 @@ extension CanvasController {
     func setBrushSize(_ size: Float) {
         state.brushSize = size
     }
+    
+    func setIsVisible(_ isVisible: Bool, toLayerAtIndex index: Int) {
+        state.layers[index].isVisible = isVisible
+        mergeLayers(usingDrawingTexture: false)
+        canvasView?.setNeedsDisplay()
+    }
 }

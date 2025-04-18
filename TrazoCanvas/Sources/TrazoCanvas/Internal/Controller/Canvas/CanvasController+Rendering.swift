@@ -27,6 +27,7 @@ extension CanvasController {
     func mergeLayers(usingDrawingTexture: Bool) {
         TrazoEngine.pushDebugGroup("Merge layers")
         for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
+            if !state.layers[index].isVisible { continue }
             var layerTexture = state.layers[index].texture
             if index == state.currentLayerIndex && usingDrawingTexture {
                 layerTexture = state.drawingTexture
@@ -52,6 +53,15 @@ extension CanvasController {
         )
         TrazoEngine.fillTexture(
             state.strokeTexture,
+            withColor: [0, 0, 0, 0]
+        )
+        TrazoEngine.popDebugGroup()
+    }
+    
+    func clearRenderableTexture() {
+        TrazoEngine.pushDebugGroup("Clear renderable texture")
+        TrazoEngine.fillTexture(
+            state.renderableTexture,
             withColor: [0, 0, 0, 0]
         )
         TrazoEngine.popDebugGroup()

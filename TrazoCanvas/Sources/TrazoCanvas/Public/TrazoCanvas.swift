@@ -42,4 +42,8 @@ public extension TrazoCanvas {
     func setBrushSize(_ size: Float) {
         controller?.setBrushSize(size)
     }
+    
+    func setIsVisible(_ isVisible: Bool, toLayerAtIndex index: Int) {
+        controller?.setIsVisible(isVisible, toLayerAtIndex: index)
+    }
 }

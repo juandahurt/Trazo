@@ -77,4 +77,8 @@ extension ViewModel: LayersViewModelObserver {
     func didSelectLayer(atIndex index: Int) {
         
     }
+    
+    func didUpdateVisibilityOfLayer(atIndex index: Int, isVisible: Bool) {
+        canvas.setIsVisible(isVisible, toLayerAtIndex: index)
+    }
 }

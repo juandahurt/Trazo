@@ -11,6 +11,7 @@ import TrazoCanvas
 @MainActor
 protocol LayersViewModelObserver: AnyObject {
     func didSelectLayer(atIndex index: Int)
+    func didUpdateVisibilityOfLayer(atIndex index: Int, isVisible: Bool)
 }
 
 @MainActor
@@ -28,5 +29,9 @@ extension LayersViewModel: ViewModelObserver {
     func didUpdate(layer: TrazoLayer, atIndex index: Int) {
         layers[index] = layer
         layerUpdateSubject.send(())
+    }
+    
+    func updateVisibility(_ isVisible: Bool, index: Int) {
+        observer?.didUpdateVisibilityOfLayer(atIndex: index, isVisible: isVisible)
     }
 }

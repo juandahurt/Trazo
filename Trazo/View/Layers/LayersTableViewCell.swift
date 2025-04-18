@@ -14,12 +14,21 @@ class LayersTableViewCell: UITableViewCell {
         return thumbnail
     }()
     
-    private let visibleButton: UIButton = {
+    private lazy var visibleButton: UIButton = {
         let button = UIButton()
         button.translatesAutoresizingMaskIntoConstraints = false
         button.tintColor = .white
+        button
+            .addTarget(
+                self,
+                action: #selector(visibleButtonAction),
+                for: .touchUpInside
+            )
         return button
     }()
+    
+    var onVisibleButtonTap: ((Bool) -> Void)?
+    var isVisible = true
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -69,5 +78,11 @@ class LayersTableViewCell: UITableViewCell {
     func update(using layer: TrazoLayer) {
         visibleButton.setImage(.init(systemName: "checkmark.square.fill"), for: .normal)
         layerThumbnailView.update(using: layer)
+    }
+    
+    @objc
+    func visibleButtonAction() {
+        isVisible = !isVisible
+        onVisibleButtonTap?(isVisible)
     }
 }

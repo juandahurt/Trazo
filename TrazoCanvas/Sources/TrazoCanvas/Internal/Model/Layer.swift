@@ -10,6 +10,7 @@ import TrazoCore
 
 @MainActor
 class Layer {
+    var isVisible = true
     let texture: Texture
     
     init(size: Vector2, debubLabel: String? = nil) {

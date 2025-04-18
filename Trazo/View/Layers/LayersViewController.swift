@@ -85,6 +85,9 @@ extension LayersViewController: UITableViewDataSource {
         
         cell.update(using: viewModel.layers[indexPath.row])
         cell.selectionStyle = .none
+        cell.onVisibleButtonTap = { isVisible in
+            self.viewModel.updateVisibility(isVisible, index: indexPath.row)
+        }
         
         return cell
     }
