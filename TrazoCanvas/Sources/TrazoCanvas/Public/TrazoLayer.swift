@@ -7,8 +7,12 @@
 
 import TrazoEngine
 
+@MainActor
 public class TrazoLayer {
     var layer: Layer
+    public var isVisible: Bool {
+        layer.isVisible
+    }
     
     init(layer: Layer) {
         self.layer = layer

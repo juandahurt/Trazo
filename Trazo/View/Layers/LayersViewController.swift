@@ -38,13 +38,22 @@ class LayersViewController: UIViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         tableView.reloadData()
+        // TODO: find a way to prevent reloading all of the rows
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        viewModel.viewDidAppear()
+    }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        viewModel.viewDidDisappear()
     }
     
     func setupObservers() {
-//        viewModel.layerUpdateSubject.sink { _ in
-//            self.tableView.reloadData()
-//            print("reloading")
-//        }.store(in: &disposeBag)
+        viewModel.layerUpdateSubject.sink { [weak self] index in
+            guard let self else { return }
+            tableView.reloadRows(at: [.init(row: index, section: 0)], with: .none)
+        }.store(in: &disposeBag)
     }
     
     func setupTableView() {
@@ -85,8 +94,9 @@ extension LayersViewController: UITableViewDataSource {
         
         cell.update(using: viewModel.layers[indexPath.row])
         cell.selectionStyle = .none
-        cell.onVisibleButtonTap = { isVisible in
-            self.viewModel.updateVisibility(isVisible, index: indexPath.row)
+        cell.onVisibleButtonTap = { [weak self] in
+            guard let self else { return }
+            viewModel.intentToggleVisibilityOfLayer(atIndex: indexPath.row)
         }
         
         return cell

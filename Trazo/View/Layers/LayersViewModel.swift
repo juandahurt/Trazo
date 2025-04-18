@@ -11,14 +11,35 @@ import TrazoCanvas
 @MainActor
 protocol LayersViewModelObserver: AnyObject {
     func didSelectLayer(atIndex index: Int)
-    func didUpdateVisibilityOfLayer(atIndex index: Int, isVisible: Bool)
+    func didItentToggleVisibilityOfLayer(atIndex index: Int)
 }
 
 @MainActor
 class LayersViewModel {
     weak var observer: LayersViewModelObserver?
-    var layerUpdateSubject = PassthroughSubject<Void, Never>()
-    var layers: [TrazoLayer] = []
+    
+    private var isPresented = false
+    
+    private(set) var layers: [TrazoLayer] = []
+    private(set) var layerIndicesToBeUpdated: [Int] = []
+    
+    var layerUpdateSubject = PassthroughSubject<Int, Never>()
+    
+    func viewDidAppear() {
+        isPresented = true
+    }
+    
+    func viewDidDisappear() {
+        isPresented = false
+    }
+    
+    func intentToggleVisibilityOfLayer(atIndex index: Int) {
+        observer?.didItentToggleVisibilityOfLayer(atIndex: index)
+    }
+    
+    func clearIndicesToBeUpdated() {
+        layerIndicesToBeUpdated.removeAll()
+    }
 }
 
 extension LayersViewModel: ViewModelObserver {
@@ -28,10 +49,8 @@ extension LayersViewModel: ViewModelObserver {
 
     func didUpdate(layer: TrazoLayer, atIndex index: Int) {
         layers[index] = layer
-        layerUpdateSubject.send(())
-    }
-    
-    func updateVisibility(_ isVisible: Bool, index: Int) {
-        observer?.didUpdateVisibilityOfLayer(atIndex: index, isVisible: isVisible)
+        // only notify the view controller to update the table view
+        // when it's in the view heirarchy
+        if isPresented { layerUpdateSubject.send(index) }
     }
 }

@@ -16,9 +16,12 @@ extension CanvasController {
         state.brushSize = size
     }
     
-    func setIsVisible(_ isVisible: Bool, toLayerAtIndex index: Int) {
-        state.layers[index].isVisible = isVisible
+    func toggleVisibilty(ofLayerAtIndex index: Int) {
+        state.layers[index].isVisible = !state.layers[index].isVisible
+        clearRenderableTexture()
         mergeLayers(usingDrawingTexture: false)
         canvasView?.setNeedsDisplay()
+        
+        delegate?.didUpdateLayer(state.layers[index], atIndex: index)
     }
 }

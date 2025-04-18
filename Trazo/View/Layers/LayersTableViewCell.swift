@@ -27,8 +27,7 @@ class LayersTableViewCell: UITableViewCell {
         return button
     }()
     
-    var onVisibleButtonTap: ((Bool) -> Void)?
-    var isVisible = true
+    var onVisibleButtonTap: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
         super.init(style: style, reuseIdentifier: reuseIdentifier)
@@ -76,13 +75,17 @@ class LayersTableViewCell: UITableViewCell {
     }
     
     func update(using layer: TrazoLayer) {
-        visibleButton.setImage(.init(systemName: "checkmark.square.fill"), for: .normal)
+        updateVisibleButton(isVisible: layer.isVisible)
         layerThumbnailView.update(using: layer)
+    }
+    
+    func updateVisibleButton(isVisible: Bool) {
+        let imageName = isVisible ? "checkmark.square.fill" : "square"
+        visibleButton.setImage(.init(systemName: imageName), for: .normal)
     }
     
     @objc
     func visibleButtonAction() {
-        isVisible = !isVisible
-        onVisibleButtonTap?(isVisible)
+        onVisibleButtonTap?()
     }
 }

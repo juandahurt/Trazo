@@ -75,10 +75,10 @@ extension ViewModel: TrazoCanvasDelegate {
 
 extension ViewModel: LayersViewModelObserver {
     func didSelectLayer(atIndex index: Int) {
-        
+       // TODO: implement
     }
     
-    func didUpdateVisibilityOfLayer(atIndex index: Int, isVisible: Bool) {
-        canvas.setIsVisible(isVisible, toLayerAtIndex: index)
+    func didItentToggleVisibilityOfLayer(atIndex index: Int) {
+        canvas.toggleVisiblity(ofLayerAtIndex: index)
     }
 }
