@@ -10,8 +10,15 @@ import TrazoEngine
 import UIKit
 
 @MainActor
+protocol CanvasControllerDelegate: AnyObject {
+    func didLoadLayers(_ layers: [Layer])
+    func didUpdateLayer(_ layer: Layer, atIndex index: Int)
+}
+
+@MainActor
 class CanvasController: NSObject {
     weak var canvasView: CanvasView?
+    weak var delegate: CanvasControllerDelegate?
     
     var state: CanvasState
     let fingerTouchController = FingerTouchController()
@@ -34,8 +41,8 @@ class CanvasController: NSObject {
             y: Float(canvasView.bounds.height * canvasView.contentScaleFactor)
         )
         state.layers = [
-            .init(size: canvasSize),
-            .init(size: canvasSize, debubLabel: "Background Texture")
+            .init(named: "Layer 1", size: canvasSize),
+            .init(named: "Background", size: canvasSize, debubLabel: "Background Texture")
         ]
         // user starts drawing on the layer which is on top of the background layer
         state.currentLayerIndex = 0
@@ -64,5 +71,7 @@ class CanvasController: NSObject {
         )
         
         mergeLayers(usingDrawingTexture: false)
+        
+        delegate?.didLoadLayers(state.layers)
     }
 }

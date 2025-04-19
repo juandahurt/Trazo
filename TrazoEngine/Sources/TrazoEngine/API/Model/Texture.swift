@@ -7,6 +7,10 @@
 
 import Metal
 
-public struct Texture {
+public class Texture {
     var metalTexture: MTLTexture
+    
+    init(metalTexture: MTLTexture) {
+        self.metalTexture = metalTexture
+    }
 }

@@ -26,7 +26,6 @@ extension CanvasController: MTKViewDelegate {
             near: 0,
             far: 1
         )
-        print("delegate: ", viewSize, aspect, width, height)
         canvasView?.setNeedsDisplay()
     }
 

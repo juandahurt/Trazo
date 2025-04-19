@@ -13,7 +13,6 @@ protocol FingerTouchControllerDelegate: AnyObject {
     /// Notifies the delegate that a transform gesture has occurred.
     /// - Parameter transform: The generated transformation.
     func didTransformGestureOccur(_ transform: Mat4x4)
-    
     /// Notifies the delegate that a drawing gesture has occurred.
     /// - Parameter touch: Input touch.
     func didDrawingGestureOccur(withTouch touch: TouchInput)

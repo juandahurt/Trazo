@@ -70,22 +70,6 @@ final class Renderer {
         )
         encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
         
-//        let width = Float(grayScaleTexture.width)
-//        let height = Float(grayScaleTexture.height)
-//        
-//        let viewSize: Float = height
-//        let aspect = width / height
-//        let rect = CGRect(
-//            x: Double(-viewSize * aspect) * 0.5,
-//            y: Double(viewSize) * 0.5,
-//            width: Double(viewSize * aspect),
-//            height: Double(viewSize))
-//        var projection = Mat4x4(
-//            orthographic: rect,
-//            near: 0,
-//            far: 1
-//        )
-//        print("renderer: ", viewSize, aspect, width, height)
         var modelMatrix = transform
         var projectionMatrix = projection
         
