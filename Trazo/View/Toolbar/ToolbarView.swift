@@ -137,7 +137,8 @@ extension ToolbarView {
             itemsCenterStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
             itemsCenterStackView.bottomAnchor
                 .constraint(equalTo: bottomAnchor, constant: -10),
-            itemsCenterStackView.centerXAnchor.constraint(equalTo: centerXAnchor)
+            itemsCenterStackView.trailingAnchor
+                .constraint(equalTo: trailingAnchor, constant: -16)
         ])
         
         itemsCenterStackView.addArrangedSubview(layersItemView)

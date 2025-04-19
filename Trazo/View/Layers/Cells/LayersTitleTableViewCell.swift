@@ -7,6 +7,7 @@
 
 import UIKit
 
+// TODO: maybe use a header cell for this kind of thing
 class LayersTitleTableViewCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()

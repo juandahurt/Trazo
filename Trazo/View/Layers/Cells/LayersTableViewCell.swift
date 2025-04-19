@@ -96,7 +96,6 @@ class LayersTableViewCell: UITableViewCell {
     }
     
     func update(using layer: TrazoLayer) {
-        print("updating cell")
         updateVisibleButton(isVisible: layer.isVisible)
         layerThumbnailView.update(using: layer)
         nameLabel.text = layer.title
