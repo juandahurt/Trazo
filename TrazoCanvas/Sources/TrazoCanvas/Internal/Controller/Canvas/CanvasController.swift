@@ -41,8 +41,8 @@ class CanvasController: NSObject {
             y: Float(canvasView.bounds.height * canvasView.contentScaleFactor)
         )
         state.layers = [
-            .init(size: canvasSize),
-            .init(size: canvasSize, debubLabel: "Background Texture")
+            .init(named: "Layer 1", size: canvasSize),
+            .init(named: "Background", size: canvasSize, debubLabel: "Background Texture")
         ]
         // user starts drawing on the layer which is on top of the background layer
         state.currentLayerIndex = 0

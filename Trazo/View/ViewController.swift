@@ -115,6 +115,7 @@ extension ViewController: ToolbarViewDelegate {
     
     func toolbarViewDidSelectLayers(_ toolbarView: ToolbarView) {
         layersViewController.modalPresentationStyle = .popover
+        layersViewController.popoverPresentationController?.sourceRect = toolbarView.layersItemView.bounds
         layersViewController.popoverPresentationController?.sourceView = toolbarView.layersItemView
         present(layersViewController, animated: false)
     }

@@ -27,6 +27,14 @@ class LayersTableViewCell: UITableViewCell {
         return button
     }()
     
+    private let nameLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        label.textColor = .white
+        label.font = .systemFont(ofSize: 14, weight: .regular)
+        return label
+    }()
+    
     var onVisibleButtonTap: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -48,6 +56,7 @@ class LayersTableViewCell: UITableViewCell {
         
         setupVisibleButton()
         setupThumbnail()
+        setupLabel()
     }
     
     private func setupVisibleButton() {
@@ -74,9 +83,23 @@ class LayersTableViewCell: UITableViewCell {
         ])
     }
     
+    func setupLabel() {
+        contentView.addSubview(nameLabel)
+        
+        NSLayoutConstraint.activate([
+            nameLabel.leadingAnchor.constraint(
+                equalTo: layerThumbnailView.trailingAnchor,
+                constant: 10
+            ),
+            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+        ])
+    }
+    
     func update(using layer: TrazoLayer) {
+        print("updating cell")
         updateVisibleButton(isVisible: layer.isVisible)
         layerThumbnailView.update(using: layer)
+        nameLabel.text = layer.title
     }
     
     func updateVisibleButton(isVisible: Bool) {

@@ -42,13 +42,14 @@ class LayersViewController: UIViewController {
             alpha: 1
         )
         
-        setupTitleLabel()
         setupTableView()
         setupObservers()
     }
     
     override func viewWillAppear(_ animated: Bool) {
         tableView.reloadData()
+        view.layoutIfNeeded()
+        preferredContentSize = tableView.contentSize
         // TODO: find a way to prevent reloading all of the rows
     }
     
@@ -63,21 +64,8 @@ class LayersViewController: UIViewController {
     func setupObservers() {
         viewModel.layerUpdateSubject.sink { [weak self] index in
             guard let self else { return }
-            tableView.reloadRows(at: [.init(row: index, section: 0)], with: .none)
+            tableView.reloadRows(at: [.init(row: index, section: 1)], with: .none)
         }.store(in: &disposeBag)
-    }
-    
-    func setupTitleLabel() {
-        view.addSubview(titleLabel)
-        
-        titleLabel.text = "Layers"
-        titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
-        titleLabel.textColor = .white
-        
-        NSLayoutConstraint.activate([
-            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
-            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 22),
-        ])
     }
     
     func setupTableView() {
@@ -86,7 +74,7 @@ class LayersViewController: UIViewController {
         NSLayoutConstraint.activate([
             tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            tableView.topAnchor.constraint(equalTo: view.topAnchor, constant: 12),
             tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
         ])
         
@@ -101,17 +89,37 @@ class LayersViewController: UIViewController {
             LayersTableViewCell.self,
             forCellReuseIdentifier: "cell"
         )
+        tableView.register(
+            LayersTitleTableViewCell.self,
+            forCellReuseIdentifier: "titleCell"
+        )
         tableView.dataSource = self
         tableView.delegate = self
     }
 }
 
 extension LayersViewController: UITableViewDataSource {
+    func numberOfSections(in tableView: UITableView) -> Int {
+        2
+    }
+    
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        viewModel.layers.count
+        if section == 0 { return 1 }
+        return viewModel.layers.count
     }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        if indexPath.section == 0 {
+            guard
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: "titleCell"
+                ) as? LayersTitleTableViewCell
+            else {
+                return UITableViewCell()
+            }
+            return cell
+        }
+        
         guard
             let cell = tableView.dequeueReusableCell(
                 withIdentifier: "cell"
@@ -134,6 +142,7 @@ extension LayersViewController: UITableViewDataSource {
 
 extension LayersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
-        70
+        if indexPath.section == 0 { return 40 }
+        return 70
     }
 }

@@ -13,6 +13,9 @@ public class TrazoLayer {
     public var isVisible: Bool {
         layer.isVisible
     }
+    public var title: String {
+        layer.title
+    }
     
     init(layer: Layer) {
         self.layer = layer
