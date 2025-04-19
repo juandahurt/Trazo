@@ -13,7 +13,17 @@ class LayersViewController: UIViewController {
     let viewModel: LayersViewModel
     var disposeBag = Set<AnyCancellable>()
     
-    let tableView = UITableView()
+    private let titleLabel: UILabel = {
+        let label = UILabel()
+        label.translatesAutoresizingMaskIntoConstraints = false
+        return label
+    }()
+    
+    private let tableView: UITableView = {
+        let tableView = UITableView()
+        tableView.translatesAutoresizingMaskIntoConstraints = false
+        return tableView
+    }()
     
     init(viewModel: LayersViewModel) {
         self.viewModel = viewModel
@@ -32,6 +42,7 @@ class LayersViewController: UIViewController {
             alpha: 1
         )
         
+        setupTitleLabel()
         setupTableView()
         setupObservers()
     }
@@ -56,11 +67,28 @@ class LayersViewController: UIViewController {
         }.store(in: &disposeBag)
     }
     
+    func setupTitleLabel() {
+        view.addSubview(titleLabel)
+        
+        titleLabel.text = "Layers"
+        titleLabel.font = .systemFont(ofSize: 14, weight: .medium)
+        titleLabel.textColor = .white
+        
+        NSLayoutConstraint.activate([
+            titleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 16),
+            titleLabel.topAnchor.constraint(equalTo: view.topAnchor, constant: 22),
+        ])
+    }
+    
     func setupTableView() {
-        tableView.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(tableView)
         
-        tableView.makeEgdes(equalTo: view)
+        NSLayoutConstraint.activate([
+            tableView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            tableView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            tableView.topAnchor.constraint(equalTo: titleLabel.bottomAnchor, constant: 12),
+            tableView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+        ])
         
         tableView.backgroundColor = .init(
             red: 0.2,
