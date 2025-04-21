@@ -131,7 +131,7 @@ class LayersTableViewCell: UITableViewCell {
         updateVisibleButton(isVisible: layer.isVisible)
         layerThumbnailView.update(using: layer)
         nameLabel.text = layer.title
-        nameLabel.textColor = layer.isSelected ? .white : .darkGray
+        nameLabel.textColor = layer.isSelected ? .white : .gray
         containerView.backgroundColor = layer.isSelected ? selectedColor : unselectedColor
     }
     
