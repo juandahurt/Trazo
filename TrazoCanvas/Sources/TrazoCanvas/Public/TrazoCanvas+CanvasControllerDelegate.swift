@@ -7,8 +7,8 @@
 
 extension TrazoCanvas: CanvasControllerDelegate {
     func didLoadLayers(_ layers: [Layer], currentLayerIndex: Int) {
-        delegate?.canvas(self, didLoadLayers: layers.map {
-            .init(layer: $0, isSelected: false)
+        delegate?.canvas(self, didLoadLayers: layers.indices.map { index in
+            .init(layer: layers[index], isSelected: index == currentLayerIndex)
         })
     }
     
