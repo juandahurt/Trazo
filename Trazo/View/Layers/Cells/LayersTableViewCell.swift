@@ -35,6 +35,27 @@ class LayersTableViewCell: UITableViewCell {
         return label
     }()
     
+    private let containerView: UIView = {
+        let view = UIView()
+        view.translatesAutoresizingMaskIntoConstraints = false
+        view.layer.cornerRadius = 4
+        view.layer.masksToBounds = true
+        return view
+    }()
+    
+    private let unselectedColor: UIColor = .init(
+        red: 0.117,
+        green: 0.117,
+        blue: 0.117,
+        alpha: 1
+    )
+    private let selectedColor: UIColor = .init(
+        red: 0.184,
+        green: 0.431,
+        blue: 0.776,
+        alpha: 1
+    )
+    
     var onVisibleButtonTap: (() -> Void)?
     
     override init(style: UITableViewCell.CellStyle, reuseIdentifier: String?) {
@@ -47,51 +68,62 @@ class LayersTableViewCell: UITableViewCell {
     }
     
     private func setup() {
-        contentView.backgroundColor = .init(
-            red: 0.117,
-            green: 0.117,
-            blue: 0.117,
-            alpha: 1
-        )
+        contentView.backgroundColor = unselectedColor
         
+        setupContainerView()
         setupVisibleButton()
         setupThumbnail()
         setupLabel()
     }
     
+    private func setupContainerView() {
+        contentView.addSubview(containerView)
+        
+        NSLayoutConstraint.activate([
+            containerView.leadingAnchor
+                .constraint(equalTo: contentView.leadingAnchor, constant: 6),
+            containerView.trailingAnchor
+                .constraint(equalTo: contentView.trailingAnchor, constant: -6),
+            containerView.topAnchor
+                .constraint(equalTo: contentView.topAnchor, constant: 6),
+            containerView.bottomAnchor
+                .constraint(equalTo: contentView.bottomAnchor, constant: -6)
+        ])
+    }
+    
     private func setupVisibleButton() {
-        contentView.addSubview(visibleButton)
+        containerView.addSubview(visibleButton)
         
         NSLayoutConstraint.activate([
             visibleButton.leadingAnchor
-                .constraint(equalTo: contentView.leadingAnchor, constant: 16),
-            visibleButton.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+                .constraint(equalTo: containerView.leadingAnchor, constant: 8),
+            visibleButton.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
         ])
     }
     
     private func setupThumbnail() {
-        contentView.addSubview(layerThumbnailView)
+        containerView.addSubview(layerThumbnailView)
         
         NSLayoutConstraint.activate([
             layerThumbnailView.leadingAnchor
                 .constraint(equalTo: visibleButton.trailingAnchor, constant: 10),
             layerThumbnailView.topAnchor
-                .constraint(equalTo: contentView.topAnchor, constant: 4),
+                .constraint(equalTo: containerView.topAnchor, constant: 4),
             layerThumbnailView.bottomAnchor
-                .constraint(equalTo: contentView.bottomAnchor, constant: -4),
+                .constraint(equalTo: containerView.bottomAnchor, constant: -4),
             layerThumbnailView.widthAnchor.constraint(equalToConstant: 80)
         ])
     }
     
     func setupLabel() {
-        contentView.addSubview(nameLabel)
+        containerView.addSubview(nameLabel)
         
         NSLayoutConstraint.activate([
             nameLabel.leadingAnchor.constraint(
                 equalTo: layerThumbnailView.trailingAnchor,
-                constant: 10
+                constant: 16
             ),
-            nameLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
+            nameLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
         ])
     }
     
@@ -99,6 +131,8 @@ class LayersTableViewCell: UITableViewCell {
         updateVisibleButton(isVisible: layer.isVisible)
         layerThumbnailView.update(using: layer)
         nameLabel.text = layer.title
+        nameLabel.textColor = layer.isSelected ? .white : .darkGray
+        containerView.backgroundColor = layer.isSelected ? selectedColor : unselectedColor
     }
     
     func updateVisibleButton(isVisible: Bool) {

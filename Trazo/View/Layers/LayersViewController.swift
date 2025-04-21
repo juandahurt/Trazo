@@ -84,6 +84,7 @@ class LayersViewController: UIViewController {
             blue: 0.192,
             alpha: 1
         )
+        tableView.separatorStyle = .none
         
         tableView.register(
             LayersTableViewCell.self,
@@ -143,6 +144,11 @@ extension LayersViewController: UITableViewDataSource {
 extension LayersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {
         if indexPath.section == 0 { return 40 }
-        return 70
+        return 80
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        guard indexPath.section == 1 else { return }
+        viewModel.selectLayer(atIndex: indexPath.row)
     }
 }

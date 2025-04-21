@@ -40,6 +40,10 @@ class LayersViewModel {
     func clearIndicesToBeUpdated() {
         layerIndicesToBeUpdated.removeAll()
     }
+    
+    func selectLayer(atIndex index: Int) {
+        observer?.didSelectLayer(atIndex: index)
+    }
 }
 
 extension LayersViewModel: ViewModelObserver {

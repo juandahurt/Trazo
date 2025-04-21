@@ -75,7 +75,7 @@ extension ViewModel: TrazoCanvasDelegate {
 
 extension ViewModel: LayersViewModelObserver {
     func didSelectLayer(atIndex index: Int) {
-       // TODO: implement
+        canvas.setCurrentLayer(index)
     }
     
     func didItentToggleVisibilityOfLayer(atIndex index: Int) {

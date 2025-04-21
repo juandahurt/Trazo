@@ -16,8 +16,10 @@ public class TrazoLayer {
     public var title: String {
         layer.title
     }
+    public internal(set) var isSelected: Bool
     
-    init(layer: Layer) {
+    init(layer: Layer, isSelected: Bool) {
         self.layer = layer
+        self.isSelected = isSelected
     }
 }

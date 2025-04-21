@@ -46,4 +46,8 @@ public extension TrazoCanvas {
     func toggleVisiblity(ofLayerAtIndex index: Int) {
         controller?.toggleVisibilty(ofLayerAtIndex: index)
     }
+    
+    func setCurrentLayer(_ index: Int) {
+        controller?.setCurrentLayerIndex(index)
+    }
 }
