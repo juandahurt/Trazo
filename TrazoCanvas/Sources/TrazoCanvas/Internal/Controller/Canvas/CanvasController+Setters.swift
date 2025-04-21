@@ -22,6 +22,27 @@ extension CanvasController {
         mergeLayers(usingDrawingTexture: false)
         canvasView?.setNeedsDisplay()
         
-        delegate?.didUpdateLayer(state.layers[index], atIndex: index)
+        delegate?
+            .didUpdateLayer(
+                state.layers[index],
+                atIndex: index,
+                currentLayerIndex: state.currentLayerIndex
+            )
+    }
+    
+    func setCurrentLayerIndex(_ index: Int) {
+        let prevLayerIndex = state.currentLayerIndex
+        state.currentLayerIndex = index
+        // update the previous and the new selected layer
+        delegate?.didUpdateLayer(
+            state.layers[prevLayerIndex],
+            atIndex: prevLayerIndex,
+            currentLayerIndex: state.currentLayerIndex
+        )
+        delegate?.didUpdateLayer(
+            state.layers[index],
+            atIndex: index,
+            currentLayerIndex: state.currentLayerIndex
+        )
     }
 }

@@ -11,8 +11,8 @@ import UIKit
 
 @MainActor
 protocol CanvasControllerDelegate: AnyObject {
-    func didLoadLayers(_ layers: [Layer])
-    func didUpdateLayer(_ layer: Layer, atIndex index: Int)
+    func didLoadLayers(_ layers: [Layer], currentLayerIndex: Int)
+    func didUpdateLayer(_ layer: Layer, atIndex index: Int, currentLayerIndex: Int)
 }
 
 @MainActor
@@ -72,6 +72,6 @@ class CanvasController: NSObject {
         
         mergeLayers(usingDrawingTexture: false)
         
-        delegate?.didLoadLayers(state.layers)
+        delegate?.didLoadLayers(state.layers, currentLayerIndex: state.currentLayerIndex)
     }
 }

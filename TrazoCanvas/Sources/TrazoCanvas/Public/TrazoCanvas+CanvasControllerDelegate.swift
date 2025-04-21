@@ -6,11 +6,17 @@
 //
 
 extension TrazoCanvas: CanvasControllerDelegate {
-    func didLoadLayers(_ layers: [Layer]) {
-        delegate?.canvas(self, didLoadLayers: layers.map { .init(layer: $0) })
+    func didLoadLayers(_ layers: [Layer], currentLayerIndex: Int) {
+        delegate?.canvas(self, didLoadLayers: layers.indices.map { index in
+            .init(layer: layers[index], isSelected: index == currentLayerIndex)
+        })
     }
     
-    func didUpdateLayer(_ layer: Layer, atIndex index: Int) {
-        delegate?.canvas(self, didUpdateLayer: .init(layer: layer), atIndex: index)
+    func didUpdateLayer(_ layer: Layer, atIndex index: Int, currentLayerIndex: Int) {
+        delegate?.canvas(
+            self,
+            didUpdateLayer: .init(layer: layer, isSelected: index == currentLayerIndex),
+            atIndex: index
+        )
     }
 }
