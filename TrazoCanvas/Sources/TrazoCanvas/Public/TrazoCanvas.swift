@@ -18,7 +18,10 @@ public class TrazoCanvas {
             brushSize: descriptor.brushSize
         )
         let canvasController = CanvasController(state: state)
-        let canvasView = CanvasView(fingerGestureDelegate: canvasController)
+        let canvasView = CanvasView(
+            fingerGestureDelegate: canvasController,
+            pencilGestureDelegate: canvasController
+        )
         canvasView.delegate = canvasController
         canvasController.canvasView = canvasView
         
