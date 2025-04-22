@@ -99,6 +99,34 @@ extension CanvasController {
         )
         TrazoEngine.popDebugGroup()
     }
+   
+    func generateInitialDrawablePoints() -> [DrawablePoint] {
+        let numAnchorPoints = state.currentAnchorPoints.count
+        guard numAnchorPoints > 3 else { return [] }
+        
+        // extend anchor points following the direction from the second to the first one
+        let i = 0
+        let first = state.currentAnchorPoints[i].location
+        let second = state.currentAnchorPoints[i + 1].location
+        let third = state.currentAnchorPoints[i + 2].location
+        
+        let dir = normalize(first - second)
+        
+        let dist: Float = 5.0 // let's just say the new point will be located at 5 points
+                              // from the last one
+        let new = first + (dir * dist)
+        
+        return CatmullRom()
+            .generateDrawablePoints(
+                anchorPoints: .init(
+                    p0: new,
+                    p1: first,
+                    p2: second,
+                    p3: third
+                ),
+                scale: state.ctm.scale.x
+            )
+    }
     
     func generateMidDrawablePoints() -> [DrawablePoint] {
         let numAnchorPoints = state.currentAnchorPoints.count
