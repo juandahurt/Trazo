@@ -43,7 +43,7 @@ extension CanvasController: FingerTouchControllerDelegate {
         location.x -= Float(canvasSize.x) / 2
         location.y -= Float(canvasSize.y) / 2
         location.y *= -1
-       
+        
         state.currentAnchorPoints.append(
             .init(
                 id: touch.id,
@@ -52,14 +52,22 @@ extension CanvasController: FingerTouchControllerDelegate {
             )
         )
         
-        let drawablePoints = generateDrawablePoints()
-        if drawablePoints.isEmpty { return }
-        drawGrayscalePoints(drawablePoints)
-        colorizeGrayscaleTexture()
-        updateDrawingTexture()
-        mergeLayers(usingDrawingTexture: true)
-        
-        canvasView.setNeedsDisplay()
+        switch touch.phase {
+        case .moved:
+            // if we have thre points, we need to draw the initial part of the curve
+            if state.currentAnchorPoints.count == 3 {
+                let drawablePoints = generateInitialDrawablePoints()
+                draw(points: drawablePoints)
+                return
+            }
+            let drawablePoints = generateMidDrawablePoints()
+            draw(points: drawablePoints)
+        case .ended:
+            // when the gesture ends, we need to draw the end of the curve 
+            let drawablePoints = generateLastDrawablePoints()
+            draw(points: drawablePoints)
+        default: break
+        }
     }
     
     func didDrawingGestureEnd() {

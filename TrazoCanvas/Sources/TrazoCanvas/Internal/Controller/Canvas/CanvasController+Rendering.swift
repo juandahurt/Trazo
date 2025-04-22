@@ -7,6 +7,7 @@
 
 import TrazoCore
 import TrazoEngine
+import simd
 
 extension CanvasController {
     func clearCurrentStroke() {
@@ -98,8 +99,36 @@ extension CanvasController {
         )
         TrazoEngine.popDebugGroup()
     }
+   
+    func generateInitialDrawablePoints() -> [DrawablePoint] {
+        let numAnchorPoints = state.currentAnchorPoints.count
+        guard numAnchorPoints > 3 else { return [] }
+        
+        // extend anchor points following the direction from the second to the first one
+        let i = 0
+        let first = state.currentAnchorPoints[i].location
+        let second = state.currentAnchorPoints[i + 1].location
+        let third = state.currentAnchorPoints[i + 2].location
+        
+        let dir = normalize(first - second)
+        
+        let dist: Float = 5.0 // let's just say the new point will be located at 5 points
+                              // from the last one
+        let new = first + (dir * dist)
+        
+        return CatmullRom()
+            .generateDrawablePoints(
+                anchorPoints: .init(
+                    p0: new,
+                    p1: first,
+                    p2: second,
+                    p3: third
+                ),
+                scale: state.ctm.scale.x
+            )
+    }
     
-    func generateDrawablePoints() -> [DrawablePoint] {
+    func generateMidDrawablePoints() -> [DrawablePoint] {
         let numAnchorPoints = state.currentAnchorPoints.count
         guard numAnchorPoints > 3 else { return [] }
         
@@ -114,5 +143,44 @@ extension CanvasController {
             ),
             scale: state.ctm.scale.x // since the scale should be the same on any axis
         )
+    }
+   
+    func generateLastDrawablePoints() -> [DrawablePoint] {
+        let numAnchorPoints = state.currentAnchorPoints.count
+        guard numAnchorPoints > 3 else { return [] }
+        
+        // extend anchor points following the same direction
+        let i = state.currentAnchorPoints.count - 2
+        let beforeBeforeLast = state.currentAnchorPoints[i - 2].location
+        let beforeLast = state.currentAnchorPoints[i - 1].location
+        let last = state.currentAnchorPoints[i].location
+        
+        let dir = normalize(last - beforeLast)
+        
+        let dist: Float = 5.0 // let's just say the new point will be located at 5 points
+                              // from the last one
+        let new = last + (dir * dist)
+        
+        return CatmullRom()
+            .generateDrawablePoints(
+                anchorPoints: .init(
+                    p0: beforeBeforeLast,
+                    p1: beforeLast,
+                    p2: last,
+                    p3: new
+                ),
+                scale: state.ctm.scale.x
+            )
+    }
+    
+    func draw(points: [DrawablePoint]) {
+        guard !points.isEmpty else { return }
+        
+        drawGrayscalePoints(points)
+        colorizeGrayscaleTexture()
+        updateDrawingTexture()
+        mergeLayers(usingDrawingTexture: true)
+        
+        canvasView?.setNeedsDisplay()
     }
 }
