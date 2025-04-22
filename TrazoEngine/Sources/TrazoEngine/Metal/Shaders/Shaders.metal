@@ -69,7 +69,7 @@ fragment float4 gray_scale_point_frag(
                                       GrayScalePoint pointData [[stage_in]],
                                       float2 pointCoord [[point_coord]])
 {
-    float radius = 0.35;
+    float radius = 0.3;
     float2 center = float2(0.5, 0.5);
     float dist = distance(center, pointCoord);
     if (dist <= radius) {
