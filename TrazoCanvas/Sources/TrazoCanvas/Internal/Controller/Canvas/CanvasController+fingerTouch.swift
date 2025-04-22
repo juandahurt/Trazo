@@ -52,14 +52,15 @@ extension CanvasController: FingerTouchControllerDelegate {
             )
         )
         
-        let drawablePoints = generateDrawablePoints()
-        if drawablePoints.isEmpty { return }
-        drawGrayscalePoints(drawablePoints)
-        colorizeGrayscaleTexture()
-        updateDrawingTexture()
-        mergeLayers(usingDrawingTexture: true)
-        
-        canvasView.setNeedsDisplay()
+        switch touch.phase {
+        case .moved:
+            let drawablePoints = generateMidDrawablePoints()
+            draw(points: drawablePoints)
+        case .ended:
+            let drawablePoints = generateLastDrawablePoints()
+            draw(points: drawablePoints)
+        default: break
+        }
     }
     
     func didDrawingGestureEnd() {
