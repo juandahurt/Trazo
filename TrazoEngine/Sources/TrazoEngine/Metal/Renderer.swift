@@ -57,12 +57,23 @@ final class Renderer {
         on grayScaleTexture: MTLTexture,
         transform: Mat4x4,
         projection: Mat4x4,
-        using commandBuffer: MTLCommandBuffer
+        using commandBuffer: MTLCommandBuffer,
+        clearingBackground: Bool
     ) {
         let passDescriptor = MTLRenderPassDescriptor()
         passDescriptor.colorAttachments[0].texture = grayScaleTexture
         passDescriptor.colorAttachments[0].loadAction = .load
         passDescriptor.colorAttachments[0].storeAction = .store
+        
+        if clearingBackground {
+            passDescriptor.colorAttachments[0].loadAction = .clear
+            passDescriptor.colorAttachments[0].clearColor = .init(
+                red: 0,
+                green: 0,
+                blue: 0,
+                alpha: 0
+            )
+        }
         
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(

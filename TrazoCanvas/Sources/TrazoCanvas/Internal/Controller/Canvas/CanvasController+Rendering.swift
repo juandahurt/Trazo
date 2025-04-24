@@ -88,14 +88,15 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
     
-    func drawGrayscalePoints(_ points: [DrawablePoint]) {
+    func drawGrayscalePoints(_ points: [DrawablePoint], clearBackground: Bool) {
         TrazoEngine.pushDebugGroup("Draw grayscale points")
         TrazoEngine.drawGrayscalePoints(
             points.map { $0.position },
             size: state.brushSize,
             transform: state.ctm.inverse,
             projection: state.cpm,
-            on: state.grayscaleTexture
+            on: state.grayscaleTexture,
+            clearingBackground: clearBackground
         )
         TrazoEngine.popDebugGroup()
     }
@@ -172,11 +173,32 @@ extension CanvasController {
                 scale: state.ctm.scale.x
             )
     }
+   
+    func handleDrawing(_ touch: TouchInput) {
+        state.currentAnchorPoints.append(touch)
+        
+        switch touch.phase {
+        case .moved:
+            // if we have thre points, we need to draw the initial part of the curve
+            if state.currentAnchorPoints.count == 3 {
+                let drawablePoints = generateInitialDrawablePoints()
+                draw(points: drawablePoints, clearGrayscaleTexture: false)
+                return
+            }
+            let drawablePoints = generateMidDrawablePoints()
+            draw(points: drawablePoints, clearGrayscaleTexture: false)
+        case .ended, .cancelled:
+            // when the gesture ends, we need to draw the end of the curve
+            let drawablePoints = generateLastDrawablePoints()
+            draw(points: drawablePoints, clearGrayscaleTexture: false)
+        default: break
+        }
+    }
     
-    func draw(points: [DrawablePoint]) {
+    func draw(points: [DrawablePoint], clearGrayscaleTexture: Bool) {
         guard !points.isEmpty else { return }
         
-        drawGrayscalePoints(points)
+        drawGrayscalePoints(points, clearBackground: clearGrayscaleTexture)
         colorizeGrayscaleTexture()
         updateDrawingTexture()
         mergeLayers(usingDrawingTexture: true)

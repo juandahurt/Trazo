@@ -10,6 +10,7 @@ import UIKit
 @MainActor
 protocol PencilGestureRecognizerDelegate: AnyObject {
     func didReceiveEstimatedTouches(_ touches: Set<UITouch>)
+    func didReceiveActualTouches(_ touches: Set<UITouch>)
 }
 
 class PencilGestureRecognizer: UIGestureRecognizer {
@@ -35,5 +36,9 @@ class PencilGestureRecognizer: UIGestureRecognizer {
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
         pencilGestureDelegate?.didReceiveEstimatedTouches(touches)
+    }
+    
+    override func touchesEstimatedPropertiesUpdated(_ touches: Set<UITouch>) {
+        pencilGestureDelegate?.didReceiveActualTouches(touches)
     }
 }

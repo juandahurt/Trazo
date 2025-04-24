@@ -41,7 +41,8 @@ public extension TrazoEngine {
         size: Float,
         transform: Mat4x4,
         projection: Mat4x4,
-        on grayscaleTexture: Texture
+        on grayscaleTexture: Texture,
+        clearingBackground: Bool
     ) {
         // TODO: create a struct for the gray points containg the location, size, etc.
         guard let commandBuffer else { return }
@@ -57,7 +58,8 @@ public extension TrazoEngine {
             on: grayscaleTexture.metalTexture,
             transform: transform,
             projection: projection,
-            using: commandBuffer
+            using: commandBuffer,
+            clearingBackground: clearingBackground
         )
     }
     
