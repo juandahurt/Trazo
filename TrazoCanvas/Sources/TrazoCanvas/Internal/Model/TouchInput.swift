@@ -16,6 +16,7 @@ struct TouchInput {
     var timestamp: TimeInterval
     var estimationUpdateIndex: NSNumber?
     var estimatedProperties: UITouch.Properties?
+    var force: Float
     var location: Vector2
     var phase: UITouch.Phase
 }

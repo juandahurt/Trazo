@@ -6,6 +6,7 @@
 //
 
 import MetalKit
+import TrazoCore
 
 @MainActor
 final class PipelinesStore {
@@ -50,7 +51,18 @@ final class PipelinesStore {
             descriptor.colorAttachments[0].destinationRGBBlendFactor = .one
             descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
             descriptor.colorAttachments[0].destinationAlphaBlendFactor = .one
-
+            
+            let vertexDescriptor = MTLVertexDescriptor()
+            vertexDescriptor.attributes[0].format = .float2
+            
+            vertexDescriptor.attributes[1].format = .float
+            vertexDescriptor.attributes[1].offset = MemoryLayout<Vector2>.stride
+            
+            vertexDescriptor
+                .layouts[0]
+                .stride = MemoryLayout<DrawablePoint>.stride
+            
+            descriptor.vertexDescriptor = vertexDescriptor
         }
         colorizePipeline = _makeComputePipelineState(usingFunctionNamed: "colorize")
         mergePipeline = _makeComputePipelineState(usingFunctionNamed: "merge_textures")

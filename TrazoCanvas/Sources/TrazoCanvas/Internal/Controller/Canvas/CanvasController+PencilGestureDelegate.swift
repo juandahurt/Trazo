@@ -21,10 +21,12 @@ extension CanvasController: PencilGestureRecognizerDelegate {
             timestamp: uiTouch.timestamp,
             estimationUpdateIndex: uiTouch.estimationUpdateIndex,
             estimatedProperties: uiTouch.estimatedProperties,
+            force: Float(uiTouch.force),
             location: uiTouch.locationRelativeToCenter(ofView: canvasView),
             phase: uiTouch.phase
         )
-        
+       
+        // TODO: clear current stroke when drawing using a finger after drawing with pencil
         if touch.phase == .began {
             clearCurrentStroke()
         }

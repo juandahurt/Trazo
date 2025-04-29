@@ -53,7 +53,6 @@ final class Renderer {
     static func drawGrayscalePoints(
         positionsBuffer: MTLBuffer,
         numPoints: Int,
-        pointSize: Float,
         on grayScaleTexture: MTLTexture,
         transform: Mat4x4,
         projection: Mat4x4,
@@ -93,12 +92,6 @@ final class Renderer {
             &projectionMatrix,
             length: MemoryLayout<Mat4x4>.stride,
             index: 2
-        )
-        var pointSizeCopy = pointSize
-        encoder?.setVertexBytes(
-            &pointSizeCopy,
-            length: MemoryLayout<Float>.stride,
-            index: 3
         )
         
         

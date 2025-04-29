@@ -17,6 +17,7 @@ extension CanvasController: FingerGestureRecognizerDelegate {
                 .init(
                     id: $0.hashValue,
                     timestamp: $0.timestamp,
+                    force: Float($0.force),
                     location: $0.locationRelativeToCenter(ofView: canvasView),
                     phase: $0.phase
                 )
