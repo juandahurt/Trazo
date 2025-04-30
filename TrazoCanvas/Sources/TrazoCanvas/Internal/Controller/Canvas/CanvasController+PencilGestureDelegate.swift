@@ -27,7 +27,9 @@ extension CanvasController: PencilGestureRecognizerDelegate {
         )
        
         // TODO: clear current stroke when drawing using a finger after drawing with pencil
-        if touch.phase == .began {
+        if touch.phase == .ended || touch.phase == .cancelled {
+            updateCurrentLayerWithDrawingTexture()
+            clearInputTextures()
             clearCurrentStroke()
         }
         
