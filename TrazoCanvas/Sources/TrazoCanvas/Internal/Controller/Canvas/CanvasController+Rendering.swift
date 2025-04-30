@@ -100,7 +100,7 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
    
-    func generateInitialDrawablePoints() -> [DrawablePoint] {
+    func generateInitialDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
         let numAnchorPoints = state.currentAnchorPoints.count
         guard numAnchorPoints > 3 else { return [] }
         
@@ -125,11 +125,12 @@ extension CanvasController {
                     p3: third
                 ),
                 scale: state.ctm.scale.x,
-                brushSize: state.brushSize
+                brushSize: state.brushSize,
+                ignoreForce: ignoringForce
             )
     }
     
-    func generateMidDrawablePoints() -> [DrawablePoint] {
+    func generateMidDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
         let numAnchorPoints = state.currentAnchorPoints.count
         guard numAnchorPoints > 3 else { return [] }
         
@@ -146,11 +147,12 @@ extension CanvasController {
                 p3: state.currentAnchorPoints[i + 2].location
             ),
             scale: state.ctm.scale.x, // since the scale should be the same on any axis
-            brushSize: state.brushSize
+            brushSize: state.brushSize,
+            ignoreForce: ignoringForce
         )
     }
    
-    func generateLastDrawablePoints() -> [DrawablePoint] {
+    func generateLastDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
         let numAnchorPoints = state.currentAnchorPoints.count
         guard numAnchorPoints > 3 else { return [] }
         
@@ -175,26 +177,29 @@ extension CanvasController {
                     p3: new
                 ),
                 scale: state.ctm.scale.x,
-                brushSize: state.brushSize
+                brushSize: state.brushSize,
+                ignoreForce: ignoringForce
             )
     }
    
-    func handleDrawing(_ touch: TouchInput) {
+    func handleDrawing(_ touch: TouchInput, ignoringForce: Bool) {
         state.currentAnchorPoints.append(touch)
         
         switch touch.phase {
         case .moved:
             // if we have thre points, we need to draw the initial part of the curve
             if state.currentAnchorPoints.count == 3 {
-                let drawablePoints = generateInitialDrawablePoints()
+                let drawablePoints = generateInitialDrawablePoints(
+                    ignoringForce: ignoringForce
+                )
                 draw(points: drawablePoints, clearGrayscaleTexture: false)
                 return
             }
-            let drawablePoints = generateMidDrawablePoints()
+            let drawablePoints = generateMidDrawablePoints(ignoringForce: ignoringForce)
             draw(points: drawablePoints, clearGrayscaleTexture: false)
         case .ended, .cancelled:
             // when the gesture ends, we need to draw the end of the curve
-            let drawablePoints = generateLastDrawablePoints()
+            let drawablePoints = generateLastDrawablePoints(ignoringForce: ignoringForce)
             draw(points: drawablePoints, clearGrayscaleTexture: false)
         default: break
         }

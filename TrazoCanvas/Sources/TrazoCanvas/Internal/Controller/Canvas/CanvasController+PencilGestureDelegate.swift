@@ -31,7 +31,7 @@ extension CanvasController: PencilGestureRecognizerDelegate {
             clearCurrentStroke()
         }
         
-        handleDrawing(touch)
+        handleDrawing(touch, ignoringForce: false)
     }
 }
 

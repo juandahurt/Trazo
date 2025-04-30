@@ -34,7 +34,7 @@ extension CanvasController: FingerTouchControllerDelegate {
     }
     
     func didDrawingGestureOccur(withTouch touch: TouchInput) {
-        handleDrawing(touch)
+        handleDrawing(touch, ignoringForce: true)
     }
     
     func didDrawingGestureEnd() {
