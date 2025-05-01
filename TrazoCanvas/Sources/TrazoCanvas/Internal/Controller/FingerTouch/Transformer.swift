@@ -76,10 +76,10 @@ class Transformer {
         // matrices
         let scaleMatrix = Mat4x4(scaledBy: [scale, scale, 1])
         
-        let rotationMatrix = Mat4x4(rotateZ: deltaAngle)
+        let rotationMatrix = Mat4x4(rotateZ: -deltaAngle)
         let adjustedTranslation = Mat4x4(rotateZ: accAngle) * [
             deltaTranslation.x,
-            deltaTranslation.y,
+            -deltaTranslation.y,
             0,
             1
         ]
@@ -92,7 +92,7 @@ class Transformer {
         )
         
         currentTransfrom = translationMatrix * rotationMatrix * scaleMatrix
-        currAngle = deltaAngle
+        currAngle = -deltaAngle
     }
     
     func reset() {

@@ -9,7 +9,10 @@ import MetalKit
 import TrazoEngine
 
 class CanvasView: MTKView {
-    init(fingerGestureDelegate: FingerGestureRecognizerDelegate) {
+    init(
+        fingerGestureDelegate: FingerGestureRecognizerDelegate,
+        pencilGestureDelegate: PencilGestureRecognizerDelegate
+    ) {
         // TODO: remove device creation from here
         guard let device = MTLCreateSystemDefaultDevice() else { fatalError("") }
         super.init(frame: .zero, device: device)
@@ -24,6 +27,10 @@ class CanvasView: MTKView {
         let fingerGesture = FingerGestureRecognizer()
         fingerGesture.fingerGestureDelegate = fingerGestureDelegate
         addGestureRecognizer(fingerGesture)
+        
+        let pencilGesture = PencilGestureRecognizer()
+        pencilGesture.pencilGestureDelegate = pencilGestureDelegate
+        addGestureRecognizer(pencilGesture)
     }
     
     required init(coder: NSCoder) {

@@ -16,7 +16,9 @@ extension CanvasController: FingerGestureRecognizerDelegate {
         fingerTouchController.handle(touches.map {
                 .init(
                     id: $0.hashValue,
-                    location: $0.location(inView: canvasView),
+                    timestamp: $0.timestamp,
+                    force: Float($0.force),
+                    location: $0.locationRelativeToCenter(ofView: canvasView),
                     phase: $0.phase
                 )
             }
@@ -32,42 +34,7 @@ extension CanvasController: FingerTouchControllerDelegate {
     }
     
     func didDrawingGestureOccur(withTouch touch: TouchInput) {
-        guard let canvasView else { return }
-        
-        // translate the location relative to the center of the canvas
-        let canvasSize = Vector2(
-            x: Float(canvasView.bounds.width),
-            y: Float(canvasView.bounds.height)
-        ) * Float(canvasView.contentScaleFactor)
-        var location = touch.location * Float(canvasView.contentScaleFactor)
-        location.x -= Float(canvasSize.x) / 2
-        location.y -= Float(canvasSize.y) / 2
-        location.y *= -1
-        
-        state.currentAnchorPoints.append(
-            .init(
-                id: touch.id,
-                location: location,
-                phase: touch.phase
-            )
-        )
-        
-        switch touch.phase {
-        case .moved:
-            // if we have thre points, we need to draw the initial part of the curve
-            if state.currentAnchorPoints.count == 3 {
-                let drawablePoints = generateInitialDrawablePoints()
-                draw(points: drawablePoints)
-                return
-            }
-            let drawablePoints = generateMidDrawablePoints()
-            draw(points: drawablePoints)
-        case .ended:
-            // when the gesture ends, we need to draw the end of the curve 
-            let drawablePoints = generateLastDrawablePoints()
-            draw(points: drawablePoints)
-        default: break
-        }
+        handleDrawing(touch, ignoringForce: true)
     }
     
     func didDrawingGestureEnd() {

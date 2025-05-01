@@ -88,95 +88,127 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
     
-    func drawGrayscalePoints(_ points: [DrawablePoint]) {
+    func drawGrayscalePoints(_ points: [DrawablePoint], clearBackground: Bool) {
         TrazoEngine.pushDebugGroup("Draw grayscale points")
         TrazoEngine.drawGrayscalePoints(
-            points.map { $0.position },
-            size: state.brushSize,
+            points,
             transform: state.ctm.inverse,
             projection: state.cpm,
-            on: state.grayscaleTexture
+            on: state.grayscaleTexture,
+            clearingBackground: clearBackground
         )
         TrazoEngine.popDebugGroup()
     }
    
-    func generateInitialDrawablePoints() -> [DrawablePoint] {
+    func generateInitialDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
         let numAnchorPoints = state.currentAnchorPoints.count
         guard numAnchorPoints > 3 else { return [] }
         
         // extend anchor points following the direction from the second to the first one
         let i = 0
-        let first = state.currentAnchorPoints[i].location
-        let second = state.currentAnchorPoints[i + 1].location
+        let first = state.currentAnchorPoints[i]
+        let second = state.currentAnchorPoints[i + 1]
         let third = state.currentAnchorPoints[i + 2].location
         
-        let dir = normalize(first - second)
+        let dir = normalize(first.location - second.location)
         
         let dist: Float = 5.0 // let's just say the new point will be located at 5 points
                               // from the last one
-        let new = first + (dir * dist)
+        let new = first.location + (dir * dist)
         
         return CatmullRom()
             .generateDrawablePoints(
                 anchorPoints: .init(
                     p0: new,
-                    p1: first,
-                    p2: second,
+                    p1: (location: first.location, force: first.force),
+                    p2: (location: second.location, force: first.force),
                     p3: third
                 ),
-                scale: state.ctm.scale.x
+                scale: state.ctm.scale.x,
+                brushSize: state.brushSize,
+                ignoreForce: ignoringForce
             )
     }
     
-    func generateMidDrawablePoints() -> [DrawablePoint] {
+    func generateMidDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
         let numAnchorPoints = state.currentAnchorPoints.count
         guard numAnchorPoints > 3 else { return [] }
         
         let i = numAnchorPoints - 3
         
+        let p1 = state.currentAnchorPoints[i]
+        let p2 = state.currentAnchorPoints[i + 1]
+        
         return CatmullRom().generateDrawablePoints(
             anchorPoints: .init(
                 p0: state.currentAnchorPoints[i - 1].location,
-                p1: state.currentAnchorPoints[i].location,
-                p2: state.currentAnchorPoints[i + 1].location,
+                p1: (location: p1.location, force: p1.force),
+                p2: (location: p2.location, force: p2.force),
                 p3: state.currentAnchorPoints[i + 2].location
             ),
-            scale: state.ctm.scale.x // since the scale should be the same on any axis
+            scale: state.ctm.scale.x, // since the scale should be the same on any axis
+            brushSize: state.brushSize,
+            ignoreForce: ignoringForce
         )
     }
    
-    func generateLastDrawablePoints() -> [DrawablePoint] {
+    func generateLastDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
         let numAnchorPoints = state.currentAnchorPoints.count
         guard numAnchorPoints > 3 else { return [] }
         
         // extend anchor points following the same direction
         let i = state.currentAnchorPoints.count - 2
         let beforeBeforeLast = state.currentAnchorPoints[i - 2].location
-        let beforeLast = state.currentAnchorPoints[i - 1].location
-        let last = state.currentAnchorPoints[i].location
+        let beforeLast = state.currentAnchorPoints[i - 1]
+        let last = state.currentAnchorPoints[i]
         
-        let dir = normalize(last - beforeLast)
+        let dir = normalize(last.location - beforeLast.location)
         
         let dist: Float = 5.0 // let's just say the new point will be located at 5 points
                               // from the last one
-        let new = last + (dir * dist)
+        let new = last.location + (dir * dist)
         
         return CatmullRom()
             .generateDrawablePoints(
                 anchorPoints: .init(
                     p0: beforeBeforeLast,
-                    p1: beforeLast,
-                    p2: last,
+                    p1: (location: beforeLast.location, force: beforeLast.force),
+                    p2: (location: last.location, force: last.force),
                     p3: new
                 ),
-                scale: state.ctm.scale.x
+                scale: state.ctm.scale.x,
+                brushSize: state.brushSize,
+                ignoreForce: ignoringForce
             )
     }
+   
+    func handleDrawing(_ touch: TouchInput, ignoringForce: Bool) {
+        state.currentAnchorPoints.append(touch)
+        
+        switch touch.phase {
+        case .moved:
+            // if we have thre points, we need to draw the initial part of the curve
+            if state.currentAnchorPoints.count == 3 {
+                let drawablePoints = generateInitialDrawablePoints(
+                    ignoringForce: ignoringForce
+                )
+                draw(points: drawablePoints, clearGrayscaleTexture: false)
+                return
+            }
+            let drawablePoints = generateMidDrawablePoints(ignoringForce: ignoringForce)
+            draw(points: drawablePoints, clearGrayscaleTexture: false)
+        case .ended, .cancelled:
+            // when the gesture ends, we need to draw the end of the curve
+            let drawablePoints = generateLastDrawablePoints(ignoringForce: ignoringForce)
+            draw(points: drawablePoints, clearGrayscaleTexture: false)
+        default: break
+        }
+    }
     
-    func draw(points: [DrawablePoint]) {
+    func draw(points: [DrawablePoint], clearGrayscaleTexture: Bool) {
         guard !points.isEmpty else { return }
         
-        drawGrayscalePoints(points)
+        drawGrayscalePoints(points, clearBackground: clearGrayscaleTexture)
         colorizeGrayscaleTexture()
         updateDrawingTexture()
         mergeLayers(usingDrawingTexture: true)

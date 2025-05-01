@@ -7,18 +7,20 @@
 
 import simd
 import TrazoCore
+import TrazoEngine
 
 class CatmullRom: CurveFittingAlgorithm {
     struct CatmullRomAnchorPoints {
         let p0: Vector2
-        let p1: Vector2
-        let p2: Vector2
+        let p1: (location: Vector2, force: Float)
+        let p2: (location: Vector2, force: Float)
         let p3: Vector2
     }
     
     struct Segment {
         let a, b, c, d: Vector2
         let pis: Int // points in segment
+        let initialForce, finalForce: Float
     }
     
     var alpha: Float = 0.5
@@ -34,16 +36,27 @@ class CatmullRom: CurveFittingAlgorithm {
             segment.c * t +
             segment.d
             
-            points.append(.init(position: newPointPos))
+            let rawSize = segment.initialForce + t * (
+                segment.finalForce - segment.initialForce
+            )
+            // points should have a size of at least 3 points
+            let size = max(rawSize, 3)
+            
+            points.append(.init(position: newPointPos, size: size))
         }
         
         return points
     }
     
-    private func generateSegment(anchorPoints: CatmullRomAnchorPoints, scale: Float) -> Segment {
+    private func generateSegment(
+        anchorPoints: CatmullRomAnchorPoints,
+        scale: Float,
+        brushSize: Float,
+        ignoreForce: Bool
+    ) -> Segment {
         let p0 = anchorPoints.p0
-        let p1 = anchorPoints.p1
-        let p2 = anchorPoints.p2
+        let p1 = anchorPoints.p1.location
+        let p2 = anchorPoints.p2.location
         let p3 = anchorPoints.p3
         
         let t0: Float = 0.0
@@ -67,12 +80,24 @@ class CatmullRom: CurveFittingAlgorithm {
             b: -3 * (p1 - p2) - m1 - m1 - m2,
             c: m1,
             d: p1,
-            pis: Int(distance(p1, p2) / scale)
+            pis: Int(distance(p1, p2) / scale),
+            initialForce: ignoreForce ? brushSize : anchorPoints.p1.force * brushSize,
+            finalForce: ignoreForce ? brushSize : anchorPoints.p2.force * brushSize
         )
     }
     
-    func generateDrawablePoints(anchorPoints: CatmullRomAnchorPoints, scale: Float) -> [DrawablePoint] {
-        let segment = generateSegment(anchorPoints: anchorPoints, scale: scale)
+    func generateDrawablePoints(
+        anchorPoints: CatmullRomAnchorPoints,
+        scale: Float,
+        brushSize: Float,
+        ignoreForce: Bool
+    ) -> [DrawablePoint] {
+        let segment = generateSegment(
+            anchorPoints: anchorPoints,
+            scale: scale,
+            brushSize: brushSize,
+            ignoreForce: ignoreForce
+        )
         return generatePoints(forSegment: segment)
     }
 }

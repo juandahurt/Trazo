@@ -13,6 +13,10 @@ struct TouchInput {
     typealias ID = Int
     
     var id: ID
+    var timestamp: TimeInterval
+    var estimationUpdateIndex: NSNumber?
+    var estimatedProperties: UITouch.Properties?
+    var force: Float
     var location: Vector2
     var phase: UITouch.Phase
 }
