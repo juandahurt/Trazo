@@ -48,7 +48,7 @@ class CatmullRom: CurveFittingAlgorithm {
         return points
     }
     
-    private func generateSegment(
+    private func generateCatmullRomSegment(
         anchorPoints: CatmullRomAnchorPoints,
         scale: Float,
         brushSize: Float,
@@ -86,18 +86,20 @@ class CatmullRom: CurveFittingAlgorithm {
         )
     }
     
-    func generateDrawablePoints(
+    func generateDrawableSegment(
         anchorPoints: CatmullRomAnchorPoints,
         scale: Float,
         brushSize: Float,
         ignoreForce: Bool
-    ) -> [DrawablePoint] {
-        let segment = generateSegment(
+    ) -> DrawableSegment {
+        let segment = generateCatmullRomSegment(
             anchorPoints: anchorPoints,
             scale: scale,
             brushSize: brushSize,
             ignoreForce: ignoreForce
         )
-        return generatePoints(forSegment: segment)
+        let points = generatePoints(forSegment: segment)
+        
+        return .init(points: points)
     }
 }

@@ -100,9 +100,9 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
    
-    func generateInitialDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
+    func generateInitalSegment(ignoringForce: Bool) -> DrawableSegment {
         let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return [] }
+        guard numAnchorPoints > 3 else { return .empty }
         
         // extend anchor points following the direction from the second to the first one
         let i = 0
@@ -117,7 +117,7 @@ extension CanvasController {
         let new = first.location + (dir * dist)
         
         return CatmullRom()
-            .generateDrawablePoints(
+            .generateDrawableSegment(
                 anchorPoints: .init(
                     p0: new,
                     p1: (location: first.location, force: first.force),
@@ -130,16 +130,16 @@ extension CanvasController {
             )
     }
     
-    func generateMidDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
+    func generateMidDrawableSegment(ignoringForce: Bool) -> DrawableSegment {
         let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return [] }
+        guard numAnchorPoints > 3 else { return .empty }
         
         let i = numAnchorPoints - 3
         
         let p1 = state.currentAnchorPoints[i]
         let p2 = state.currentAnchorPoints[i + 1]
         
-        return CatmullRom().generateDrawablePoints(
+        return CatmullRom().generateDrawableSegment(
             anchorPoints: .init(
                 p0: state.currentAnchorPoints[i - 1].location,
                 p1: (location: p1.location, force: p1.force),
@@ -152,9 +152,9 @@ extension CanvasController {
         )
     }
    
-    func generateLastDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
+    func generateLastDrawableSegment(ignoringForce: Bool) -> DrawableSegment {
         let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return [] }
+        guard numAnchorPoints > 3 else { return .empty }
         
         // extend anchor points following the same direction
         let i = state.currentAnchorPoints.count - 2
@@ -169,7 +169,7 @@ extension CanvasController {
         let new = last.location + (dir * dist)
         
         return CatmullRom()
-            .generateDrawablePoints(
+            .generateDrawableSegment(
                 anchorPoints: .init(
                     p0: beforeBeforeLast,
                     p1: (location: beforeLast.location, force: beforeLast.force),
@@ -189,18 +189,18 @@ extension CanvasController {
         case .moved:
             // if we have thre points, we need to draw the initial part of the curve
             if state.currentAnchorPoints.count == 3 {
-                let drawablePoints = generateInitialDrawablePoints(
+                let segment = generateInitalSegment(
                     ignoringForce: ignoringForce
                 )
-                draw(points: drawablePoints, clearGrayscaleTexture: false)
+                draw(points: segment.points, clearGrayscaleTexture: false)
                 return
             }
-            let drawablePoints = generateMidDrawablePoints(ignoringForce: ignoringForce)
-            draw(points: drawablePoints, clearGrayscaleTexture: false)
+            let segment = generateMidDrawableSegment(ignoringForce: ignoringForce)
+            draw(points: segment.points, clearGrayscaleTexture: false)
         case .ended, .cancelled:
             // when the gesture ends, we need to draw the end of the curve
-            let drawablePoints = generateLastDrawablePoints(ignoringForce: ignoringForce)
-            draw(points: drawablePoints, clearGrayscaleTexture: false)
+            let segment = generateLastDrawableSegment(ignoringForce: ignoringForce)
+            draw(points: segment.points, clearGrayscaleTexture: false)
         default: break
         }
     }
