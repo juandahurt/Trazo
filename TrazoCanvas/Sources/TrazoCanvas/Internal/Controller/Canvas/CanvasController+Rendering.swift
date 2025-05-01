@@ -12,7 +12,8 @@ import simd
 extension CanvasController {
     func clearCurrentStroke() {
         state.currentStroke = []
-        state.currentAnchorPoints = []
+        state.currentTouchInput = []
+        state.currentTouchInputCount = 0
     }
     
     func updateCurrentLayerWithDrawingTexture() {
@@ -101,14 +102,13 @@ extension CanvasController {
     }
    
     func generateInitalSegment(ignoringForce: Bool) -> DrawableSegment {
-        let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return .empty }
+        guard state.currentTouchInputCount > 3 else { return .empty }
         
         // extend anchor points following the direction from the second to the first one
         let i = 0
-        let first = state.currentAnchorPoints[i]
-        let second = state.currentAnchorPoints[i + 1]
-        let third = state.currentAnchorPoints[i + 2].location
+        let first = state.currentTouchInput[i]
+        let second = state.currentTouchInput[i + 1]
+        let third = state.currentTouchInput[i + 2].location
         
         let dir = normalize(first.location - second.location)
         
@@ -131,20 +131,19 @@ extension CanvasController {
     }
     
     func generateMidDrawableSegment(ignoringForce: Bool) -> DrawableSegment {
-        let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return .empty }
+        guard state.currentTouchInputCount > 3 else { return .empty }
         
-        let i = numAnchorPoints - 3
+        let i = state.currentTouchInputCount - 3
         
-        let p1 = state.currentAnchorPoints[i]
-        let p2 = state.currentAnchorPoints[i + 1]
+        let p1 = state.currentTouchInput[i]
+        let p2 = state.currentTouchInput[i + 1]
         
         return CatmullRom().generateDrawableSegment(
             anchorPoints: .init(
-                p0: state.currentAnchorPoints[i - 1].location,
+                p0: state.currentTouchInput[i - 1].location,
                 p1: (location: p1.location, force: p1.force),
                 p2: (location: p2.location, force: p2.force),
-                p3: state.currentAnchorPoints[i + 2].location
+                p3: state.currentTouchInput[i + 2].location
             ),
             scale: state.ctm.scale.x, // since the scale should be the same on any axis
             brushSize: state.brushSize,
@@ -153,14 +152,13 @@ extension CanvasController {
     }
    
     func generateLastDrawableSegment(ignoringForce: Bool) -> DrawableSegment {
-        let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return .empty }
+        guard state.currentTouchInputCount > 3 else { return .empty }
         
         // extend anchor points following the same direction
-        let i = state.currentAnchorPoints.count - 2
-        let beforeBeforeLast = state.currentAnchorPoints[i - 2].location
-        let beforeLast = state.currentAnchorPoints[i - 1]
-        let last = state.currentAnchorPoints[i]
+        let i = state.currentTouchInput.count - 2
+        let beforeBeforeLast = state.currentTouchInput[i - 2].location
+        let beforeLast = state.currentTouchInput[i - 1]
+        let last = state.currentTouchInput[i]
         
         let dir = normalize(last.location - beforeLast.location)
         
@@ -183,12 +181,13 @@ extension CanvasController {
     }
    
     func handleDrawing(_ touch: TouchInput, ignoringForce: Bool) {
-        state.currentAnchorPoints.append(touch)
+        state.currentTouchInput.append(touch)
+        state.currentTouchInputCount += 1
         
         switch touch.phase {
         case .moved:
             // if we have thre points, we need to draw the initial part of the curve
-            if state.currentAnchorPoints.count == 3 {
+            if state.currentTouchInputCount == 3 {
                 let segment = generateInitalSegment(
                     ignoringForce: ignoringForce
                 )

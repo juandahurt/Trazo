@@ -20,7 +20,8 @@ struct CanvasState {
     /// Current layer index.
     var currentLayerIndex = -1
    
-    var currentAnchorPoints: [TouchInput] = []
+    var currentTouchInput: [TouchInput] = []
+    var currentTouchInputCount = 0
     var currentStroke: [DrawablePoint] = []
     
     // MARK: textures
