@@ -26,8 +26,9 @@ class CatmullRom: CurveFittingAlgorithm {
     var alpha: Float = 0.5
     var tension: Float = 0.0
     
-    private func generatePoints(forSegment segment: Segment) -> [DrawablePoint] {
+    private func generatePoints(forSegment segment: Segment) -> ([DrawablePoint], Int) {
         var points: [DrawablePoint] = []
+        var pointsCount = 0
         
         for i in 0..<segment.pis {
             let t = Float(i) / Float(segment.pis)
@@ -43,9 +44,10 @@ class CatmullRom: CurveFittingAlgorithm {
             let size = max(rawSize, 3)
             
             points.append(.init(position: newPointPos, size: size))
+            pointsCount += 1
         }
         
-        return points
+        return (points, pointsCount) // (points array, number of points)
     }
     
     private func generateCatmullRomSegment(
@@ -100,6 +102,6 @@ class CatmullRom: CurveFittingAlgorithm {
         )
         let points = generatePoints(forSegment: segment)
         
-        return .init(points: points)
+        return .init(pointsCount: points.1, points: points.0)
     }
 }

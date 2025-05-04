@@ -89,10 +89,15 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
     
-    func drawGrayscalePoints(_ points: [DrawablePoint], clearBackground: Bool) {
+    func drawGrayscalePoints(
+        _ points: [DrawablePoint],
+        numPoints: Int,
+        clearBackground: Bool
+    ) {
         TrazoEngine.pushDebugGroup("Draw grayscale points")
         TrazoEngine.drawGrayscalePoints(
             points,
+            numPoints: numPoints,
             transform: state.ctm.inverse,
             projection: state.cpm,
             on: state.grayscaleTexture,
@@ -191,23 +196,39 @@ extension CanvasController {
                 let segment = generateInitalSegment(
                     ignoringForce: ignoringForce
                 )
-                draw(points: segment.points, clearGrayscaleTexture: false)
+                draw(
+                    points: segment.points,
+                    numPoints: segment.pointsCount,
+                    clearGrayscaleTexture: false
+                )
                 return
             }
             let segment = generateMidDrawableSegment(ignoringForce: ignoringForce)
-            draw(points: segment.points, clearGrayscaleTexture: false)
+            draw(
+                points: segment.points,
+                numPoints: segment.pointsCount,
+                clearGrayscaleTexture: false
+            )
         case .ended, .cancelled:
             // when the gesture ends, we need to draw the end of the curve
             let segment = generateLastDrawableSegment(ignoringForce: ignoringForce)
-            draw(points: segment.points, clearGrayscaleTexture: false)
+            draw(
+                points: segment.points,
+                numPoints: segment.pointsCount,
+                clearGrayscaleTexture: false
+            )
         default: break
         }
     }
     
-    func draw(points: [DrawablePoint], clearGrayscaleTexture: Bool) {
+    func draw(points: [DrawablePoint], numPoints: Int, clearGrayscaleTexture: Bool) {
         guard !points.isEmpty else { return }
         
-        drawGrayscalePoints(points, clearBackground: clearGrayscaleTexture)
+        drawGrayscalePoints(
+            points,
+            numPoints: numPoints,
+            clearBackground: clearGrayscaleTexture
+        )
         colorizeGrayscaleTexture()
         updateDrawingTexture()
         mergeLayers(usingDrawingTexture: true)

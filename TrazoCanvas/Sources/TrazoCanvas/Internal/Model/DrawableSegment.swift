@@ -8,9 +8,10 @@
 import TrazoEngine
 
 struct DrawableSegment {
+    var pointsCount: Int
     var points: [DrawablePoint]
 }
 
 extension DrawableSegment {
-    static var empty: DrawableSegment { DrawableSegment(points: []) }
+    static var empty: DrawableSegment { DrawableSegment(pointsCount: 0, points: []) }
 }
