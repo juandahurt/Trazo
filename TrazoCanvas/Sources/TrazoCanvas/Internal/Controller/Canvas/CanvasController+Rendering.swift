@@ -8,12 +8,15 @@
 import TrazoCore
 import TrazoEngine
 import simd
+import Foundation
 
 extension CanvasController {
     func clearCurrentStroke() {
-        state.currentStroke = []
+        state.currentDrawableSegments = []
         state.currentTouchInputs = []
         state.currentTouchInputCount = 0
+        state.currentDrawablePointCount = 0
+        state.currentDrawableSegmentCount = 0
     }
     
     func updateCurrentLayerWithDrawingTexture() {
@@ -160,7 +163,7 @@ extension CanvasController {
         guard state.currentTouchInputCount > 3 else { return .empty }
         
         // extend anchor points following the same direction
-        let i = state.currentTouchInputs.count - 2
+        let i = state.currentTouchInputs.count - 1
         let beforeBeforeLast = state.currentTouchInputs[i - 2].location
         let beforeLast = state.currentTouchInputs[i - 1]
         let last = state.currentTouchInputs[i]
@@ -201,22 +204,38 @@ extension CanvasController {
                     numPoints: segment.pointsCount,
                     clearGrayscaleTexture: false
                 )
-                return
+                state.currentDrawableSegments.append(segment)
+                state.currentDrawablePointCount += segment.pointsCount
+            } else if state.currentTouchInputCount > 3 {
+                let segment = generateMidDrawableSegment(ignoringForce: ignoringForce)
+                draw(
+                    points: segment.points,
+                    numPoints: segment.pointsCount,
+                    clearGrayscaleTexture: false
+                )
+                state.currentDrawableSegments.append(segment)
+                state.currentDrawablePointCount += segment.pointsCount
             }
+        case .ended, .cancelled:
+            // on the last input, we need to draw the missing segment
+            // plus the last segment
             let segment = generateMidDrawableSegment(ignoringForce: ignoringForce)
             draw(
                 points: segment.points,
                 numPoints: segment.pointsCount,
                 clearGrayscaleTexture: false
             )
-        case .ended, .cancelled:
-            // when the gesture ends, we need to draw the end of the curve
-            let segment = generateLastDrawableSegment(ignoringForce: ignoringForce)
+            state.currentDrawableSegments.append(segment)
+            state.currentDrawablePointCount += segment.pointsCount
+            
+            let lastSegment = generateLastDrawableSegment(ignoringForce: ignoringForce)
             draw(
-                points: segment.points,
-                numPoints: segment.pointsCount,
+                points: lastSegment.points,
+                numPoints: lastSegment.pointsCount,
                 clearGrayscaleTexture: false
             )
+            state.currentDrawableSegments.append(lastSegment)
+            state.currentDrawablePointCount += segment.pointsCount
         default: break
         }
     }

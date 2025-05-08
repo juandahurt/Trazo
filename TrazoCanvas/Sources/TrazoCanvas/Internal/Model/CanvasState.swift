@@ -5,6 +5,8 @@
 //  Created by Juan Hurtado on 21/03/25.
 //
 
+import Foundation
+
 import TrazoCore
 import TrazoEngine
 
@@ -22,7 +24,10 @@ struct CanvasState {
    
     var currentTouchInputs: [TouchInput] = []
     var currentTouchInputCount = 0
-    var currentStroke: [DrawablePoint] = []
+    var currentEstimatedTouchInput: [NSNumber: Int] = [:]
+    var currentDrawableSegments: [DrawableSegment] = []
+    var currentDrawablePointCount = 0
+    var currentDrawableSegmentCount = 0
     
     // MARK: textures
     /// Intermidiate representation of the final canvas texture.

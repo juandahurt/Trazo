@@ -22,6 +22,8 @@ class CatmullRom: CurveFittingAlgorithm {
         let pis: Int // points in segment
         let initialForce, finalForce: Float
     }
+   
+    let sizeCalculator = PointSizeCalculator()
     
     var alpha: Float = 0.5
     var tension: Float = 0.0
@@ -37,11 +39,11 @@ class CatmullRom: CurveFittingAlgorithm {
             segment.c * t +
             segment.d
             
-            let rawSize = segment.initialForce + t * (
-                segment.finalForce - segment.initialForce
+            let size = PointSizeCalculator().sizeOfPoint(
+                v0: segment.initialForce,
+                v1: segment.finalForce,
+                t: t
             )
-            // points should have a size of at least 3 points
-            let size = max(rawSize, 3)
             
             points.append(.init(position: newPointPos, size: size))
             pointsCount += 1
