@@ -235,7 +235,7 @@ extension CanvasController {
                 clearGrayscaleTexture: false
             )
             state.currentDrawableSegments.append(lastSegment)
-            state.currentDrawablePointCount += segment.pointsCount
+            state.currentDrawablePointCount += lastSegment.pointsCount
         default: break
         }
     }
