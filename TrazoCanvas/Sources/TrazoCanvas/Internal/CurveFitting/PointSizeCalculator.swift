@@ -11,7 +11,7 @@ class PointSizeCalculator {
     func sizeOfPoint(v0: Float, v1: Float, t: Float) -> Float {
         let rawSize = v0 + t * (v1 - v0)
         // points should have a size of at least 3 points
-        return max(rawSize, 3)
+        return max(rawSize, 2)
     }
     
     func updateSizes(

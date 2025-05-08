@@ -205,6 +205,7 @@ extension CanvasController {
                     clearGrayscaleTexture: false
                 )
                 state.currentDrawableSegments.append(segment)
+                state.currentDrawableSegmentCount += 1
                 state.currentDrawablePointCount += segment.pointsCount
             } else if state.currentTouchInputCount > 3 {
                 let segment = generateMidDrawableSegment(ignoringForce: ignoringForce)
@@ -214,6 +215,7 @@ extension CanvasController {
                     clearGrayscaleTexture: false
                 )
                 state.currentDrawableSegments.append(segment)
+                state.currentDrawableSegmentCount += 1
                 state.currentDrawablePointCount += segment.pointsCount
             }
         case .ended, .cancelled:
@@ -226,6 +228,7 @@ extension CanvasController {
                 clearGrayscaleTexture: false
             )
             state.currentDrawableSegments.append(segment)
+            state.currentDrawableSegmentCount += 1
             state.currentDrawablePointCount += segment.pointsCount
             
             let lastSegment = generateLastDrawableSegment(ignoringForce: ignoringForce)
@@ -235,6 +238,7 @@ extension CanvasController {
                 clearGrayscaleTexture: false
             )
             state.currentDrawableSegments.append(lastSegment)
+            state.currentDrawableSegmentCount += 1
             state.currentDrawablePointCount += lastSegment.pointsCount
         default: break
         }
