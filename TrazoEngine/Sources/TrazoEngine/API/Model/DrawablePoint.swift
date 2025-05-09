@@ -8,8 +8,8 @@
 import TrazoCore
 
 public struct DrawablePoint {
-    var position: Vector2
-    var size: Float
+    public var position: Vector2
+    public var size: Float
     
     public init(position: Vector2, size: Float) {
         self.position = position

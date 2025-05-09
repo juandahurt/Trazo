@@ -8,11 +8,16 @@
 import TrazoCore
 import TrazoEngine
 import simd
+import Foundation
 
 extension CanvasController {
     func clearCurrentStroke() {
-        state.currentStroke = []
-        state.currentAnchorPoints = []
+        state.currentDrawableSegments = []
+        state.currentTouchInputs = []
+        state.currentTouchInputCount = 0
+        state.currentDrawablePointCount = 0
+        state.currentDrawableSegmentCount = 0
+        state.currentEstimatedTouchInput = [:]
     }
     
     func updateCurrentLayerWithDrawingTexture() {
@@ -88,10 +93,15 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
     
-    func drawGrayscalePoints(_ points: [DrawablePoint], clearBackground: Bool) {
+    func drawGrayscalePoints(
+        _ points: [DrawablePoint],
+        numPoints: Int,
+        clearBackground: Bool
+    ) {
         TrazoEngine.pushDebugGroup("Draw grayscale points")
         TrazoEngine.drawGrayscalePoints(
             points,
+            numPoints: numPoints,
             transform: state.ctm.inverse,
             projection: state.cpm,
             on: state.grayscaleTexture,
@@ -100,15 +110,14 @@ extension CanvasController {
         TrazoEngine.popDebugGroup()
     }
    
-    func generateInitialDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
-        let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return [] }
+    func generateInitalSegment(ignoringForce: Bool) -> DrawableSegment {
+        guard state.currentTouchInputCount > 3 else { return .empty }
         
         // extend anchor points following the direction from the second to the first one
         let i = 0
-        let first = state.currentAnchorPoints[i]
-        let second = state.currentAnchorPoints[i + 1]
-        let third = state.currentAnchorPoints[i + 2].location
+        let first = state.currentTouchInputs[i]
+        let second = state.currentTouchInputs[i + 1]
+        let third = state.currentTouchInputs[i + 2].location
         
         let dir = normalize(first.location - second.location)
         
@@ -117,7 +126,7 @@ extension CanvasController {
         let new = first.location + (dir * dist)
         
         return CatmullRom()
-            .generateDrawablePoints(
+            .generateDrawableSegment(
                 anchorPoints: .init(
                     p0: new,
                     p1: (location: first.location, force: first.force),
@@ -130,21 +139,20 @@ extension CanvasController {
             )
     }
     
-    func generateMidDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
-        let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return [] }
+    func generateMidDrawableSegment(ignoringForce: Bool) -> DrawableSegment {
+        guard state.currentTouchInputCount > 3 else { return .empty }
         
-        let i = numAnchorPoints - 3
+        let i = state.currentTouchInputCount - 3
         
-        let p1 = state.currentAnchorPoints[i]
-        let p2 = state.currentAnchorPoints[i + 1]
+        let p1 = state.currentTouchInputs[i]
+        let p2 = state.currentTouchInputs[i + 1]
         
-        return CatmullRom().generateDrawablePoints(
+        return CatmullRom().generateDrawableSegment(
             anchorPoints: .init(
-                p0: state.currentAnchorPoints[i - 1].location,
+                p0: state.currentTouchInputs[i - 1].location,
                 p1: (location: p1.location, force: p1.force),
                 p2: (location: p2.location, force: p2.force),
-                p3: state.currentAnchorPoints[i + 2].location
+                p3: state.currentTouchInputs[i + 2].location
             ),
             scale: state.ctm.scale.x, // since the scale should be the same on any axis
             brushSize: state.brushSize,
@@ -152,15 +160,14 @@ extension CanvasController {
         )
     }
    
-    func generateLastDrawablePoints(ignoringForce: Bool) -> [DrawablePoint] {
-        let numAnchorPoints = state.currentAnchorPoints.count
-        guard numAnchorPoints > 3 else { return [] }
+    func generateLastDrawableSegment(ignoringForce: Bool) -> DrawableSegment {
+        guard state.currentTouchInputCount > 3 else { return .empty }
         
         // extend anchor points following the same direction
-        let i = state.currentAnchorPoints.count - 2
-        let beforeBeforeLast = state.currentAnchorPoints[i - 2].location
-        let beforeLast = state.currentAnchorPoints[i - 1]
-        let last = state.currentAnchorPoints[i]
+        let i = state.currentTouchInputs.count - 1
+        let beforeBeforeLast = state.currentTouchInputs[i - 2].location
+        let beforeLast = state.currentTouchInputs[i - 1]
+        let last = state.currentTouchInputs[i]
         
         let dir = normalize(last.location - beforeLast.location)
         
@@ -169,7 +176,7 @@ extension CanvasController {
         let new = last.location + (dir * dist)
         
         return CatmullRom()
-            .generateDrawablePoints(
+            .generateDrawableSegment(
                 anchorPoints: .init(
                     p0: beforeBeforeLast,
                     p1: (location: beforeLast.location, force: beforeLast.force),
@@ -183,32 +190,75 @@ extension CanvasController {
     }
    
     func handleDrawing(_ touch: TouchInput, ignoringForce: Bool) {
-        state.currentAnchorPoints.append(touch)
+        if touch.phase == .began && !state.currentTouchInputs.isEmpty {
+            updateCurrentLayerWithDrawingTexture()
+            clearInputTextures()
+            clearCurrentStroke()
+        }
+        
+        state.currentTouchInputs.append(touch)
+        state.currentTouchInputCount += 1
         
         switch touch.phase {
         case .moved:
             // if we have thre points, we need to draw the initial part of the curve
-            if state.currentAnchorPoints.count == 3 {
-                let drawablePoints = generateInitialDrawablePoints(
+            if state.currentTouchInputCount == 3 {
+                let segment = generateInitalSegment(
                     ignoringForce: ignoringForce
                 )
-                draw(points: drawablePoints, clearGrayscaleTexture: false)
-                return
+                draw(
+                    points: segment.points,
+                    numPoints: segment.pointsCount,
+                    clearGrayscaleTexture: false
+                )
+                state.currentDrawableSegments.append(segment)
+                state.currentDrawableSegmentCount += 1
+                state.currentDrawablePointCount += segment.pointsCount
+            } else if state.currentTouchInputCount > 3 {
+                let segment = generateMidDrawableSegment(ignoringForce: ignoringForce)
+                draw(
+                    points: segment.points,
+                    numPoints: segment.pointsCount,
+                    clearGrayscaleTexture: false
+                )
+                state.currentDrawableSegments.append(segment)
+                state.currentDrawableSegmentCount += 1
+                state.currentDrawablePointCount += segment.pointsCount
             }
-            let drawablePoints = generateMidDrawablePoints(ignoringForce: ignoringForce)
-            draw(points: drawablePoints, clearGrayscaleTexture: false)
         case .ended, .cancelled:
-            // when the gesture ends, we need to draw the end of the curve
-            let drawablePoints = generateLastDrawablePoints(ignoringForce: ignoringForce)
-            draw(points: drawablePoints, clearGrayscaleTexture: false)
+            // on the last input, we need to draw the missing segment
+            // plus the last segment
+            let segment = generateMidDrawableSegment(ignoringForce: ignoringForce)
+            draw(
+                points: segment.points,
+                numPoints: segment.pointsCount,
+                clearGrayscaleTexture: false
+            )
+            state.currentDrawableSegments.append(segment)
+            state.currentDrawableSegmentCount += 1
+            state.currentDrawablePointCount += segment.pointsCount
+            
+            let lastSegment = generateLastDrawableSegment(ignoringForce: ignoringForce)
+            draw(
+                points: lastSegment.points,
+                numPoints: lastSegment.pointsCount,
+                clearGrayscaleTexture: false
+            )
+            state.currentDrawableSegments.append(lastSegment)
+            state.currentDrawableSegmentCount += 1
+            state.currentDrawablePointCount += lastSegment.pointsCount
         default: break
         }
     }
     
-    func draw(points: [DrawablePoint], clearGrayscaleTexture: Bool) {
+    func draw(points: [DrawablePoint], numPoints: Int, clearGrayscaleTexture: Bool) {
         guard !points.isEmpty else { return }
         
-        drawGrayscalePoints(points, clearBackground: clearGrayscaleTexture)
+        drawGrayscalePoints(
+            points,
+            numPoints: numPoints,
+            clearBackground: clearGrayscaleTexture
+        )
         colorizeGrayscaleTexture()
         updateDrawingTexture()
         mergeLayers(usingDrawingTexture: true)

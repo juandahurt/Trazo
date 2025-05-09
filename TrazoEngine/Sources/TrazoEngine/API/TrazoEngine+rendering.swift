@@ -33,11 +33,13 @@ public extension TrazoEngine {
     /// Draws a set of grayscale points on a certain texture.
     /// - Parameters:
     ///   - points: Positions.
+    ///   - numPoints: Number of points.
     ///   - size: Point size.
     ///   - transform: Matrix that will be applied to every point.
     ///   - grayscaleTexture: The texture where the points will be drawn into.
     static func drawGrayscalePoints(
         _ points: [DrawablePoint],
+        numPoints: Int,
         transform: Mat4x4,
         projection: Mat4x4,
         on grayscaleTexture: Texture,
@@ -45,7 +47,6 @@ public extension TrazoEngine {
     ) {
         // TODO: create a struct for the gray points containg the location, size, etc.
         guard let commandBuffer else { return }
-        let numPoints = points.count
         guard let buffer = GPU.device.makeBuffer(
             bytes: points,
             length: MemoryLayout<DrawablePoint>.stride * numPoints

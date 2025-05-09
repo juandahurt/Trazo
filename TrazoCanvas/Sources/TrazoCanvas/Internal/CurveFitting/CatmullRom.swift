@@ -22,12 +22,15 @@ class CatmullRom: CurveFittingAlgorithm {
         let pis: Int // points in segment
         let initialForce, finalForce: Float
     }
+   
+    let sizeCalculator = PointSizeCalculator()
     
     var alpha: Float = 0.5
     var tension: Float = 0.0
     
-    private func generatePoints(forSegment segment: Segment) -> [DrawablePoint] {
+    private func generatePoints(forSegment segment: Segment) -> ([DrawablePoint], Int) {
         var points: [DrawablePoint] = []
+        var pointsCount = 0
         
         for i in 0..<segment.pis {
             let t = Float(i) / Float(segment.pis)
@@ -36,19 +39,20 @@ class CatmullRom: CurveFittingAlgorithm {
             segment.c * t +
             segment.d
             
-            let rawSize = segment.initialForce + t * (
-                segment.finalForce - segment.initialForce
+            let size = PointSizeCalculator().sizeOfPoint(
+                v0: segment.initialForce,
+                v1: segment.finalForce,
+                t: t
             )
-            // points should have a size of at least 3 points
-            let size = max(rawSize, 3)
             
             points.append(.init(position: newPointPos, size: size))
+            pointsCount += 1
         }
         
-        return points
+        return (points, pointsCount) // (points array, number of points)
     }
     
-    private func generateSegment(
+    private func generateCatmullRomSegment(
         anchorPoints: CatmullRomAnchorPoints,
         scale: Float,
         brushSize: Float,
@@ -86,18 +90,20 @@ class CatmullRom: CurveFittingAlgorithm {
         )
     }
     
-    func generateDrawablePoints(
+    func generateDrawableSegment(
         anchorPoints: CatmullRomAnchorPoints,
         scale: Float,
         brushSize: Float,
         ignoreForce: Bool
-    ) -> [DrawablePoint] {
-        let segment = generateSegment(
+    ) -> DrawableSegment {
+        let segment = generateCatmullRomSegment(
             anchorPoints: anchorPoints,
             scale: scale,
             brushSize: brushSize,
             ignoreForce: ignoreForce
         )
-        return generatePoints(forSegment: segment)
+        let points = generatePoints(forSegment: segment)
+        
+        return .init(pointsCount: points.1, points: points.0)
     }
 }

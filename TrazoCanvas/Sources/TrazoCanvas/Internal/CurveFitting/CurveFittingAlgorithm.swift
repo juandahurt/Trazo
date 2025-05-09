@@ -9,10 +9,10 @@ import TrazoEngine
 
 protocol CurveFittingAlgorithm {
     associatedtype AnchorPoints
-    func generateDrawablePoints(
+    func generateDrawableSegment(
         anchorPoints: AnchorPoints,
         scale: Float,
         brushSize: Float,
         ignoreForce: Bool
-    ) -> [DrawablePoint]
+    ) -> DrawableSegment
 }
