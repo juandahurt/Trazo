@@ -17,6 +17,7 @@ extension CanvasController {
         state.currentTouchInputCount = 0
         state.currentDrawablePointCount = 0
         state.currentDrawableSegmentCount = 0
+        state.currentEstimatedTouchInput = [:]
     }
     
     func updateCurrentLayerWithDrawingTexture() {
@@ -189,6 +190,12 @@ extension CanvasController {
     }
    
     func handleDrawing(_ touch: TouchInput, ignoringForce: Bool) {
+        if touch.phase == .began && !state.currentTouchInputs.isEmpty {
+            updateCurrentLayerWithDrawingTexture()
+            clearInputTextures()
+            clearCurrentStroke()
+        }
+        
         state.currentTouchInputs.append(touch)
         state.currentTouchInputCount += 1
         

@@ -71,15 +71,6 @@ extension CanvasController: PencilGestureRecognizerDelegate {
             phase: uiTouch.phase
         )
         
-        // TODO: clear current stroke when all of the estimated touches have been updated and
-        // TODO: we have received the last of the touches, aka. phase == .ended || .canceled
-        if touch.phase == .began {
-            updateCurrentLayerWithDrawingTexture()
-            clearInputTextures()
-            clearCurrentStroke()
-            state.currentEstimatedTouchInput.removeAll()
-        }
-        
         handleDrawing(touch, ignoringForce: false)
     
         guard
