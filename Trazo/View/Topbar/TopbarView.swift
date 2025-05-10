@@ -1,5 +1,5 @@
 //
-//  ToolbarView.swift
+//  TopBarView.swift
 //  Trazo
 //
 //  Created by Juan Hurtado on 5/04/25.
@@ -7,15 +7,15 @@
 
 import UIKit
 
-protocol ToolbarViewDelegate: AnyObject {
-    func toolbarViewDidRequestPresentingViewControllerForColorPicker(
-        _ toolbarView: ToolbarView
+protocol TopBarViewDelegate: AnyObject {
+    func topBarViewDidRequestPresentingViewControllerForColorPicker(
+        _ topBarView: TopBarView
     ) -> UIViewController
-    func toolbarView(_ toolbarView: ToolbarView, didSelect color: UIColor)
-    func toolbarViewDidSelectLayers(_ toolbarView: ToolbarView)
+    func topBarView(_ topBarView: TopBarView, didSelect color: UIColor)
+    func topBarViewDidSelectLayers(_ topBarView: TopBarView)
 }
 
-class ToolbarView: UIView {
+class TopBarView: UIView {
     private lazy var colorPreviewView: UIButton = {
         let preview = UIButton(frame: .zero)
         preview.addTarget(
@@ -66,7 +66,7 @@ class ToolbarView: UIView {
         return button
     }()
     
-    weak var delegate: ToolbarViewDelegate?
+    weak var delegate: TopBarViewDelegate?
     
     init() {
         super.init(frame: .zero)
@@ -96,7 +96,7 @@ class ToolbarView: UIView {
     @objc
     private func onColorPreviewTap() {
         guard
-            let viewController = delegate?.toolbarViewDidRequestPresentingViewControllerForColorPicker(self)
+            let viewController = delegate?.topBarViewDidRequestPresentingViewControllerForColorPicker(self)
         else {
             return
         }
@@ -109,23 +109,23 @@ class ToolbarView: UIView {
     
     @objc
     private func onLayersTap() {
-        delegate?.toolbarViewDidSelectLayers(self)
+        delegate?.topBarViewDidSelectLayers(self)
     }
 }
 
 // MARK: Color picker delegate
-extension ToolbarView: UIColorPickerViewControllerDelegate {
+extension TopBarView: UIColorPickerViewControllerDelegate {
     func colorPickerViewController(
         _ viewController: UIColorPickerViewController,
         didSelect color: UIColor,
         continuously: Bool
     ) {
         colorPreviewView.backgroundColor = color.withAlphaComponent(1)
-        delegate?.toolbarView(self, didSelect: color)
+        delegate?.topBarView(self, didSelect: color)
     }
 }
 
-extension ToolbarView {
+extension TopBarView {
     func setupItems() {
         setupCenterItems()
     }

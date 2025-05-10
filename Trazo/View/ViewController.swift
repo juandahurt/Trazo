@@ -13,7 +13,7 @@ class ViewController: UIViewController {
         true
     }
     
-    private var toolbarView = ToolbarView()
+    private var topBarView = TopBarView()
    
     private let layersViewController: LayersViewController
     private var viewModel: ViewModel
@@ -39,7 +39,7 @@ class ViewController: UIViewController {
     }
     
     private func setupSubviews() {
-        addToolbarView()
+        addTopBarView()
         addCanvasView()
         
         addBrushSizeSlider()
@@ -52,20 +52,20 @@ class ViewController: UIViewController {
         NSLayoutConstraint.activate([
             canvasView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             canvasView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            canvasView.topAnchor.constraint(equalTo: toolbarView.bottomAnchor),
+            canvasView.topAnchor.constraint(equalTo: topBarView.bottomAnchor),
             canvasView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }
     
-    func addToolbarView() {
-        toolbarView.delegate = self
-        view.addSubview(toolbarView)
+    func addTopBarView() {
+        topBarView.delegate = self
+        view.addSubview(topBarView)
         
         NSLayoutConstraint.activate([
-            view.topAnchor.constraint(equalTo: toolbarView.topAnchor),
-            view.leadingAnchor.constraint(equalTo: toolbarView.leadingAnchor),
-            view.trailingAnchor.constraint(equalTo: toolbarView.trailingAnchor),
-            toolbarView.heightAnchor.constraint(equalToConstant: 50)
+            view.topAnchor.constraint(equalTo: topBarView.topAnchor),
+            view.leadingAnchor.constraint(equalTo: topBarView.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: topBarView.trailingAnchor),
+            topBarView.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
     
@@ -95,21 +95,21 @@ class ViewController: UIViewController {
     }
 }
 
-extension ViewController: ToolbarViewDelegate {
-    func toolbarViewDidRequestPresentingViewControllerForColorPicker(
-        _ toolbarView: ToolbarView
+extension ViewController: TopBarViewDelegate {
+    func topBarViewDidRequestPresentingViewControllerForColorPicker(
+        _ topBarView: TopBarView
     ) -> UIViewController {
         self
     }
     
-    func toolbarView(_ toolbarView: ToolbarView, didSelect color: UIColor) {
+    func topBarView(_ TopBarView: TopBarView, didSelect color: UIColor) {
         viewModel.didSelectColor(color)
     }
     
-    func toolbarViewDidSelectLayers(_ toolbarView: ToolbarView) {
+    func topBarViewDidSelectLayers(_ TopBarView: TopBarView) {
         layersViewController.modalPresentationStyle = .popover
-        layersViewController.popoverPresentationController?.sourceRect = toolbarView.layersItemView.bounds
-        layersViewController.popoverPresentationController?.sourceView = toolbarView.layersItemView
+        layersViewController.popoverPresentationController?.sourceRect = TopBarView.layersItemView.bounds
+        layersViewController.popoverPresentationController?.sourceView = TopBarView.layersItemView
         present(layersViewController, animated: false)
     }
 }
