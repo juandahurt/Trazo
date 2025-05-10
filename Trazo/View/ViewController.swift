@@ -13,16 +13,6 @@ class ViewController: UIViewController {
         true
     }
     
-    private lazy var _brushSizeSliderView: UISlider = {
-        let slider = UISlider()
-        slider.translatesAutoresizingMaskIntoConstraints = false
-        slider.minimumValue = viewModel.minBrushSize
-        slider.maximumValue = viewModel.maxBrushSize
-        slider.value = viewModel.initialBrushSize
-        slider.addTarget(self, action: #selector(onBrushSizeSliderChange(_:)), for: .valueChanged)
-        return slider
-    }()
-    
     private var toolbarView = ToolbarView()
    
     private let layersViewController: LayersViewController
@@ -80,25 +70,28 @@ class ViewController: UIViewController {
     }
     
     func addBrushSizeSlider() {
-        view.addSubview(_brushSizeSliderView)
+        let slider = Slider()
+        slider.minimumValue = CGFloat(viewModel.minBrushSize)
+        slider.maximumValue = CGFloat(viewModel.maxBrushSize)
+        slider.initialValue = CGFloat(viewModel.initialBrushSize)
+        slider.addTarget(
+            self,
+            action: #selector(onBrushSizeSliderChange(_:)),
+            for: .valueChanged
+        )
+        view.addSubview(slider)
         
         NSLayoutConstraint.activate([
-            view.bottomAnchor.constraint(
-                equalTo: _brushSizeSliderView.bottomAnchor,
-                constant: 40
-            ),
-            view.centerXAnchor.constraint(
-                equalTo: _brushSizeSliderView.centerXAnchor
-            ),
-            _brushSizeSliderView.widthAnchor.constraint(
-                equalToConstant: 200
-            )
+            slider.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            slider.widthAnchor.constraint(equalToConstant: 45),
+            slider.heightAnchor.constraint(equalToConstant: 200),
+            slider.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
     
     @objc
-    func onBrushSizeSliderChange(_ sender: UISlider) {
-        viewModel.didBrushSizeChange(sender.value)
+    func onBrushSizeSliderChange(_ sender: Slider) {
+        viewModel.didBrushSizeChange(Float(sender.value))
     }
 }
 
