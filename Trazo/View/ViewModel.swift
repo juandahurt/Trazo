@@ -22,7 +22,7 @@ class ViewModel {
     private var canvas: TrazoCanvas
    
     private(set) var initialBrushColor: UIColor = .init(red: 0, green: 0, blue: 0, alpha: 1)
-    private(set) var initialBrushSize: Float = 5
+    private(set) var initialBrushSize: Float = 10
     private(set) var minBrushSize: Float = 3
     private(set) var maxBrushSize: Float = 30
     

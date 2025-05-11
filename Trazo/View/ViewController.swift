@@ -42,7 +42,8 @@ class ViewController: UIViewController {
         addTopBarView()
         addCanvasView()
         
-        addBrushSizeSlider()
+        setupToolbar()
+//        addBrushSizeSlider()
     }
    
     func addCanvasView() {
@@ -68,30 +69,28 @@ class ViewController: UIViewController {
             topBarView.heightAnchor.constraint(equalToConstant: 50)
         ])
     }
-    
-    func addBrushSizeSlider() {
-        let slider = Slider()
-        slider.minimumValue = CGFloat(viewModel.minBrushSize)
-        slider.maximumValue = CGFloat(viewModel.maxBrushSize)
-        slider.initialValue = CGFloat(viewModel.initialBrushSize)
-        slider.addTarget(
-            self,
-            action: #selector(onBrushSizeSliderChange(_:)),
-            for: .valueChanged
-        )
-        view.addSubview(slider)
+   
+    func setupToolbar() {
+        let toolbar = ToolbarView()
+        
+        view.addSubview(toolbar)
         
         NSLayoutConstraint.activate([
-            slider.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            slider.widthAnchor.constraint(equalToConstant: 45),
-            slider.heightAnchor.constraint(equalToConstant: 200),
-            slider.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            toolbar.widthAnchor.constraint(equalToConstant: 61),
+            toolbar.heightAnchor.constraint(equalToConstant: 230),
+            toolbar.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
-    }
-    
-    @objc
-    func onBrushSizeSliderChange(_ sender: Slider) {
-        viewModel.didBrushSizeChange(Float(sender.value))
+        
+        toolbar.addSliderAttribute(
+            withValue: CGFloat(viewModel.initialBrushSize),
+            minimumValue: CGFloat(viewModel.minBrushSize),
+            maximumValue: CGFloat(viewModel.maxBrushSize),
+            imageName: "circle.fill"
+        ) { [weak self] value in
+            guard let self else { return }
+            viewModel.didBrushSizeChange(Float(value))
+        }
     }
 }
 
