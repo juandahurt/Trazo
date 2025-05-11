@@ -13,6 +13,8 @@ class ToolbarView: UIView {
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
         stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.spacing = 10
+        stackView.distribution = .fillProportionally
         return stackView
     }()
     

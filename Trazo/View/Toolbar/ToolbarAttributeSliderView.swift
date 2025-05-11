@@ -40,7 +40,6 @@ class ToolbarAttributeSliderView: UIView {
     
     private func setup() {
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .black
         layer.cornerRadius = 4
         
         setupStackView()

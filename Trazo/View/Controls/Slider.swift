@@ -12,7 +12,7 @@ class Slider: UIControl {
     private let minimumValue: CGFloat
     private let maximumValue: CGFloat
     private(set) var value: CGFloat
-    private let cornerRadius: CGFloat = 14
+    private let cornerRadius: CGFloat = 6
     
     private var hasLayoutSubviewsOnce = false
     
@@ -51,9 +51,9 @@ class Slider: UIControl {
     private func setup() {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .init(
-            red: 0.137,
-            green: 0.137,
-            blue: 0.137,
+            red: 0.15,
+            green: 0.15,
+            blue: 0.15,
             alpha: 1
         )
         layer.cornerRadius = cornerRadius
@@ -89,7 +89,6 @@ class Slider: UIControl {
 extension Slider {
     private func updateHeightConstraint() {
         let t = (value - minimumValue) / (maximumValue - minimumValue)
-        print(t * bounds.height)
         progressViewHeightConstraint?.constant = t * bounds.height
         
         UIView.animate(withDuration: 0.1) { [weak self] in

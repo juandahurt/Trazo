@@ -43,7 +43,6 @@ class ViewController: UIViewController {
         addCanvasView()
         
         setupToolbar()
-//        addBrushSizeSlider()
     }
    
     func addCanvasView() {
@@ -77,8 +76,8 @@ class ViewController: UIViewController {
         
         NSLayoutConstraint.activate([
             toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            toolbar.widthAnchor.constraint(equalToConstant: 61),
-            toolbar.heightAnchor.constraint(equalToConstant: 230),
+            toolbar.widthAnchor.constraint(equalToConstant: 40),
+            toolbar.heightAnchor.constraint(equalToConstant: 450),
             toolbar.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
         
@@ -90,6 +89,16 @@ class ViewController: UIViewController {
         ) { [weak self] value in
             guard let self else { return }
             viewModel.didBrushSizeChange(Float(value))
+        }
+        
+        toolbar.addSliderAttribute(
+            withValue: 0.5,
+            minimumValue: 0,
+            maximumValue: 1,
+            imageName: "circle.tophalf.filled.inverse"
+        ) { [weak self] value in
+            guard let self else { return }
+//            viewModel.didBrushSizeChange(Float(value))
         }
     }
 }
