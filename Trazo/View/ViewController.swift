@@ -92,13 +92,13 @@ class ViewController: UIViewController {
         }
         
         toolbar.addSliderAttribute(
-            withValue: 0.5,
+            withValue: CGFloat(viewModel.initialBrushOpacity),
             minimumValue: 0,
             maximumValue: 1,
             imageName: "circle.tophalf.filled.inverse"
         ) { [weak self] value in
             guard let self else { return }
-//            viewModel.didBrushSizeChange(Float(value))
+            viewModel.didBrushOpacityChange(Float(value))
         }
     }
 }

@@ -25,13 +25,15 @@ class ViewModel {
     private(set) var initialBrushSize: Float = 10
     private(set) var minBrushSize: Float = 3
     private(set) var maxBrushSize: Float = 30
+    let initialBrushOpacity: Float = 1
     
     weak var observer: ViewModelObserver?
 
     init() {
         let canvasDescriptor = TrazoCanvasDescriptor(
             brushColor: initialBrushColor.toVector4(),
-            brushSize: initialBrushSize
+            brushSize: initialBrushSize,
+            brushOpacity: initialBrushOpacity
         )
         canvas = .init(descriptor: canvasDescriptor)
         canvas.delegate = self
@@ -53,6 +55,10 @@ class ViewModel {
     
     func didBrushSizeChange(_ value: Float) {
         canvas.setBrushSize(value)
+    }
+    
+    func didBrushOpacityChange(_ value: Float) {
+        canvas.setBrushOpacity(value)
     }
 }
 

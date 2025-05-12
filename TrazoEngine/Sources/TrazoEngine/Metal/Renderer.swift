@@ -53,6 +53,7 @@ final class Renderer {
     static func drawGrayscalePoints(
         positionsBuffer: MTLBuffer,
         numPoints: Int,
+        withOpacity opacity: Float,
         on grayScaleTexture: MTLTexture,
         transform: Mat4x4,
         projection: Mat4x4,
@@ -82,6 +83,7 @@ final class Renderer {
         
         var modelMatrix = transform
         var projectionMatrix = projection
+        var opacity = opacity
         
         encoder?.setVertexBytes(
             &modelMatrix,
@@ -93,7 +95,11 @@ final class Renderer {
             length: MemoryLayout<Mat4x4>.stride,
             index: 2
         )
-        
+        encoder?.setVertexBytes(
+            &opacity,
+            length: MemoryLayout<Float>.stride,
+            index: 3
+        )
         
         encoder?.drawPrimitives(
             type: .point,

@@ -102,6 +102,7 @@ class TopBarView: UIView {
         }
         let pickerViewController = UIColorPickerViewController()
         pickerViewController.modalPresentationStyle = .popover
+        pickerViewController.supportsAlpha = false
         pickerViewController.popoverPresentationController?.sourceView = colorPreviewView
         pickerViewController.delegate = self
         viewController.present(pickerViewController, animated: false)

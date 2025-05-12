@@ -10,9 +10,11 @@ import TrazoCore
 public struct TrazoCanvasDescriptor {
     var brushColor: Vector4
     var brushSize: Float
+    var brushOpacity: Float
     
-    public init(brushColor: Vector4, brushSize: Float) {
+    public init(brushColor: Vector4, brushSize: Float, brushOpacity: Float) {
         self.brushColor = brushColor
         self.brushSize = brushSize
+        self.brushOpacity = brushOpacity
     }
 }
