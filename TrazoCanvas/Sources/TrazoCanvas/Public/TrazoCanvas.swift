@@ -15,7 +15,8 @@ public class TrazoCanvas {
         
         let state = CanvasState(
             brushColor: descriptor.brushColor,
-            brushSize: descriptor.brushSize
+            brushSize: descriptor.brushSize,
+            brushOpacity: descriptor.brushOpacity
         )
         let canvasController = CanvasController(state: state)
         let canvasView = CanvasView(
@@ -52,5 +53,9 @@ public extension TrazoCanvas {
     
     func setCurrentLayer(_ index: Int) {
         controller?.setCurrentLayerIndex(index)
+    }
+    
+    func setBrushOpacity(_ value: Float) {
+        controller?.setBrushOpacity(value)
     }
 }

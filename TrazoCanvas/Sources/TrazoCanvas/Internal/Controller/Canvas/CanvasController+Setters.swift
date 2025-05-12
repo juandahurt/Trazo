@@ -45,4 +45,8 @@ extension CanvasController {
             currentLayerIndex: state.currentLayerIndex
         )
     }
+    
+    func setBrushOpacity(_ value: Float) {
+        state.brushOpacity = value
+    }
 }

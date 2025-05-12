@@ -8,19 +8,13 @@
 import UIKit
 
 class Slider: UIControl {
-    var initialValue: CGFloat = 0.0
-    var minimumValue: CGFloat = 0.0
-    var maximumValue: CGFloat = 1.0
-    private(set) var value: CGFloat = 0 {
-        didSet {
-            if value < minimumValue { value = minimumValue; return }
-            if value > maximumValue { value = maximumValue; return }
-            
-            updateHeightConstraint()
-            sendActions(for: .valueChanged)
-        }
-    }
-    private let cornerRadius: CGFloat = 14
+    private let initialValue: CGFloat
+    private let minimumValue: CGFloat
+    private let maximumValue: CGFloat
+    private(set) var value: CGFloat
+    private let cornerRadius: CGFloat = 6
+    
+    private var hasLayoutSubviewsOnce = false
     
     private lazy var progressView: UIView = {
         let view = UIView()
@@ -36,7 +30,16 @@ class Slider: UIControl {
     
     private var progressViewHeightConstraint: NSLayoutConstraint?
     
-    init() {
+    init(
+        value: CGFloat,
+        minimumValue: CGFloat,
+        maximumValue: CGFloat
+    ) {
+        initialValue = value
+        self.value = value
+        self.minimumValue = minimumValue
+        self.maximumValue = maximumValue
+        
         super.init(frame: .zero)
         setup()
     }
@@ -48,9 +51,9 @@ class Slider: UIControl {
     private func setup() {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .init(
-            red: 0.137,
-            green: 0.137,
-            blue: 0.137,
+            red: 0.15,
+            green: 0.15,
+            blue: 0.15,
             alpha: 1
         )
         layer.cornerRadius = cornerRadius
@@ -69,9 +72,16 @@ class Slider: UIControl {
         ])
         
         progressViewHeightConstraint = progressView.heightAnchor
-            .constraint(equalToConstant: 60)
+            .constraint(equalToConstant: 0)
         progressViewHeightConstraint?.isActive = true
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
         
+        guard !hasLayoutSubviewsOnce else { return }
+        hasLayoutSubviewsOnce = true
+        updateHeightConstraint()
     }
 }
 
@@ -101,6 +111,8 @@ extension Slider {
         let location = touch.location(in: self)
         
         updateValue(forLocation: location)
+        updateHeightConstraint()
+        sendActions(for: .valueChanged)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -108,5 +120,7 @@ extension Slider {
         let location = touch.location(in: self)
         
         updateValue(forLocation: location)
+        updateHeightConstraint()
+        sendActions(for: .valueChanged)
     }
 }

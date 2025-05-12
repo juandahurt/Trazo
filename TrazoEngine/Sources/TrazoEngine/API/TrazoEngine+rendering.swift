@@ -34,12 +34,14 @@ public extension TrazoEngine {
     /// - Parameters:
     ///   - points: Positions.
     ///   - numPoints: Number of points.
+    ///   - withOpacity: Opacity of the points.
     ///   - size: Point size.
     ///   - transform: Matrix that will be applied to every point.
     ///   - grayscaleTexture: The texture where the points will be drawn into.
     static func drawGrayscalePoints(
         _ points: [DrawablePoint],
         numPoints: Int,
+        withOpacity opacity: Float,
         transform: Mat4x4,
         projection: Mat4x4,
         on grayscaleTexture: Texture,
@@ -54,6 +56,7 @@ public extension TrazoEngine {
         Renderer.drawGrayscalePoints(
             positionsBuffer: buffer,
             numPoints: numPoints,
+            withOpacity: opacity,
             on: grayscaleTexture.metalTexture,
             transform: transform,
             projection: projection,

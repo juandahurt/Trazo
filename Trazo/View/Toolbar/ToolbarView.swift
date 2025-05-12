@@ -2,74 +2,25 @@
 //  ToolbarView.swift
 //  Trazo
 //
-//  Created by Juan Hurtado on 5/04/25.
+//  Created by apolo on 10/05/25.
 //
 
 import UIKit
 
-protocol ToolbarViewDelegate: AnyObject {
-    func toolbarViewDidRequestPresentingViewControllerForColorPicker(
-        _ toolbarView: ToolbarView
-    ) -> UIViewController
-    func toolbarView(_ toolbarView: ToolbarView, didSelect color: UIColor)
-    func toolbarViewDidSelectLayers(_ toolbarView: ToolbarView)
-}
-
 class ToolbarView: UIView {
-    private lazy var colorPreviewView: UIButton = {
-        let preview = UIButton(frame: .zero)
-        preview.addTarget(
-            self,
-            action: #selector(onColorPreviewTap),
-            for: .touchUpInside
-        )
-        preview.translatesAutoresizingMaskIntoConstraints = false
-        preview.layer.cornerRadius = 30 / 2
-        preview.backgroundColor = .blue
-        preview.layer.borderColor = .init(
-            red: 0.61,
-            green: 0.61,
-            blue: 0.61,
-            alpha: 1
-        )
-        preview.layer.borderWidth = 1.5
-        return preview
-    }()
-    
-    private let itemsCenterStackView: UIStackView = {
-        let stackView = UIStackView(frame: .zero)
+    private let stackView: UIStackView = {
+        let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.axis = .horizontal
-        stackView.distribution = .fill
-        stackView.spacing = 30
+        stackView.axis = .vertical
+        stackView.isLayoutMarginsRelativeArrangement = true
+        stackView.spacing = 10
+        stackView.distribution = .fillProportionally
         return stackView
     }()
     
-    lazy var layersItemView: UIButton = {
-        var config = UIButton.Configuration.plain()
-        config.image = UIImage(systemName: "square.2.layers.3d.fill")
-        config.contentInsets = .zero
-        config.imageColorTransformer = .init({ color in
-            .white
-        })
-
-        let button = UIButton(configuration: config)
-        button.translatesAutoresizingMaskIntoConstraints = false
-        button.tintColor = .white
-        button.addTarget(
-            self,
-            action: #selector(onLayersTap),
-            for: .touchUpInside
-        )
-        button.alpha = 1
-        
-        return button
-    }()
-    
-    weak var delegate: ToolbarViewDelegate?
-    
     init() {
         super.init(frame: .zero)
+        
         setup()
     }
 
@@ -79,74 +30,41 @@ class ToolbarView: UIView {
     
     private func setup() {
         translatesAutoresizingMaskIntoConstraints = false
+        layer.masksToBounds = true
+        layer.cornerRadius = 4
         backgroundColor = .init(
-            red: 0.11,
-            green: 0.11,
-            blue: 0.11,
+            red: 0.094,
+            green: 0.094,
+            blue: 0.094,
             alpha: 1
         )
         
-        setupItems()
+        setupStackView()
     }
     
-    // There's a memory leak when presenting this color picker, I tested it and it's not my fault.
-    // Some internal CGRetain or something like that doesn't release the CGColor obj... so,
-    // basically everty time you select a color you will leak 96 bytes of memory :)
-    // I will solve this, hopefully, when creating my own color picker
-    @objc
-    private func onColorPreviewTap() {
-        guard
-            let viewController = delegate?.toolbarViewDidRequestPresentingViewControllerForColorPicker(self)
-        else {
-            return
-        }
-        let pickerViewController = UIColorPickerViewController()
-        pickerViewController.modalPresentationStyle = .popover
-        pickerViewController.popoverPresentationController?.sourceView = colorPreviewView
-        pickerViewController.delegate = self
-        viewController.present(pickerViewController, animated: false)
-    }
-    
-    @objc
-    private func onLayersTap() {
-        delegate?.toolbarViewDidSelectLayers(self)
-    }
-}
-
-// MARK: Color picker delegate
-extension ToolbarView: UIColorPickerViewControllerDelegate {
-    func colorPickerViewController(
-        _ viewController: UIColorPickerViewController,
-        didSelect color: UIColor,
-        continuously: Bool
-    ) {
-        colorPreviewView.backgroundColor = color.withAlphaComponent(1)
-        delegate?.toolbarView(self, didSelect: color)
+    private func setupStackView() {
+        addSubview(stackView)
+        
+        stackView.makeEgdes(equalTo: self)
     }
 }
 
 extension ToolbarView {
-    func setupItems() {
-        setupCenterItems()
-    }
-    
-    func setupCenterItems() {
-        addSubview(itemsCenterStackView)
+    func addSliderAttribute(
+        withValue value: CGFloat,
+        minimumValue: CGFloat,
+        maximumValue: CGFloat,
+        imageName: String,
+        onValueChange: ((CGFloat) -> Void)?
+    ) {
+        let attributeSlider = ToolbarAttributeSliderView(
+            value: value,
+            minimumValue: minimumValue,
+            maximumValue: maximumValue,
+            imageName: imageName
+        )
+        attributeSlider.onValueChange = onValueChange
         
-        NSLayoutConstraint.activate([
-            itemsCenterStackView.topAnchor.constraint(equalTo: topAnchor, constant: 10),
-            itemsCenterStackView.bottomAnchor
-                .constraint(equalTo: bottomAnchor, constant: -10),
-            itemsCenterStackView.trailingAnchor
-                .constraint(equalTo: trailingAnchor, constant: -16)
-        ])
-        
-        itemsCenterStackView.addArrangedSubview(layersItemView)
-        itemsCenterStackView.addArrangedSubview(colorPreviewView)
-        
-        NSLayoutConstraint.activate([
-            colorPreviewView.widthAnchor.constraint(equalToConstant: 30),
-            layersItemView.widthAnchor.constraint(equalToConstant: 30)
-        ])
+        stackView.addArrangedSubview(attributeSlider)
     }
 }

@@ -102,6 +102,7 @@ extension CanvasController {
         TrazoEngine.drawGrayscalePoints(
             points,
             numPoints: numPoints,
+            withOpacity: state.brushOpacity,
             transform: state.ctm.inverse,
             projection: state.cpm,
             on: state.grayscaleTexture,

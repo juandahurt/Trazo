@@ -50,6 +50,7 @@ fragment float4 draw_texture_frag(TextureOuput data [[stage_in]],
 struct GrayScalePoint {
     float4 position [[position]];
     float pointSize [[point_size]];
+    float opacity;
 };
 
 struct DrawablePoint {
@@ -59,12 +60,14 @@ struct DrawablePoint {
 
 vertex GrayScalePoint gray_scale_point_vert(DrawablePoint point [[stage_in]],
                                             constant float4x4& modelMatrix [[buffer(1)]],
-                                            constant float4x4& projectionMatrix [[buffer(2)]])
+                                            constant float4x4& projectionMatrix [[buffer(2)]],
+                                            constant float& opacity [[buffer(3)]])
 {
     float4 position = projectionMatrix * modelMatrix * float4(point.position, 0, 1);
     return {
         .position = position,
-        .pointSize = point.size
+        .pointSize = point.size,
+        .opacity = opacity
     };
 }
 
@@ -76,10 +79,10 @@ fragment float4 gray_scale_point_frag(
     float2 center = float2(0.5, 0.5);
     float dist = distance(center, pointCoord);
     if (dist <= radius) {
-        return float4(1, 1, 1, 1);
+        return float4(1, 1, 1, 1) * pointData.opacity;
     }
     
-    float alpha = smoothstep(0.5, radius, dist);
+    float alpha = smoothstep(0.5, radius, dist) * pointData.opacity;
     return float4(alpha, alpha, alpha, alpha);
 }
 
