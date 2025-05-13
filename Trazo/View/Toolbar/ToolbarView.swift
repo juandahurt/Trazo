@@ -44,13 +44,6 @@ class ToolbarView: UIView {
         setupStackView()
     }
     
-    private func addBlur() {
-        let blur = UIBlurEffect(style: .systemMaterialDark)
-        let visualEffect = UIVisualEffectView(effect: blur)
-        visualEffect.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-        addSubview(visualEffect)
-    }
-    
     private func setupStackView() {
         addSubview(stackView)
         

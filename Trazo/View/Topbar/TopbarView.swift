@@ -83,9 +83,10 @@ class TopBarView: UIView {
             red: 0.11,
             green: 0.11,
             blue: 0.11,
-            alpha: 1
+            alpha: 0.5
         )
         
+        addBlur()
         setupItems()
     }
     
