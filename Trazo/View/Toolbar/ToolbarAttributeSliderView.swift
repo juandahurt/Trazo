@@ -86,10 +86,10 @@ class ToolbarAttributeSliderView: UIView {
         let imageView = UIImageView(image: image)
         imageView.contentMode = .scaleAspectFit
         imageView.tintColor = .init(
-            red: 0.2,
-            green: 0.2,
-            blue: 0.2,
-            alpha: 1
+            red: 0.639,
+            green: 0.639,
+            blue: 0.639,
+            alpha: 0.5
         )
         imageView.translatesAutoresizingMaskIntoConstraints = false
         imageView.setContentHuggingPriority(.required, for: .vertical)

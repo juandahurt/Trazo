@@ -23,7 +23,7 @@ class Slider: UIControl {
             red: 0.639,
             green: 0.639,
             blue: 0.639,
-            alpha: 1
+            alpha: 0.5
         )
         return view
     }()
@@ -50,12 +50,7 @@ class Slider: UIControl {
     
     private func setup() {
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .init(
-            red: 0.15,
-            green: 0.15,
-            blue: 0.15,
-            alpha: 1
-        )
+        backgroundColor = .black.withAlphaComponent(0.25)
         layer.cornerRadius = cornerRadius
         layer.masksToBounds = true
         
