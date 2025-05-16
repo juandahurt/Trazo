@@ -39,8 +39,8 @@ class ViewController: UIViewController {
     }
     
     private func setupSubviews() {
-        addTopBarView()
         addCanvasView()
+        addTopBarView()
         
         setupToolbar()
     }
@@ -52,7 +52,7 @@ class ViewController: UIViewController {
         NSLayoutConstraint.activate([
             canvasView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             canvasView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            canvasView.topAnchor.constraint(equalTo: topBarView.bottomAnchor),
+            canvasView.topAnchor.constraint(equalTo: view.topAnchor),
             canvasView.bottomAnchor.constraint(equalTo: view.bottomAnchor)
         ])
     }

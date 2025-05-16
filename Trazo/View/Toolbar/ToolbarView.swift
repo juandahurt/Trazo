@@ -29,6 +29,8 @@ class ToolbarView: UIView {
     }
     
     private func setup() {
+        addBlur()
+        
         translatesAutoresizingMaskIntoConstraints = false
         layer.masksToBounds = true
         layer.cornerRadius = 4
@@ -36,7 +38,7 @@ class ToolbarView: UIView {
             red: 0.094,
             green: 0.094,
             blue: 0.094,
-            alpha: 1
+            alpha: 0.3
         )
         
         setupStackView()
