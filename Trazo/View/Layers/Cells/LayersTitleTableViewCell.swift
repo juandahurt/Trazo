@@ -12,7 +12,6 @@ class LayersTitleTableViewCell: UITableViewCell {
     private let titleLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
-        label.text = "Layers"
         label.font = .systemFont(ofSize: 16, weight: .medium)
         label.textColor = .white
         return label
@@ -37,5 +36,9 @@ class LayersTitleTableViewCell: UITableViewCell {
                 .constraint(equalTo: contentView.leadingAnchor, constant: 16),
             titleLabel.centerYAnchor.constraint(equalTo: contentView.centerYAnchor)
         ])
+    }
+    
+    func setup(using item: LayerTitleItem) {
+        titleLabel.text = item.title
     }
 }

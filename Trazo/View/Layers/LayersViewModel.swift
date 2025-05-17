@@ -18,27 +18,13 @@ protocol LayersViewModelObserver: AnyObject {
 class LayersViewModel {
     weak var observer: LayersViewModelObserver?
     
-    private var isPresented = false
-    
-    private(set) var layers: [TrazoLayer] = []
-    private(set) var layerIndicesToBeUpdated: [Int] = []
+    private(set) var sections: [LayerSection] = []
     
     var layerUpdateSubject = PassthroughSubject<Int, Never>()
-    
-    func viewDidAppear() {
-        isPresented = true
-    }
-    
-    func viewDidDisappear() {
-        isPresented = false
-    }
+    var applySnapshotSubject = PassthroughSubject<Void, Never>()
     
     func intentToggleVisibilityOfLayer(atIndex index: Int) {
         observer?.didItentToggleVisibilityOfLayer(atIndex: index)
-    }
-    
-    func clearIndicesToBeUpdated() {
-        layerIndicesToBeUpdated.removeAll()
     }
     
     func selectLayer(atIndex index: Int) {
@@ -48,13 +34,30 @@ class LayersViewModel {
 
 extension LayersViewModel: ViewModelObserver {
     func didLoad(layers: [TrazoLayer]) {
-        self.layers = layers
+        sections = [
+            .init(items: [
+                LayerTitleItem(title: "Layers")
+            ]),
+            .init(
+                items: layers.map {
+                    LayerListItem(
+                        isVisible: $0.isVisible,
+                        isSelected: $0.isSelected,
+                        name: $0.title
+                    )
+                }
+            )
+        ]
     }
 
     func didUpdate(layer: TrazoLayer, atIndex index: Int) {
-        layers[index] = layer
-        // only notify the view controller to update the table view
-        // when it's in the view heirarchy
-        if isPresented { layerUpdateSubject.send(index) }
+        guard sections.count > 1 else { return }
+        let item = LayerListItem(
+            isVisible: layer.isVisible,
+            isSelected: layer.isSelected,
+            name: layer.title
+        )
+        sections[1].items[index] = item
+        applySnapshotSubject.send(())
     }
 }
