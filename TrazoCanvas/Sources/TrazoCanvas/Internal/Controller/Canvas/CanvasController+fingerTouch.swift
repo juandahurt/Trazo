@@ -40,10 +40,9 @@ extension CanvasController: FingerTouchControllerDelegate {
     func didDrawingGestureEnd() {
         // TODO: update layer using a timer
         delegate?
-            .didUpdateLayer(
-                currentLayer,
-                atIndex: state.currentLayerIndex,
-                currentLayerIndex: state.currentLayerIndex
+            .didUpdateTexture(
+                currentLayer.texture,
+                ofLayerAtIndex: state.currentLayerIndex
             )
     }
 }

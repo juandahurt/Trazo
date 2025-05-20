@@ -43,8 +43,7 @@ public class LayerThumbnailView: UIView {
         ])
     }
     
-    public func update(using layer: TrazoLayer) {
-        let cgImage = layer.layer.texture.cgImage()
-        imageView.image = UIImage(cgImage: cgImage)
+    public func update(using image: CGImage) {
+        imageView.image = UIImage(cgImage: image)
     }
 }

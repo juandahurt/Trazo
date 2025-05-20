@@ -9,10 +9,10 @@ import TrazoEngine
 import TrazoCore
 
 @MainActor
-class Layer {
+public class Layer {
     var title: String
     var isVisible = true
-    let texture: Texture
+    public let texture: Texture
     
     init(named title: String, size: Vector2, debubLabel: String? = nil) {
         self.title = title

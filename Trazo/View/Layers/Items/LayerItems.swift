@@ -6,16 +6,19 @@
 //
 
 import Foundation
+import CoreGraphics
 
 class LayerListItem: LayerItem {
-    let isVisible: Bool
-    let isSelected: Bool
+    var isVisible: Bool
+    var isSelected: Bool
     let name: String
+    var previewImage: CGImage
     
-    init(isVisible: Bool, isSelected: Bool, name: String) {
+    init(isVisible: Bool, isSelected: Bool, name: String, previewImage: CGImage) {
         self.isVisible = isVisible
         self.isSelected = isSelected
         self.name = name
+        self.previewImage = previewImage
     }
 }
 

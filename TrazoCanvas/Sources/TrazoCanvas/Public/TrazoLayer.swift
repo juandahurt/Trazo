@@ -9,7 +9,7 @@ import TrazoEngine
 
 @MainActor
 public class TrazoLayer {
-    var layer: Layer
+    public internal(set) var layer: Layer
     public var isVisible: Bool {
         layer.isVisible
     }

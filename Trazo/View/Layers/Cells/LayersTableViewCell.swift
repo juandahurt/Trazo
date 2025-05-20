@@ -133,6 +133,7 @@ class LayersTableViewCell: UITableViewCell {
         nameLabel.textColor = item.isSelected ? .white : .gray
         containerView.backgroundColor = item.isSelected ? selectedColor : unselectedColor
         updateVisibleButton(isVisible: item.isVisible)
+        layerThumbnailView.update(using: item.previewImage)
     }
     
     func updateVisibleButton(isVisible: Bool) {
