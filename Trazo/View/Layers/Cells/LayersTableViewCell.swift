@@ -69,6 +69,7 @@ class LayersTableViewCell: UITableViewCell {
     
     private func setup() {
         contentView.backgroundColor = unselectedColor
+        selectionStyle = .none
         
         setupContainerView()
         setupVisibleButton()
@@ -126,13 +127,13 @@ class LayersTableViewCell: UITableViewCell {
             nameLabel.centerYAnchor.constraint(equalTo: containerView.centerYAnchor)
         ])
     }
-    
-    func update(using layer: TrazoLayer) {
-        updateVisibleButton(isVisible: layer.isVisible)
-        layerThumbnailView.update(using: layer)
-        nameLabel.text = layer.title
-        nameLabel.textColor = layer.isSelected ? .white : .gray
-        containerView.backgroundColor = layer.isSelected ? selectedColor : unselectedColor
+   
+    func setup(using item: LayerListItem) {
+        nameLabel.text = item.name
+        nameLabel.textColor = item.isSelected ? .white : .gray
+        containerView.backgroundColor = item.isSelected ? selectedColor : unselectedColor
+        updateVisibleButton(isVisible: item.isVisible)
+        layerThumbnailView.update(using: item.previewImage)
     }
     
     func updateVisibleButton(isVisible: Bool) {

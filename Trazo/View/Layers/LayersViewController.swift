@@ -9,6 +9,9 @@ import Combine
 import UIKit
 import TrazoCanvas
 
+typealias DataSource = UITableViewDiffableDataSource<LayerSection, LayerItem>
+typealias Snapshot = NSDiffableDataSourceSnapshot<LayerSection, LayerItem>
+
 class LayersViewController: UIViewController {
     let viewModel: LayersViewModel
     var disposeBag = Set<AnyCancellable>()
@@ -24,6 +27,8 @@ class LayersViewController: UIViewController {
         tableView.translatesAutoresizingMaskIntoConstraints = false
         return tableView
     }()
+    
+    private lazy var dataSource: DataSource = makeDataSource()
     
     init(viewModel: LayersViewModel) {
         self.viewModel = viewModel
@@ -47,25 +52,63 @@ class LayersViewController: UIViewController {
     }
     
     override func viewWillAppear(_ animated: Bool) {
-        tableView.reloadData()
+        applySnapshot(viewModel.sections)
         view.layoutIfNeeded()
         preferredContentSize = tableView.contentSize
-        // TODO: find a way to prevent reloading all of the rows
     }
     
-    override func viewDidAppear(_ animated: Bool) {
-        viewModel.viewDidAppear()
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        viewModel.viewDidDisappear()
+    func makeDataSource() -> DataSource {
+        DataSource(tableView: tableView) { [weak self]
+            tableView,
+            indexPath,
+            itemIdentifier in
+            guard let self else { return UITableViewCell() }
+            
+            if let item = itemIdentifier as? LayerTitleItem {
+                guard
+                    let cell = tableView.dequeueReusableCell(
+                        withIdentifier: "titleCell"
+                    ) as? LayersTitleTableViewCell
+                else {
+                    return UITableViewCell()
+                }
+                cell.setup(using: item)
+                return cell
+            }
+            
+            guard
+                let cell = tableView.dequeueReusableCell(
+                    withIdentifier: "cell"
+                ) as? LayersTableViewCell,
+                let item = itemIdentifier as? LayerListItem
+            else {
+                return UITableViewCell()
+            }
+            
+            cell.setup(using: item)
+            cell.onVisibleButtonTap = { [weak self] in
+                guard let self else { return }
+                viewModel.intentToggleVisibilityOfLayer(atIndex: indexPath.row)
+            }
+            
+            return cell
+        }
     }
     
     func setupObservers() {
-        viewModel.layerUpdateSubject.sink { [weak self] index in
+        viewModel.applySnapshotSubject.sink { [weak self] _ in
             guard let self else { return }
-            tableView.reloadRows(at: [.init(row: index, section: 1)], with: .none)
+            applySnapshot(viewModel.sections)
         }.store(in: &disposeBag)
+    }
+   
+    func applySnapshot(_ sections: [LayerSection]) {
+        var snapshot = Snapshot()
+        snapshot.appendSections(sections)
+        for section in sections {
+            snapshot.appendItems(section.items, toSection: section)
+        }
+        dataSource.apply(snapshot, animatingDifferences: false)
     }
     
     func setupTableView() {
@@ -94,52 +137,10 @@ class LayersViewController: UIViewController {
             LayersTitleTableViewCell.self,
             forCellReuseIdentifier: "titleCell"
         )
-        tableView.dataSource = self
+        tableView.dataSource = dataSource
         tableView.delegate = self
     }
 }
-
-extension LayersViewController: UITableViewDataSource {
-    func numberOfSections(in tableView: UITableView) -> Int {
-        2
-    }
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        if section == 0 { return 1 }
-        return viewModel.layers.count
-    }
-
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        if indexPath.section == 0 {
-            guard
-                let cell = tableView.dequeueReusableCell(
-                    withIdentifier: "titleCell"
-                ) as? LayersTitleTableViewCell
-            else {
-                return UITableViewCell()
-            }
-            return cell
-        }
-        
-        guard
-            let cell = tableView.dequeueReusableCell(
-                withIdentifier: "cell"
-            ) as? LayersTableViewCell
-        else {
-            return UITableViewCell()
-        }
-        
-        cell.update(using: viewModel.layers[indexPath.row])
-        cell.selectionStyle = .none
-        cell.onVisibleButtonTap = { [weak self] in
-            guard let self else { return }
-            viewModel.intentToggleVisibilityOfLayer(atIndex: indexPath.row)
-        }
-        
-        return cell
-    }
-}
-
 
 extension LayersViewController: UITableViewDelegate {
     func tableView(_ tableView: UITableView, heightForRowAt indexPath: IndexPath) -> CGFloat {

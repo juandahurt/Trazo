@@ -9,11 +9,13 @@ import Combine
 import UIKit
 import TrazoCanvas
 import TrazoCore
+import TrazoEngine
 
 @MainActor
 protocol ViewModelObserver: AnyObject {
     func didLoad(layers: [TrazoLayer])
     func didUpdate(layer: TrazoLayer, atIndex index: Int)
+    func didUpdateTexture(_ texture: Texture, atIndex index: Int)
 }
 
 @MainActor
@@ -76,6 +78,14 @@ extension ViewModel: TrazoCanvasDelegate {
         atIndex index: Int
     ) {
         observer?.didUpdate(layer: layer, atIndex: index)
+    }
+    
+    func canvas(
+        _ canvas: TrazoCanvas,
+        didUpdateTexture texture: Texture,
+        ofLayerAtIndex index: Int
+    ) {
+        observer?.didUpdateTexture(texture, atIndex: index)
     }
 }
 

@@ -13,6 +13,7 @@ import UIKit
 protocol CanvasControllerDelegate: AnyObject {
     func didLoadLayers(_ layers: [Layer], currentLayerIndex: Int)
     func didUpdateLayer(_ layer: Layer, atIndex index: Int, currentLayerIndex: Int)
+    func didUpdateTexture(_ texture: Texture, ofLayerAtIndex index: Int)
 }
 
 @MainActor
