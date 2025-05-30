@@ -11,7 +11,6 @@ struct TGPipelinesManagerTests {
         manager.load()
         let end = Date()
         let duration = end.timeIntervalSince(start)
-        print(duration)
         #expect(duration < 1)
         
         let loadedComputePipelinesCount = manager.computePipelineStates.count
