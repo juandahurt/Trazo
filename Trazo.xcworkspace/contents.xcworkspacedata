@@ -13,4 +13,7 @@
    <FileRef
       location = "group:TrazoCore">
    </FileRef>
+   <FileRef
+      location = "container:Modules/TGraphics">
+   </FileRef>
 </Workspace>
