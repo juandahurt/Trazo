@@ -1,16 +1,13 @@
-//
-//  TGTextureManager.swift
-//  TGraphics
-//
-//  Created by Juan Hurtado on 30/05/25.
-//
-
 import Metal
 import simd
 
-public class TGTextureManager {
+class TGTextureManager {
     private var textureMap: [Int: MTLTexture] = [:]
     private var currentId = -1
+   
+    func texture(byId id: Int) -> MTLTexture? {
+        textureMap[id]
+    }
     
     func makeTexture(ofSize size: simd_long2, label: String? = nil) -> Int? {
         currentId += 1
