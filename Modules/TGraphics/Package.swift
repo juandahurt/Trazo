@@ -5,7 +5,7 @@ import PackageDescription
 
 let package = Package(
     name: "TGraphics",
-    platforms: [.iOS(.v16)],
+    platforms: [.iOS(.v16), .macOS(.v13)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
@@ -19,6 +19,7 @@ let package = Package(
             name: "TGraphics", resources: [
                 .process("Textures.metal")
             ]),
-
+        .testTarget(name: "TGraphicsTests",
+                    dependencies: [.byName(name: "TGraphics")])
     ]
 )

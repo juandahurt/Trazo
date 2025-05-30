@@ -7,36 +7,42 @@ class TGPipelinesManager {
         case merge = "merge_textures"
     }
     
-    private var computePipelineStates: [TGComputePipelineType: MTLComputePipelineState] = [:]
-    private let dispatchGourp = DispatchGroup()
+    var computePipelineStates = Array<MTLComputePipelineState?>(
+        repeating: nil,
+        count: TGComputePipelineType.allCases.count
+    )
+    private let dispatchGroup = DispatchGroup()
     
-    init() {
-        // load pipeline states in parallel
-        for type in TGComputePipelineType.allCases {
-            dispatchGourp.enter()
-            makeComputePipelineState(usingFunctionNamed: type.rawValue) { pipelineState in
-                computePipelineStates[type] = pipelineState
-                dispatchGourp.leave()
+    func load() {
+        for index in TGComputePipelineType.allCases.indices {
+            dispatchGroup.enter()
+            makeComputePipelineState(
+                usingFunctionNamed: TGComputePipelineType.allCases[index].rawValue
+            ) { [weak self] in
+                guard let self else { return }
+                self.computePipelineStates[index] = $0
+                self.dispatchGroup.leave()
             }
         }
+        dispatchGroup.wait()
     }
     
     private func makeComputePipelineState(
         usingFunctionNamed functionName: String,
-        completionHandler: (MTLComputePipelineState) -> Void
+        completion: @escaping (MTLComputePipelineState) -> Void
     ) {
         let library = TGDevice.defaultLibrary
         guard let function = library.makeFunction(name: functionName) else {
             fatalError("Function \(functionName) not found in library.")
         }
-        do {
-            let pipelineState = try TGDevice.device.makeComputePipelineState(
-                function: function
-            )
-            completionHandler(pipelineState)
-        } catch {
-            debugPrint(error)
-            fatalError()
+        TGDevice.device.makeComputePipelineState(
+            function: function
+        ) { pipelineState, error in
+            if let pipelineState {
+                completion(pipelineState)
+            } else {
+                debugPrint(error!)
+            }
         }
     }
 }
