@@ -1,7 +1,7 @@
 import Metal
 import simd
 
-class TGTextureManager {
+final class TGTextureManager {
     private var textureMap: [Int: MTLTexture] = [:]
     private var currentId = -1
    
@@ -18,9 +18,7 @@ class TGTextureManager {
         descriptor.height = size.y
         descriptor.usage = [.shaderRead, .shaderWrite, .renderTarget]
         
-        guard
-            let device = MTLCreateSystemDefaultDevice(),
-            let texture = device.makeTexture(descriptor: descriptor)
+        guard let texture = TGDevice.device.makeTexture(descriptor: descriptor)
         else {
             currentId -= 1
             return nil
