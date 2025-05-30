@@ -42,6 +42,7 @@ class TGPipelinesManager {
                 completion(pipelineState)
             } else {
                 debugPrint(error!)
+                fatalError()
             }
         }
     }
