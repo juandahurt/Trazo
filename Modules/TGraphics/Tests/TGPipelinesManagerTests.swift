@@ -17,5 +17,9 @@ struct TGPipelinesManagerTests {
         let computePipelineStatesCount = TGPipelinesManager.TGComputePipelineType.allCases.count
         
         #expect(loadedComputePipelinesCount == computePipelineStatesCount)
+        
+        for pipelineState in manager.computePipelineStates {
+            #expect(pipelineState != nil)
+        }
     }
 }
