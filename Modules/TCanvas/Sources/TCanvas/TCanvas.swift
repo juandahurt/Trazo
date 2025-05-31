@@ -1,7 +1,7 @@
 import TGraphics
 import UIKit
 
-public struct TCanvas {
+public class TCanvas {
     let graphics = TGraphics()
     
     @MainActor
@@ -26,5 +26,15 @@ public struct TCanvas {
             label: "Texture 1"
         ) else { return }
         // TODO: add layers to texture manager
+        
+        let renderableView = graphics.makeRenderableView()
+        renderableView.renderableDelegate = self
+        view.addSubview(renderableView)
+    }
+}
+
+extension TCanvas: TGRenderableViewDelegate {
+    public func provideTextureToRender() -> any MTLTexture {
+        fatalError("not implemented")
     }
 }
