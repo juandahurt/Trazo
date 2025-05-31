@@ -16,4 +16,7 @@
    <FileRef
       location = "container:Modules/TGraphics">
    </FileRef>
+   <FileRef
+      location = "container:Modules/TCanvas">
+   </FileRef>
 </Workspace>
