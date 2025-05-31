@@ -27,6 +27,13 @@ class TGPipelinesManager {
         dispatchGroup.wait()
     }
     
+    func computePipeline(ofType type: TGComputePipelineType) -> MTLComputePipelineState? {
+        guard let index = TGComputePipelineType.allCases.firstIndex(of: type) else {
+            return nil
+        }
+        return computePipelineStates[index]
+    }
+    
     private func makeComputePipelineState(
         usingFunctionNamed functionName: String,
         completion: @escaping (MTLComputePipelineState) -> Void
