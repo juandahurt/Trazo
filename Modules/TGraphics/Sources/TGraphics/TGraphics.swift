@@ -7,11 +7,11 @@ public struct TGraphics {
     
     var commandBuffer: MTLCommandBuffer?
    
-    init() {
+    public init() {
         let pipelineManager = TGPipelinesManager()
         renderer = TGRenderer(pipelineManager: pipelineManager)
     }
-    
+   
     public func load() {
         renderer.load()
     }
