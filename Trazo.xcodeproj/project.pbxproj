@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		2FC4D9052D8DE3DE00206CDF /* TrazoCanvas in Frameworks */ = {isa = PBXBuildFile; productRef = 2FC4D9042D8DE3DE00206CDF /* TrazoCanvas */; };
 		2FC4D9672D8E0DBB00206CDF /* TrazoCanvas in Frameworks */ = {isa = PBXBuildFile; productRef = 2FC4D9662D8E0DBB00206CDF /* TrazoCanvas */; };
+		BC8FE9F32DEBC88900A5B24D /* TCanvas in Frameworks */ = {isa = PBXBuildFile; productRef = BC8FE9F22DEBC88900A5B24D /* TCanvas */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -54,6 +55,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BC8FE9F32DEBC88900A5B24D /* TCanvas in Frameworks */,
 				2FC4D9052D8DE3DE00206CDF /* TrazoCanvas in Frameworks */,
 				2FC4D9672D8E0DBB00206CDF /* TrazoCanvas in Frameworks */,
 			);
@@ -101,6 +103,7 @@
 			packageProductDependencies = (
 				2FC4D9042D8DE3DE00206CDF /* TrazoCanvas */,
 				2FC4D9662D8E0DBB00206CDF /* TrazoCanvas */,
+				BC8FE9F22DEBC88900A5B24D /* TCanvas */,
 			);
 			productName = Trazo;
 			productReference = 2FCD94262D24649600413760 /* Trazo.app */;
@@ -132,6 +135,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				2FC4D9652D8E0DBB00206CDF /* XCLocalSwiftPackageReference "TrazoCanvas" */,
+				BC8FE9F12DEBC88900A5B24D /* XCLocalSwiftPackageReference "Modules/TCanvas" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2FCD94272D24649600413760 /* Products */;
@@ -373,6 +377,10 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = TrazoCanvas;
 		};
+		BC8FE9F12DEBC88900A5B24D /* XCLocalSwiftPackageReference "Modules/TCanvas" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = Modules/TCanvas;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -383,6 +391,10 @@
 		2FC4D9662D8E0DBB00206CDF /* TrazoCanvas */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = TrazoCanvas;
+		};
+		BC8FE9F22DEBC88900A5B24D /* TCanvas */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = TCanvas;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

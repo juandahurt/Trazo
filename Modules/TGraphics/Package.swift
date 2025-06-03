@@ -17,7 +17,8 @@ let package = Package(
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "TGraphics", resources: [
-                .process("Textures.metal")
+                .process("Textures.metal"),
+                .process("Drawing.metal"),
             ]),
         .testTarget(name: "TGraphicsTests",
                     dependencies: [.byName(name: "TGraphics")])

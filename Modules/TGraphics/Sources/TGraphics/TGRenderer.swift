@@ -47,4 +47,120 @@ class TGRenderer {
         )
         encoder?.endEncoding()
     }
+    
+    func merge(
+        _ sourceTexture: MTLTexture,
+        with secondTexture: MTLTexture,
+        on destinationTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        assert(sourceTexture.width == secondTexture.width)
+        assert(sourceTexture.height == secondTexture.height)
+        
+        guard let pipelineState = pipelineManager.computePipeline(ofType: .merge) else {
+            return
+        }
+        
+        let threadsGroupSize = MTLSize(
+            width: (destinationTexture.width) / threadGroupLength,
+            height: destinationTexture.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (destinationTexture.width) / threadsGroupSize.width,
+            height: (destinationTexture.height) / threadsGroupSize.height,
+            depth: 1
+        )
+        
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(pipelineState)
+        encoder?.setTexture(sourceTexture, index: 0)
+        encoder?.setTexture(secondTexture, index: 1)
+        encoder?.setTexture(destinationTexture, index: 2)
+        encoder?
+            .dispatchThreadgroups(
+                threadsGroupSize,
+                threadsPerThreadgroup: threadsPerThreadGroup
+            )
+        encoder?.endEncoding()
+    }
+    
+    func drawTexture(
+        _ texture: MTLTexture,
+        on outputTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer,
+        clearColor: simd_float4,
+        transform: simd_float4x4,
+        projection: simd_float4x4
+    ) {
+        guard let pipelineState = pipelineManager.renderPipeline(
+            ofType: .drawTexture
+        ) else {
+            return
+        }
+        
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = outputTexture
+        passDescriptor.colorAttachments[0].loadAction = .clear
+        passDescriptor.colorAttachments[0].clearColor = .init(
+            red: Double(clearColor.x),
+            green: Double(clearColor.y),
+            blue: Double(clearColor.z),
+            alpha: Double(clearColor.w)
+        )
+        
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        encoder?.setRenderPipelineState(pipelineState)
+        encoder?.setFragmentTexture(texture, index: 3)
+        
+        let textureWidth = Float(outputTexture.width)
+        let textureHeight = Float(outputTexture.height)
+        let vertices: [Float] = [
+            -textureWidth / 2, -textureHeight / 2,
+             textureWidth / 2, -textureHeight / 2,
+             -textureWidth / 2, textureHeight / 2,
+             textureWidth / 2, textureHeight / 2,
+        ]
+        
+        let vertexBuffer = TGDevice.device.makeBuffer(
+            bytes: vertices,
+            length: MemoryLayout<Float>.stride * vertices.count
+        )
+        
+        encoder?.setVertexBuffer(
+            vertexBuffer,
+            offset: 0,
+            index: 0
+        )
+        
+        encoder?.setVertexBuffer(
+            QuadBuffers.textureBuffer,
+            offset: 0,
+            index: 1
+        )
+        
+        var modelMatrix = transform
+        var projectionMatrix = projection
+        
+        encoder?.setVertexBytes(
+            &modelMatrix,
+            length: MemoryLayout<simd_float4x4>.stride,
+            index: 2
+        )
+        encoder?.setVertexBytes(
+            &projectionMatrix,
+            length: MemoryLayout<simd_float4x4>.stride,
+            index: 3
+        )
+        encoder?
+            .drawIndexedPrimitives(
+                type: .triangle,
+                indexCount: QuadBuffers.indexCount,
+                indexType: .uint16,
+                indexBuffer: QuadBuffers.indexBuffer,
+                indexBufferOffset: 0
+            )
+        encoder?.endEncoding()
+    }
 }

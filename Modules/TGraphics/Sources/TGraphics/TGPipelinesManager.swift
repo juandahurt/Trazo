@@ -6,10 +6,32 @@ class TGPipelinesManager {
         case fill = "fill_color"
         case merge = "merge_textures"
     }
+    enum TGRenderPipelineType: CaseIterable {
+        case drawTexture
+        var label: String {
+            switch self {
+            case .drawTexture: "draw_texture"
+            }
+        }
+        var vertexFunction: String {
+            switch self {
+            case .drawTexture: "draw_texture_vert"
+            }
+        }
+        var fragmentFunction: String {
+            switch self {
+            case .drawTexture: "draw_texture_frag"
+            }
+        }
+    }
     
     var computePipelineStates = Array<MTLComputePipelineState?>(
         repeating: nil,
         count: TGComputePipelineType.allCases.count
+    )
+    var renderPipelineStates = Array<MTLRenderPipelineState?>(
+        repeating: nil,
+        count: TGRenderPipelineType.allCases.count
     )
     private let dispatchGroup = DispatchGroup()
     
@@ -25,6 +47,22 @@ class TGPipelinesManager {
             }
         }
         dispatchGroup.wait()
+       
+        // TODO: load as compute pipelines
+        renderPipelineStates[0] = makeRenderPipelieState(
+            withLabel: TGRenderPipelineType.drawTexture.label,
+            vertexFunction: TGRenderPipelineType.drawTexture.vertexFunction,
+            fragmentFunction: TGRenderPipelineType.drawTexture.fragmentFunction,
+            factory: { descriptor in
+                descriptor.colorAttachments[0].isBlendingEnabled = true
+                descriptor.colorAttachments[0].rgbBlendOperation = .add
+                descriptor.colorAttachments[0].alphaBlendOperation = .add
+                descriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+                descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+                descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+                descriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+            }
+        )
     }
     
     func computePipeline(ofType type: TGComputePipelineType) -> MTLComputePipelineState? {
@@ -32,6 +70,12 @@ class TGPipelinesManager {
             return nil
         }
         return computePipelineStates[index]
+    }
+    func renderPipeline(ofType type: TGRenderPipelineType) -> MTLRenderPipelineState? {
+        guard let index = TGRenderPipelineType.allCases.firstIndex(of: type) else {
+            return nil
+        }
+        return renderPipelineStates[index]
     }
     
     private func makeComputePipelineState(
@@ -51,6 +95,29 @@ class TGPipelinesManager {
                 debugPrint(error!)
                 fatalError()
             }
+        }
+    }
+    
+    private func makeRenderPipelieState(
+        withLabel label: String,
+        vertexFunction: String,
+        fragmentFunction: String,
+        factory: (MTLRenderPipelineDescriptor) -> Void
+    ) -> MTLRenderPipelineState {
+        let library = TGDevice.defaultLibrary
+        let descriptor = MTLRenderPipelineDescriptor()
+        descriptor.vertexFunction = library.makeFunction(name: vertexFunction)
+        descriptor.fragmentFunction = library.makeFunction(name: fragmentFunction)
+        descriptor.colorAttachments[0].pixelFormat = .rgba8Unorm
+        descriptor.label = label
+        
+        factory(descriptor)
+        
+        do {
+            return try TGDevice.device.makeRenderPipelineState(descriptor: descriptor)
+        } catch {
+            debugPrint(error)
+            fatalError()
         }
     }
 }

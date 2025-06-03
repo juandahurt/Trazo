@@ -26,20 +26,37 @@ public class TGRenderableView: MTKView {
 
 extension TGRenderableView: MTKViewDelegate {
     public func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        // TODO: implement
+        renderableDelegate?.renderableView(
+            self,
+            sizeWillChange: [Float(size.width), Float(size.height)]
+        )
     }
 
     public func draw(in view: MTKView) {
         guard
             let renderableDelegate,
-            let currentDrawable
+            let currentDrawable,
+            let graphics
         else { return }
         
-        let texture = renderableDelegate.provideTextureToRender()
-        graphics?.present(currentDrawable)
+        renderableDelegate.renderableView(
+            self,
+            willPresentCurrentDrawable: currentDrawable
+        )
+        graphics.present(currentDrawable)
+        graphics.commit()
+        graphics.reset()
     }
 }
 
 public protocol TGRenderableViewDelegate: AnyObject {
-    func provideTextureToRender() -> MTLTexture
+    func renderableView(
+        _ renderableView: TGRenderableView,
+        willPresentCurrentDrawable currentDrawable: CAMetalDrawable
+    )
+    
+    func renderableView(
+        _ renderableView: TGRenderableView,
+        sizeWillChange size: simd_float2
+    )
 }
