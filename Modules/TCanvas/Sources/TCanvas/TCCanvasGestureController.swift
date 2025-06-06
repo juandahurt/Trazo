@@ -7,6 +7,7 @@ class TCCanvasGestureController {
         case draw(TCTouch)
         case transform([Int: [TCTouch]])
         case unknown
+        case liftedFingers
     }
     private(set) var touchesMap: [Int: [TCTouch]] = [:]
     
@@ -22,19 +23,31 @@ class TCCanvasGestureController {
         }
     }
     
+    private var hasUserLiftedFingers: Bool {
+        touchesMap.keys
+            .reduce(
+                true,
+                { $0 && (touchesMap[$1]?.last?.phase == .ended || touchesMap[$1]?.last?.phase == .cancelled)
+                })
+    }
+    
     func handleFingerTouches(_ touches: [TCTouch]) -> TCFingerGestureResult {
         var result = TCFingerGestureResult.unknown
         save(touches: touches)
         
-        switch estimatedGestureType {
-        case .none:
-            result = .unknown
-        case .drawWithFinger:
-            if let touch = touches.first {
-                result = .draw(touch)
+        if hasUserLiftedFingers {
+            result = .liftedFingers
+        } else {
+            switch estimatedGestureType {
+            case .none:
+                result = .unknown
+            case .drawWithFinger:
+                if let touch = touches.first {
+                    result = .draw(touch)
+                }
+            case .transform:
+                result = .transform(touchesMap)
             }
-        case .transform:
-            result = .transform(touchesMap)
         }
         
         // check if the touches need to be removed (aka. if the gesture has finished)

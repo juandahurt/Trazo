@@ -8,6 +8,7 @@ public class TCanvas {
     var state = TCState()
     var renderableView: TGRenderableView?
     let gestureController = TCCanvasGestureController()
+    let transformer = TCTransformer()
     
     public init() {}
     
@@ -138,6 +139,38 @@ extension TCanvas: TCFingerGestureRecognizerDelegate {
             )
         }
         let res = gestureController.handleFingerTouches(touches)
-        // TODO: implement drawing/transform
+        handleFingerGestureResult(res)
+    }
+}
+
+extension TCanvas {
+    private func handleFingerGestureResult(
+        _ result: TCCanvasGestureController.TCFingerGestureResult
+    ) {
+        switch result {
+        case .draw(_):
+            // TODO: call brush engine
+            print("draw")
+            state.currentGesture = .drawWithFinger
+        case .transform(let touchesMap):
+            if state.currentGesture != .transform {
+                transformer.reset()
+            }
+            if !transformer.isInitialized {
+                transformer.initialize(withTouches: touchesMap)
+            }
+            transformer.transform(usingCurrentTouches: touchesMap)
+            state.ctm = transformer.transform
+            state.currentGesture = .transform
+            print("transform")
+        case .unknown:
+            print("uknown gesture")
+            state.currentGesture = .none
+        case .liftedFingers:
+            // TODO: implement logic when gestures finish
+            state.currentGesture = .none
+        }
+        
+        renderableView?.setNeedsDisplay()
     }
 }

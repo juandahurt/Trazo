@@ -18,4 +18,34 @@ public extension simd_float4x4 {
         self.init()
         columns = (X, Y, Z, W)
     }
+    
+    init(rotateZ angle: Float) {
+        let rows: [simd_float4] = [
+            [ cos(angle), sin(angle), 0, 0],
+            [-sin(angle), cos(angle), 0, 0],
+            [          0,          0, 1, 0],
+            [          0,          0, 0, 1]
+        ]
+        self.init(rows: rows)
+    }
+   
+    init(scaledBy value: simd_float3) {
+        let rows: [simd_float4] = [
+            [value.x,         0,         0, 0],
+            [        0, value.y,         0, 0],
+            [        0,       0,   value.z, 0],
+            [        0,       0,         0, 1]
+        ]
+        self.init(rows: rows)
+    }
+    
+    init(translateBy translation: simd_float3) {
+        let rows: [simd_float4] = [
+            [            1,             0,             0, translation.x],
+            [            0,             1,             0, translation.y],
+            [            0,             0,             1, translation.z],
+            [0, 0 , 0, 1]
+        ]
+        self.init(rows: rows)
+    }
 }
