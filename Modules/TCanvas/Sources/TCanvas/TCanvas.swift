@@ -33,7 +33,7 @@ public class TCanvas {
             ofSize: viewSize,
             label: "Background"
         ) else { return }
-        graphics.fillTexture(bgTextureId, with: [1, 0.4, 0.2, 1])
+        graphics.fillTexture(bgTextureId, with: [1, 1, 1, 1])
         
         guard let texture1Id = graphics.makeTexture(
             ofSize: viewSize,
