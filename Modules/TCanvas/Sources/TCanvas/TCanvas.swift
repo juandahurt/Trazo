@@ -101,7 +101,7 @@ extension TCanvas: TGRenderableViewDelegate {
         graphics.drawTexture(
             state.renderableTexture,
             on: currentDrawable,
-            clearColor: [0, 0, 0, 0],
+            clearColor: state.clearColor,
             transform: state.ctm,
             projection: state.projectionMatrix
         )
