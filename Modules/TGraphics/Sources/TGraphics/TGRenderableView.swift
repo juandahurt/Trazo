@@ -1,5 +1,7 @@
 import MetalKit
 
+// TODO: show frame count
+
 public class TGRenderableView: MTKView {
     weak var graphics: TGraphics?
     
@@ -49,6 +51,7 @@ extension TGRenderableView: MTKViewDelegate {
     }
 }
 
+@MainActor
 public protocol TGRenderableViewDelegate: AnyObject {
     func renderableView(
         _ renderableView: TGRenderableView,

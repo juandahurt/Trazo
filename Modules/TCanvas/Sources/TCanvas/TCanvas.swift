@@ -2,26 +2,21 @@ import TGraphics
 import simd
 import UIKit
 
+@MainActor
 public class TCanvas {
     let graphics = TGraphics()
     var state = TCState()
+    var renderableView: TGRenderableView?
+    let gestureController = TCCanvasGestureController()
     
     public init() {}
     
     @MainActor
     public func load(in view: UIView) {
         graphics.load()
+        setupRenderableView(in: view)
         
-        // renderable view
-        let renderableView = graphics.makeRenderableView()
-        renderableView.renderableDelegate = self
-        view.addSubview(renderableView)
-        NSLayoutConstraint.activate([
-            view.topAnchor.constraint(equalTo: renderableView.topAnchor),
-            view.leadingAnchor.constraint(equalTo: renderableView.leadingAnchor),
-            view.trailingAnchor.constraint(equalTo: renderableView.trailingAnchor),
-            view.bottomAnchor.constraint(equalTo: renderableView.bottomAnchor),
-        ])
+        guard let renderableView else { return }
         
         let viewSize: simd_long2 = [
             Int(view.bounds.width * renderableView.contentScaleFactor),
@@ -59,6 +54,26 @@ public class TCanvas {
         mergeLayers()
         
         renderableView.setNeedsDisplay()
+    }
+   
+    @MainActor
+    private func setupRenderableView(in view: UIView) {
+        let renderableView = graphics.makeRenderableView()
+        renderableView.renderableDelegate = self
+        view.addSubview(renderableView)
+        NSLayoutConstraint.activate([
+            view.topAnchor.constraint(equalTo: renderableView.topAnchor),
+            view.leadingAnchor.constraint(equalTo: renderableView.leadingAnchor),
+            view.trailingAnchor.constraint(equalTo: renderableView.trailingAnchor),
+            view.bottomAnchor.constraint(equalTo: renderableView.bottomAnchor),
+        ])
+        
+        // gestures
+        let fingerGestureRecognizer = TCFingerGestureRecognizer()
+        renderableView.addGestureRecognizer(fingerGestureRecognizer)
+        fingerGestureRecognizer.fingerGestureDelegate = self
+        
+        self.renderableView = renderableView
     }
     
     func mergeLayers() {
@@ -109,5 +124,20 @@ extension TCanvas: TGRenderableViewDelegate {
             near: 0,
             far: 1
         )
+    }
+}
+
+extension TCanvas: TCFingerGestureRecognizerDelegate {
+    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
+        guard let renderableView else { return }
+        let touches = touches.map {
+            TCTouch(
+                id: $0.hashValue,
+                location: $0.location(fromCenterOfView: renderableView),
+                phase: $0.phase
+            )
+        }
+        let res = gestureController.handleFingerTouches(touches)
+        // TODO: implement drawing/transform
     }
 }
