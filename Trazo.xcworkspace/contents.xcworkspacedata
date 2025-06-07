@@ -20,6 +20,9 @@
       location = "container:Modules/TCanvas">
    </FileRef>
    <FileRef
+      location = "group:Modules/TTypes">
+   </FileRef>
+   <FileRef
       location = "container:Modules/TPainter">
    </FileRef>
 </Workspace>

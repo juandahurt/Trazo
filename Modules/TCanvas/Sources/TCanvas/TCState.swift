@@ -22,9 +22,3 @@ struct TCLayer {
 enum TCGestureType {
     case none, drawWithFinger, transform
 }
-
-struct TCTouch {
-    let id: Int
-    let location: simd_float2
-    let phase: UITouch.Phase
-}

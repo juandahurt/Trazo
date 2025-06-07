@@ -1,4 +1,5 @@
 import TGraphics
+import TTypes
 import simd
 import UIKit
 
@@ -132,7 +133,7 @@ extension TCanvas: TCFingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
         guard let renderableView else { return }
         let touches = touches.map {
-            TCTouch(
+            TTTouch(
                 id: $0.hashValue,
                 location: $0.location(fromCenterOfView: renderableView),
                 phase: $0.phase

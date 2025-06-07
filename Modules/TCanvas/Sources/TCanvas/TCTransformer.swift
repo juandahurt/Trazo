@@ -1,12 +1,13 @@
 import simd
+import TTypes
 
 // TODO: fix logic
 
 class TCTransformer {
     /// First touch of finger A
-    var initialTouchA: TCTouch?
+    var initialTouchA: TTTouch?
     /// First touch of finger B
-    var initialTouchB: TCTouch?
+    var initialTouchB: TTTouch?
     
     var isInitialized: Bool {
         initialTouchA != nil && initialTouchB != nil
@@ -20,7 +21,7 @@ class TCTransformer {
     private var accAngle: Float = 0
     private var currAngle: Float = 0
     
-    func initialize(withTouches touchesDict: [Int: [TCTouch]]) {
+    func initialize(withTouches touchesDict: [Int: [TTTouch]]) {
         guard
             let keyA = touchesDict.keys.sorted().first,
             let keyB = touchesDict.keys.sorted().last,
@@ -34,7 +35,7 @@ class TCTransformer {
     }
     
     func transform(
-        usingCurrentTouches touchesDict: [Int: [TCTouch]]
+        usingCurrentTouches touchesDict: [Int: [TTTouch]]
     ) {
         // logic found at: https://mortoray.com/a-pan-zoom-and-rotate-gesture-model-for-touch-devices/
         guard

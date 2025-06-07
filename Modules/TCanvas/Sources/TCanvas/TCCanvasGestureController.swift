@@ -1,15 +1,16 @@
 import simd
+import TTypes
 import UIKit
 
 @MainActor
 class TCCanvasGestureController {
     enum TCFingerGestureResult {
-        case draw(TCTouch)
-        case transform([Int: [TCTouch]])
+        case draw(TTTouch)
+        case transform([Int: [TTTouch]])
         case unknown
         case liftedFingers
     }
-    private(set) var touchesMap: [Int: [TCTouch]] = [:]
+    private(set) var touchesMap: [Int: [TTTouch]] = [:]
     
     private var numberOfTouches: Int {
         touchesMap.count
@@ -31,7 +32,7 @@ class TCCanvasGestureController {
                 })
     }
     
-    func handleFingerTouches(_ touches: [TCTouch]) -> TCFingerGestureResult {
+    func handleFingerTouches(_ touches: [TTTouch]) -> TCFingerGestureResult {
         var result = TCFingerGestureResult.unknown
         save(touches: touches)
         
@@ -60,7 +61,7 @@ class TCCanvasGestureController {
         return result
     }
     
-    private func save(touches: [TCTouch]) {
+    private func save(touches: [TTTouch]) {
         for touch in touches {
             let key = touch.id
             if touchesMap[key] == nil {
