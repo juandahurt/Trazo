@@ -1,5 +1,7 @@
 import simd
 
+// TODO: fix logic
+
 class TCTransformer {
     /// First touch of finger A
     var initialTouchA: TCTouch?

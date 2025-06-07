@@ -19,4 +19,7 @@
    <FileRef
       location = "container:Modules/TCanvas">
    </FileRef>
+   <FileRef
+      location = "container:Modules/TPainter">
+   </FileRef>
 </Workspace>
