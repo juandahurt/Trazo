@@ -5,7 +5,7 @@ import TTypes
 public struct TPainter {
     public internal(set) var stroke: [TTTouch] = []
     var touchCount = 0
-    let brush = TPBrush.nervous
+    let brush = TPBrush.normal
     
     public init() {}
    
@@ -52,8 +52,10 @@ public struct TPainter {
                 p3: p3,
                 t: t
             )
-            location.x += Float.random(in: -brush.jitter..<brush.jitter)
-            location.y += Float.random(in: -brush.jitter..<brush.jitter)
+            if brush.jitter > 0 {
+                location.x += Float.random(in: -brush.jitter..<brush.jitter)
+                location.y += Float.random(in: -brush.jitter..<brush.jitter)
+            }
             points.append(.init(location: location, size: 5))
         }
         return points
