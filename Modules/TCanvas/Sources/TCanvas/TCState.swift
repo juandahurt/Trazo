@@ -4,6 +4,7 @@ import UIKit
 struct TCState {
     private(set) var layers: [TCLayer]  = []
     var renderableTexture               = -1
+    var grayScaleTexture                = -1
     var projectionMatrix                = matrix_identity_float4x4
     var ctm                             = matrix_identity_float4x4
     var currentGesture: TCGestureType   = .none

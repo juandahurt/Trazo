@@ -14,6 +14,7 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../TGraphics"),
+        .package(path: "../TPainter"),
         .package(path: "../TTypes"),
     ],
     targets: [
@@ -23,6 +24,7 @@ let package = Package(
             name: "TCanvas",
             dependencies: [
                 .byName(name: "TGraphics"),
+                .byName(name: "TPainter"),
                 .byName(name: "TTypes")
             ]
         ),

@@ -1,5 +1,6 @@
-import Metal
 import Foundation
+import Metal
+import simd
 
 class TGPipelinesManager {
     enum TGComputePipelineType: String, CaseIterable {
@@ -8,19 +9,24 @@ class TGPipelinesManager {
     }
     enum TGRenderPipelineType: CaseIterable {
         case drawTexture
+        case drawGrayScalePoints
+        
         var label: String {
             switch self {
             case .drawTexture: "draw_texture"
+            case .drawGrayScalePoints: "draw_gray_scale_points"
             }
         }
         var vertexFunction: String {
             switch self {
             case .drawTexture: "draw_texture_vert"
+            case .drawGrayScalePoints: "gray_scale_point_vert"
             }
         }
         var fragmentFunction: String {
             switch self {
             case .drawTexture: "draw_texture_frag"
+            case .drawGrayScalePoints: "gray_scale_point_frag"
             }
         }
     }
@@ -61,6 +67,32 @@ class TGPipelinesManager {
                 descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
                 descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
                 descriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+            }
+        )
+        renderPipelineStates[1] = makeRenderPipelieState(
+            withLabel: TGRenderPipelineType.drawGrayScalePoints.label,
+            vertexFunction: TGRenderPipelineType.drawGrayScalePoints.vertexFunction,
+            fragmentFunction: TGRenderPipelineType.drawGrayScalePoints.fragmentFunction,
+            factory: { descriptor in
+                descriptor.colorAttachments[0].isBlendingEnabled = true
+                descriptor.colorAttachments[0].rgbBlendOperation = .max
+                descriptor.colorAttachments[0].alphaBlendOperation = .max
+                descriptor.colorAttachments[0].sourceRGBBlendFactor = .one
+                descriptor.colorAttachments[0].destinationRGBBlendFactor = .one
+                descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+                descriptor.colorAttachments[0].destinationAlphaBlendFactor = .one
+                
+                let vertexDescriptor = MTLVertexDescriptor()
+                vertexDescriptor.attributes[0].format = .float2
+                
+                vertexDescriptor.attributes[1].format = .float
+                vertexDescriptor.attributes[1].offset = MemoryLayout<simd_float2>.stride
+                
+                vertexDescriptor
+                    .layouts[0]
+                    .stride = MemoryLayout<TGRenderablePoint>.stride
+                
+                descriptor.vertexDescriptor = vertexDescriptor
             }
         )
     }

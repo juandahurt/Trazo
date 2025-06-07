@@ -29,6 +29,34 @@ public class TGraphics {
     public func makeRenderableView() -> TGRenderableView {
         TGRenderableView(graphics: self)
     }
+   
+    public func drawGrayscalePoints(
+        _ drawablePoints: [TGRenderablePoint],
+        numPoints: Int,
+        in textureId: Int,
+        transform: simd_float4x4,
+        projection: simd_float4x4
+    ) {
+       guard
+            let commandBuffer,
+            let texture = textureManager.texture(byId: textureId),
+            let positionsBuffer = TGDevice.device.makeBuffer(
+                bytes: drawablePoints,
+                length: MemoryLayout<TGRenderablePoint>.stride * numPoints
+            )
+        else { return }
+        renderer
+            .drawGrayscalePoints(
+                positionsBuffer: positionsBuffer,
+                numPoints: numPoints,
+                withOpacity: 1,
+                on: texture,
+                transform: transform,
+                projection: projection,
+                using: commandBuffer,
+                clearingBackground: false
+            )
+    }
     
     public func fillTexture(_ textureId: Int, with color: simd_float4) {
         guard

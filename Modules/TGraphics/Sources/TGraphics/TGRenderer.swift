@@ -86,6 +86,69 @@ class TGRenderer {
         encoder?.endEncoding()
     }
     
+    func drawGrayscalePoints(
+        positionsBuffer: MTLBuffer,
+        numPoints: Int,
+        withOpacity opacity: Float,
+        on grayScaleTexture: MTLTexture,
+        transform: simd_float4x4,
+        projection: simd_float4x4,
+        using commandBuffer: MTLCommandBuffer,
+        clearingBackground: Bool
+    ) {
+        guard
+            let pipelineState = pipelineManager.renderPipeline(ofType: .drawGrayScalePoints)
+        else {
+            return
+        }
+        
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = grayScaleTexture
+        passDescriptor.colorAttachments[0].loadAction = .load
+        passDescriptor.colorAttachments[0].storeAction = .store
+        
+        if clearingBackground {
+            passDescriptor.colorAttachments[0].loadAction = .clear
+            passDescriptor.colorAttachments[0].clearColor = .init(
+                red: 0,
+                green: 0,
+                blue: 0,
+                alpha: 0
+            )
+        }
+        
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        encoder?.setRenderPipelineState(pipelineState)
+        encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+        
+        var modelMatrix = transform
+        var projectionMatrix = projection
+        var opacity = opacity
+        
+        encoder?.setVertexBytes(
+            &modelMatrix,
+            length: MemoryLayout<simd_float4x4>.stride,
+            index: 1
+        )
+        encoder?.setVertexBytes(
+            &projectionMatrix,
+            length: MemoryLayout<simd_float4x4>.stride,
+            index: 2
+        )
+        encoder?.setVertexBytes(
+            &opacity,
+            length: MemoryLayout<Float>.stride,
+            index: 3
+        )
+        
+        encoder?.drawPrimitives(
+            type: .point,
+            vertexStart: 0,
+            vertexCount: numPoints
+        )
+        encoder?.endEncoding()
+    }
+    
     func drawTexture(
         _ texture: MTLTexture,
         on outputTexture: MTLTexture,

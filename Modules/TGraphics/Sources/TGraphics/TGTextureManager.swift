@@ -6,7 +6,11 @@ final class TGTextureManager {
     private var currentId = -1
    
     func texture(byId id: Int) -> MTLTexture? {
-        textureMap[id]
+        let texture = textureMap[id]
+        if texture == nil {
+            print("couldn't find texture", id)
+        }
+        return texture
     }
     
     func makeTexture(ofSize size: simd_long2, label: String? = nil) -> Int? {

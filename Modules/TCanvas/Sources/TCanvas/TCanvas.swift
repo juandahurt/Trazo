@@ -1,4 +1,5 @@
 import TGraphics
+import TPainter
 import TTypes
 import simd
 import UIKit
@@ -10,6 +11,7 @@ public class TCanvas {
     var renderableView: TGRenderableView?
     let gestureController = TCCanvasGestureController()
     let transformer = TCTransformer()
+    let painter = TPainter()
     
     public init() {}
     
@@ -24,6 +26,12 @@ public class TCanvas {
             Int(view.bounds.width * renderableView.contentScaleFactor),
             Int(view.bounds.height * renderableView.contentScaleFactor)
         ]
+       
+        guard let grayScaleTextureId = graphics.makeTexture(
+            ofSize: viewSize,
+            label: "Grayscale Texture"
+        ) else { return }
+        state.grayScaleTexture = grayScaleTextureId
         
         // MARK: - layers setup
         guard let bgTextureId = graphics.makeTexture(
@@ -149,9 +157,15 @@ extension TCanvas {
         _ result: TCCanvasGestureController.TCFingerGestureResult
     ) {
         switch result {
-        case .draw(_):
-            // TODO: call brush engine
-            print("draw")
+        case .draw(let touch):
+            let points = painter.generateDrawablePoints(forTouch: touch, in: [])
+            graphics.drawGrayscalePoints(
+                points,
+                numPoints: points.count, // TODO: remove count
+                in: state.grayScaleTexture,
+                transform: state.ctm,
+                projection: state.projectionMatrix
+            )
             state.currentGesture = .drawWithFinger
         case .transform(let touchesMap):
             if state.currentGesture != .transform {
