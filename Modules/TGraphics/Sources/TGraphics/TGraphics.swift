@@ -29,7 +29,25 @@ public class TGraphics {
     public func makeRenderableView() -> TGRenderableView {
         TGRenderableView(graphics: self)
     }
-   
+  
+    public func colorize(
+        grayscaleTexture textureId: Int,
+        withColor color: simd_float4,
+        on outputTextureId: Int
+    ) {
+        guard
+            let commandBuffer,
+            let grayscaleTexture = textureManager.texture(byId: textureId),
+            let outputTexture = textureManager.texture(byId: outputTextureId)
+        else { return }
+        renderer.colorize(
+            grayscaleTexture: grayscaleTexture,
+            withColor: color,
+            on: outputTexture,
+            using: commandBuffer
+        )
+    }
+    
     public func drawGrayscalePoints(
         _ drawablePoints: [TGRenderablePoint],
         numPoints: Int,

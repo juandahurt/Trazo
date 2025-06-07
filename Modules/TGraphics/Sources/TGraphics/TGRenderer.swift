@@ -47,6 +47,45 @@ class TGRenderer {
         )
         encoder?.endEncoding()
     }
+   
+    func colorize(
+        grayscaleTexture texture: MTLTexture,
+        withColor color: simd_float4,
+        on outputTexture: MTLTexture,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        guard
+            let pipelineState = pipelineManager.computePipeline(ofType: .colorize)
+        else { return }
+        let threadsGroupSize = MTLSize(
+            width: (texture.width) / threadGroupLength,
+            height: texture.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (texture.width) / threadsGroupSize.width,
+            height: (texture.height) / threadsGroupSize.height,
+            depth: 1
+        )
+        
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(pipelineState)
+        encoder?.setTexture(texture, index: 0)
+        encoder?.setTexture(outputTexture, index: 1)
+        var color = color
+        encoder?.setBytes(
+            &color,
+            length: MemoryLayout<simd_float4>.stride,
+            index: 0
+        )
+        encoder?
+            .dispatchThreadgroups(
+                threadsGroupSize,
+                threadsPerThreadgroup: threadsPerThreadGroup
+            )
+        encoder?.endEncoding()
+    }
     
     func merge(
         _ sourceTexture: MTLTexture,

@@ -5,7 +5,7 @@ import TTypes
 public struct TPainter {
     public internal(set) var stroke: [TTTouch] = []
     var touchCount = 0
-    let brush = TPBrush.normal
+    let brush = TPBrush.nervous
     
     public init() {}
    
@@ -39,7 +39,7 @@ public struct TPainter {
         let p3 = stroke[index+1].location
         
         let length = distance(p0, p1) + distance(p1, p2) + distance(p2, p3)
-        let density: Float = 0.5
+        let density: Float = 1
         let n = Int(length * density)
         
         var points: [TGRenderablePoint] = []

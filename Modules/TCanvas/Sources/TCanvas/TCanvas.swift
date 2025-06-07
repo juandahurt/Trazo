@@ -31,7 +31,7 @@ public class TCanvas {
             ofSize: viewSize,
             label: "Grayscale Texture"
         ) else { return }
-        state.grayScaleTexture = grayScaleTextureId
+        state.grayscaleTexture = grayScaleTextureId
         
         // MARK: - layers setup
         guard let bgTextureId = graphics.makeTexture(
@@ -51,8 +51,9 @@ public class TCanvas {
         for layer in [bgLayer, texture1Layer] {
             state.addLayer(layer)
         }
+        state.currentLayerIndex = 1
         
-        // rendeable texture
+        // renderable texture
         guard let renderableTextureId = graphics.makeTexture(
             ofSize: viewSize,
             label: "Renderable texture"
@@ -60,6 +61,24 @@ public class TCanvas {
             return
         }
         state.renderableTexture = renderableTextureId
+        
+        // colorized texture
+        guard let colorizedTextureId = graphics.makeTexture(
+            ofSize: viewSize,
+            label: "Colorized texture"
+        ) else {
+            return
+        }
+        state.colorizedTexture = colorizedTextureId
+        
+        // stroke texture
+        guard let strokeTextureId = graphics.makeTexture(
+            ofSize: viewSize,
+            label: "Stroke texture"
+        ) else {
+            return
+        }
+        state.strokeTexture = strokeTextureId
         
         mergeLayers()
         
@@ -89,11 +108,12 @@ public class TCanvas {
     func mergeLayers() {
         for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
 //            if !state.layers[index].isVisible { continue }
-//            if index == state.currentLayerIndex && usingDrawingTexture {
-//                layerTexture = state.drawingTexture
-//            }
+            var layerTextureId = state.layers[index].textureId
+            if index == state.currentLayerIndex {
+                layerTextureId = state.strokeTexture
+            }
             graphics.merge(
-                state.layers[index].textureId,
+                layerTextureId,
                 with: state.renderableTexture,
                 on: state.renderableTexture
             )
@@ -162,10 +182,21 @@ extension TCanvas {
             graphics.drawGrayscalePoints(
                 points,
                 numPoints: points.count, // TODO: remove count
-                in: state.grayScaleTexture,
+                in: state.grayscaleTexture,
                 transform: state.ctm,
                 projection: state.projectionMatrix
             )
+            graphics.colorize(
+                grayscaleTexture: state.grayscaleTexture,
+                withColor: [0.2, 0.1, 0.8, 1],
+                on: state.colorizedTexture
+            )
+            graphics.merge(
+                state.strokeTexture,
+                with: state.colorizedTexture,
+                on: state.strokeTexture
+            )
+            mergeLayers()
             state.currentGesture = .drawWithFinger
         case .transform(let touchesMap):
             if state.currentGesture != .transform {
