@@ -5,6 +5,7 @@ import TTypes
 public struct TPainter {
     public internal(set) var stroke: [TTTouch] = []
     var touchCount = 0
+    let brush = TPBrush.normal
     
     public init() {}
    
@@ -44,13 +45,15 @@ public struct TPainter {
         var points: [TGRenderablePoint] = []
         for index in 0..<n {
             let t = Float(index) / Float(n)
-            let location = cubicBezierValue(
+            var location = cubicBezierValue(
                 p0: p0,
                 p1: p1,
                 p2: p2,
                 p3: p3,
                 t: t
             )
+            location.x += Float.random(in: -brush.jitter..<brush.jitter)
+            location.y += Float.random(in: -brush.jitter..<brush.jitter)
             points.append(.init(location: location, size: 5))
         }
         return points
@@ -62,8 +65,8 @@ public struct TPainter {
         p2: simd_float2,
         p3: simd_float2
     ) -> (c1: simd_float2, c2: simd_float2) {
-        let c1 = ((p2 - p0) / 6) + p1
-        let c2 = p2 - ((p3 - p1) / 6)
+        let c1 = ((p2 - p0) * brush.stabilization / 6) + p1
+        let c2 = p2 - ((p3 - p1) * brush.stabilization / 6)
         return (c1, c2)
     }
     
