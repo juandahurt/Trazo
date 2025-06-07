@@ -11,7 +11,7 @@ public class TCanvas {
     var renderableView: TGRenderableView?
     let gestureController = TCCanvasGestureController()
     let transformer = TCTransformer()
-    let painter = TPainter()
+    var painter = TPainter()
     
     public init() {}
     
@@ -158,7 +158,7 @@ extension TCanvas {
     ) {
         switch result {
         case .draw(let touch):
-            let points = painter.generateDrawablePoints(forTouch: touch, in: [])
+            let points = painter.generatePoints(forTouch: touch)
             graphics.drawGrayscalePoints(
                 points,
                 numPoints: points.count, // TODO: remove count
@@ -182,7 +182,7 @@ extension TCanvas {
             print("uknown gesture")
             state.currentGesture = .none
         case .liftedFingers:
-            // TODO: implement logic when gestures finish
+            painter.endStroke()
             state.currentGesture = .none
         }
         
