@@ -105,19 +105,67 @@ public class TCanvas {
         self.renderableView = renderableView
     }
     
+    func clearRenderableTexture() {
+        graphics.pushDebugGroup("Clear renderable texture")
+        graphics.fillTexture(state.renderableTexture, with: [0, 0, 0, 0])
+        graphics.popDebugGroup()
+    }
+    
+    func clearStrokeTexture() {
+        graphics.pushDebugGroup("Clear renderable texture")
+        graphics.fillTexture(state.strokeTexture, with: [0, 0, 0, 0])
+        graphics.popDebugGroup()
+    }
+    
+    func clearGrayscaleTexture() {
+        graphics.pushDebugGroup("Clear grasycale texture")
+        graphics.fillTexture(state.grayscaleTexture, with: [0, 0, 0, 0])
+        graphics.popDebugGroup()
+    }
+    
     func mergeLayers() {
+        graphics.pushDebugGroup("Merge layers")
         for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
 //            if !state.layers[index].isVisible { continue }
             var layerTextureId = state.layers[index].textureId
+            graphics.pushDebugGroup("Merge layer \(layerTextureId) with renderable")
             if index == state.currentLayerIndex {
                 layerTextureId = state.strokeTexture
             }
             graphics.merge(
-                layerTextureId,
-                with: state.renderableTexture,
+                state.renderableTexture,
+                with: layerTextureId,
                 on: state.renderableTexture
             )
+            graphics.popDebugGroup()
         }
+        graphics.popDebugGroup()
+    }
+    
+    func drawPoints(_ points: [TGRenderablePoint]) {
+        graphics.pushDebugGroup("Draw grayscale points")
+        graphics.drawGrayscalePoints(
+            points,
+            numPoints: points.count, // TODO: remove count
+            in: state.grayscaleTexture,
+            transform: state.ctm.inverse,
+            projection: state.projectionMatrix
+        )
+        graphics.popDebugGroup()
+        graphics.pushDebugGroup("Colorize")
+        graphics.colorize(
+            grayscaleTexture: state.grayscaleTexture,
+            withColor: [0.2, 0.1, 0.8, 1],
+            on: state.colorizedTexture
+        )
+        graphics.popDebugGroup()
+        graphics.pushDebugGroup("Merge stroke texture with colorized texture")
+        graphics.merge(
+            state.strokeTexture,
+            with: state.colorizedTexture,
+            on: state.strokeTexture
+        )
+        graphics.popDebugGroup()
     }
 }
 
@@ -126,7 +174,7 @@ extension TCanvas: TGRenderableViewDelegate {
         _ renderableView: TGRenderableView,
         willPresentCurrentDrawable currentDrawable: any CAMetalDrawable
     ) {
-        print("will present drawable")
+        graphics.pushDebugGroup("Present canvas")
         graphics.drawTexture(
             state.renderableTexture,
             on: currentDrawable,
@@ -134,6 +182,7 @@ extension TCanvas: TGRenderableViewDelegate {
             transform: state.ctm,
             projection: state.projectionMatrix
         )
+        graphics.popDebugGroup()
     }
     
     public func renderableView(
@@ -179,24 +228,10 @@ extension TCanvas {
         switch result {
         case .draw(let touch):
             let points = painter.generatePoints(forTouch: touch)
-            graphics.drawGrayscalePoints(
-                points,
-                numPoints: points.count, // TODO: remove count
-                in: state.grayscaleTexture,
-                transform: state.ctm,
-                projection: state.projectionMatrix
-            )
-            graphics.colorize(
-                grayscaleTexture: state.grayscaleTexture,
-                withColor: [0.2, 0.1, 0.8, 1],
-                on: state.colorizedTexture
-            )
-            graphics.merge(
-                state.strokeTexture,
-                with: state.colorizedTexture,
-                on: state.strokeTexture
-            )
+            drawPoints(points)
+            clearRenderableTexture()
             mergeLayers()
+            clearGrayscaleTexture()
             state.currentGesture = .drawWithFinger
         case .transform(let touchesMap):
             if state.currentGesture != .transform {

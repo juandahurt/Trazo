@@ -29,7 +29,15 @@ public class TGraphics {
     public func makeRenderableView() -> TGRenderableView {
         TGRenderableView(graphics: self)
     }
-  
+ 
+    public func pushDebugGroup(_ name: String) {
+        commandBuffer?.pushDebugGroup(name)
+    }
+    
+    public func popDebugGroup() {
+        commandBuffer?.popDebugGroup()
+    }
+    
     public func colorize(
         grayscaleTexture textureId: Int,
         withColor color: simd_float4,
