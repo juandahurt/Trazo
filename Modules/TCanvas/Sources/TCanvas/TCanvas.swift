@@ -10,10 +10,12 @@ public class TCanvas {
     var state = TCState()
     var renderableView: TGRenderableView?
     let gestureController = TCCanvasGestureController()
-    let transformer = TCTransformer()
+    let transformer: TCTransformer
     var painter = TPainter()
     
-    public init() {}
+    public init() {
+        transformer = TCTransformer(maxScale: state.maxScale)
+    }
     
     @MainActor
     public func load(in view: UIView) {
@@ -243,12 +245,12 @@ extension TCanvas {
             transformer.transform(usingCurrentTouches: touchesMap)
             state.ctm = transformer.transform
             state.currentGesture = .transform
-            print("transform")
         case .unknown:
-            print("uknown gesture")
             state.currentGesture = .none
         case .liftedFingers:
-            painter.endStroke()
+            if state.currentGesture == .drawWithFinger {
+                painter.endStroke()
+            }
             state.currentGesture = .none
         }
         

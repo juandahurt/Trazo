@@ -13,6 +13,8 @@ struct TCState {
     var clearColor: simd_float4         = [0.15, 0.15, 0.15, 1]
     var currentLayerIndex               = -1
     
+    let maxScale: Float                 = 5
+    
     mutating func addLayer(_ layer: TCLayer) {
         layers.append(layer)
     }
