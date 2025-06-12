@@ -12,7 +12,7 @@ class Slider: UIControl {
     private let minimumValue: CGFloat
     private let maximumValue: CGFloat
     private(set) var value: CGFloat
-    private let cornerRadius: CGFloat = 6
+    private let cornerRadius: CGFloat = 10
     
     private var hasLayoutSubviewsOnce = false
     
@@ -20,10 +20,10 @@ class Slider: UIControl {
         let view = UIView()
         view.translatesAutoresizingMaskIntoConstraints = false
         view.backgroundColor = .init(
-            red: 0.639,
-            green: 0.639,
-            blue: 0.639,
-            alpha: 0.5
+            red: 0.85,
+            green: 0.85,
+            blue: 0.85,
+            alpha: 0.8
         )
         return view
     }()
@@ -50,7 +50,7 @@ class Slider: UIControl {
     
     private func setup() {
         translatesAutoresizingMaskIntoConstraints = false
-        backgroundColor = .black.withAlphaComponent(0.25)
+        backgroundColor = .white.withAlphaComponent(0.1)
         layer.cornerRadius = cornerRadius
         layer.masksToBounds = true
         

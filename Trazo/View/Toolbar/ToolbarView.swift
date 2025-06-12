@@ -12,10 +12,19 @@ class ToolbarView: UIView {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
         stackView.axis = .vertical
+        stackView.distribution = .fill
         stackView.isLayoutMarginsRelativeArrangement = true
-        stackView.spacing = 10
-        stackView.distribution = .fillProportionally
+        stackView.spacing = 30
+        stackView.layoutMargins = .init(top: 8, left: 8, bottom: 8, right: 8)
         return stackView
+    }()
+    
+    private lazy var brushSizeSlider: UIView = {
+        buildSliderWith(imageNamed: "circle.fill")
+    }()
+    
+    private lazy var brushOpacitySlider: UIView = {
+        buildSliderWith(imageNamed: "circle.tophalf.filled.inverse")
     }()
     
     init() {
@@ -33,13 +42,16 @@ class ToolbarView: UIView {
         
         translatesAutoresizingMaskIntoConstraints = false
         layer.masksToBounds = true
-        layer.cornerRadius = 4
+        layer.cornerRadius = 16
         backgroundColor = .init(
-            red: 0.094,
-            green: 0.094,
-            blue: 0.094,
-            alpha: 0.3
+            red: 0.172,
+            green: 0.172,
+            blue: 0.172,
+            alpha: 0.7
         )
+        
+        layer.borderColor = UIColor.white.withAlphaComponent(0.1).cgColor
+        layer.borderWidth = 1
         
         setupStackView()
     }
@@ -47,26 +59,45 @@ class ToolbarView: UIView {
     private func setupStackView() {
         addSubview(stackView)
         
+        stackView.addArrangedSubview(brushSizeSlider)
+        stackView.addArrangedSubview(brushOpacitySlider)
+        
+        NSLayoutConstraint.activate([
+            brushSizeSlider.heightAnchor
+                .constraint(equalTo: brushOpacitySlider.heightAnchor, multiplier: 1)
+        ])
+        
         stackView.makeEgdes(equalTo: self)
     }
-}
-
-extension ToolbarView {
-    func addSliderAttribute(
-        withValue value: CGFloat,
-        minimumValue: CGFloat,
-        maximumValue: CGFloat,
-        imageName: String,
-        onValueChange: ((CGFloat) -> Void)?
-    ) {
-        let attributeSlider = ToolbarAttributeSliderView(
-            value: value,
-            minimumValue: minimumValue,
-            maximumValue: maximumValue,
-            imageName: imageName
+    
+    private func buildSliderWith(imageNamed imageName: String) -> UIView {
+        let slider = Slider(
+            value: 20,
+            minimumValue: 4,
+            maximumValue: 30
         )
-        attributeSlider.onValueChange = onValueChange
         
-        stackView.addArrangedSubview(attributeSlider)
+        let stackView = UIStackView()
+        stackView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.axis = .vertical
+        stackView.spacing = 8
+        stackView.addArrangedSubview(slider)
+        
+        let image = UIImage(systemName: imageName)
+        let imageView = UIImageView(image: image)
+        imageView.tintColor = .init(
+            red: 0.85,
+            green: 0.85,
+            blue: 0.85,
+            alpha: 0.8
+        )
+        imageView.translatesAutoresizingMaskIntoConstraints = false
+        stackView.addArrangedSubview(imageView)
+        NSLayoutConstraint.activate([
+            imageView.heightAnchor
+                .constraint(equalTo: imageView.widthAnchor, multiplier: 1)
+        ])
+        
+        return stackView
     }
 }
