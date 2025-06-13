@@ -5,10 +5,28 @@ import TTypes
 public struct TPainter {
     public internal(set) var stroke: [TTTouch] = []
     var touchCount = 0
-    let brush = TPBrush.normal
+    var brush = TPBrush.normal
     
     public init() {}
    
+    public var brushSize: Float {
+        get {
+            brush.size
+        }
+        set {
+            brush.size = newValue
+        }
+    }
+    
+    public var brushOpacity: Float {
+        get {
+            brush.opacity
+        }
+        set {
+            brush.opacity = newValue
+        }
+    }
+    
     public mutating func endStroke() {
         stroke = []
         touchCount = 0
@@ -22,7 +40,7 @@ public struct TPainter {
             return [touch].map {
                 .init(
                     location: $0.location,
-                    size: 5
+                    size: brushSize
                 )
             }
         }
@@ -56,7 +74,7 @@ public struct TPainter {
                 location.x += Float.random(in: -brush.jitter..<brush.jitter)
                 location.y += Float.random(in: -brush.jitter..<brush.jitter)
             }
-            points.append(.init(location: location, size: 5))
+            points.append(.init(location: location, size: brushSize))
         }
         return points
     }

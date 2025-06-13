@@ -20,12 +20,27 @@ class ToolbarView: UIView {
     }()
     
     private lazy var brushSizeSlider: UIView = {
-        buildSliderWith(imageNamed: "circle.fill")
+        buildSliderWith(
+            value: 6,
+            minValue: 3,
+            maxValue: 20,
+            imageNamed: "circle.fill",
+            onChangeAction: #selector(onSizeValueChange(_:))
+        )
     }()
     
     private lazy var brushOpacitySlider: UIView = {
-        buildSliderWith(imageNamed: "circle.tophalf.filled.inverse")
+        buildSliderWith(
+            value: 0.4,
+            minValue: 0,
+            maxValue: 1,
+            imageNamed: "circle.tophalf.filled.inverse",
+            onChangeAction: #selector(onOpacityValueChange(_:))
+        )
     }()
+    
+    var onOpacityChange: ((Float) -> Void)?
+    var onSizeChange: ((Float) -> Void)?
     
     init() {
         super.init(frame: .zero)
@@ -70,12 +85,19 @@ class ToolbarView: UIView {
         stackView.makeEgdes(equalTo: self)
     }
     
-    private func buildSliderWith(imageNamed imageName: String) -> UIView {
+    private func buildSliderWith(
+        value: CGFloat,
+        minValue: CGFloat,
+        maxValue: CGFloat,
+        imageNamed imageName: String,
+        onChangeAction: Selector
+    ) -> UIView {
         let slider = Slider(
-            value: 20,
-            minimumValue: 4,
-            maximumValue: 30
+            value: value,
+            minimumValue: minValue,
+            maximumValue: maxValue
         )
+        slider.addTarget(self, action: onChangeAction, for: .valueChanged)
         
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -99,5 +121,17 @@ class ToolbarView: UIView {
         ])
         
         return stackView
+    }
+}
+
+private extension ToolbarView {
+    @objc
+    func onOpacityValueChange(_ sender: Slider) {
+        onOpacityChange?(Float(sender.value))
+    }
+    
+    @objc
+    func onSizeValueChange(_ sender: Slider) {
+        onSizeChange?(Float(sender.value))
     }
 }

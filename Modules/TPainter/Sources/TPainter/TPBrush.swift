@@ -1,4 +1,6 @@
 struct TPBrush {
+    public var size: Float = 8
+    public var opacity: Float = 1
     let jitter: Float
     let stabilization: Float
     // TODO: add more configs

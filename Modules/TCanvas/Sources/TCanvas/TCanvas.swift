@@ -17,6 +17,14 @@ public class TCanvas {
         transformer = TCTransformer(maxScale: state.maxScale)
     }
     
+    public func setBrushOpacity(_ value: Float) {
+        painter.brushOpacity = value
+    }
+    
+    public func setBrushSize(_ value: Float) {
+        painter.brushSize = value
+    }
+    
     @MainActor
     public func load(in view: UIView) {
         graphics.load()
@@ -150,6 +158,7 @@ public class TCanvas {
             points,
             numPoints: points.count, // TODO: remove count
             in: state.grayscaleTexture,
+            opacity: painter.brushOpacity,
             transform: state.ctm.inverse,
             projection: state.projectionMatrix
         )
@@ -233,7 +242,7 @@ extension TCanvas {
             drawPoints(points)
             clearRenderableTexture()
             mergeLayers()
-            clearGrayscaleTexture()
+            clearStrokeTexture()
             state.currentGesture = .drawWithFinger
         case .transform(let touchesMap):
             if state.currentGesture != .transform {
@@ -250,6 +259,7 @@ extension TCanvas {
         case .liftedFingers:
             if state.currentGesture == .drawWithFinger {
                 painter.endStroke()
+                clearGrayscaleTexture()
             }
             state.currentGesture = .none
         }

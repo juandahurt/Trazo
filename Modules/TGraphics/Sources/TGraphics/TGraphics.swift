@@ -60,6 +60,7 @@ public class TGraphics {
         _ drawablePoints: [TGRenderablePoint],
         numPoints: Int,
         in textureId: Int,
+        opacity: Float,
         transform: simd_float4x4,
         projection: simd_float4x4
     ) {
@@ -75,7 +76,7 @@ public class TGraphics {
             .drawGrayscalePoints(
                 positionsBuffer: positionsBuffer,
                 numPoints: numPoints,
-                withOpacity: 1,
+                withOpacity: opacity,
                 on: texture,
                 transform: transform,
                 projection: projection,
