@@ -13,16 +13,28 @@ public class TCanvas {
     let transformer: TCTransformer
     var painter = TPainter()
     
-    public init() {
+    public init(config: TCConfig) {
         transformer = TCTransformer(maxScale: state.maxScale)
+        brushSize = config.brushSize
+        brushOpacity = config.brushOpacity
     }
     
-    public func setBrushOpacity(_ value: Float) {
-        painter.brushOpacity = value
+    public var brushOpacity: Float {
+        get {
+            painter.brushOpacity
+        }
+        set {
+            painter.brushOpacity = newValue
+        }
     }
     
-    public func setBrushSize(_ value: Float) {
-        painter.brushSize = value
+    public var brushSize: Float {
+        get {
+            painter.brushSize
+        }
+        set {
+            painter.brushSize = newValue
+        }
     }
     
     @MainActor

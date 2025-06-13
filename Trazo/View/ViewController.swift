@@ -11,10 +11,19 @@ import UIKit
 import TCanvas
 
 class ViewController: UIViewController {
-    let canvas = TCanvas()
+    let canvas: TCanvas
     
     override var prefersStatusBarHidden: Bool {
         true
+    }
+
+    required init?(coder: NSCoder) {
+        let canvasConfig = TCConfig(
+            brushSize: Config.brushSizeValue,
+            brushOpacity: Config.brushOpacityValue
+        )
+        canvas = .init(config: canvasConfig)
+        super.init(coder: coder)
     }
     
     override func viewDidLoad() {
@@ -29,12 +38,15 @@ class ViewController: UIViewController {
         
         toolbar.onOpacityChange = { [weak self] in
             guard let self else { return }
-            canvas.setBrushOpacity($0)
+            canvas.brushOpacity = $0
         }
         toolbar.onSizeChange = { [weak self] in
             guard let self else { return }
-            canvas.setBrushSize($0)
+            canvas.brushSize = $0
         }
+        
+        canvas.brushOpacity = Config.brushOpacityValue
+        canvas.brushSize = Config.brushSizeValue
         
         view.addSubview(toolbar)
         

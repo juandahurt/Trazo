@@ -7,6 +7,15 @@
 
 import UIKit
 
+struct ToolbarConfig {
+    let brushSizeValue:         CGFloat
+    let brushSizeMaxValue:      CGFloat
+    let brushSizeMinValue:      CGFloat
+    let brushOpacityValue:      CGFloat
+    let brushOpacityMaxValue:   CGFloat
+    let brushOpacityMinValue:   CGFloat
+}
+
 class ToolbarView: UIView {
     private let stackView: UIStackView = {
         let stackView = UIStackView()
@@ -21,9 +30,9 @@ class ToolbarView: UIView {
     
     private lazy var brushSizeSlider: UIView = {
         buildSliderWith(
-            value: 6,
-            minValue: 3,
-            maxValue: 20,
+            value: CGFloat(Config.brushSizeValue),
+            minValue: CGFloat(Config.brushSizeMinValue),
+            maxValue: CGFloat(Config.brushSizeMaxValue),
             imageNamed: "circle.fill",
             onChangeAction: #selector(onSizeValueChange(_:))
         )
@@ -31,9 +40,9 @@ class ToolbarView: UIView {
     
     private lazy var brushOpacitySlider: UIView = {
         buildSliderWith(
-            value: 0.4,
-            minValue: 0,
-            maxValue: 1,
+            value: CGFloat(Config.brushOpacityValue),
+            minValue: CGFloat(Config.brushOpacityMinValue),
+            maxValue: CGFloat(Config.brushOpacityMaxValue),
             imageNamed: "circle.tophalf.filled.inverse",
             onChangeAction: #selector(onOpacityValueChange(_:))
         )
@@ -108,9 +117,9 @@ class ToolbarView: UIView {
         let image = UIImage(systemName: imageName)
         let imageView = UIImageView(image: image)
         imageView.tintColor = .init(
-            red: 0.85,
-            green: 0.85,
-            blue: 0.85,
+            red: 0.8,
+            green: 0.8,
+            blue: 0.8,
             alpha: 0.8
         )
         imageView.translatesAutoresizingMaskIntoConstraints = false
