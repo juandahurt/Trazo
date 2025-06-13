@@ -90,7 +90,7 @@ public class TCanvas {
         }
         state.strokeTexture = strokeTextureId
         
-        mergeLayers()
+        mergeLayers(usingStrokeTexture: false)
         
         renderableView.setNeedsDisplay()
     }
@@ -133,26 +133,37 @@ public class TCanvas {
         graphics.popDebugGroup()
     }
     
-    func mergeLayers() {
+    func updateCurrentLayerTexture() {
+        graphics.merge(
+            state.strokeTexture,
+            with: state.layers[state.currentLayerIndex].textureId,
+            on: state.layers[state.currentLayerIndex].textureId
+        )
+    }
+    
+    func mergeLayers(usingStrokeTexture: Bool) {
         graphics.pushDebugGroup("Merge layers")
+        clearRenderableTexture()
         for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
 //            if !state.layers[index].isVisible { continue }
-            var layerTextureId = state.layers[index].textureId
-            graphics.pushDebugGroup("Merge layer \(layerTextureId) with renderable")
-            if index == state.currentLayerIndex {
-                layerTextureId = state.strokeTexture
+            if index == state.currentLayerIndex && usingStrokeTexture {
+                graphics.merge(
+                    state.renderableTexture,
+                    with: state.strokeTexture,
+                    on: state.renderableTexture
+                )
             }
             graphics.merge(
                 state.renderableTexture,
-                with: layerTextureId,
+                with: state.layers[index].textureId,
                 on: state.renderableTexture
             )
-            graphics.popDebugGroup()
         }
         graphics.popDebugGroup()
     }
     
     func drawPoints(_ points: [TGRenderablePoint]) {
+        guard !points.isEmpty else { return }
         graphics.pushDebugGroup("Draw grayscale points")
         graphics.drawGrayscalePoints(
             points,
@@ -167,13 +178,6 @@ public class TCanvas {
         graphics.colorize(
             grayscaleTexture: state.grayscaleTexture,
             withColor: [0.2, 0.1, 0.8, 1],
-            on: state.colorizedTexture
-        )
-        graphics.popDebugGroup()
-        graphics.pushDebugGroup("Merge stroke texture with colorized texture")
-        graphics.merge(
-            state.strokeTexture,
-            with: state.colorizedTexture,
             on: state.strokeTexture
         )
         graphics.popDebugGroup()
@@ -238,11 +242,12 @@ extension TCanvas {
     ) {
         switch result {
         case .draw(let touch):
-            let points = painter.generatePoints(forTouch: touch)
-            drawPoints(points)
-            clearRenderableTexture()
-            mergeLayers()
-            clearStrokeTexture()
+//            clearStrokeTexture()
+            
+            painter.generatePoints(forTouch: touch)
+            drawPoints(painter.points)
+            mergeLayers(usingStrokeTexture: true)
+
             state.currentGesture = .drawWithFinger
         case .transform(let touchesMap):
             if state.currentGesture != .transform {
@@ -259,7 +264,15 @@ extension TCanvas {
         case .liftedFingers:
             if state.currentGesture == .drawWithFinger {
                 painter.endStroke()
+                
+                // update current layer with the stroke texture
+                updateCurrentLayerTexture()
+                // update the renderable texture with the updated layer
+                mergeLayers(usingStrokeTexture: false)
+                
                 clearGrayscaleTexture()
+                clearStrokeTexture()
+                
             }
             state.currentGesture = .none
         }

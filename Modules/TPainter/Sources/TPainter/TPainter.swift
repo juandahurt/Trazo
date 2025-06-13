@@ -3,7 +3,8 @@ import TGraphics
 import TTypes
 
 public struct TPainter {
-    public internal(set) var stroke: [TTTouch] = []
+    var stroke: [TTTouch] = []
+    public internal(set) var points: [TGRenderablePoint] = []
     var touchCount = 0
     var brush = TPBrush.normal
     
@@ -29,20 +30,16 @@ public struct TPainter {
     
     public mutating func endStroke() {
         stroke = []
+        points = []
         touchCount = 0
     }
     
-    public mutating func generatePoints(forTouch touch: TTTouch) -> [TGRenderablePoint] {
+    public mutating func generatePoints(forTouch touch: TTTouch) {
         stroke.append(touch)
         touchCount += 1
         
         guard touchCount >= 4 else {
-            return [touch].map {
-                .init(
-                    location: $0.location,
-                    size: brushSize
-                )
-            }
+            return
         }
         let index = touchCount - 3
         let (c1, c2) = findControlPoints(
@@ -76,7 +73,7 @@ public struct TPainter {
             }
             points.append(.init(location: location, size: brushSize))
         }
-        return points
+        self.points.append(contentsOf: points)
     }
     
     func findControlPoints(
