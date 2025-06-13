@@ -72,15 +72,6 @@ public class TCanvas {
         }
         state.renderableTexture = renderableTextureId
         
-        // colorized texture
-        guard let colorizedTextureId = graphics.makeTexture(
-            ofSize: viewSize,
-            label: "Colorized texture"
-        ) else {
-            return
-        }
-        state.colorizedTexture = colorizedTextureId
-        
         // stroke texture
         guard let strokeTextureId = graphics.makeTexture(
             ofSize: viewSize,

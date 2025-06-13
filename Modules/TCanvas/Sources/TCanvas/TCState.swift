@@ -5,7 +5,6 @@ struct TCState {
     private(set) var layers: [TCLayer]  = []
     var renderableTexture               = -1
     var grayscaleTexture                = -1
-    var colorizedTexture                = -1
     var strokeTexture                   = -1
     var projectionMatrix                = matrix_identity_float4x4
     var ctm                             = matrix_identity_float4x4
