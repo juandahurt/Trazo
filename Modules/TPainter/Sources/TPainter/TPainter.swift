@@ -9,7 +9,7 @@ public struct TPainter {
     var brush = TPBrush.normal
     
     public init() {}
-   
+    
     public var brushSize: Float {
         get {
             brush.size
@@ -38,42 +38,49 @@ public struct TPainter {
         stroke.append(touch)
         touchCount += 1
         
-        guard touchCount >= 4 else {
-            return
-        }
-        let index = touchCount - 3
-        let (c1, c2) = findControlPoints(
-            p0: stroke[index-1].location,
-            p1: stroke[index].location,
-            p2: stroke[index+1].location,
-            p3: stroke[index+2].location
-        )
-        let p0 = stroke[index].location
-        let p1 = c1
-        let p2 = c2
-        let p3 = stroke[index+1].location
-        
-        let length = distance(p0, p1) + distance(p1, p2) + distance(p2, p3)
-        let density: Float = 1
-        let n = Int(length * density)
-        
-        var points: [TGRenderablePoint] = []
-        for index in 0..<n {
-            let t = Float(index) / Float(n)
-            var location = cubicBezierValue(
-                p0: p0,
-                p1: p1,
-                p2: p2,
-                p3: p3,
-                t: t
+        switch touch.phase {
+        case .moved:
+            guard touchCount > 3 else { return }
+            
+            let index = touchCount - 3
+            let (c1, c2) = findControlPoints(
+                p0: stroke[index-1].location,
+                p1: stroke[index].location,
+                p2: stroke[index+1].location,
+                p3: stroke[index+2].location
             )
-            if brush.jitter > 0 {
-                location.x += Float.random(in: -brush.jitter..<brush.jitter)
-                location.y += Float.random(in: -brush.jitter..<brush.jitter)
+            let p0 = stroke[index].location
+            let p1 = c1
+            let p2 = c2
+            let p3 = stroke[index+1].location
+            
+            let length = distance(p0, p1) + distance(p1, p2) + distance(p2, p3)
+            let density: Float = 1
+            let n = Int(length * density)
+            
+            var points: [TGRenderablePoint] = []
+            for index in 0..<n {
+                let t = Float(index) / Float(n)
+                var location = cubicBezierValue(
+                    p0: p0,
+                    p1: p1,
+                    p2: p2,
+                    p3: p3,
+                    t: t
+                )
+                if brush.jitter > 0 {
+                    location.x += Float.random(in: -brush.jitter..<brush.jitter)
+                    location.y += Float.random(in: -brush.jitter..<brush.jitter)
+                }
+                points.append(.init(location: location, size: brushSize))
             }
-            points.append(.init(location: location, size: brushSize))
+            self.points.append(contentsOf: points)
+        case .began, .ended, .cancelled:
+            // TODO: draw last part of the stroke
+            points.append(.init(location: touch.location, size: brushSize))
+            break
+        default: break
         }
-        self.points.append(contentsOf: points)
     }
     
     func findControlPoints(

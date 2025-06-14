@@ -1,3 +1,4 @@
+import Combine
 import TGraphics
 import TPainter
 import TTypes
@@ -12,6 +13,8 @@ public class TCanvas {
     let gestureController = TCCanvasGestureController()
     let transformer: TCTransformer
     var painter = TPainter()
+    
+    private var disposeBag = Set<AnyCancellable>()
     
     public init(config: TCConfig) {
         transformer = TCTransformer(maxScale: state.maxScale)
@@ -41,6 +44,7 @@ public class TCanvas {
     public func load(in view: UIView) {
         graphics.load()
         setupRenderableView(in: view)
+        setupSubscriptions()
         
         guard let renderableView else { return }
         
@@ -116,6 +120,13 @@ public class TCanvas {
         fingerGestureRecognizer.fingerGestureDelegate = self
         
         self.renderableView = renderableView
+    }
+    
+    private func setupSubscriptions() {
+        gestureController.fingerGestureSubject.sink { [weak self] res in
+            guard let self else { return }
+            handleFingerGestureResult(res)
+        }.store(in: &disposeBag)
     }
     
     func clearRenderableTexture() {
@@ -234,8 +245,7 @@ extension TCanvas: TCFingerGestureRecognizerDelegate {
                 phase: $0.phase
             )
         }
-        let res = gestureController.handleFingerTouches(touches)
-        handleFingerGestureResult(res)
+        gestureController.handleFingerTouches(touches)
     }
 }
 
@@ -245,8 +255,6 @@ extension TCanvas {
     ) {
         switch result {
         case .draw(let touch):
-//            clearStrokeTexture()
-            
             painter.generatePoints(forTouch: touch)
             drawPoints(painter.points)
             mergeLayers(usingStrokeTexture: true)

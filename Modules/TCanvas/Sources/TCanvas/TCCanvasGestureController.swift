@@ -1,3 +1,4 @@
+import Combine
 import simd
 import TTypes
 import UIKit
@@ -10,6 +11,9 @@ class TCCanvasGestureController {
         case unknown
         case liftedFingers
     }
+    
+    var fingerGestureSubject = PassthroughSubject<TCFingerGestureResult, Never>()
+    
     private(set) var touchesMap: [Int: [TTTouch]] = [:]
     
     private var numberOfTouches: Int {
@@ -32,23 +36,22 @@ class TCCanvasGestureController {
                 })
     }
     
-    func handleFingerTouches(_ touches: [TTTouch]) -> TCFingerGestureResult {
-        var result = TCFingerGestureResult.unknown
+    func handleFingerTouches(_ touches: [TTTouch]) {
         save(touches: touches)
         
-        if hasUserLiftedFingers {
-            result = .liftedFingers
-        } else {
-            switch estimatedGestureType {
-            case .none:
-                result = .unknown
-            case .drawWithFinger:
-                if let touch = touches.first {
-                    result = .draw(touch)
-                }
-            case .transform:
-                result = .transform(touchesMap)
+        switch estimatedGestureType {
+        case .none:
+            fingerGestureSubject.send(.unknown)
+        case .drawWithFinger:
+            if let touch = touches.first {
+                fingerGestureSubject.send(.draw(touch))
             }
+        case .transform:
+            fingerGestureSubject.send(.transform(touchesMap))
+        }
+        
+        if hasUserLiftedFingers {
+            fingerGestureSubject.send(.liftedFingers)
         }
         
         // check if the touches need to be removed (aka. if the gesture has finished)
@@ -57,8 +60,6 @@ class TCCanvasGestureController {
                 removeTouch(byId: touch.id)
             }
         }
-        
-        return result
     }
     
     private func save(touches: [TTTouch]) {
