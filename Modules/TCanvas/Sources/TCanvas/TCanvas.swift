@@ -119,6 +119,10 @@ public class TCanvas {
         renderableView.addGestureRecognizer(fingerGestureRecognizer)
         fingerGestureRecognizer.fingerGestureDelegate = self
         
+        let pencilGestureRecognizer = TCPencilGestureRecognizer()
+        renderableView.addGestureRecognizer(pencilGestureRecognizer)
+        pencilGestureRecognizer.pencilGestureDelegate = self
+        
         self.renderableView = renderableView
     }
     
@@ -246,6 +250,33 @@ extension TCanvas: TCFingerGestureRecognizerDelegate {
             )
         }
         gestureController.handleFingerTouches(touches)
+    }
+}
+
+extension TCanvas: TCPencilGestureRecognizerDelegate {
+    func didReceivePencilTouches(_ touches: Set<UITouch>) {
+        guard let renderableView else { return }
+        guard let uiTouch = touches.first else { return }
+        let touch = TTTouch(
+            id: uiTouch.hashValue,
+            location: uiTouch.location(fromCenterOfView: renderableView),
+            phase: uiTouch.phase
+        )
+        handlePencilTouch(touch)
+    }
+}
+
+extension TCanvas {
+    private func handlePencilTouch(_ touch: TTTouch) {
+        painter.generatePoints(forTouch: touch)
+        drawPoints(painter.points)
+        mergeLayers(usingStrokeTexture: true)
+        
+        if touch.phase == .ended || touch.phase == .cancelled {
+            painter.endStroke()
+        }
+        
+        renderableView?.setNeedsDisplay()
     }
 }
 
