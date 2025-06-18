@@ -83,6 +83,10 @@ class TCViewModel {
         graphics.makeRenderableView()
     }
     
+    func updateBrush(with brush: TPBrush) {
+        painter.brush = brush
+    }
+    
     private func setupSubscriptions() {
         gestureController.fingerGestureSubject.sink { [weak self] res in
             guard let self else { return }
@@ -144,7 +148,7 @@ class TCViewModel {
             points,
             numPoints: points.count, // TODO: remove count
             in: state.grayscaleTexture,
-            opacity: painter.brushOpacity,
+            opacity: painter.brush.opacity,
             transform: state.ctm.inverse,
             projection: state.projectionMatrix
         )

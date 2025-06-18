@@ -1,5 +1,6 @@
 import Combine
 import TGraphics
+import TPainter
 import TTypes
 import UIKit
 
@@ -9,8 +10,8 @@ class TCCanvasView: UIView {
     
     var disposeBag = Set<AnyCancellable>()
     
-    init(config: TCConfig) {
-        viewModel = .init(config: config)
+    init(viewModel: TCViewModel) {
+        self.viewModel = viewModel
         super.init(frame: .zero)
         
         translatesAutoresizingMaskIntoConstraints = false

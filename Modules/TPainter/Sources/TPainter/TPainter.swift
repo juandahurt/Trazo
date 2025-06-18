@@ -6,27 +6,9 @@ public struct TPainter {
     var stroke: [TTTouch] = []
     public internal(set) var points: [TGRenderablePoint] = []
     var touchCount = 0
-    var brush = TPBrush.normal
+    public var brush = TPBrush.normal
     
     public init() {}
-    
-    public var brushSize: Float {
-        get {
-            brush.size
-        }
-        set {
-            brush.size = newValue
-        }
-    }
-    
-    public var brushOpacity: Float {
-        get {
-            brush.opacity
-        }
-        set {
-            brush.opacity = newValue
-        }
-    }
     
     public mutating func endStroke() {
         stroke = []
@@ -126,7 +108,7 @@ public struct TPainter {
                 location.x += Float.random(in: -brush.jitter..<brush.jitter)
                 location.y += Float.random(in: -brush.jitter..<brush.jitter)
             }
-            points.append(.init(location: location, size: brushSize))
+            points.append(.init(location: location, size: brush.size))
         }
         
         return points

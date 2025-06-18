@@ -9,8 +9,10 @@ import Combine
 import UIKit
 
 import TCanvas
+import TPainter
 
 class ViewController: UIViewController {
+    var brush = TPBrush.normal
     let canvas: TCanvas
     
     override var prefersStatusBarHidden: Bool {
@@ -18,10 +20,7 @@ class ViewController: UIViewController {
     }
 
     required init?(coder: NSCoder) {
-        let canvasConfig = TCConfig(
-            brushSize: Config.brushSizeValue,
-            brushOpacity: Config.brushOpacityValue
-        )
+        let canvasConfig = TCConfig(brush: brush)
         canvas = .init(config: canvasConfig)
         super.init(coder: coder)
     }
@@ -36,18 +35,17 @@ class ViewController: UIViewController {
     func setupToolbar() {
         let toolbar = ToolbarView()
         
-//        toolbar.onOpacityChange = { [weak self] in
-//            guard let self else { return }
-//            canvas.brushOpacity = $0
-//        }
-//        toolbar.onSizeChange = { [weak self] in
-//            guard let self else { return }
-//            canvas.brushSize = $0
-//        }
-//        
-//        canvas.brushOpacity = Config.brushOpacityValue
-//        canvas.brushSize = Config.brushSizeValue
-//        
+        toolbar.onOpacityChange = { [weak self] in
+            guard let self else { return }
+            brush.opacity = $0
+            canvas.updateBrush(with: brush)
+        }
+        toolbar.onSizeChange = { [weak self] in
+            guard let self else { return }
+            brush.size = $0
+            canvas.updateBrush(with: brush)
+        }
+        
         view.addSubview(toolbar)
         
         NSLayoutConstraint.activate([

@@ -1,9 +1,9 @@
+import TPainter
+
 public struct TCConfig {
-    let brushSize: Float
-    let brushOpacity: Float
+    let brush: TPBrush
     
-    public init(brushSize: Float, brushOpacity: Float) {
-        self.brushSize = brushSize
-        self.brushOpacity = brushOpacity
+    public init(brush: TPBrush) {
+        self.brush = brush
     }
 }
