@@ -36,18 +36,18 @@ class ViewController: UIViewController {
     func setupToolbar() {
         let toolbar = ToolbarView()
         
-        toolbar.onOpacityChange = { [weak self] in
-            guard let self else { return }
-            canvas.brushOpacity = $0
-        }
-        toolbar.onSizeChange = { [weak self] in
-            guard let self else { return }
-            canvas.brushSize = $0
-        }
-        
-        canvas.brushOpacity = Config.brushOpacityValue
-        canvas.brushSize = Config.brushSizeValue
-        
+//        toolbar.onOpacityChange = { [weak self] in
+//            guard let self else { return }
+//            canvas.brushOpacity = $0
+//        }
+//        toolbar.onSizeChange = { [weak self] in
+//            guard let self else { return }
+//            canvas.brushSize = $0
+//        }
+//        
+//        canvas.brushOpacity = Config.brushOpacityValue
+//        canvas.brushSize = Config.brushSizeValue
+//        
         view.addSubview(toolbar)
         
         NSLayoutConstraint.activate([
