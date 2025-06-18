@@ -274,6 +274,14 @@ extension TCanvas {
         
         if touch.phase == .ended || touch.phase == .cancelled {
             painter.endStroke()
+            
+            // update current layer with the stroke texture
+            updateCurrentLayerTexture()
+            // update the renderable texture with the updated layer
+            mergeLayers(usingStrokeTexture: false)
+            
+            clearGrayscaleTexture()
+            clearStrokeTexture()
         }
         
         renderableView?.setNeedsDisplay()
