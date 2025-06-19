@@ -6,9 +6,11 @@ public struct TPainter {
     var stroke: [TTTouch] = []
     public internal(set) var points: [TGRenderablePoint] = []
     var touchCount = 0
-    public var brush = TPBrush.normal
+    public var brush: TPBrush
     
-    public init() {}
+    public init(brush: TPBrush) {
+        self.brush = brush
+    }
     
     public mutating func endStroke() {
         stroke = []

@@ -11,7 +11,7 @@ class TCViewModel {
     var state = TCState()
     let gestureController = TCCanvasGestureController()
     let transformer: TCTransformer
-    var painter = TPainter()
+    var painter: TPainter
     
     let renderableViewNeedsDisplaySubject = PassthroughSubject<Void, Never>()
     
@@ -19,6 +19,7 @@ class TCViewModel {
     
     public init(config: TCConfig) {
         transformer = TCTransformer(maxScale: state.maxScale)
+        painter = .init(brush: config.brush)
     }
     
     func load(using renderableView: TGRenderableView, size: CGSize) {
