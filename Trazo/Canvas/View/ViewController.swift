@@ -45,13 +45,17 @@ class ViewController: UIViewController {
             brush.size = $0
             canvas.updateBrush(with: brush)
         }
+        toolbar.onBrushTap = { [weak self] in
+            guard let self else { return }
+            present(BrushCreatorViewController(), animated: true)
+        }
         
         view.addSubview(toolbar)
         
         NSLayoutConstraint.activate([
             toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             toolbar.widthAnchor.constraint(equalToConstant: 48),
-            toolbar.heightAnchor.constraint(equalToConstant: 450),
+            toolbar.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.54),
             toolbar.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }

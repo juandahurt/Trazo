@@ -48,8 +48,18 @@ class ToolbarView: UIView {
         )
     }()
     
+    private lazy var brushButton: UIButton = {
+        let button = UIButton()
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.setImage(.init(systemName: "paintbrush.pointed.fill"), for: .normal)
+        button.tintColor = .white
+        button.addTarget(self, action: #selector(onBrushButtonTap), for: .touchUpInside)
+        return button
+    }()
+    
     var onOpacityChange: ((Float) -> Void)?
     var onSizeChange: ((Float) -> Void)?
+    var onBrushTap: (() -> Void)?
     
     init() {
         super.init(frame: .zero)
@@ -83,12 +93,15 @@ class ToolbarView: UIView {
     private func setupStackView() {
         addSubview(stackView)
         
+        stackView.addArrangedSubview(brushButton)
         stackView.addArrangedSubview(brushSizeSlider)
         stackView.addArrangedSubview(brushOpacitySlider)
         
         NSLayoutConstraint.activate([
             brushSizeSlider.heightAnchor
-                .constraint(equalTo: brushOpacitySlider.heightAnchor, multiplier: 1)
+                .constraint(equalTo: brushOpacitySlider.heightAnchor, multiplier: 1),
+            brushButton.heightAnchor
+                .constraint(equalTo: brushButton.widthAnchor, multiplier: 1)
         ])
         
         stackView.makeEgdes(equalTo: self)
@@ -142,5 +155,10 @@ private extension ToolbarView {
     @objc
     func onSizeValueChange(_ sender: Slider) {
         onSizeChange?(Float(sender.value))
+    }
+    
+    @objc
+    func onBrushButtonTap() {
+        onBrushTap?()
     }
 }
