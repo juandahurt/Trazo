@@ -20,7 +20,7 @@ class ViewController: UIViewController {
     }
 
     required init?(coder: NSCoder) {
-        let canvasConfig = TCConfig(brush: brush)
+        let canvasConfig = TCConfig(isTransformEnabled: true, brush: brush)
         canvas = .init(config: canvasConfig)
         super.init(coder: coder)
     }

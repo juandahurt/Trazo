@@ -75,7 +75,7 @@ class BrushCreatorViewController: UIViewController {
     
     private func setupCanvas() {
         guard canvas == nil else { return }
-        canvas = TCanvas(config: .init(brush: .normal))
+        canvas = TCanvas(config: .init(isTransformEnabled: false, brush: .normal))
         canvas?.load(in: canvasContainerView)
     }
 }

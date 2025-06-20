@@ -20,6 +20,7 @@ class TCViewModel {
     public init(config: TCConfig) {
         transformer = TCTransformer(maxScale: state.maxScale)
         painter = .init(brush: config.brush)
+        state.isTransformEnabled = config.isTransformEnabled
     }
     
     func load(using renderableView: TGRenderableView, size: CGSize) {
@@ -239,6 +240,7 @@ extension TCViewModel {
 
             state.currentGesture = .drawWithFinger
         case .transform(let touchesMap):
+            guard state.isTransformEnabled else { return }
             if state.currentGesture != .transform {
                 transformer.reset()
             }
