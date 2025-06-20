@@ -1,3 +1,4 @@
+import TCanvas
 import UIKit
 
 class BrushCreatorViewController: UIViewController {
@@ -10,9 +11,21 @@ class BrushCreatorViewController: UIViewController {
         return button
     }()
     
+    private let canvasContainerView: UIView = {
+        let container = UIView()
+        container.translatesAutoresizingMaskIntoConstraints = false
+        container.layer.cornerRadius = 10
+        container.layer.masksToBounds = true
+        return container
+    }()
+    
+    private var canvas: TCanvas?
+    
     init() {
         super.init(nibName: nil, bundle: nil)
         modalPresentationStyle = .fullScreen
+        
+        setupSubviews()
     }
 
     required init?(coder: NSCoder) {
@@ -21,12 +34,15 @@ class BrushCreatorViewController: UIViewController {
     
     override func viewDidLoad() {
         view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
-        
-        setupSubviews()
+    }
+    
+    override func viewDidLayoutSubviews() {
+        setupCanvas()
     }
     
     private func setupSubviews() {
         addCloseButton()
+        addCanvasContainer()
     }
     
     private func addCloseButton() {
@@ -40,6 +56,27 @@ class BrushCreatorViewController: UIViewController {
                 .constraint(equalTo: view.trailingAnchor, constant: -30),
             closeButton.topAnchor.constraint(equalTo: view.topAnchor, constant: 40)
         ])
+    }
+    
+    private func addCanvasContainer() {
+        view.addSubview(canvasContainerView)
+        
+        NSLayoutConstraint.activate([
+            canvasContainerView.topAnchor
+                .constraint(equalTo: closeButton.bottomAnchor, constant: 20),
+            canvasContainerView.trailingAnchor
+                .constraint(equalTo: view.trailingAnchor, constant: -30),
+            canvasContainerView.leadingAnchor
+                .constraint(equalTo: view.leadingAnchor, constant: 30),
+            canvasContainerView.heightAnchor
+                .constraint(equalTo: view.heightAnchor, multiplier: 0.3)
+        ])
+    }
+    
+    private func setupCanvas() {
+        guard canvas == nil else { return }
+        canvas = TCanvas(config: .init(brush: .normal))
+        canvas?.load(in: canvasContainerView)
     }
 }
 
