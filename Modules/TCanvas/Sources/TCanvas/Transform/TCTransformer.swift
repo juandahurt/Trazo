@@ -13,10 +13,10 @@ class TCTransformer {
         initialTouchA != nil && initialTouchB != nil
     }
     
-    private var baseTransform: simd_float4x4 = matrix_identity_float4x4
-    private var currentTransform: simd_float4x4 = matrix_identity_float4x4
+    private var baseTransform: TTTransform = matrix_identity_float4x4
+    private var currentTransform: TTTransform = matrix_identity_float4x4
     
-    var transform: simd_float4x4 { baseTransform * currentTransform }
+    var transform: TTTransform { baseTransform * currentTransform }
     
     private var accScale: Float = 1
     private var currentScale: Float = 1
@@ -54,51 +54,36 @@ class TCTransformer {
             return
         }
         
-        let initialPointA = initialTouchA.location
-        let currentPointA = lastTouchA.location
-        let initialPointB = initialTouchB.location
-        let currentPointB = lastTouchB.location
+        let initialPointA = initialTouchA.location.applying(baseTransform.inverse)
+        let currentPointA = lastTouchA.location.applying(baseTransform.inverse)
+        let initialPointB = initialTouchB.location.applying(baseTransform.inverse)
+        let currentPointB = lastTouchB.location.applying(baseTransform.inverse)
         
         // midpoint displacement
         let startCenter = (initialPointA - initialPointB) / 2 + initialPointB
         let currentCenter = (currentPointA - currentPointB) / 2 + currentPointB
         let deltaTranslation = currentCenter - startCenter
         
-        // angle difference
         let startVector = initialPointA - initialPointB
         let currentVector = currentPointA - currentPointB
         let startAngle = atan2(startVector.y, startVector.x)
         let endAngle = atan2(currentVector.y, currentVector.x)
         let deltaAngle = endAngle - startAngle
         
-        // scale factor
-        var scale = length(currentVector) / length(startVector)
-        if scale * accScale > maxScale {
-            scale = maxScale / accScale
-        }
-        
-        // Convert currentCenter (screen coordinates) to canvas coordinates
-        let inverseBaseTransform = baseTransform.inverse
-        let currentCenterHomogeneous = SIMD4<Float>(currentCenter.x, currentCenter.y, 0, 1)
-        let pivotInCanvas = inverseBaseTransform * currentCenterHomogeneous
-        let pivotPoint = SIMD3<Float>(pivotInCanvas.x, pivotInCanvas.y, 0)
-        
-        // Transformation matrices
+        let scale = length(currentVector) / length(startVector)
+
+        let pivotPoint = SIMD3<Float>(currentCenter.x, currentCenter.y, 0)
         let translateToOrigin = simd_float4x4(translateBy: [-pivotPoint.x, -pivotPoint.y, 0])
         let scaleMatrix = simd_float4x4(scaledBy: [scale, scale, 1])
         let rotationMatrix = simd_float4x4(rotateZ: -deltaAngle)
         let translateBack = simd_float4x4(translateBy: [pivotPoint.x, pivotPoint.y, 0])
         let pivotTransform = translateBack * rotationMatrix * scaleMatrix * translateToOrigin
-        
-        // Translation
+
         let translationMatrix = simd_float4x4(
             translateBy: [deltaTranslation.x, deltaTranslation.y, 0]
         )
-            
-        currentTransform = translationMatrix * pivotTransform
         
-        currAngle = -deltaAngle
-        currentScale = scale
+        currentTransform = translationMatrix * pivotTransform
     }
     
     func reset() {
