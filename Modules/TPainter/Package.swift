@@ -4,26 +4,23 @@
 import PackageDescription
 
 let package = Package(
-    name: "TrazoCanvas",
+    name: "TPainter",
+    platforms: [.iOS(.v16)],
     products: [
         // Products define the executables and libraries a package produces, making them visible to other packages.
         .library(
-            name: "TrazoCanvas",
-            targets: ["TrazoCanvas"]),
+            name: "TPainter",
+            targets: ["TPainter"]),
     ],
     dependencies: [
-//        .package(path: "./../TrazoCore"),
-//        .package(path: "./../TrazoEngine")
+        .package(path: "../TGraphics"),
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
-            name: "TrazoCanvas",
-            dependencies: [
-//                .product(name: "TrazoCore", package: "TrazoCore"),
-//                .product(name: "TrazoEngine", package: "TrazoEngine")
-            ]
-        ),
+            name: "TPainter",
+            dependencies: [.byName(name: "TGraphics")]),
+
     ]
 )

@@ -8,9 +8,15 @@
       location = "group:TrazoCanvas">
    </FileRef>
    <FileRef
-      location = "group:TrazoEngine">
+      location = "container:Modules/TGraphics">
    </FileRef>
    <FileRef
-      location = "group:TrazoCore">
+      location = "container:Modules/TCanvas">
+   </FileRef>
+   <FileRef
+      location = "group:Modules/TTypes">
+   </FileRef>
+   <FileRef
+      location = "container:Modules/TPainter">
    </FileRef>
 </Workspace>

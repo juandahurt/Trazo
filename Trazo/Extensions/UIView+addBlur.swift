@@ -9,7 +9,7 @@ import UIKit
 
 extension UIView {
     func addBlur() {
-        let blur = UIBlurEffect(style: .systemMaterialDark)
+        let blur = UIBlurEffect(style: .systemThinMaterialDark)
         let visualEffect = UIVisualEffectView(effect: blur)
         visualEffect.autoresizingMask = [.flexibleWidth, .flexibleHeight]
         addSubview(visualEffect)
