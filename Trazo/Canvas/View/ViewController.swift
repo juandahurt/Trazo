@@ -45,10 +45,6 @@ class ViewController: UIViewController {
             brush.size = $0
             canvas.updateBrush(with: brush)
         }
-        toolbar.onBrushTap = { [weak self] in
-            guard let self else { return }
-            present(BrushCreatorViewController(), animated: true)
-        }
         
         view.addSubview(toolbar)
         
