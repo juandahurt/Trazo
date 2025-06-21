@@ -8,12 +8,6 @@
       location = "group:TrazoCanvas">
    </FileRef>
    <FileRef
-      location = "group:TrazoEngine">
-   </FileRef>
-   <FileRef
-      location = "group:TrazoCore">
-   </FileRef>
-   <FileRef
       location = "container:Modules/TGraphics">
    </FileRef>
    <FileRef

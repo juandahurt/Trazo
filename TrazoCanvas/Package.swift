@@ -12,8 +12,8 @@ let package = Package(
             targets: ["TrazoCanvas"]),
     ],
     dependencies: [
-        .package(path: "./../TrazoCore"),
-        .package(path: "./../TrazoEngine")
+//        .package(path: "./../TrazoCore"),
+//        .package(path: "./../TrazoEngine")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
@@ -21,8 +21,8 @@ let package = Package(
         .target(
             name: "TrazoCanvas",
             dependencies: [
-                .product(name: "TrazoCore", package: "TrazoCore"),
-                .product(name: "TrazoEngine", package: "TrazoEngine")
+//                .product(name: "TrazoCore", package: "TrazoCore"),
+//                .product(name: "TrazoEngine", package: "TrazoEngine")
             ]
         ),
     ]
