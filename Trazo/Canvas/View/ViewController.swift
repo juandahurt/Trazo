@@ -49,9 +49,9 @@ class ViewController: UIViewController {
         view.addSubview(toolbar)
         
         NSLayoutConstraint.activate([
-            toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
-            toolbar.widthAnchor.constraint(equalToConstant: 48),
-            toolbar.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.54),
+            toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            toolbar.widthAnchor.constraint(equalToConstant: 40),
+            toolbar.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35),
             toolbar.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }

@@ -67,7 +67,7 @@ class ToolbarView: UIView {
         
         translatesAutoresizingMaskIntoConstraints = false
         layer.masksToBounds = true
-        layer.cornerRadius = 16
+        layer.cornerRadius = 8
         backgroundColor = .init(
             red: 0.172,
             green: 0.172,
@@ -124,11 +124,11 @@ class ToolbarView: UIView {
             alpha: 0.8
         )
         imageView.translatesAutoresizingMaskIntoConstraints = false
-        stackView.addArrangedSubview(imageView)
-        NSLayoutConstraint.activate([
-            imageView.heightAnchor
-                .constraint(equalTo: imageView.widthAnchor, multiplier: 1)
-        ])
+//        stackView.addArrangedSubview(imageView)
+//        NSLayoutConstraint.activate([
+//            imageView.heightAnchor
+//                .constraint(equalTo: imageView.widthAnchor, multiplier: 1)
+//        ])
         
         return stackView
     }
