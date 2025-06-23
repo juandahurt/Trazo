@@ -12,7 +12,9 @@ class Slider: UIControl {
     private let minimumValue: CGFloat
     private let maximumValue: CGFloat
     private(set) var value: CGFloat
-    private let cornerRadius: CGFloat = 10
+    private let cornerRadius: CGFloat = 4
+    private let handlerHeight: CGFloat = 4
+    private let handlerWidthOffset: CGFloat = 2
     
     private var hasLayoutSubviewsOnce = false
     
@@ -25,10 +27,21 @@ class Slider: UIControl {
             blue: 0.85,
             alpha: 0.8
         )
+        view.layer.cornerRadius = cornerRadius
+        view.layer.maskedCorners = [.layerMinXMaxYCorner, .layerMaxXMaxYCorner]
         return view
     }()
     
+    private let handlerView: UIView = {
+        let topView = UIView()
+        topView.backgroundColor = .white
+        topView.translatesAutoresizingMaskIntoConstraints = false
+        topView.layer.cornerRadius = 2
+        return topView
+    }()
+    
     private var progressViewHeightConstraint: NSLayoutConstraint?
+    private var handlerViewBottomAnchorConstraint: NSLayoutConstraint?
     
     init(
         value: CGFloat,
@@ -52,9 +65,9 @@ class Slider: UIControl {
         translatesAutoresizingMaskIntoConstraints = false
         backgroundColor = .white.withAlphaComponent(0.1)
         layer.cornerRadius = cornerRadius
-        layer.masksToBounds = true
         
         setupProgressView()
+        setupHandlerView()
     }
     
     private func setupProgressView() {
@@ -71,24 +84,48 @@ class Slider: UIControl {
         progressViewHeightConstraint?.isActive = true
     }
     
+    private func setupHandlerView() {
+        addSubview(handlerView)
+        
+        NSLayoutConstraint.activate([
+            handlerView.leadingAnchor
+                .constraint(equalTo: leadingAnchor, constant: -handlerWidthOffset),
+            handlerView.trailingAnchor
+                .constraint(equalTo: trailingAnchor, constant: handlerWidthOffset),
+            handlerView.heightAnchor.constraint(equalToConstant: handlerHeight)
+        ])
+        
+        handlerViewBottomAnchorConstraint = handlerView.bottomAnchor
+            .constraint(equalTo: bottomAnchor, constant: 0)
+        handlerViewBottomAnchorConstraint?.isActive = true
+    }
+    
     override func layoutSubviews() {
         super.layoutSubviews()
         
         guard !hasLayoutSubviewsOnce else { return }
         hasLayoutSubviewsOnce = true
-        updateHeightConstraint()
+        updateHeightConstraint(animated: false)
     }
 }
 
 // MARK: - Value update
 extension Slider {
-    private func updateHeightConstraint() {
+    private func updateHeightConstraint(animated: Bool) {
         let t = (value - minimumValue) / (maximumValue - minimumValue)
-        progressViewHeightConstraint?.constant = t * bounds.height
+        let newHeight = t * bounds.height
+        progressViewHeightConstraint?.constant = newHeight
         
-        UIView.animate(withDuration: 0.1) { [weak self] in
-            guard let self else { return }
-            layoutIfNeeded()
+        handlerViewBottomAnchorConstraint?.constant = -min(
+            newHeight,
+            bounds.height - handlerHeight
+        )
+        
+        if animated {
+            UIView.animate(withDuration: 0.1) { [weak self] in
+                guard let self else { return }
+                layoutIfNeeded()
+            }
         }
     }
     
@@ -106,7 +143,7 @@ extension Slider {
         let location = touch.location(in: self)
         
         updateValue(forLocation: location)
-        updateHeightConstraint()
+        updateHeightConstraint(animated: false)
         sendActions(for: .valueChanged)
     }
     
@@ -115,7 +152,7 @@ extension Slider {
         let location = touch.location(in: self)
         
         updateValue(forLocation: location)
-        updateHeightConstraint()
+        updateHeightConstraint(animated: true)
         sendActions(for: .valueChanged)
     }
 }
