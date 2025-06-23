@@ -105,13 +105,13 @@ class Slider: UIControl {
         
         guard !hasLayoutSubviewsOnce else { return }
         hasLayoutSubviewsOnce = true
-        updateHeightConstraint()
+        updateHeightConstraint(animated: false)
     }
 }
 
 // MARK: - Value update
 extension Slider {
-    private func updateHeightConstraint() {
+    private func updateHeightConstraint(animated: Bool) {
         let t = (value - minimumValue) / (maximumValue - minimumValue)
         let newHeight = t * bounds.height
         progressViewHeightConstraint?.constant = newHeight
@@ -121,9 +121,11 @@ extension Slider {
             bounds.height - handlerHeight
         )
         
-        UIView.animate(withDuration: 0.1) { [weak self] in
-            guard let self else { return }
-            layoutIfNeeded()
+        if animated {
+            UIView.animate(withDuration: 0.1) { [weak self] in
+                guard let self else { return }
+                layoutIfNeeded()
+            }
         }
     }
     
@@ -141,7 +143,7 @@ extension Slider {
         let location = touch.location(in: self)
         
         updateValue(forLocation: location)
-        updateHeightConstraint()
+        updateHeightConstraint(animated: false)
         sendActions(for: .valueChanged)
     }
     
@@ -150,7 +152,7 @@ extension Slider {
         let location = touch.location(in: self)
         
         updateValue(forLocation: location)
-        updateHeightConstraint()
+        updateHeightConstraint(animated: true)
         sendActions(for: .valueChanged)
     }
 }
