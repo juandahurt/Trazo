@@ -14,7 +14,7 @@ struct TCState {
     
     var isTransformEnabled              = true
     
-    let maxScale: Float                 = 5
+    var tool: TCTool                    = .draw
     
     mutating func addLayer(_ layer: TCLayer) {
         layers.append(layer)

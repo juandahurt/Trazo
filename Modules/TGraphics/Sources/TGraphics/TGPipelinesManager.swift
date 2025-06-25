@@ -7,6 +7,7 @@ class TGPipelinesManager {
         case fill = "fill_color"
         case merge = "merge_textures"
         case colorize = "colorize"
+        case substract = "subtract_texture"
     }
     enum TGRenderPipelineType: CaseIterable {
         case drawTexture

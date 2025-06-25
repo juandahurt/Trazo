@@ -12,6 +12,49 @@ class TGRenderer {
     func load() {
         pipelineManager.load()
     }
+   
+    public func copy(
+        texture: MTLTexture,
+        on destinationTexture: MTLTexture,
+        commandBuffer: MTLCommandBuffer
+    ) {
+        let blitEncoder = commandBuffer.makeBlitCommandEncoder()
+        blitEncoder?.copy(from: texture, to: destinationTexture)
+        blitEncoder?.endEncoding()
+    }
+    
+    public func substract(
+        textureA: MTLTexture,
+        textureB: MTLTexture,
+        on outputTexture: MTLTexture,
+        commandBuffer: MTLCommandBuffer
+    ) {
+        guard let pipelineState = pipelineManager.computePipeline(ofType: .substract) else {
+            return
+        }
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(pipelineState)
+        encoder?.setTexture(textureA, index: 0)
+        encoder?.setTexture(textureB, index: 1)
+        encoder?.setTexture(outputTexture, index: 2)
+        let threadsGroupSize = MTLSize(
+            width: (textureA.width) / threadGroupLength,
+            height: textureA.height / threadGroupLength,
+            depth: 1
+        )
+        // TODO: check this little equation
+        let threadsPerThreadGroup = MTLSize(
+            width: (textureA.width) / threadsGroupSize.width,
+            height: (textureA.height) / threadsGroupSize.height,
+            depth: 1
+        )
+        
+        encoder?.dispatchThreadgroups(
+            threadsGroupSize,
+            threadsPerThreadgroup: threadsPerThreadGroup
+        )
+        encoder?.endEncoding()
+    }
     
     func fillTexture(
         texture: MTLTexture,
