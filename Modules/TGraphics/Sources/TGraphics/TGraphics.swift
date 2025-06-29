@@ -37,6 +37,39 @@ public class TGraphics {
     public func popDebugGroup() {
         commandBuffer?.popDebugGroup()
     }
+  
+    public func copy(texture inputTextureId: Int, on destinationTextureId: Int) {
+        guard
+            let inputTexture = textureManager.texture(byId: inputTextureId),
+            let destinationTexture = textureManager.texture(byId: destinationTextureId),
+            let commandBuffer
+        else { return }
+        renderer
+            .copy(
+                texture: inputTexture,
+                on: destinationTexture,
+                commandBuffer: commandBuffer
+            )
+    }
+    
+    public func substract(
+        textureA textureAId: Int,
+        textureB textureBId: Int,
+        on outputTexture: Int
+    ) {
+        guard
+            let textureA = textureManager.texture(byId: textureAId),
+            let textureB = textureManager.texture(byId: textureBId),
+            let outputTexture = textureManager.texture(byId: outputTexture),
+            let commandBuffer
+        else { return }
+        renderer.substract(
+            textureA: textureA,
+            textureB: textureB,
+            on: outputTexture,
+            commandBuffer: commandBuffer
+        )
+    }
     
     public func colorize(
         grayscaleTexture textureId: Int,
@@ -62,7 +95,8 @@ public class TGraphics {
         in textureId: Int,
         opacity: Float,
         transform: simd_float4x4,
-        projection: simd_float4x4
+        projection: simd_float4x4,
+        clearBackground: Bool = false
     ) {
        guard
             let commandBuffer,
@@ -81,7 +115,7 @@ public class TGraphics {
                 transform: transform,
                 projection: projection,
                 using: commandBuffer,
-                clearingBackground: false
+                clearingBackground: clearBackground
             )
     }
     

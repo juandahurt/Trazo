@@ -18,4 +18,8 @@ public class TCanvas {
     public func updateBrush(with brush: TPBrush) {
         viewModel.updateBrush(with: brush)
     }
+    
+    public func setTool(_ tool: TCTool) {
+        viewModel.updateTool(tool)
+    }
 }

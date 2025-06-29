@@ -38,3 +38,16 @@ kernel void colorize(
     float4 newColor = float4(alpha * color[0], alpha * color[1], alpha * color[2], alpha);
     outputTexture.write(newColor, gid);
 }
+
+
+kernel void subtract_texture(
+                           texture2d<float, access::read> textureA [[texture(0)]],
+                           texture2d<float, access::read> textureB [[texture(1)]],
+                           texture2d<float, access::write> outputTexture [[texture(2)]],
+                           uint2 gid [[thread_position_in_grid]])
+{
+    float alphaToSubstract = textureB.read(gid).a;
+    float4 oldColor = textureA.read(gid);
+    float4 newColor = oldColor * (1 - alphaToSubstract);
+    outputTexture.write(newColor, gid);
+}

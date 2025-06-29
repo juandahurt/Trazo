@@ -18,6 +18,12 @@ class ViewController: UIViewController {
     override var prefersStatusBarHidden: Bool {
         true
     }
+    
+    private lazy var eraserCheckbox: UISwitch = {
+        let checkbox = UISwitch()
+        checkbox.addTarget(self, action: #selector(onCheckboxToggle), for: .valueChanged)
+        return checkbox
+    }()
 
     required init?(coder: NSCoder) {
         let canvasConfig = TCConfig(isTransformEnabled: true, brush: brush)
@@ -30,6 +36,12 @@ class ViewController: UIViewController {
         
         view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
         setupToolbar()
+        
+        view.addSubview(eraserCheckbox)
+        NSLayoutConstraint.activate([
+            eraserCheckbox.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            eraserCheckbox.topAnchor.constraint(equalTo: view.topAnchor)
+        ])
     }
     
     func setupToolbar() {
@@ -54,5 +66,10 @@ class ViewController: UIViewController {
             toolbar.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35),
             toolbar.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+    
+    @objc
+    func onCheckboxToggle() {
+        canvas.setTool(eraserCheckbox.isOn ? .erase : .draw)
     }
 }

@@ -23,12 +23,6 @@ class TCTransformer {
     private var accAngle: Float = 0
     private var currAngle: Float = 0
     
-    private let maxScale: Float
-    
-    init(maxScale: Float) {
-        self.maxScale = maxScale
-    }
-    
     func initialize(withTouches touchesDict: [Int: [TTTouch]]) {
         guard
             let keyA = touchesDict.keys.sorted().first,
