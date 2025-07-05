@@ -56,15 +56,13 @@ vertex GrayScalePoint gray_scale_point_vert(DrawablePoint point [[stage_in]],
 
 fragment float4 gray_scale_point_frag(
                                       GrayScalePoint pointData [[stage_in]],
-                                      float2 pointCoord [[point_coord]])
+                                      float2 pointCoord [[point_coord]],
+                                      texture2d<float, access::sample> shapeTexture [[texture(0)]],
+                                      texture2d<float, access::sample> granularityTexture [[texture(1)]])
 {
-    float radius = 0.3;
-    float2 center = float2(0.5, 0.5);
-    float dist = distance(center, pointCoord);
-    if (dist <= radius) {
-        return float4(1, 1, 1, 1) * pointData.opacity;
-    }
-    
-    float alpha = smoothstep(0.5, radius, dist) * pointData.opacity;
+    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
+    float granAlpha = granularityTexture.sample(defaultSampler, pointCoord).a;
+    float shapeAlpha = shapeTexture.sample(defaultSampler, pointCoord).a;
+    float alpha = granAlpha * shapeAlpha * pointData.opacity;
     return float4(alpha, alpha, alpha, alpha);
 }

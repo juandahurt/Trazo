@@ -166,6 +166,7 @@ class TCViewModel {
             numPoints: points.count, // TODO: remove count
             in: state.grayscaleTexture,
             opacity: painter.brush.opacity,
+            shapeTextureId: -1, // TODO: pass correct id
             transform: state.ctm.inverse,
             projection: state.projectionMatrix
         )
@@ -187,6 +188,7 @@ class TCViewModel {
             numPoints: points.count, // TODO: remove count
             in: state.grayscaleTexture,
             opacity: painter.brush.opacity,
+            shapeTextureId: -1, // TODO: pass correct id
             transform: state.ctm.inverse,
             projection: state.projectionMatrix,
             clearBackground: true
