@@ -18,7 +18,7 @@ public struct TPainter {
         touchCount = 0
     }
     
-    public mutating func generatePoints(forTouch touch: TTTouch) {
+    public mutating func generatePoints(forTouch touch: TTTouch, ctm: TTTransform) {
         stroke.append(touch)
         touchCount += 1
         
@@ -26,21 +26,21 @@ public struct TPainter {
         case .moved:
             guard touchCount >= 3 else { return }
             if touchCount == 3 {
-                points.append(contentsOf: findPointsForFirstSegment())
+                points.append(contentsOf: findPointsForFirstSegment(ctm: ctm))
             } else {
-                points.append(contentsOf: findPointsForMidSegment())
+                points.append(contentsOf: findPointsForMidSegment(ctm: ctm))
             }
         case .ended, .cancelled:
             guard touchCount > 3 else { return }
             // add the second-last curve
-            points.append(contentsOf: findPointsForMidSegment())
+            points.append(contentsOf: findPointsForMidSegment(ctm: ctm))
             // add the last curve
-            points.append(contentsOf: findPointsForFinalSegment())
+            points.append(contentsOf: findPointsForFinalSegment(ctm: ctm))
         default: break
         }
     }
     
-    func findPointsForFirstSegment() -> [TGRenderablePoint] {
+    func findPointsForFirstSegment(ctm: TTTransform) -> [TGRenderablePoint] {
         let index = 0
         let (c1, c2) = findControlPoints(
             p0: stroke[0].location,
@@ -52,10 +52,10 @@ public struct TPainter {
         let p1 = c1
         let p2 = c2
         let p3 = stroke[1].location
-        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3)
+        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3, ctm: ctm)
     }
     
-    func findPointsForFinalSegment() -> [TGRenderablePoint] {
+    func findPointsForFinalSegment(ctm: TTTransform) -> [TGRenderablePoint] {
         let index = touchCount - 1
         let (c1, c2) = findControlPoints(
             p0: stroke[index-1].location,
@@ -67,10 +67,10 @@ public struct TPainter {
         let p1 = c1
         let p2 = c2
         let p3 = stroke[index].location
-        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3)
+        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3, ctm: ctm)
     }
     
-    func findPointsForMidSegment() -> [TGRenderablePoint] {
+    func findPointsForMidSegment(ctm: TTTransform) -> [TGRenderablePoint] {
         let index = touchCount - 3
         let (c1, c2) = findControlPoints(
             p0: stroke[index-1].location,
@@ -83,18 +83,31 @@ public struct TPainter {
         let p2 = c2
         let p3 = stroke[index+1].location
         
-        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3)
+        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3, ctm: ctm)
     }
     
     func findPointsForSegment(
         p0: simd_float2,
         p1: simd_float2,
         p2: simd_float2,
-        p3: simd_float2
+        p3: simd_float2,
+        ctm: TTTransform
     ) -> [TGRenderablePoint] {
-        let length = distance(p0, p1) + distance(p1, p2) + distance(p2, p3)
+        // find the distance given the current current transform
+        let length = distance(
+            p0.applying(ctm.inverse),
+            p1.applying(ctm.inverse)
+        ) +
+        distance(
+            p1.applying(ctm.inverse),
+            p2.applying(ctm.inverse)
+        ) +
+        distance(
+            p2.applying(ctm.inverse),
+            p3.applying(ctm.inverse)
+        )
         let density: Float = 1
-        let n = Int(length * density)
+        let n = max(1, Int(length * density))
         
         var points: [TGRenderablePoint] = []
         for index in 0..<n {

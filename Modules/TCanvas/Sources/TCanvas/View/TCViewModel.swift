@@ -243,7 +243,7 @@ extension TCViewModel: TGRenderableViewDelegate {
 
 extension TCViewModel {
     func handlePencilTouch(_ touch: TTTouch) {
-        painter.generatePoints(forTouch: touch)
+        painter.generatePoints(forTouch: touch, ctm: state.ctm)
         drawPoints(painter.points)
         mergeLayers(usingStrokeTexture: true)
         
@@ -273,7 +273,7 @@ extension TCViewModel {
     ) {
         switch result {
         case .draw(let touch):
-            painter.generatePoints(forTouch: touch)
+            painter.generatePoints(forTouch: touch, ctm: state.ctm)
             switch state.tool {
             case .draw:
                 drawPoints(painter.points)
