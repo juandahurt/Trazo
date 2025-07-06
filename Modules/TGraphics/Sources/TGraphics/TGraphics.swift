@@ -94,6 +94,7 @@ public class TGraphics {
         numPoints: Int,
         in textureId: Int,
         opacity: Float,
+        shapeTextureId: Int = -1,
         transform: simd_float4x4,
         projection: simd_float4x4,
         clearBackground: Bool = false
@@ -106,12 +107,19 @@ public class TGraphics {
                 length: MemoryLayout<TGRenderablePoint>.stride * numPoints
             )
         else { return }
+        // TODO: get shape/granurality textures form texture id param
+        guard
+            let shapeTexture = textureManager.texture(byId: 0),
+            let granuralityTexture = textureManager.texture(byId: 1)
+        else { return }
         renderer
             .drawGrayscalePoints(
                 positionsBuffer: positionsBuffer,
                 numPoints: numPoints,
                 withOpacity: opacity,
                 on: texture,
+                shapeTexture: shapeTexture,
+                granularityTexture: granuralityTexture,
                 transform: transform,
                 projection: projection,
                 using: commandBuffer,

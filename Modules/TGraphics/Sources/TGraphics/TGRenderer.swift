@@ -173,6 +173,8 @@ class TGRenderer {
         numPoints: Int,
         withOpacity opacity: Float,
         on grayScaleTexture: MTLTexture,
+        shapeTexture: MTLTexture,
+        granularityTexture: MTLTexture,
         transform: simd_float4x4,
         projection: simd_float4x4,
         using commandBuffer: MTLCommandBuffer,
@@ -222,6 +224,9 @@ class TGRenderer {
             length: MemoryLayout<Float>.stride,
             index: 3
         )
+       
+        encoder?.setFragmentTexture(shapeTexture, index: 0)
+        encoder?.setFragmentTexture(granularityTexture, index: 1)
         
         encoder?.drawPrimitives(
             type: .point,
