@@ -94,7 +94,7 @@ class TCViewModel {
     }
     
     private func setupSubscriptions() {
-        gestureController.fingerGestureSubject.sink { [weak self] res in
+        gestureController.gestureEventSubject.sink { [weak self] res in
             guard let self else { return }
             handleFingerGestureResult(res)
         }.store(in: &disposeBag)
@@ -269,7 +269,7 @@ extension TCViewModel {
 
 extension TCViewModel {
     private func handleFingerGestureResult(
-        _ result: TCCanvasGestureController.TCFingerGestureResult
+        _ result: TCCanvasGestureController.TCFingerGestureEvent
     ) {
         switch result {
         case .draw(let touch):
@@ -289,35 +289,27 @@ extension TCViewModel {
                 erasePoints(painter.points)
                 mergeLayers(usingStrokeTexture: true, ignoringCurrentTexture: true)
             }
-            state.currentGesture = .drawWithFinger
-        case .transform(let touchesMap):
+        case .drawCanceled:
+            painter.endStroke()
+            clearGrayscaleTexture() // just in case :)
+        case .transform(let touchMap):
             guard state.isTransformEnabled else { return }
-            if state.currentGesture != .transform {
-                transformer.reset()
-            }
-            if !transformer.isInitialized {
-                transformer.initialize(withTouches: touchesMap)
-            }
-            transformer.transform(usingCurrentTouches: touchesMap)
+            transformer.transform(usingCurrentTouches: touchMap)
             state.ctm = transformer.transform
-            state.currentGesture = .transform
-        case .unknown:
-            state.currentGesture = .none
-            return
-        case .liftedFingers:
-            if state.currentGesture == .drawWithFinger {
-                painter.endStroke()
-                
-                // update current layer with the stroke texture
-                updateCurrentLayerTexture()
-                // update the renderable texture with the updated layer
-                mergeLayers(usingStrokeTexture: false)
-                
-                clearGrayscaleTexture()
-                clearStrokeTexture()
-                
-            }
-            state.currentGesture = .none
+        case .transformInit(let touchMap):
+            transformer.reset()
+            transformer.initialize(withTouches: touchMap)
+        case .idle: return
+        case .drawEnded:
+            painter.endStroke()
+            
+            // update current layer with the stroke texture
+            updateCurrentLayerTexture()
+            // update the renderable texture with the updated layer
+            mergeLayers(usingStrokeTexture: false)
+            
+            clearGrayscaleTexture()
+            clearStrokeTexture()
         }
         
         renderableViewNeedsDisplaySubject.send(())

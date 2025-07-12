@@ -14,13 +14,16 @@ let package = Package(
     ],
     dependencies: [
         .package(path: "../TGraphics"),
+        .package(path: "../TTypes")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "TPainter",
-            dependencies: [.byName(name: "TGraphics")]),
+            dependencies: [.byName(name: "TGraphics"),
+                           .byName(name: "TTypes")]
+        )
 
     ]
 )
