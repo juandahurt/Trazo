@@ -8,7 +8,6 @@ struct TCState {
     var strokeTexture                   = -1
     var projectionMatrix                = matrix_identity_float4x4
     var ctm                             = matrix_identity_float4x4
-    var currentGesture: TCGestureType   = .none
     var clearColor: simd_float4         = [0.15, 0.15, 0.15, 1]
     var currentLayerIndex               = -1
     
@@ -24,8 +23,4 @@ struct TCState {
 struct TCLayer {
     var textureId: Int
     var name: String
-}
-
-enum TCGestureType {
-    case none, drawWithFinger, transform
 }
