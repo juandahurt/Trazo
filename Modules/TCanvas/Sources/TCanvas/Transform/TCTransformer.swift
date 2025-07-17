@@ -77,7 +77,7 @@ class TCTransformer {
             translateBy: [deltaTranslation.x, deltaTranslation.y, 0]
         )
         
-        currentTransform = translationMatrix * pivotTransform
+        currentTransform = pivotTransform * translationMatrix
     }
     
     func reset() {
