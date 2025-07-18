@@ -5,13 +5,25 @@ import TTypes
 import simd
 import UIKit
 
-@MainActor
+protocol TCCanvasPresenter: AnyObject {
+    // draw
+    func draw(points: [TGRenderablePoint])
+    func mergeLayersWhenDrawing()
+    func updateCurrentLayerAfterDrawing()
+    // erase
+    func erase(points: [TGRenderablePoint])
+    func mergeLayersWhenErasing()
+    func copyCurrrentLayerToStrokeTexture()
+    func updateCurrentLayerAfterErasing()
+}
+
+
 class TCViewModel {
     let graphics = TGraphics()
     var state = TCState()
     let gestureController = TCCanvasGestureController()
     let transformer: TCTransformer
-    var painter: TPainter
+    var currentTool: TCTool = TCDrawingTool()
     
     let renderableViewNeedsDisplaySubject = PassthroughSubject<Void, Never>()
     
@@ -19,10 +31,13 @@ class TCViewModel {
     
     public init(config: TCConfig) {
         transformer = TCTransformer()
-        painter = .init(brush: config.brush)
+//        painter = .init(brush: config.brush)
         state.isTransformEnabled = config.isTransformEnabled
+        
+        currentTool.canvasPresenter = self
     }
     
+    @MainActor
     func load(using renderableView: TGRenderableView, size: CGSize) {
         graphics.load()
         setupSubscriptions()
@@ -81,16 +96,23 @@ class TCViewModel {
         renderableViewNeedsDisplaySubject.send(())
     }
     
+    @MainActor
     func makeRenderableView() -> TGRenderableView {
         graphics.makeRenderableView()
     }
     
     func updateBrush(with brush: TPBrush) {
-        painter.brush = brush
+        // TODO: update brush
+//        painter.brush = brush
     }
    
-    func updateTool(_ tool: TCToolType) {
-        state.tool = tool
+    func updateToolType(_ toolType: TCToolType) {
+        currentTool =
+        switch toolType {
+        case .draw: TCDrawingTool()
+        case .erase: TCErasingTool()
+        }
+        currentTool.canvasPresenter = self
     }
     
     private func setupSubscriptions() {
@@ -118,22 +140,6 @@ class TCViewModel {
         graphics.popDebugGroup()
     }
     
-    func updateCurrentLayerTexture() {
-        if state.tool == .draw {
-            graphics.merge(
-                state.strokeTexture,
-                with: state.layers[state.currentLayerIndex].textureId,
-                on: state.layers[state.currentLayerIndex].textureId
-            )
-        }
-        if state.tool == .erase {
-            graphics.copy(
-                texture: state.strokeTexture,
-                on: state.layers[state.currentLayerIndex].textureId
-            )
-        }
-    }
-    
     func mergeLayers(usingStrokeTexture: Bool, ignoringCurrentTexture: Bool = false) {
         graphics.pushDebugGroup("Merge layers")
         clearRenderableTexture()
@@ -158,47 +164,16 @@ class TCViewModel {
         graphics.popDebugGroup()
     }
     
-    func drawPoints(_ points: [TGRenderablePoint]) {
-        guard !points.isEmpty else { return }
+    func drawGrayscalePoints(points: [TGRenderablePoint]) {
         graphics.pushDebugGroup("Draw grayscale points")
         graphics.drawGrayscalePoints(
             points,
             numPoints: points.count, // TODO: remove count
             in: state.grayscaleTexture,
-            opacity: painter.brush.opacity,
+            opacity: 1, // TODO: pass correct opacity
             shapeTextureId: -1, // TODO: pass correct id
             transform: state.ctm.inverse,
             projection: state.projectionMatrix
-        )
-        graphics.popDebugGroup()
-        graphics.pushDebugGroup("Colorize")
-        graphics.colorize(
-            grayscaleTexture: state.grayscaleTexture,
-            withColor: [0.2, 0.1, 0.8, 1],
-            on: state.strokeTexture
-        )
-        graphics.popDebugGroup()
-    }
-    
-    func erasePoints(_ points: [TGRenderablePoint]) {
-        guard !points.isEmpty else { return }
-        graphics.pushDebugGroup("Draw grayscale points")
-        graphics.drawGrayscalePoints(
-            points,
-            numPoints: points.count, // TODO: remove count
-            in: state.grayscaleTexture,
-            opacity: painter.brush.opacity,
-            shapeTextureId: -1, // TODO: pass correct id
-            transform: state.ctm.inverse,
-            projection: state.projectionMatrix,
-            clearBackground: true
-        )
-        graphics.popDebugGroup()
-        graphics.pushDebugGroup("Substract points")
-        graphics.substract(
-            textureA: state.layers[state.currentLayerIndex].textureId,
-            textureB: state.grayscaleTexture,
-            on: state.strokeTexture
         )
         graphics.popDebugGroup()
     }
@@ -243,23 +218,24 @@ extension TCViewModel: TGRenderableViewDelegate {
 
 extension TCViewModel {
     func handlePencilTouch(_ touch: TTTouch) {
-        painter.generatePoints(forTouch: touch, ctm: state.ctm)
-        drawPoints(painter.points)
-        mergeLayers(usingStrokeTexture: true)
-        
-        if touch.phase == .ended || touch.phase == .cancelled {
-            painter.endStroke()
-            
-            // update current layer with the stroke texture
-            updateCurrentLayerTexture()
-            // update the renderable texture with the updated layer
-            mergeLayers(usingStrokeTexture: false)
-            
-            clearGrayscaleTexture()
-            clearStrokeTexture()
-        }
-        
-        renderableViewNeedsDisplaySubject.send(())
+        // TODO: implement
+//        painter.generatePoints(forTouch: touch, ctm: state.ctm)
+//        drawPoints(painter.points)
+//        mergeLayers(usingStrokeTexture: true)
+//        
+//        if touch.phase == .ended || touch.phase == .cancelled {
+//            painter.endStroke()
+//            
+//            // update current layer with the stroke texture
+//            updateCurrentLayerTexture()
+//            // update the renderable texture with the updated layer
+//            mergeLayers(usingStrokeTexture: false)
+//            
+//            clearGrayscaleTexture()
+//            clearStrokeTexture()
+//        }
+//        
+//        renderableViewNeedsDisplaySubject.send(())
     }
     
     func handleFingerTouches(_ touches: [TTTouch]) {
@@ -269,47 +245,32 @@ extension TCViewModel {
 
 extension TCViewModel {
     private func handleFingerGestureResult(
-        _ result: TCCanvasGestureController.TCFingerGestureEvent
+        _ event: TCCanvasGestureController.TCFingerGestureEvent
     ) {
-        switch result {
+        switch event {
         case .draw(let touch):
-            painter.generatePoints(forTouch: touch, ctm: state.ctm)
-            switch state.tool {
-            case .draw:
-                drawPoints(painter.points)
-                mergeLayers(usingStrokeTexture: true)
-            case .erase:
-                if touch.phase == .began {
-                    graphics
-                        .copy(
-                            texture: state.layers[state.currentLayerIndex].textureId,
-                            on: state.strokeTexture
-                        )
-                }
-                erasePoints(painter.points)
-                mergeLayers(usingStrokeTexture: true, ignoringCurrentTexture: true)
-            }
+            currentTool.handleTouch(touch, ctm: state.ctm)
         case .drawCanceled:
-            painter.endStroke()
+            if let brushTool = currentTool as? TCBrushTool {
+                brushTool.endStroke()
+            }
             clearGrayscaleTexture() // just in case :)
+        case .drawEnded:
+            if let brushTool = currentTool as? TCBrushTool {
+                brushTool.endStroke()
+            }
+            // update the renderable texture with the updated layer
+            mergeLayers(usingStrokeTexture: false)
+            clearGrayscaleTexture()
+            clearStrokeTexture()
+        case .transformInit(let touchMap):
+            transformer.reset()
+            transformer.initialize(withTouches: touchMap)
         case .transform(let touchMap):
             guard state.isTransformEnabled else { return }
             transformer.transform(usingCurrentTouches: touchMap)
             state.ctm = transformer.transform
-        case .transformInit(let touchMap):
-            transformer.reset()
-            transformer.initialize(withTouches: touchMap)
         case .idle: return
-        case .drawEnded:
-            painter.endStroke()
-            
-            // update current layer with the stroke texture
-            updateCurrentLayerTexture()
-            // update the renderable texture with the updated layer
-            mergeLayers(usingStrokeTexture: false)
-            
-            clearGrayscaleTexture()
-            clearStrokeTexture()
         }
         
         renderableViewNeedsDisplaySubject.send(())
