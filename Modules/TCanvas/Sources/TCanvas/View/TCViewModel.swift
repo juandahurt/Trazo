@@ -20,10 +20,14 @@ protocol TCCanvasPresenter: AnyObject {
 
 class TCViewModel {
     let graphics = TGraphics()
-    var state = TCState()
+    var state: TCState
     let gestureController = TCCanvasGestureController()
     let transformer: TCTransformer
-    var currentTool: TCTool = TCDrawingTool()
+    var currentTool: TCTool = TCDrawingTool() {
+        didSet {
+            currentTool.canvasPresenter = self
+        }
+    }
     
     let renderableViewNeedsDisplaySubject = PassthroughSubject<Void, Never>()
     
@@ -31,9 +35,10 @@ class TCViewModel {
     
     public init(config: TCConfig) {
         transformer = TCTransformer()
-//        painter = .init(brush: config.brush)
-        state.isTransformEnabled = config.isTransformEnabled
-        
+        state = .init(
+            isTransformEnabled: config.isTransformEnabled,
+            brush: config.brush
+        )
         currentTool.canvasPresenter = self
     }
     
@@ -101,9 +106,8 @@ class TCViewModel {
         graphics.makeRenderableView()
     }
     
-    func updateBrush(with brush: TPBrush) {
-        // TODO: update brush
-//        painter.brush = brush
+    func updateBrush(with brush: TCBrush) {
+        state.brush = brush
     }
    
     func updateToolType(_ toolType: TCToolType) {
@@ -112,7 +116,6 @@ class TCViewModel {
         case .draw: TCDrawingTool()
         case .erase: TCErasingTool()
         }
-        currentTool.canvasPresenter = self
     }
     
     private func setupSubscriptions() {
@@ -170,7 +173,7 @@ class TCViewModel {
             points,
             numPoints: points.count, // TODO: remove count
             in: state.grayscaleTexture,
-            opacity: 1, // TODO: pass correct opacity
+            opacity: state.brush.opacity,
             shapeTextureId: -1, // TODO: pass correct id
             transform: state.ctm.inverse,
             projection: state.projectionMatrix
@@ -249,7 +252,7 @@ extension TCViewModel {
     ) {
         switch event {
         case .draw(let touch):
-            currentTool.handleTouch(touch, ctm: state.ctm)
+            currentTool.handleTouch(touch, ctm: state.ctm, brush: state.brush)
         case .drawCanceled:
             if let brushTool = currentTool as? TCBrushTool {
                 brushTool.endStroke()

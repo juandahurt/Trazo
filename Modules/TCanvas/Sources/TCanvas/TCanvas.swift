@@ -15,7 +15,7 @@ public class TCanvas {
         canvasView.load(in: view)
     }
     
-    public func updateBrush(with brush: TPBrush) {
+    public func updateBrush(with brush: TCBrush) {
         viewModel.updateBrush(with: brush)
     }
     

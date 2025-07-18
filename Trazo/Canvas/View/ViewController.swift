@@ -9,10 +9,9 @@ import Combine
 import UIKit
 
 import TCanvas
-import TPainter
 
 class ViewController: UIViewController {
-    var brush = TPBrush.normal
+    var brush = TCBrush.normal
     let canvas: TCanvas
     
     override var prefersStatusBarHidden: Bool {
