@@ -19,7 +19,7 @@ public class TCanvas {
         viewModel.updateBrush(with: brush)
     }
     
-    public func setTool(_ tool: TCTool) {
+    public func setTool(_ tool: TCToolType) {
         viewModel.updateTool(tool)
     }
 }

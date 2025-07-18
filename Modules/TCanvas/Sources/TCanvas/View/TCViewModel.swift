@@ -89,7 +89,7 @@ class TCViewModel {
         painter.brush = brush
     }
    
-    func updateTool(_ tool: TCTool) {
+    func updateTool(_ tool: TCToolType) {
         state.tool = tool
     }
     
