@@ -1,16 +1,23 @@
+import Foundation
 import TTypes
 import TGraphics
 import simd
 
 class TCBrushTool: TCTool {
-    var stroke: [TTTouch] = []
+    var stroke: [TCTouch] = []
     var touchCount = 0
     var points: [TGRenderablePoint] = []
     
+    var estimatedTouches: [NSNumber: Int] = [:]
+    
     weak var canvasPresenter: TCCanvasPresenter?
     
-    func handleTouch(_ touch: TTTouch, ctm: TTTransform, brush: TCBrush) {
+    func handleTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         generatePoints(forTouch: touch, ctm: ctm, brush: brush)
+    }
+    
+    func handleEstimatedPencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+        
     }
     
     func endStroke() {
@@ -19,7 +26,7 @@ class TCBrushTool: TCTool {
         points = []
     }
     
-    func generatePoints(forTouch touch: TTTouch, ctm: TTTransform, brush: TCBrush) {
+    func generatePoints(forTouch touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         stroke.append(touch)
         touchCount += 1
         
@@ -176,7 +183,7 @@ class TCBrushTool: TCTool {
 }
 
 class TCDrawingTool: TCBrushTool {
-    override func handleTouch(_ touch: TTTouch, ctm: TTTransform, brush: TCBrush) {
+    override func handleTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         super.handleTouch(touch, ctm: ctm, brush: brush)
         canvasPresenter?.draw(points: points)
         canvasPresenter?.mergeLayersWhenDrawing()
@@ -189,7 +196,7 @@ class TCDrawingTool: TCBrushTool {
 }
 
 class TCErasingTool: TCBrushTool {
-    override func handleTouch(_ touch: TTTouch, ctm: TTTransform, brush: TCBrush) {
+    override func handleTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         super.handleTouch(touch, ctm: ctm, brush: brush)
         if touch.phase == .began {
             canvasPresenter?.copyCurrrentLayerToStrokeTexture()

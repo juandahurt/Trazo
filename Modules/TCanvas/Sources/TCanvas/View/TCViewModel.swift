@@ -220,8 +220,8 @@ extension TCViewModel: TGRenderableViewDelegate {
 }
 
 extension TCViewModel {
-    func handlePencilTouch(_ touch: TTTouch) {
-        // TODO: implement
+    func onEstimatedPencilTouch(_ touch: TCTouch) {
+        fatalError("not implemented")
 //        painter.generatePoints(forTouch: touch, ctm: state.ctm)
 //        drawPoints(painter.points)
 //        mergeLayers(usingStrokeTexture: true)
@@ -241,7 +241,11 @@ extension TCViewModel {
 //        renderableViewNeedsDisplaySubject.send(())
     }
     
-    func handleFingerTouches(_ touches: [TTTouch]) {
+    func onActualPencilTouch(_ touch: TCTouch) {
+        fatalError("not implemented")
+    }
+    
+    func handleFingerTouches(_ touches: [TCTouch]) {
         gestureController.handleFingerTouches(touches)
     }
 }

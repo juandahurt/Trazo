@@ -7,8 +7,8 @@ import UIKit
 class TCCanvasGestureController {
     enum TCFingerGestureEvent: CustomDebugStringConvertible {
         case idle
-        case draw(TTTouch), drawCanceled, drawEnded
-        case transform([Int: [TTTouch]]), transformInit([Int: [TTTouch]])
+        case draw(TCTouch), drawCanceled, drawEnded
+        case transform([Int: [TCTouch]]), transformInit([Int: [TCTouch]])
         
         var debugDescription: String {
             switch self {
@@ -31,7 +31,7 @@ class TCCanvasGestureController {
     
     var gestureEventSubject = PassthroughSubject<TCFingerGestureEvent, Never>()
     
-    private(set) var touchesMap: [Int: [TTTouch]] = [:]
+    private(set) var touchesMap: [Int: [TCTouch]] = [:]
     
     private var numberOfTouches: Int {
         touchesMap.count
@@ -47,7 +47,7 @@ class TCCanvasGestureController {
                 })
     }
     
-    func handleFingerTouches(_ touches: [TTTouch]) {
+    func handleFingerTouches(_ touches: [TCTouch]) {
         save(touches: touches)
         
         if numberOfTouches == 1 && (currentGesture == .idle || currentGesture == .draw) {
@@ -92,7 +92,7 @@ class TCCanvasGestureController {
         removeEnded(touches: touches)
     }
     
-    private func removeEnded(touches: [TTTouch]) {
+    private func removeEnded(touches: [TCTouch]) {
         for touch in touches {
             if touch.phase == .ended || touch.phase == .cancelled {
                 removeTouch(byId: touch.id)
@@ -100,7 +100,7 @@ class TCCanvasGestureController {
         }
     }
     
-    private func save(touches: [TTTouch]) {
+    private func save(touches: [TCTouch]) {
         for touch in touches {
             let key = touch.id
             if touchesMap[key] == nil {
