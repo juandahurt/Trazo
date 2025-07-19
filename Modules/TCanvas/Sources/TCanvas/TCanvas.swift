@@ -15,11 +15,11 @@ public class TCanvas {
         canvasView.load(in: view)
     }
     
-    public func updateBrush(with brush: TPBrush) {
+    public func updateBrush(with brush: TCBrush) {
         viewModel.updateBrush(with: brush)
     }
     
-    public func setTool(_ tool: TCTool) {
-        viewModel.updateTool(tool)
+    public func setTool(_ toolType: TCToolType) {
+        viewModel.updateToolType(toolType)
     }
 }

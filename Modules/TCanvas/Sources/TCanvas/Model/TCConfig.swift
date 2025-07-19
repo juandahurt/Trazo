@@ -1,10 +1,8 @@
-import TPainter
-
 public struct TCConfig {
     let isTransformEnabled: Bool
-    let brush: TPBrush
+    let brush: TCBrush
     
-    public init(isTransformEnabled: Bool, brush: TPBrush) {
+    public init(isTransformEnabled: Bool, brush: TCBrush) {
         self.isTransformEnabled = isTransformEnabled
         self.brush = brush
     }

@@ -1,24 +1,25 @@
-import simd
-import TGraphics
 import TTypes
+import TGraphics
+import simd
 
-public struct TPainter {
+class TCBrushTool: TCTool {
     var stroke: [TTTouch] = []
-    public internal(set) var points: [TGRenderablePoint] = []
     var touchCount = 0
-    public var brush: TPBrush
+    var points: [TGRenderablePoint] = []
     
-    public init(brush: TPBrush) {
-        self.brush = brush
+    weak var canvasPresenter: TCCanvasPresenter?
+    
+    func handleTouch(_ touch: TTTouch, ctm: TTTransform, brush: TCBrush) {
+        generatePoints(forTouch: touch, ctm: ctm, brush: brush)
     }
     
-    public mutating func endStroke() {
+    func endStroke() {
         stroke = []
-        points = []
         touchCount = 0
+        points = []
     }
     
-    public mutating func generatePoints(forTouch touch: TTTouch, ctm: TTTransform) {
+    func generatePoints(forTouch touch: TTTouch, ctm: TTTransform, brush: TCBrush) {
         stroke.append(touch)
         touchCount += 1
         
@@ -26,21 +27,22 @@ public struct TPainter {
         case .moved:
             guard touchCount >= 3 else { return }
             if touchCount == 3 {
-                points.append(contentsOf: findPointsForFirstSegment(ctm: ctm))
+                points
+                    .append(contentsOf: findPointsForFirstSegment(ctm: ctm, brush: brush))
             } else {
-                points.append(contentsOf: findPointsForMidSegment(ctm: ctm))
+                points.append(contentsOf: findPointsForMidSegment(ctm: ctm, brush: brush))
             }
         case .ended, .cancelled:
             guard touchCount > 3 else { return }
             // add the second-last curve
-            points.append(contentsOf: findPointsForMidSegment(ctm: ctm))
+            points.append(contentsOf: findPointsForMidSegment(ctm: ctm, brush: brush))
             // add the last curve
-            points.append(contentsOf: findPointsForFinalSegment(ctm: ctm))
+            points.append(contentsOf: findPointsForFinalSegment(ctm: ctm, brush: brush))
         default: break
         }
     }
     
-    func findPointsForFirstSegment(ctm: TTTransform) -> [TGRenderablePoint] {
+    func findPointsForFirstSegment(ctm: TTTransform, brush: TCBrush) -> [TGRenderablePoint] {
         let index = 0
         let (c1, c2) = findControlPoints(
             p0: stroke[0].location,
@@ -52,10 +54,17 @@ public struct TPainter {
         let p1 = c1
         let p2 = c2
         let p3 = stroke[1].location
-        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3, ctm: ctm)
+        return findPointsForSegment(
+            p0: p0,
+            p1: p1,
+            p2: p2,
+            p3: p3,
+            ctm: ctm,
+            brush: brush
+        )
     }
     
-    func findPointsForFinalSegment(ctm: TTTransform) -> [TGRenderablePoint] {
+    func findPointsForFinalSegment(ctm: TTTransform, brush: TCBrush) -> [TGRenderablePoint] {
         let index = touchCount - 1
         let (c1, c2) = findControlPoints(
             p0: stroke[index-1].location,
@@ -67,10 +76,17 @@ public struct TPainter {
         let p1 = c1
         let p2 = c2
         let p3 = stroke[index].location
-        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3, ctm: ctm)
+        return findPointsForSegment(
+            p0: p0,
+            p1: p1,
+            p2: p2,
+            p3: p3,
+            ctm: ctm,
+            brush: brush
+        )
     }
     
-    func findPointsForMidSegment(ctm: TTTransform) -> [TGRenderablePoint] {
+    func findPointsForMidSegment(ctm: TTTransform, brush: TCBrush) -> [TGRenderablePoint] {
         let index = touchCount - 3
         let (c1, c2) = findControlPoints(
             p0: stroke[index-1].location,
@@ -83,7 +99,14 @@ public struct TPainter {
         let p2 = c2
         let p3 = stroke[index+1].location
         
-        return findPointsForSegment(p0: p0, p1: p1, p2: p2, p3: p3, ctm: ctm)
+        return findPointsForSegment(
+            p0: p0,
+            p1: p1,
+            p2: p2,
+            p3: p3,
+            ctm: ctm,
+            brush: brush
+        )
     }
     
     func findPointsForSegment(
@@ -91,7 +114,8 @@ public struct TPainter {
         p1: simd_float2,
         p2: simd_float2,
         p3: simd_float2,
-        ctm: TTTransform
+        ctm: TTTransform,
+        brush: TCBrush
     ) -> [TGRenderablePoint] {
         // find the distance given the current current transform
         let length = distance(
@@ -123,7 +147,7 @@ public struct TPainter {
                 location.x += Float.random(in: -brush.jitter..<brush.jitter)
                 location.y += Float.random(in: -brush.jitter..<brush.jitter)
             }
-            points.append(.init(location: location, size: brush.size))
+            points.append(.init(location: location, size: 8)) // TODO: add real size
         }
         
         return points
@@ -135,8 +159,8 @@ public struct TPainter {
         p2: simd_float2,
         p3: simd_float2
     ) -> (c1: simd_float2, c2: simd_float2) {
-        let c1 = ((p2 - p0) * brush.stabilization / 6) + p1
-        let c2 = p2 - ((p3 - p1) * brush.stabilization / 6)
+        let c1 = ((p2 - p0) /** brush.stabilization*/ / 6) + p1
+        let c2 = p2 - ((p3 - p1) /** brush.stabilization*/ / 6)
         return (c1, c2)
     }
     
@@ -148,5 +172,34 @@ public struct TPainter {
         t: Float
     ) -> simd_float2 {
         ((pow(1 - t, 3)) * p0) + (3 * pow(1 - t, 2) * t * p1) + (3 * (1 - t) * pow(t, 2) * p2) + (pow(t, 3) * p3)
+    }
+}
+
+class TCDrawingTool: TCBrushTool {
+    override func handleTouch(_ touch: TTTouch, ctm: TTTransform, brush: TCBrush) {
+        super.handleTouch(touch, ctm: ctm, brush: brush)
+        canvasPresenter?.draw(points: points)
+        canvasPresenter?.mergeLayersWhenDrawing()
+    }
+    
+    override func endStroke() {
+        super.endStroke()
+        canvasPresenter?.updateCurrentLayerAfterDrawing()
+    }
+}
+
+class TCErasingTool: TCBrushTool {
+    override func handleTouch(_ touch: TTTouch, ctm: TTTransform, brush: TCBrush) {
+        super.handleTouch(touch, ctm: ctm, brush: brush)
+        if touch.phase == .began {
+            canvasPresenter?.copyCurrrentLayerToStrokeTexture()
+        }
+        canvasPresenter?.erase(points: points)
+        canvasPresenter?.mergeLayersWhenErasing()
+    }
+    
+    override func endStroke() {
+        super.endStroke()
+        canvasPresenter?.updateCurrentLayerAfterErasing()
     }
 }

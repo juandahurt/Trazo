@@ -13,7 +13,7 @@ struct TCState {
     
     var isTransformEnabled              = true
     
-    var tool: TCTool                    = .draw
+    var brush                           = TCBrush.nervous
     
     mutating func addLayer(_ layer: TCLayer) {
         layers.append(layer)
