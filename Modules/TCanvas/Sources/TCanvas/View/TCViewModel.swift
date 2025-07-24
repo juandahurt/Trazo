@@ -10,7 +10,7 @@ protocol TCCanvasPresenter: AnyObject {
     func mergeLayersWhenDrawing()
     func updateCurrentLayerAfterDrawing()
     // erase
-    func erase(points: [TGRenderablePoint])
+    func erase(segment: TCDrawableSegment)
     func mergeLayersWhenErasing()
     func copyCurrrentLayerToStrokeTexture()
     func updateCurrentLayerAfterErasing()
