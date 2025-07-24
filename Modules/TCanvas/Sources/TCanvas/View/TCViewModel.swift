@@ -220,23 +220,7 @@ extension TCViewModel: TGRenderableViewDelegate {
 
 extension TCViewModel {
     func onPencilTouch(_ touch: TCTouch) {
-        currentTool.handlePencilTouch(touch, ctm: state.ctm, brush: state.brush)
-//        painter.generatePoints(forTouch: touch, ctm: state.ctm)
-//        drawPoints(painter.points)
-//        mergeLayers(usingStrokeTexture: true)
-//        
-//        if touch.phase == .ended || touch.phase == .cancelled {
-//            painter.endStroke()
-//            
-//            // update current layer with the stroke texture
-//            updateCurrentLayerTexture()
-//            // update the renderable texture with the updated layer
-//            mergeLayers(usingStrokeTexture: false)
-//            
-//            clearGrayscaleTexture()
-//            clearStrokeTexture()
-//        }
-//        
+        gestureController.handlePencilTouch(touch)
         renderableViewNeedsDisplaySubject.send(())
     }
     
@@ -251,12 +235,12 @@ extension TCViewModel {
 
 extension TCViewModel {
     private func handleFingerGestureResult(
-        _ event: TCCanvasGestureController.TCFingerGestureEvent
+        _ event: TCCanvasGestureController.TCGestureEvent
     ) {
         switch event {
-        case .draw(let touch):
+        case .fingerDraw(let touch):
             currentTool.handleFingerTouch(touch, ctm: state.ctm, brush: state.brush)
-        case .drawCanceled:
+        case .fingerDrawCanceled:
             if let brushTool = currentTool as? TCBrushTool {
                 brushTool.endStroke()
             }
@@ -269,6 +253,8 @@ extension TCViewModel {
             mergeLayers(usingStrokeTexture: false)
             clearGrayscaleTexture()
             clearStrokeTexture()
+        case .pencilDraw(let touch):
+            currentTool.handlePencilTouch(touch, ctm: state.ctm, brush: state.brush)
         case .transformInit(let touchMap):
             transformer.reset()
             transformer.initialize(withTouches: touchMap)

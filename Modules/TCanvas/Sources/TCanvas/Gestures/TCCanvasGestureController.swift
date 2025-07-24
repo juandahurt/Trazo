@@ -5,31 +5,22 @@ import UIKit
 
 
 class TCCanvasGestureController {
-    enum TCFingerGestureEvent: CustomDebugStringConvertible {
+    enum TCGestureEvent {
         case idle
-        case draw(TCTouch), drawCanceled, drawEnded
+        case fingerDraw(TCTouch), fingerDrawCanceled, drawEnded
+        case pencilDraw(TCTouch)
         case transform([Int: [TCTouch]]), transformInit([Int: [TCTouch]])
-        
-        var debugDescription: String {
-            switch self {
-            case .idle: "idle"
-            case .draw(_): "draw"
-            case .drawCanceled: "drawCanceled"
-            case .drawEnded:"drawEnded"
-            case .transform(_): "transform"
-            case .transformInit(_): "transform init"
-            }
-        }
     }
     
     enum TCGesture {
         case idle
-        case draw
+        case fingerDraw
+        case pencilDraw
         case unsupported
         case transform
     }
     
-    var gestureEventSubject = PassthroughSubject<TCFingerGestureEvent, Never>()
+    var gestureEventSubject = PassthroughSubject<TCGestureEvent, Never>()
     
     private(set) var touchesMap: [Int: [TCTouch]] = [:]
     
@@ -47,20 +38,34 @@ class TCCanvasGestureController {
                 })
     }
     
+    func handlePencilTouch(_ touch: TCTouch) {
+        if currentGesture == .fingerDraw {
+            gestureEventSubject.send(.fingerDrawCanceled)
+        }
+        if touch.phase == .ended || touch.phase == .cancelled {
+            gestureEventSubject.send(.drawEnded)
+            currentGesture = .idle
+        } else {
+            currentGesture = .pencilDraw
+        }
+        
+        gestureEventSubject.send(.pencilDraw(touch))
+    }
+    
     func handleFingerTouches(_ touches: [TCTouch]) {
         save(touches: touches)
         
-        if numberOfTouches == 1 && (currentGesture == .idle || currentGesture == .draw) {
+        if numberOfTouches == 1 && (currentGesture == .idle || currentGesture == .fingerDraw) {
             // we can only notify the drawing event if we are currently idle
             // or already drawing
             if let touch = touches.first {
-                gestureEventSubject.send(.draw(touch))
-                currentGesture = .draw
+                gestureEventSubject.send(.fingerDraw(touch))
+                currentGesture = .fingerDraw
             }
         }
         
         if numberOfTouches == 2 && (
-            currentGesture == .idle || currentGesture == .transform || currentGesture == .draw
+            currentGesture == .idle || currentGesture == .transform || currentGesture == .fingerDraw
         ) {
             if currentGesture == .idle {
                 gestureEventSubject.send(.transformInit(touchesMap))
@@ -68,22 +73,22 @@ class TCCanvasGestureController {
             if currentGesture == .transform {
                 gestureEventSubject.send(.transform(touchesMap))
             }
-            if currentGesture == .draw {
-                gestureEventSubject.send(.drawCanceled)
+            if currentGesture == .fingerDraw {
+                gestureEventSubject.send(.fingerDrawCanceled)
                 gestureEventSubject.send(.transformInit(touchesMap))
             }
             currentGesture = .transform
         }
         
         if numberOfTouches > 2 {
-            if currentGesture == .draw {
+            if currentGesture == .fingerDraw {
                 gestureEventSubject.send(.drawEnded)
             }
             currentGesture = .unsupported
         }
 
         if userLiftedTheirFingers {
-            if currentGesture == .draw {
+            if currentGesture == .fingerDraw {
                 gestureEventSubject.send(.drawEnded)
             }
             currentGesture = .idle
