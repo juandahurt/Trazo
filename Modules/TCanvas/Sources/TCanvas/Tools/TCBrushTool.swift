@@ -14,21 +14,24 @@ class TCBrushTool: TCTool {
     weak var canvasPresenter: TCCanvasPresenter?
     
     func handleFingerTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
-        generateAndDrawSegments(forTouch: touch, ctm: ctm, brush: brush)
+        generateSegments(forTouch: touch, ctm: ctm, brush: brush)
     }
     
     func handlePencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         if let estimationUpdateIndex = touch.estimationUpdateIndex {
             estimatedTouches[estimationUpdateIndex] = touchCount
         }
-        
-//        generatePoints(forTouch: touch, ctm: ctm, brush: brush)
+        generateSegments(forTouch: touch, ctm: ctm, brush: brush)
     }
     
     func handleUpdatedPencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         guard let estimationUpdateIndex = touch.estimationUpdateIndex else { return }
         estimatedTouches.removeValue(forKey: estimationUpdateIndex)
         // TODO: update segments
+        
+        if estimatedTouches.isEmpty {
+            endStroke()
+        }
     }
     
     func endStroke() {
@@ -37,7 +40,7 @@ class TCBrushTool: TCTool {
         touchCount = 0
     }
     
-    func generateAndDrawSegments(forTouch touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+    func generateSegments(forTouch touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         touches.append(touch)
         touchCount += 1
         

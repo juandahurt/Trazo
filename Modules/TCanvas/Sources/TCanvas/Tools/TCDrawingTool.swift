@@ -16,8 +16,11 @@ class TCDrawingTool: TCBrushTool {
         brush: TCBrush
     ) {
         super.handlePencilTouch(touch, ctm: ctm, brush: brush)
-//        canvasPresenter?.draw(segment: drawableStroke.segments.last)
-//        canvasPresenter?.mergeLayersWhenDrawing()
+        for segment in generatedSegments {
+            canvasPresenter?.draw(segment: segment)
+        }
+        canvasPresenter?.mergeLayersWhenDrawing()
+        generatedSegments = []
     }
     
     override func endStroke() {
