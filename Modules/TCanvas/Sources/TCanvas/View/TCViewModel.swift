@@ -221,11 +221,11 @@ extension TCViewModel: TGRenderableViewDelegate {
 extension TCViewModel {
     func onPencilTouch(_ touch: TCTouch) {
         gestureController.handlePencilTouch(touch)
-        renderableViewNeedsDisplaySubject.send(())
     }
     
     func onUpdatedPencilTouch(_ touch: TCTouch) {
         currentTool.handleUpdatedPencilTouch(touch, ctm: state.ctm, brush: state.brush)
+        renderableViewNeedsDisplaySubject.send(())
     }
     
     func handleFingerTouches(_ touches: [TCTouch]) {
@@ -245,6 +245,7 @@ extension TCViewModel {
                 brushTool.endStroke()
             }
             clearGrayscaleTexture() // just in case :)
+            clearStrokeTexture()
         case .drawEnded:
             if let brushTool = currentTool as? TCBrushTool {
                 brushTool.endStroke()
