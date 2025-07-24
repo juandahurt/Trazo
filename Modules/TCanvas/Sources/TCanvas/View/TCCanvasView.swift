@@ -1,6 +1,5 @@
 import Combine
 import TGraphics
-import TPainter
 import TTypes
 import UIKit
 
@@ -88,13 +87,13 @@ extension TCCanvasView: TCPencilGestureRecognizerDelegate {
         guard let renderableView else { return }
         guard let uiTouch = touches.first else { return }
         let touch = TCTouch(uiTouch, view: renderableView)
-        viewModel.onEstimatedPencilTouch(touch)
+        viewModel.onPencilTouch(touch)
     }
     
     func didReceiveActualPencilTouches(_ touches: Set<UITouch>) {
         guard let uiTouch = touches.first else { return }
         guard let renderableView else { return }
         let touch = TCTouch(uiTouch, view: renderableView)
-        viewModel.onActualPencilTouch(touch)
+        viewModel.onUpdatedPencilTouch(touch)
     }
 }

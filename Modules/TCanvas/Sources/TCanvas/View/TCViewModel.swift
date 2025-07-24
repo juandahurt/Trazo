@@ -1,13 +1,12 @@
 import Combine
 import TGraphics
-import TPainter
 import TTypes
 import simd
 import UIKit
 
 protocol TCCanvasPresenter: AnyObject {
     // draw
-    func draw(points: [TGRenderablePoint])
+    func draw(segment: TCDrawableSegment)
     func mergeLayersWhenDrawing()
     func updateCurrentLayerAfterDrawing()
     // erase
@@ -167,11 +166,11 @@ class TCViewModel {
         graphics.popDebugGroup()
     }
     
-    func drawGrayscalePoints(points: [TGRenderablePoint]) {
+    func drawGrayscalePoints(points: [TGRenderablePoint], pointsCount: Int) {
         graphics.pushDebugGroup("Draw grayscale points")
         graphics.drawGrayscalePoints(
             points,
-            numPoints: points.count, // TODO: remove count
+            numPoints: pointsCount,
             in: state.grayscaleTexture,
             opacity: state.brush.opacity,
             shapeTextureId: -1, // TODO: pass correct id
@@ -220,8 +219,8 @@ extension TCViewModel: TGRenderableViewDelegate {
 }
 
 extension TCViewModel {
-    func onEstimatedPencilTouch(_ touch: TCTouch) {
-        fatalError("not implemented")
+    func onPencilTouch(_ touch: TCTouch) {
+        currentTool.handlePencilTouch(touch, ctm: state.ctm, brush: state.brush)
 //        painter.generatePoints(forTouch: touch, ctm: state.ctm)
 //        drawPoints(painter.points)
 //        mergeLayers(usingStrokeTexture: true)
@@ -238,11 +237,11 @@ extension TCViewModel {
 //            clearStrokeTexture()
 //        }
 //        
-//        renderableViewNeedsDisplaySubject.send(())
+        renderableViewNeedsDisplaySubject.send(())
     }
     
-    func onActualPencilTouch(_ touch: TCTouch) {
-        fatalError("not implemented")
+    func onUpdatedPencilTouch(_ touch: TCTouch) {
+        currentTool.handleUpdatedPencilTouch(touch, ctm: state.ctm, brush: state.brush)
     }
     
     func handleFingerTouches(_ touches: [TCTouch]) {
@@ -256,7 +255,7 @@ extension TCViewModel {
     ) {
         switch event {
         case .draw(let touch):
-            currentTool.handleTouch(touch, ctm: state.ctm, brush: state.brush)
+            currentTool.handleFingerTouch(touch, ctm: state.ctm, brush: state.brush)
         case .drawCanceled:
             if let brushTool = currentTool as? TCBrushTool {
                 brushTool.endStroke()

@@ -4,63 +4,92 @@ import TGraphics
 import simd
 
 class TCBrushTool: TCTool {
-    var stroke: [TCTouch] = []
+    var touches: [TCTouch] = []
+    var drawableStroke: TCDrawableStroke = .init(segments: [])
     var touchCount = 0
-    var points: [TGRenderablePoint] = []
     
     var estimatedTouches: [NSNumber: Int] = [:]
     
     weak var canvasPresenter: TCCanvasPresenter?
     
-    func handleTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
-        generatePoints(forTouch: touch, ctm: ctm, brush: brush)
+    func handleFingerTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+        generateAndDrawSegments(forTouch: touch, ctm: ctm, brush: brush)
     }
     
-    func handleEstimatedPencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+    func handlePencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+        if let estimationUpdateIndex = touch.estimationUpdateIndex {
+            estimatedTouches[estimationUpdateIndex] = touchCount
+        }
         
+//        generatePoints(forTouch: touch, ctm: ctm, brush: brush)
+    }
+    
+    func handleUpdatedPencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+        guard let estimationUpdateIndex = touch.estimationUpdateIndex else { return }
+        estimatedTouches.removeValue(forKey: estimationUpdateIndex)
+        // TODO: update segments
     }
     
     func endStroke() {
-        stroke = []
+        drawableStroke.clear()
+        touches = []
         touchCount = 0
-        points = []
     }
     
-    func generatePoints(forTouch touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
-        stroke.append(touch)
+    func generateAndDrawSegments(forTouch touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+        touches.append(touch)
         touchCount += 1
+        var generatedSegments: [TCDrawableSegment] = []
         
         switch touch.phase {
         case .moved:
             guard touchCount >= 3 else { return }
             if touchCount == 3 {
-                points
-                    .append(contentsOf: findPointsForFirstSegment(ctm: ctm, brush: brush))
+                let (points, pointsCount) = findPointsForFirstSegment(ctm: ctm, brush: brush)
+                let segment = TCDrawableSegment(points: points, pointsCount: pointsCount)
+                drawableStroke.append(segment)
+                generatedSegments.append(segment)
             } else {
-                points.append(contentsOf: findPointsForMidSegment(ctm: ctm, brush: brush))
+                let (points, pointsCount) = findPointsForMidSegment(ctm: ctm, brush: brush)
+                let segment = TCDrawableSegment(points: points, pointsCount: pointsCount)
+                drawableStroke.append(segment)
+                generatedSegments.append(segment)
             }
         case .ended, .cancelled:
             guard touchCount > 3 else { return }
             // add the second-last curve
-            points.append(contentsOf: findPointsForMidSegment(ctm: ctm, brush: brush))
+            var (points, pointsCount) = findPointsForMidSegment(ctm: ctm, brush: brush)
+            var segment = TCDrawableSegment(points: points, pointsCount: pointsCount)
+            drawableStroke.append(segment)
+            generatedSegments.append(segment)
             // add the last curve
-            points.append(contentsOf: findPointsForFinalSegment(ctm: ctm, brush: brush))
-        default: break
+            (points, pointsCount) = findPointsForFinalSegment(ctm: ctm, brush: brush)
+            segment = TCDrawableSegment(points: points, pointsCount: pointsCount)
+            drawableStroke.append(segment)
+            generatedSegments.append(segment)
+        default: return
+        }
+        
+        for segment in generatedSegments {
+            canvasPresenter?.draw(segment: segment)
         }
     }
     
-    func findPointsForFirstSegment(ctm: TTTransform, brush: TCBrush) -> [TGRenderablePoint] {
+    func findPointsForFirstSegment(
+        ctm: TTTransform,
+        brush: TCBrush
+    ) -> ([TGRenderablePoint], Int) {
         let index = 0
         let (c1, c2) = findControlPoints(
-            p0: stroke[0].location,
-            p1: stroke[0].location,
-            p2: stroke[1].location,
-            p3: stroke[2].location
+            p0: touches[0].location,
+            p1: touches[0].location,
+            p2: touches[1].location,
+            p3: touches[2].location
         )
-        let p0 = stroke[index].location
+        let p0 = touches[index].location
         let p1 = c1
         let p2 = c2
-        let p3 = stroke[1].location
+        let p3 = touches[1].location
         return findPointsForSegment(
             p0: p0,
             p1: p1,
@@ -71,18 +100,21 @@ class TCBrushTool: TCTool {
         )
     }
     
-    func findPointsForFinalSegment(ctm: TTTransform, brush: TCBrush) -> [TGRenderablePoint] {
+    func findPointsForFinalSegment(
+        ctm: TTTransform,
+        brush: TCBrush
+    ) -> ([TGRenderablePoint], Int) {
         let index = touchCount - 1
         let (c1, c2) = findControlPoints(
-            p0: stroke[index-1].location,
-            p1: stroke[index].location,
-            p2: stroke[index].location,
-            p3: stroke[index].location
+            p0: touches[index-1].location,
+            p1: touches[index].location,
+            p2: touches[index].location,
+            p3: touches[index].location
         )
-        let p0 = stroke[index-1].location
+        let p0 = touches[index-1].location
         let p1 = c1
         let p2 = c2
-        let p3 = stroke[index].location
+        let p3 = touches[index].location
         return findPointsForSegment(
             p0: p0,
             p1: p1,
@@ -93,18 +125,21 @@ class TCBrushTool: TCTool {
         )
     }
     
-    func findPointsForMidSegment(ctm: TTTransform, brush: TCBrush) -> [TGRenderablePoint] {
+    func findPointsForMidSegment(
+        ctm: TTTransform,
+        brush: TCBrush
+    ) -> ([TGRenderablePoint], Int) {
         let index = touchCount - 3
         let (c1, c2) = findControlPoints(
-            p0: stroke[index-1].location,
-            p1: stroke[index].location,
-            p2: stroke[index+1].location,
-            p3: stroke[index+2].location
+            p0: touches[index-1].location,
+            p1: touches[index].location,
+            p2: touches[index+1].location,
+            p3: touches[index+2].location
         )
-        let p0 = stroke[index].location
+        let p0 = touches[index].location
         let p1 = c1
         let p2 = c2
-        let p3 = stroke[index+1].location
+        let p3 = touches[index+1].location
         
         return findPointsForSegment(
             p0: p0,
@@ -123,7 +158,7 @@ class TCBrushTool: TCTool {
         p3: simd_float2,
         ctm: TTTransform,
         brush: TCBrush
-    ) -> [TGRenderablePoint] {
+    ) -> ([TGRenderablePoint], Int) {
         // find the distance given the current current transform
         let length = distance(
             p0.applying(ctm.inverse),
@@ -157,7 +192,7 @@ class TCBrushTool: TCTool {
             points.append(.init(location: location, size: 8)) // TODO: add real size
         }
         
-        return points
+        return (points, n)
     }
     
     func findControlPoints(
@@ -183,10 +218,19 @@ class TCBrushTool: TCTool {
 }
 
 class TCDrawingTool: TCBrushTool {
-    override func handleTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
-        super.handleTouch(touch, ctm: ctm, brush: brush)
-        canvasPresenter?.draw(points: points)
+    override func handleFingerTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+        super.handleFingerTouch(touch, ctm: ctm, brush: brush)
         canvasPresenter?.mergeLayersWhenDrawing()
+    }
+    
+    override func handlePencilTouch(
+        _ touch: TCTouch,
+        ctm: TTTransform,
+        brush: TCBrush
+    ) {
+        super.handlePencilTouch(touch, ctm: ctm, brush: brush)
+//        canvasPresenter?.draw(segment: drawableStroke.segments.last)
+//        canvasPresenter?.mergeLayersWhenDrawing()
     }
     
     override func endStroke() {
@@ -196,13 +240,13 @@ class TCDrawingTool: TCBrushTool {
 }
 
 class TCErasingTool: TCBrushTool {
-    override func handleTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
-        super.handleTouch(touch, ctm: ctm, brush: brush)
+    override func handleFingerTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+        super.handleFingerTouch(touch, ctm: ctm, brush: brush)
         if touch.phase == .began {
             canvasPresenter?.copyCurrrentLayerToStrokeTexture()
         }
-        canvasPresenter?.erase(points: points)
-        canvasPresenter?.mergeLayersWhenErasing()
+//        canvasPresenter?.erase(points: points)
+//        canvasPresenter?.mergeLayersWhenErasing()
     }
     
     override func endStroke() {

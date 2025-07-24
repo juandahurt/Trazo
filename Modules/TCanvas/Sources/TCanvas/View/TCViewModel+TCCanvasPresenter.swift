@@ -1,9 +1,11 @@
 import TGraphics
 
 extension TCViewModel: TCCanvasPresenter {
-    func draw(points: [TGRenderablePoint]) {
-        guard !points.isEmpty else { return }
-        drawGrayscalePoints(points: points)
+    func draw(segment: TCDrawableSegment) {
+        let points = segment.points
+        let pointsCount = segment.pointsCount
+        guard pointsCount > 0 else { return }
+        drawGrayscalePoints(points: points, pointsCount: pointsCount)
         graphics.pushDebugGroup("Colorize")
         graphics.colorize(
             grayscaleTexture: state.grayscaleTexture,
@@ -27,7 +29,7 @@ extension TCViewModel: TCCanvasPresenter {
     
     func erase(points: [TGRenderablePoint]) {
         guard !points.isEmpty else { return }
-        drawGrayscalePoints(points: points)
+//        drawGrayscalePoints(points: points)
         graphics.pushDebugGroup("Substract points")
         graphics.substract(
             textureA: state.layers[state.currentLayerIndex].textureId,
