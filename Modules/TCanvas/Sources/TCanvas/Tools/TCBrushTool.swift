@@ -95,7 +95,8 @@ class TCBrushTool: TCTool {
             p2: p2,
             p3: p3,
             ctm: ctm,
-            brush: brush
+            brush: brush,
+            forceRange: (touches[index].force, touches[1].force)
         )
     }
     
@@ -120,7 +121,8 @@ class TCBrushTool: TCTool {
             p2: p2,
             p3: p3,
             ctm: ctm,
-            brush: brush
+            brush: brush,
+            forceRange: (touches[index-1].force, touches[index].force)
         )
     }
     
@@ -146,7 +148,8 @@ class TCBrushTool: TCTool {
             p2: p2,
             p3: p3,
             ctm: ctm,
-            brush: brush
+            brush: brush,
+            forceRange: (touches[index].force, touches[index + 1].force)
         )
     }
     
@@ -156,7 +159,8 @@ class TCBrushTool: TCTool {
         p2: simd_float2,
         p3: simd_float2,
         ctm: TTTransform,
-        brush: TCBrush
+        brush: TCBrush,
+        forceRange: (f0: Float, f1: Float)
     ) -> ([TGRenderablePoint], Int) {
         // find the distance given the current current transform
         let length = distance(
@@ -188,7 +192,14 @@ class TCBrushTool: TCTool {
                 location.x += Float.random(in: -brush.jitter..<brush.jitter)
                 location.y += Float.random(in: -brush.jitter..<brush.jitter)
             }
-            points.append(.init(location: location, size: 8)) // TODO: add real size
+            points
+                .append(
+                    .init(
+                        location: location,
+                        size: brush.size * (forceRange.f0 + forceRange.f1) / 2
+                        // TODO: implement the use of a function for the size
+                    )
+                )
         }
         
         return (points, n)

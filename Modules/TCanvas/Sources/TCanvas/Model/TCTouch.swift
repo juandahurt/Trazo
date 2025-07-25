@@ -2,10 +2,11 @@ import TTypes
 import UIKit
 
 struct TCTouch {
-    public let id: Int
-    public let location: TTPoint
-    public let phase: UITouch.Phase
-    public let estimationUpdateIndex: NSNumber?
+    let id: Int
+    let location: TTPoint
+    let phase: UITouch.Phase
+    let estimationUpdateIndex: NSNumber?
+    let force: Float
     
     @MainActor
     init(_ uiTouch: UITouch, view: UIView) {
@@ -13,6 +14,7 @@ struct TCTouch {
         self.location = .init(uiTouch.location(fromCenterOfView: view))
         self.phase = uiTouch.phase
         self.estimationUpdateIndex = uiTouch.estimationUpdateIndex
+        self.force = uiTouch.type == .direct ? 1 : Float(uiTouch.force)
     }
 }
 
