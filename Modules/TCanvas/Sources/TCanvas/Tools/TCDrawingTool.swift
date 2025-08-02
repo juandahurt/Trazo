@@ -17,16 +17,8 @@ class TCDrawingTool: TCBrushTool {
     
     override func onUpdatedPencilTouchHandleFinish() {
         canvasPresenter?.draw(stroke: drawableStroke)
+        canvasPresenter?.mergeLayersWhenDrawing()
     }
-    
-//    override func handleUpdatedPencilTouch(
-//        _ touch: TCTouch,
-//        ctm: TTTransform,
-//        brush: TCBrush
-//    ) {
-//        super.handleUpdatedPencilTouch(touch, ctm: ctm, brush: brush)
-//        canvasPresenter?.draw(stroke: drawableStroke)
-//    }
     
     override func endStroke() {
         super.endStroke()

@@ -53,45 +53,31 @@ class TCBrushTool: TCTool {
         estimatedTouches.removeValue(forKey: estimationUpdateIndex)
         
         touches[touchIndex] = touch
-        // in this case, we will draw all the stroke not just the segment
         
-        if touchIndex <= 2 && !drawableStroke.segments.isEmpty {
+        if touchIndex <= 1 && touchCount >= 3 && (touch.phase != .ended && touch.phase != .cancelled) && drawableStroke.segmentCount >= 1 {
             let segment = generateFirstSegment(ctm: ctm, brush: brush)
             drawableStroke.updateSegment(atIndex: 0, segment)
-            print("updated first")
         }
         
+        if touchIndex >= 3 && touchIndex <= touchCount - 2 && (touch.phase != .ended && touch.phase != .cancelled) {
+            if drawableStroke.segmentCount >= touchIndex {
+                // update left segment of the updated touch
+                var segment = generateMidSegment(ctm: ctm, brush: brush, touchIndex: touchIndex - 1)
+                drawableStroke.updateSegment(atIndex: touchIndex - 1, segment)
+                
+                if touchIndex < touchCount - 3 && drawableStroke.segmentCount >= touchIndex {
+                    // update right segment of the updated touch
+                    segment = generateMidSegment(ctm: ctm, brush: brush, touchIndex: touchIndex)
+                    drawableStroke.updateSegment(atIndex: touchIndex, segment)
+                }
+            }
+        }
         
-        
-//        if touchIndex > 2 && touchIndex < touchCount - 2 && drawableStroke.segments.count > touchIndex && touch.phase == .moved {
-//            // update right segment
-//            let segment = generateMidSegment(
-//                ctm: ctm,
-//                brush: brush,
-//                touchIndex: touchIndex
-//            )
-//            drawableStroke.updateSegment(atIndex: touchIndex, segment)
-//            
-//            // update left segment
-//            if touchIndex - 1 > 0 {
-//                
-//            }
-//        }
-        
-        // update left segment
-//        if touchIndex > 0 && !drawableStroke.segments.isEmpty {
-//            let segments = generateSegments(forTouchAtIndex: touchIndex, ctm: ctm, brush: brush)
-//            if let segment = segments.first {
-//                drawableStroke.updateSegment(atIndex: touchIndex - 1, segment)
-//            }
-//        }
-//        
-//        if touchIndex < touchCount - 1 && touchIndex < drawableStroke.segments.count {
-//            let segments = generateSegments(forTouchAtIndex: touchIndex + 1, ctm: ctm, brush: brush)
-//            if let segment = segments.last {
-//                drawableStroke.updateSegment(atIndex: touchIndex, segment)
-//            }
-//        }
+        if (touch.phase == .ended || touch.phase == .cancelled) {
+            let segment = generateFinalSegment(ctm: ctm, brush: brush)
+            drawableStroke
+                .updateSegment(atIndex: drawableStroke.segmentCount - 1, segment)
+        }
         
         onUpdatedPencilTouchHandleFinish()
         
@@ -134,16 +120,14 @@ class TCBrushTool: TCTool {
                 )
                 segments.append(segment)
             }
-        case .ended, .cancelled: break
-//            guard touchCount > 3 else { return [] }
+        case .ended, .cancelled:
+            guard touchCount > 3 else { return [] }
             // add the second-last curve
-//            var (points, pointsCount) = findPointsForMidSegment(ctm: ctm, brush: brush)
-//            var segment = TCDrawableSegment(points: points, pointsCount: pointsCount)
-//            segments.append(segment)
+            var segment = generateMidSegment(ctm: ctm, brush: brush, touchIndex: index - 2)
+            segments.append(segment)
 //            // add the last curve
-//            (points, pointsCount) = findPointsForFinalSegment(ctm: ctm, brush: brush)
-//            segment = TCDrawableSegment(points: points, pointsCount: pointsCount)
-//            segments.append(segment)
+            segment = generateFinalSegment(ctm: ctm, brush: brush)
+            segments.append(segment)
         default: return []
         }
         
@@ -160,6 +144,14 @@ class TCBrushTool: TCTool {
             ctm: ctm,
             brush: brush,
             index: touchIndex
+        )
+        return TCDrawableSegment(points: points, pointsCount: pointsCount)
+    }
+    
+    func generateFinalSegment(ctm: TTTransform, brush: TCBrush) -> TCDrawableSegment {
+        let (points, pointsCount) = findPointsForFinalSegment(
+            ctm: ctm,
+            brush: brush
         )
         return TCDrawableSegment(points: points, pointsCount: pointsCount)
     }
@@ -287,8 +279,8 @@ class TCBrushTool: TCTool {
                     .init(
                         location: location,
                         size: brush.size * (
-                                forceRange.f0 + t * (forceRange.f1 - forceRange.f0)
-                            )
+                            (1 - t) * forceRange.f0 + forceRange.f1 * t
+                        )
                         // TODO: implement the use of a function for the size
                     )
                 )
