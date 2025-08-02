@@ -15,6 +15,25 @@ extension TCViewModel: TCCanvasPresenter {
         graphics.popDebugGroup()
     }
     
+    
+    func draw(stroke: TCDrawableStroke) {
+        let points = stroke.segments.map { $0.points }.flatMap(\.self)
+        let pointsCount = stroke.pointsCount
+        guard pointsCount > 0 else { return }
+        drawGrayscalePoints(
+            points: points,
+            pointsCount: pointsCount,
+            clearBackground: true
+        )
+        graphics.pushDebugGroup("Colorize")
+        graphics.colorize(
+            grayscaleTexture: state.grayscaleTexture,
+            withColor: [0, 0, 0, 1],
+            on: state.strokeTexture
+        )
+        graphics.popDebugGroup()
+    }
+    
     func mergeLayersWhenDrawing() {
         mergeLayers(usingStrokeTexture: true)
     }
@@ -57,5 +76,15 @@ extension TCViewModel: TCCanvasPresenter {
             texture: state.strokeTexture,
             on: state.layers[state.currentLayerIndex].textureId
         )
+    }
+    
+    func didFinishPencilGesture() {
+        if let brushTool = currentTool as? TCBrushTool {
+            brushTool.endStroke()
+        }
+        // update the renderable texture with the updated layer
+        mergeLayers(usingStrokeTexture: false)
+        clearGrayscaleTexture()
+        clearStrokeTexture()
     }
 }

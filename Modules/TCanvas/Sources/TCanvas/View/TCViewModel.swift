@@ -7,6 +7,7 @@ import UIKit
 protocol TCCanvasPresenter: AnyObject {
     // draw
     func draw(segment: TCDrawableSegment)
+    func draw(stroke: TCDrawableStroke)
     func mergeLayersWhenDrawing()
     func updateCurrentLayerAfterDrawing()
     // erase
@@ -14,6 +15,9 @@ protocol TCCanvasPresenter: AnyObject {
     func mergeLayersWhenErasing()
     func copyCurrrentLayerToStrokeTexture()
     func updateCurrentLayerAfterErasing()
+    
+    // pencil
+    func didFinishPencilGesture()
 }
 
 
@@ -166,7 +170,11 @@ class TCViewModel {
         graphics.popDebugGroup()
     }
     
-    func drawGrayscalePoints(points: [TGRenderablePoint], pointsCount: Int) {
+    func drawGrayscalePoints(
+        points: [TGRenderablePoint],
+        pointsCount: Int,
+        clearBackground: Bool = false
+    ) {
         graphics.pushDebugGroup("Draw grayscale points")
         graphics.drawGrayscalePoints(
             points,
@@ -175,7 +183,8 @@ class TCViewModel {
             opacity: state.brush.opacity,
             shapeTextureId: -1, // TODO: pass correct id
             transform: state.ctm.inverse,
-            projection: state.projectionMatrix
+            projection: state.projectionMatrix,
+            clearBackground: clearBackground
         )
         graphics.popDebugGroup()
     }
@@ -246,7 +255,7 @@ extension TCViewModel {
             }
             clearGrayscaleTexture() // just in case :)
             clearStrokeTexture()
-        case .drawEnded:
+        case .fingerDrawEnded:
             if let brushTool = currentTool as? TCBrushTool {
                 brushTool.endStroke()
             }

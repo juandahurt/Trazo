@@ -7,7 +7,7 @@ import UIKit
 class TCCanvasGestureController {
     enum TCGestureEvent {
         case idle
-        case fingerDraw(TCTouch), fingerDrawCanceled, drawEnded
+        case fingerDraw(TCTouch), fingerDrawCanceled, fingerDrawEnded
         case pencilDraw(TCTouch)
         case transform([Int: [TCTouch]]), transformInit([Int: [TCTouch]])
     }
@@ -43,7 +43,6 @@ class TCCanvasGestureController {
             gestureEventSubject.send(.fingerDrawCanceled)
         }
         if touch.phase == .ended || touch.phase == .cancelled {
-            gestureEventSubject.send(.drawEnded)
             currentGesture = .idle
         } else {
             currentGesture = .pencilDraw
@@ -82,14 +81,14 @@ class TCCanvasGestureController {
         
         if numberOfTouches > 2 {
             if currentGesture == .fingerDraw {
-                gestureEventSubject.send(.drawEnded)
+                gestureEventSubject.send(.fingerDrawEnded)
             }
             currentGesture = .unsupported
         }
 
         if userLiftedTheirFingers {
             if currentGesture == .fingerDraw {
-                gestureEventSubject.send(.drawEnded)
+                gestureEventSubject.send(.fingerDrawEnded)
             }
             currentGesture = .idle
         }
