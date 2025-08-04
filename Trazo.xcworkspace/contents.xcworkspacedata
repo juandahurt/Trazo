@@ -5,9 +5,6 @@
       location = "container:Trazo.xcodeproj">
    </FileRef>
    <FileRef
-      location = "group:TrazoCanvas">
-   </FileRef>
-   <FileRef
       location = "container:Modules/TGraphics">
    </FileRef>
    <FileRef
