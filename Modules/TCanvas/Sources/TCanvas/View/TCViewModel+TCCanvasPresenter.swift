@@ -60,6 +60,20 @@ extension TCViewModel: TCCanvasPresenter {
         graphics.popDebugGroup()
     }
     
+    func erase(stroke: TCDrawableStroke) {
+        let points = stroke.segments.map { $0.points }.flatMap(\.self)
+        let pointsCount = stroke.pointsCount
+        guard pointsCount > 0 else { return }
+        drawGrayscalePoints(points: points, pointsCount: pointsCount)
+        graphics.pushDebugGroup("Substract points")
+        graphics.substract(
+            textureA: state.layers[state.currentLayerIndex].textureId,
+            textureB: state.grayscaleTexture,
+            on: state.strokeTexture
+        )
+        graphics.popDebugGroup()
+    }
+    
     func mergeLayersWhenErasing() {
         mergeLayers(usingStrokeTexture: true, ignoringCurrentTexture: true)
     }

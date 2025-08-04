@@ -40,10 +40,10 @@ class TCBrushTool: TCTool {
             brush: brush
         )
         drawableStroke.append(segments)
-        onPencilTouchHandleFinish(segments: segments)
+        onPencilTouchHandleFinish(touch: touch, segments: segments)
     }
     
-    func onPencilTouchHandleFinish(segments: [TCDrawableSegment]) {
+    func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
         fatalError("not implemented")
     }
     

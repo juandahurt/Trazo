@@ -8,7 +8,7 @@ class TCDrawingTool: TCBrushTool {
         canvasPresenter?.mergeLayersWhenDrawing()
     }
     
-    override func onPencilTouchHandleFinish(segments: [TCDrawableSegment]) {
+    override func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
         for segment in segments {
             canvasPresenter?.draw(segment: segment)
         }
