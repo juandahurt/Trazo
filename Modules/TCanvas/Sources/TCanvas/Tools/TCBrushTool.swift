@@ -5,7 +5,7 @@ import simd
 
 class TCBrushTool: TCTool {
     var touches: [TCTouch] = []
-    var drawableStroke: TCDrawableStroke = .init(segments: [])
+    var drawableStroke = TCDrawableStroke()
     var touchCount = 0
     
     var estimatedTouches: [NSNumber: Int] = [:]
@@ -125,7 +125,7 @@ class TCBrushTool: TCTool {
             // add the second-last curve
             var segment = generateMidSegment(ctm: ctm, brush: brush, touchIndex: index - 2)
             segments.append(segment)
-//            // add the last curve
+            // add the last curve
             segment = generateFinalSegment(ctm: ctm, brush: brush)
             segments.append(segment)
         default: return []

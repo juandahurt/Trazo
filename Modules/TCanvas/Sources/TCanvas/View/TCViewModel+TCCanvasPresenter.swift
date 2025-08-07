@@ -17,7 +17,7 @@ extension TCViewModel: TCCanvasPresenter {
     
     
     func draw(stroke: TCDrawableStroke) {
-        let points = stroke.segments.map { $0.points }.flatMap(\.self)
+        let points = stroke.points
         let pointsCount = stroke.pointsCount
         guard pointsCount > 0 else { return }
         drawGrayscalePoints(
@@ -61,7 +61,7 @@ extension TCViewModel: TCCanvasPresenter {
     }
     
     func erase(stroke: TCDrawableStroke) {
-        let points = stroke.segments.map { $0.points }.flatMap(\.self)
+        let points = stroke.points
         let pointsCount = stroke.pointsCount
         guard pointsCount > 0 else { return }
         drawGrayscalePoints(points: points, pointsCount: pointsCount)
