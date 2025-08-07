@@ -1,4 +1,3 @@
-import TPainter
 import UIKit
 
 @MainActor

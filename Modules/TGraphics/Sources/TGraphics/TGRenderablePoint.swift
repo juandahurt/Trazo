@@ -1,7 +1,7 @@
 import simd
 
 public struct TGRenderablePoint {
-    let location: simd_float2
+    public let location: simd_float2
     let size: Float
     
     public init(location: simd_float2, size: Float) {

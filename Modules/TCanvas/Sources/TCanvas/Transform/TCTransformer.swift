@@ -5,9 +5,9 @@ import TTypes
 
 class TCTransformer {
     /// First touch of finger A
-    var initialTouchA: TTTouch?
+    var initialTouchA: TCTouch?
     /// First touch of finger B
-    var initialTouchB: TTTouch?
+    var initialTouchB: TCTouch?
     
     var isInitialized: Bool {
         initialTouchA != nil && initialTouchB != nil
@@ -23,7 +23,7 @@ class TCTransformer {
     private var accAngle: Float = 0
     private var currAngle: Float = 0
     
-    func initialize(withTouches touchesDict: [Int: [TTTouch]]) {
+    func initialize(withTouches touchesDict: [Int: [TCTouch]]) {
         guard
             let keyA = touchesDict.keys.sorted().first,
             let keyB = touchesDict.keys.sorted().last,
@@ -37,7 +37,7 @@ class TCTransformer {
     }
     
     func transform(
-        usingCurrentTouches touchesDict: [Int: [TTTouch]]
+        usingCurrentTouches touchesDict: [Int: [TCTouch]]
     ) {
         guard
             let initialTouchA,
