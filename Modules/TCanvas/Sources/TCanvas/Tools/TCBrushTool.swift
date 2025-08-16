@@ -6,7 +6,6 @@ import simd
 class TCBrushTool: TCTool {
     var touches: [TCTouch] = []
     var drawableStroke = TCDrawableStroke()
-    var touchCount = 0
     
     var estimatedTouches: [NSNumber: Int] = [:]
     var receivedEndOfPencilGesture = false
@@ -16,7 +15,7 @@ class TCBrushTool: TCTool {
     final func handleFingerTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         appendTouch(touch)
         let segments = generateSegments(
-            forTouchAtIndex: touchCount - 1,
+            forTouchAtIndex: touches.count - 1,
             ctm: ctm,
             brush: brush
         )
@@ -30,53 +29,54 @@ class TCBrushTool: TCTool {
     
     final func handlePencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         appendTouch(touch)
-        if let estimationUpdateIndex = touch.estimationUpdateIndex {
-            estimatedTouches[estimationUpdateIndex] = touchCount - 1
-        }
         receivedEndOfPencilGesture = touch.phase == .ended || touch.phase == .cancelled
         let segments = generateSegments(
-            forTouchAtIndex: touchCount - 1,
+            forTouchAtIndex: touches.count - 1,
             ctm: ctm,
             brush: brush
         )
         drawableStroke.append(segments)
         onPencilTouchHandleFinish(touch: touch, segments: segments)
+        if let estimationUpdateIndex = touch.estimationUpdateIndex {
+            let currentTouchIndex = touches.count - 1
+            estimatedTouches[estimationUpdateIndex] = currentTouchIndex
+        }
     }
     
     func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
         fatalError("not implemented")
     }
     
+    func shouldUpdateLeftSegment(touchIndex: Int) -> Bool {
+        touchIndex > 0 && drawableStroke.segmentCount >= touchIndex
+    }
+    
     final func handleUpdatedPencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
         guard let estimationUpdateIndex = touch.estimationUpdateIndex else { return }
-        guard let touchIndex = estimatedTouches[estimationUpdateIndex] else { return }
+        guard let touchIndex = estimatedTouches[estimationUpdateIndex] else {
+            return
+        }
         estimatedTouches.removeValue(forKey: estimationUpdateIndex)
         
         touches[touchIndex] = touch
         
-        if touchIndex <= 1 && touchCount >= 3 && (touch.phase != .ended && touch.phase != .cancelled) && drawableStroke.segmentCount >= 1 {
-            let segment = generateFirstSegment(ctm: ctm, brush: brush)
-            drawableStroke.updateSegment(atIndex: 0, segment)
-        }
-        
-        if touchIndex >= 3 && touchIndex <= touchCount - 2 && (touch.phase != .ended && touch.phase != .cancelled) {
-            if drawableStroke.segmentCount >= touchIndex {
-                // update left segment of the updated touch
-                var segment = generateMidSegment(ctm: ctm, brush: brush, touchIndex: touchIndex - 1)
+        if shouldUpdateLeftSegment(touchIndex: touchIndex) {
+            if touchIndex == 1 {
+                let segment = generateFirstSegment(ctm: ctm, brush: brush)
+                drawableStroke.updateSegment(atIndex: 0, segment)
+            } else {
+                let segment = generateMidSegment(ctm: ctm, brush: brush, touchIndex: touchIndex - 1)
                 drawableStroke.updateSegment(atIndex: touchIndex - 1, segment)
-                
-                if touchIndex < touchCount - 3 && drawableStroke.segmentCount >= touchIndex {
-                    // update right segment of the updated touch
-                    segment = generateMidSegment(ctm: ctm, brush: brush, touchIndex: touchIndex)
-                    drawableStroke.updateSegment(atIndex: touchIndex, segment)
-                }
             }
         }
         
-        if (touch.phase == .ended || touch.phase == .cancelled) {
-            let segment = generateFinalSegment(ctm: ctm, brush: brush)
-            drawableStroke
-                .updateSegment(atIndex: drawableStroke.segmentCount - 1, segment)
+        // check if we need to update the last segment
+        if touches.last?.phase == .ended || touches.last?.phase == .cancelled {
+            if touchIndex == touches.count - 2 {
+                let segment = generateFinalSegment(ctm: ctm, brush: brush)
+                drawableStroke
+                    .updateSegment(atIndex: drawableStroke.segmentCount - 1, segment)
+            }
         }
         
         onUpdatedPencilTouchHandleFinish()
@@ -92,13 +92,11 @@ class TCBrushTool: TCTool {
     
     func appendTouch(_ touch: TCTouch) {
         touches.append(touch)
-        touchCount += 1
     }
     
     func endStroke() {
         drawableStroke.clear()
         touches = []
-        touchCount = 0
         receivedEndOfPencilGesture = false
     }
     
@@ -108,20 +106,20 @@ class TCBrushTool: TCTool {
         
         switch touch.phase {
         case .moved:
-            guard touchCount >= 3 else { return [] }
-            if touchCount == 3 {
+            guard touches.count >= 3 else { return [] }
+            if touches.count == 3 {
                 let segment = generateFirstSegment(ctm: ctm, brush: brush)
                 segments.append(segment)
             } else {
                 let segment = generateMidSegment(
                     ctm: ctm,
                     brush: brush,
-                    touchIndex: touchCount - 3
+                    touchIndex: touches.count - 3
                 )
                 segments.append(segment)
             }
         case .ended, .cancelled:
-            guard touchCount > 3 else { return [] }
+            guard touches.count > 3 else { return [] }
             // add the second-last curve
             var segment = generateMidSegment(ctm: ctm, brush: brush, touchIndex: index - 2)
             segments.append(segment)
@@ -186,7 +184,7 @@ class TCBrushTool: TCTool {
         ctm: TTTransform,
         brush: TCBrush
     ) -> ([TGRenderablePoint], Int) {
-        let index = touchCount - 1
+        let index = touches.count - 1
         let (c1, c2) = findControlPoints(
             p0: touches[index-1].location,
             p1: touches[index].location,
