@@ -1,6 +1,5 @@
 import Combine
 import TGraphics
-import TPainter
 import TTypes
 import UIKit
 
@@ -77,25 +76,24 @@ extension TCCanvasView: TCFingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
         guard let renderableView else { return }
         let touches = touches.map {
-            TTTouch(
-                id: $0.hashValue,
-                location: $0.location(fromCenterOfView: renderableView),
-                phase: $0.phase
-            )
+            TCTouch($0, view: renderableView)
         }
         viewModel.handleFingerTouches(touches)
     }
 }
 
 extension TCCanvasView: TCPencilGestureRecognizerDelegate {
-    func didReceivePencilTouches(_ touches: Set<UITouch>) {
+    func didReceiveEstimatedPencilTouches(_ touches: Set<UITouch>) {
         guard let renderableView else { return }
         guard let uiTouch = touches.first else { return }
-        let touch = TTTouch(
-            id: uiTouch.hashValue,
-            location: uiTouch.location(fromCenterOfView: renderableView),
-            phase: uiTouch.phase
-        )
-        viewModel.handlePencilTouch(touch)
+        let touch = TCTouch(uiTouch, view: renderableView)
+        viewModel.onPencilTouch(touch)
+    }
+    
+    func didReceiveActualPencilTouches(_ touches: Set<UITouch>) {
+        guard let uiTouch = touches.first else { return }
+        guard let renderableView else { return }
+        let touch = TCTouch(uiTouch, view: renderableView)
+        viewModel.onUpdatedPencilTouch(touch)
     }
 }

@@ -5,33 +5,24 @@ import UIKit
 
 
 class TCCanvasGestureController {
-    enum TCFingerGestureEvent: CustomDebugStringConvertible {
+    enum TCGestureEvent {
         case idle
-        case draw(TTTouch), drawCanceled, drawEnded
-        case transform([Int: [TTTouch]]), transformInit([Int: [TTTouch]])
-        
-        var debugDescription: String {
-            switch self {
-            case .idle: "idle"
-            case .draw(_): "draw"
-            case .drawCanceled: "drawCanceled"
-            case .drawEnded:"drawEnded"
-            case .transform(_): "transform"
-            case .transformInit(_): "transform init"
-            }
-        }
+        case fingerDraw(TCTouch), fingerDrawCanceled, fingerDrawEnded
+        case pencilDraw(TCTouch)
+        case transform([Int: [TCTouch]]), transformInit([Int: [TCTouch]])
     }
     
     enum TCGesture {
         case idle
-        case draw
+        case fingerDraw
+        case pencilDraw
         case unsupported
         case transform
     }
     
-    var gestureEventSubject = PassthroughSubject<TCFingerGestureEvent, Never>()
+    var gestureEventSubject = PassthroughSubject<TCGestureEvent, Never>()
     
-    private(set) var touchesMap: [Int: [TTTouch]] = [:]
+    private(set) var touchesMap: [Int: [TCTouch]] = [:]
     
     private var numberOfTouches: Int {
         touchesMap.count
@@ -47,20 +38,33 @@ class TCCanvasGestureController {
                 })
     }
     
-    func handleFingerTouches(_ touches: [TTTouch]) {
+    func handlePencilTouch(_ touch: TCTouch) {
+        if currentGesture == .fingerDraw {
+            gestureEventSubject.send(.fingerDrawCanceled)
+        }
+        if touch.phase == .ended || touch.phase == .cancelled {
+            currentGesture = .idle
+        } else {
+            currentGesture = .pencilDraw
+        }
+        
+        gestureEventSubject.send(.pencilDraw(touch))
+    }
+    
+    func handleFingerTouches(_ touches: [TCTouch]) {
         save(touches: touches)
         
-        if numberOfTouches == 1 && (currentGesture == .idle || currentGesture == .draw) {
+        if numberOfTouches == 1 && (currentGesture == .idle || currentGesture == .fingerDraw) {
             // we can only notify the drawing event if we are currently idle
             // or already drawing
             if let touch = touches.first {
-                gestureEventSubject.send(.draw(touch))
-                currentGesture = .draw
+                gestureEventSubject.send(.fingerDraw(touch))
+                currentGesture = .fingerDraw
             }
         }
         
         if numberOfTouches == 2 && (
-            currentGesture == .idle || currentGesture == .transform || currentGesture == .draw
+            currentGesture == .idle || currentGesture == .transform || currentGesture == .fingerDraw
         ) {
             if currentGesture == .idle {
                 gestureEventSubject.send(.transformInit(touchesMap))
@@ -68,23 +72,23 @@ class TCCanvasGestureController {
             if currentGesture == .transform {
                 gestureEventSubject.send(.transform(touchesMap))
             }
-            if currentGesture == .draw {
-                gestureEventSubject.send(.drawCanceled)
+            if currentGesture == .fingerDraw {
+                gestureEventSubject.send(.fingerDrawCanceled)
                 gestureEventSubject.send(.transformInit(touchesMap))
             }
             currentGesture = .transform
         }
         
         if numberOfTouches > 2 {
-            if currentGesture == .draw {
-                gestureEventSubject.send(.drawEnded)
+            if currentGesture == .fingerDraw {
+                gestureEventSubject.send(.fingerDrawEnded)
             }
             currentGesture = .unsupported
         }
 
         if userLiftedTheirFingers {
-            if currentGesture == .draw {
-                gestureEventSubject.send(.drawEnded)
+            if currentGesture == .fingerDraw {
+                gestureEventSubject.send(.fingerDrawEnded)
             }
             currentGesture = .idle
         }
@@ -92,7 +96,7 @@ class TCCanvasGestureController {
         removeEnded(touches: touches)
     }
     
-    private func removeEnded(touches: [TTTouch]) {
+    private func removeEnded(touches: [TCTouch]) {
         for touch in touches {
             if touch.phase == .ended || touch.phase == .cancelled {
                 removeTouch(byId: touch.id)
@@ -100,7 +104,7 @@ class TCCanvasGestureController {
         }
     }
     
-    private func save(touches: [TTTouch]) {
+    private func save(touches: [TCTouch]) {
         for touch in touches {
             let key = touch.id
             if touchesMap[key] == nil {

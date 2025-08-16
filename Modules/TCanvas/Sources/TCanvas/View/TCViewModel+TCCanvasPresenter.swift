@@ -1,9 +1,30 @@
 import TGraphics
 
 extension TCViewModel: TCCanvasPresenter {
-    func draw(points: [TGRenderablePoint]) {
-        guard !points.isEmpty else { return }
-        drawGrayscalePoints(points: points)
+    func draw(segment: TCDrawableSegment) {
+        let points = segment.points
+        let pointsCount = segment.pointsCount
+        guard pointsCount > 0 else { return }
+        drawGrayscalePoints(points: points, pointsCount: pointsCount)
+        graphics.pushDebugGroup("Colorize")
+        graphics.colorize(
+            grayscaleTexture: state.grayscaleTexture,
+            withColor: [0, 0, 0, 1],
+            on: state.strokeTexture
+        )
+        graphics.popDebugGroup()
+    }
+    
+    
+    func draw(stroke: TCDrawableStroke) {
+        let points = stroke.points
+        let pointsCount = stroke.pointsCount
+        guard pointsCount > 0 else { return }
+        drawGrayscalePoints(
+            points: points,
+            pointsCount: pointsCount,
+            clearBackground: true
+        )
         graphics.pushDebugGroup("Colorize")
         graphics.colorize(
             grayscaleTexture: state.grayscaleTexture,
@@ -25,9 +46,25 @@ extension TCViewModel: TCCanvasPresenter {
         )
     }
     
-    func erase(points: [TGRenderablePoint]) {
-        guard !points.isEmpty else { return }
-        drawGrayscalePoints(points: points)
+    func erase(segment: TCDrawableSegment) {
+        let points = segment.points
+        let pointsCount = segment.pointsCount
+        guard pointsCount > 0 else { return }
+        drawGrayscalePoints(points: points, pointsCount: pointsCount)
+        graphics.pushDebugGroup("Substract points")
+        graphics.substract(
+            textureA: state.layers[state.currentLayerIndex].textureId,
+            textureB: state.grayscaleTexture,
+            on: state.strokeTexture
+        )
+        graphics.popDebugGroup()
+    }
+    
+    func erase(stroke: TCDrawableStroke) {
+        let points = stroke.points
+        let pointsCount = stroke.pointsCount
+        guard pointsCount > 0 else { return }
+        drawGrayscalePoints(points: points, pointsCount: pointsCount)
         graphics.pushDebugGroup("Substract points")
         graphics.substract(
             textureA: state.layers[state.currentLayerIndex].textureId,
@@ -53,5 +90,15 @@ extension TCViewModel: TCCanvasPresenter {
             texture: state.strokeTexture,
             on: state.layers[state.currentLayerIndex].textureId
         )
+    }
+    
+    func didFinishPencilGesture() {
+        if let brushTool = currentTool as? TCBrushTool {
+            brushTool.endStroke()
+        }
+        // update the renderable texture with the updated layer
+        mergeLayers(usingStrokeTexture: false)
+        clearGrayscaleTexture()
+        clearStrokeTexture()
     }
 }
