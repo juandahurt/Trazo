@@ -1,14 +1,14 @@
 import TTypes
 
 class TCDrawingTool: TCBrushTool {
-    override func onFingerTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
+    override func onFingerTouchHandleFinish(touch: TCTouch, segments: [TCStrokeSegment]) {
         for segment in segments {
             canvasPresenter?.draw(segment: segment)
         }
         canvasPresenter?.mergeLayersWhenDrawing()
     }
     
-    override func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
+    override func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCStrokeSegment]) {
         for segment in segments {
             canvasPresenter?.draw(segment: segment)
         }

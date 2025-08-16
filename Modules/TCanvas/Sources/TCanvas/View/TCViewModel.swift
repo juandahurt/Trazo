@@ -6,13 +6,13 @@ import UIKit
 
 protocol TCCanvasPresenter: AnyObject {
     // draw
-    func draw(segment: TCDrawableSegment)
-    func draw(stroke: TCDrawableStroke)
+    func draw(segment: TCStrokeSegment)
+    func draw(stroke: TCStroke)
     func mergeLayersWhenDrawing()
     func updateCurrentLayerAfterDrawing()
     // erase
-    func erase(segment: TCDrawableSegment)
-    func erase(stroke: TCDrawableStroke)
+    func erase(segment: TCStrokeSegment)
+    func erase(stroke: TCStroke)
     func mergeLayersWhenErasing()
     func copyCurrrentLayerToStrokeTexture()
     func updateCurrentLayerAfterErasing()

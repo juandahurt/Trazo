@@ -1,7 +1,7 @@
 import TGraphics
 
-struct TCDrawableStroke {
-    private var segments: [TCDrawableSegment]
+struct TCStroke {
+    private var segments: [TCStrokeSegment]
     private(set) var pointsCount = 0
     var segmentCount: Int {
         segments.count
@@ -16,7 +16,7 @@ struct TCDrawableStroke {
         segments = []
     }
     
-    mutating func append(_ segments: [TCDrawableSegment]) {
+    mutating func append(_ segments: [TCStrokeSegment]) {
         self.segments.append(contentsOf: segments)
         pointsCount += segments.reduce(into: 0, { $0 += $1.pointsCount })
     }
@@ -26,12 +26,12 @@ struct TCDrawableStroke {
         pointsCount = 0
     }
     
-    mutating func updateSegment(atIndex index: Int, _ segment: TCDrawableSegment) {
+    mutating func updateSegment(atIndex index: Int, _ segment: TCStrokeSegment) {
         segments[index] = segment
     }
 }
 
-struct TCDrawableSegment {
+struct TCStrokeSegment {
     var points: [TGRenderablePoint]
     var pointsCount: Int
 }

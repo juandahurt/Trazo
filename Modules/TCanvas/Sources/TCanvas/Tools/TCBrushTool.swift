@@ -5,10 +5,12 @@ import simd
 
 class TCBrushTool: TCTool {
     var touches: [TCTouch] = []
-    var drawableStroke = TCDrawableStroke()
+    var drawableStroke = TCStroke()
     
     var estimatedTouches: [NSNumber: Int] = [:]
     var receivedEndOfPencilGesture = false
+    
+    let bezierCurveGenerator = TCBezierCurveGenerator()
     
     weak var canvasPresenter: TCCanvasPresenter?
     
@@ -23,7 +25,7 @@ class TCBrushTool: TCTool {
         onFingerTouchHandleFinish(touch: touch, segments: segments)
     }
     
-    func onFingerTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
+    func onFingerTouchHandleFinish(touch: TCTouch, segments: [TCStrokeSegment]) {
         fatalError("not implemented")
     }
     
@@ -43,7 +45,7 @@ class TCBrushTool: TCTool {
         }
     }
     
-    func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
+    func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCStrokeSegment]) {
         fatalError("not implemented")
     }
     
@@ -100,9 +102,9 @@ class TCBrushTool: TCTool {
         receivedEndOfPencilGesture = false
     }
     
-    func generateSegments(forTouchAtIndex index: Int, ctm: TTTransform, brush: TCBrush) -> [TCDrawableSegment] {
+    func generateSegments(forTouchAtIndex index: Int, ctm: TTTransform, brush: TCBrush) -> [TCStrokeSegment] {
         let touch = touches[index] // validate index ?
-        var segments: [TCDrawableSegment] = []
+        var segments: [TCStrokeSegment] = []
         
         switch touch.phase {
         case .moved:
@@ -132,77 +134,62 @@ class TCBrushTool: TCTool {
         return segments
     }
     
-    func generateFirstSegment(ctm: TTTransform, brush: TCBrush) -> TCDrawableSegment {
-        let (points, pointsCount) = findPointsForFirstSegment(ctm: ctm, brush: brush)
-        return TCDrawableSegment(points: points, pointsCount: pointsCount)
+    func generateFirstSegment(ctm: TTTransform, brush: TCBrush) -> TCStrokeSegment {
+        let points = findPointsForFirstSegment(ctm: ctm, brush: brush)
+        return TCStrokeSegment(points: points, pointsCount: points.count)
     }
     
-    func generateMidSegment(ctm: TTTransform, brush: TCBrush, touchIndex: Int) -> TCDrawableSegment {
-        let (points, pointsCount) = findPointsForMidSegment(
+    func generateMidSegment(ctm: TTTransform, brush: TCBrush, touchIndex: Int) -> TCStrokeSegment {
+        let points = findPointsForMidSegment(
             ctm: ctm,
             brush: brush,
             index: touchIndex
         )
-        return TCDrawableSegment(points: points, pointsCount: pointsCount)
+        return TCStrokeSegment(points: points, pointsCount: points.count)
     }
     
-    func generateFinalSegment(ctm: TTTransform, brush: TCBrush) -> TCDrawableSegment {
-        let (points, pointsCount) = findPointsForFinalSegment(
+    func generateFinalSegment(ctm: TTTransform, brush: TCBrush) -> TCStrokeSegment {
+        let points = findPointsForFinalSegment(
             ctm: ctm,
             brush: brush
         )
-        return TCDrawableSegment(points: points, pointsCount: pointsCount)
+        return TCStrokeSegment(points: points, pointsCount: points.count)
     }
     
     func findPointsForFirstSegment(
         ctm: TTTransform,
         brush: TCBrush
-    ) -> ([TGRenderablePoint], Int) {
-        let index = 0
-        let (c1, c2) = findControlPoints(
+    ) -> [TGRenderablePoint] {
+        let curve = bezierCurveGenerator.initialCurve(
             p0: touches[0].location,
             p1: touches[0].location,
             p2: touches[1].location,
             p3: touches[2].location
         )
-        let p0 = touches[index].location
-        let p1 = c1
-        let p2 = c2
-        let p3 = touches[1].location
-        return findPointsForSegment(
-            p0: p0,
-            p1: p1,
-            p2: p2,
-            p3: p3,
+        return findPointsForCurve(
+            curve,
             ctm: ctm,
             brush: brush,
-            forceRange: (touches[index].force, touches[1].force)
+            forceRange: (touches[0].force, touches[1].force)
         )
     }
     
     func findPointsForFinalSegment(
         ctm: TTTransform,
         brush: TCBrush
-    ) -> ([TGRenderablePoint], Int) {
+    ) -> [TGRenderablePoint] {
         let index = touches.count - 1
-        let (c1, c2) = findControlPoints(
-            p0: touches[index-1].location,
-            p1: touches[index].location,
+        let curve = bezierCurveGenerator.finalCurve(
+            p0: touches[index - 2].location,
+            p1: touches[index - 1].location,
             p2: touches[index].location,
             p3: touches[index].location
         )
-        let p0 = touches[index-1].location
-        let p1 = c1
-        let p2 = c2
-        let p3 = touches[index].location
-        return findPointsForSegment(
-            p0: p0,
-            p1: p1,
-            p2: p2,
-            p3: p3,
+        return findPointsForCurve(
+            curve,
             ctm: ctm,
             brush: brush,
-            forceRange: (touches[index-1].force, touches[index].force)
+            forceRange: (touches[index - 1].force, touches[index].force)
         )
     }
     
@@ -210,50 +197,39 @@ class TCBrushTool: TCTool {
         ctm: TTTransform,
         brush: TCBrush,
         index: Int
-    ) -> ([TGRenderablePoint], Int) {
-        let (c1, c2) = findControlPoints(
-            p0: touches[index-1].location,
+    ) -> [TGRenderablePoint] {
+        let curve = bezierCurveGenerator.middleCurve(
+            p0: touches[index - 1].location,
             p1: touches[index].location,
-            p2: touches[index+1].location,
-            p3: touches[index+2].location
+            p2: touches[index + 1].location,
+            p3: touches[index + 2].location
         )
-        let p0 = touches[index].location
-        let p1 = c1
-        let p2 = c2
-        let p3 = touches[index+1].location
-        
-        return findPointsForSegment(
-            p0: p0,
-            p1: p1,
-            p2: p2,
-            p3: p3,
+        return findPointsForCurve(
+            curve,
             ctm: ctm,
             brush: brush,
             forceRange: (touches[index].force, touches[index + 1].force)
         )
     }
     
-    func findPointsForSegment(
-        p0: simd_float2,
-        p1: simd_float2,
-        p2: simd_float2,
-        p3: simd_float2,
+    func findPointsForCurve(
+        _ curve: TCBezierCurve,
         ctm: TTTransform,
         brush: TCBrush,
         forceRange: (f0: Float, f1: Float)
-    ) -> ([TGRenderablePoint], Int) {
+    ) -> [TGRenderablePoint] {
         // find the distance given the current current transform
         let length = distance(
-            p0.applying(ctm.inverse),
-            p1.applying(ctm.inverse)
+            curve.p0.applying(ctm.inverse),
+            curve.p1.applying(ctm.inverse)
         ) +
         distance(
-            p1.applying(ctm.inverse),
-            p2.applying(ctm.inverse)
+            curve.p1.applying(ctm.inverse),
+            curve.p2.applying(ctm.inverse)
         ) +
         distance(
-            p2.applying(ctm.inverse),
-            p3.applying(ctm.inverse)
+            curve.p2.applying(ctm.inverse),
+            curve.p3.applying(ctm.inverse)
         )
         let density: Float = 1
         let n = max(1, Int(length * density))
@@ -261,13 +237,7 @@ class TCBrushTool: TCTool {
         var points: [TGRenderablePoint] = []
         for index in 0..<n {
             let t = Float(index) / Float(n)
-            var location = cubicBezierValue(
-                p0: p0,
-                p1: p1,
-                p2: p2,
-                p3: p3,
-                t: t
-            )
+            var location = curve.value(at: t)
             if brush.jitter > 0 {
                 location.x += Float.random(in: -brush.jitter..<brush.jitter)
                 location.y += Float.random(in: -brush.jitter..<brush.jitter)
@@ -284,28 +254,6 @@ class TCBrushTool: TCTool {
                 )
         }
         
-        return (points, n)
-    }
-    
-    func findControlPoints(
-        p0: simd_float2,
-        p1: simd_float2,
-        p2: simd_float2,
-        p3: simd_float2
-    ) -> (c1: simd_float2, c2: simd_float2) {
-        let c1 = ((p2 - p0) /** brush.stabilization*/ / 6) + p1
-        let c2 = p2 - ((p3 - p1) /** brush.stabilization*/ / 6)
-        return (c1, c2)
-    }
-    
-    func cubicBezierValue(
-        p0: simd_float2,
-        p1: simd_float2,
-        p2: simd_float2,
-        p3: simd_float2,
-        t: Float
-    ) -> simd_float2 {
-        ((pow(1 - t, 3)) * p0) + (3 * pow(1 - t, 2) * t * p1) + (3 * (1 - t) * pow(t, 2) * p2) + (pow(t, 3) * p3)
+        return points
     }
 }
-

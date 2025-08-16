@@ -1,7 +1,7 @@
 import TTypes
 
 class TCErasingTool: TCBrushTool {
-    override func onFingerTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
+    override func onFingerTouchHandleFinish(touch: TCTouch, segments: [TCStrokeSegment]) {
         if touch.phase == .began {
             canvasPresenter?.copyCurrrentLayerToStrokeTexture()
         }
@@ -11,7 +11,7 @@ class TCErasingTool: TCBrushTool {
         canvasPresenter?.mergeLayersWhenErasing()
     }
     
-    override func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCDrawableSegment]) {
+    override func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCStrokeSegment]) {
         if touch.phase == .began {
             canvasPresenter?.copyCurrrentLayerToStrokeTexture()
         }

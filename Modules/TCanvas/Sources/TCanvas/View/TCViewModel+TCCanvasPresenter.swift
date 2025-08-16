@@ -1,7 +1,7 @@
 import TGraphics
 
 extension TCViewModel: TCCanvasPresenter {
-    func draw(segment: TCDrawableSegment) {
+    func draw(segment: TCStrokeSegment) {
         let points = segment.points
         let pointsCount = segment.pointsCount
         guard pointsCount > 0 else { return }
@@ -16,7 +16,7 @@ extension TCViewModel: TCCanvasPresenter {
     }
     
     
-    func draw(stroke: TCDrawableStroke) {
+    func draw(stroke: TCStroke) {
         let points = stroke.points
         let pointsCount = stroke.pointsCount
         guard pointsCount > 0 else { return }
@@ -46,7 +46,7 @@ extension TCViewModel: TCCanvasPresenter {
         )
     }
     
-    func erase(segment: TCDrawableSegment) {
+    func erase(segment: TCStrokeSegment) {
         let points = segment.points
         let pointsCount = segment.pointsCount
         guard pointsCount > 0 else { return }
@@ -60,7 +60,7 @@ extension TCViewModel: TCCanvasPresenter {
         graphics.popDebugGroup()
     }
     
-    func erase(stroke: TCDrawableStroke) {
+    func erase(stroke: TCStroke) {
         let points = stroke.points
         let pointsCount = stroke.pointsCount
         guard pointsCount > 0 else { return }
