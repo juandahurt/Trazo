@@ -64,7 +64,11 @@ extension TCViewModel: TCCanvasPresenter {
         let points = stroke.points
         let pointsCount = stroke.pointsCount
         guard pointsCount > 0 else { return }
-        drawGrayscalePoints(points: points, pointsCount: pointsCount)
+        drawGrayscalePoints(
+            points: points,
+            pointsCount: pointsCount,
+            clearBackground: true
+        )
         graphics.pushDebugGroup("Substract points")
         graphics.substract(
             textureA: state.layers[state.currentLayerIndex].textureId,

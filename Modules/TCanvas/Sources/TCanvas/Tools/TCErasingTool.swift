@@ -23,6 +23,7 @@ class TCErasingTool: TCBrushTool {
     }
     
     override func onUpdatedPencilTouchHandleFinish() {
+        canvasPresenter?.erase(stroke: drawableStroke)
         canvasPresenter?.mergeLayersWhenErasing()
     }
     

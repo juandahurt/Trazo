@@ -3,7 +3,6 @@ import TTypes
 protocol TCTool {
     var canvasPresenter: TCCanvasPresenter? { get set }
     
-    func handleFingerTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush)
-    func handlePencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush)
+    func handleTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush, isPencil: Bool)
     func handleUpdatedPencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush)
 }

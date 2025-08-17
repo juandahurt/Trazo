@@ -14,7 +14,7 @@ class TCBrushTool: TCTool {
     
     weak var canvasPresenter: TCCanvasPresenter?
     
-    final func handleFingerTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
+    func handleTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush, isPencil: Bool) {
         appendTouch(touch)
         let segments = generateSegments(
             forTouchAtIndex: touches.count - 1,
@@ -22,27 +22,20 @@ class TCBrushTool: TCTool {
             brush: brush
         )
         drawableStroke.append(segments)
-        onFingerTouchHandleFinish(touch: touch, segments: segments)
+        if isPencil {
+            receivedEndOfPencilGesture = touch.phase == .ended || touch.phase == .cancelled
+            if let estimationUpdateIndex = touch.estimationUpdateIndex {
+                let currentTouchIndex = touches.count - 1
+                estimatedTouches[estimationUpdateIndex] = currentTouchIndex
+            }
+            onPencilTouchHandleFinish(touch: touch, segments: segments)
+        } else {
+            onFingerTouchHandleFinish(touch: touch, segments: segments)
+        }
     }
     
     func onFingerTouchHandleFinish(touch: TCTouch, segments: [TCStrokeSegment]) {
         fatalError("not implemented")
-    }
-    
-    final func handlePencilTouch(_ touch: TCTouch, ctm: TTTransform, brush: TCBrush) {
-        appendTouch(touch)
-        receivedEndOfPencilGesture = touch.phase == .ended || touch.phase == .cancelled
-        let segments = generateSegments(
-            forTouchAtIndex: touches.count - 1,
-            ctm: ctm,
-            brush: brush
-        )
-        drawableStroke.append(segments)
-        onPencilTouchHandleFinish(touch: touch, segments: segments)
-        if let estimationUpdateIndex = touch.estimationUpdateIndex {
-            let currentTouchIndex = touches.count - 1
-            estimatedTouches[estimationUpdateIndex] = currentTouchIndex
-        }
     }
     
     func onPencilTouchHandleFinish(touch: TCTouch, segments: [TCStrokeSegment]) {
@@ -219,22 +212,25 @@ class TCBrushTool: TCTool {
         forceRange: (f0: Float, f1: Float)
     ) -> [TGRenderablePoint] {
         // find the distance given the current current transform
+        let inverse = ctm.inverse
         let length = distance(
-            curve.p0.applying(ctm.inverse),
-            curve.p1.applying(ctm.inverse)
+            curve.p0.applying(inverse),
+            curve.p1.applying(inverse)
         ) +
         distance(
-            curve.p1.applying(ctm.inverse),
-            curve.p2.applying(ctm.inverse)
+            curve.p1.applying(inverse),
+            curve.p2.applying(inverse)
         ) +
         distance(
-            curve.p2.applying(ctm.inverse),
-            curve.p3.applying(ctm.inverse)
+            curve.p2.applying(inverse),
+            curve.p3.applying(inverse)
         )
         let density: Float = 1
         let n = max(1, Int(length * density))
         
         var points: [TGRenderablePoint] = []
+        points.reserveCapacity(n)
+        
         for index in 0..<n {
             let t = Float(index) / Float(n)
             var location = curve.value(at: t)

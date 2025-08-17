@@ -249,7 +249,8 @@ extension TCViewModel {
     ) {
         switch event {
         case .fingerDraw(let touch):
-            currentTool.handleFingerTouch(touch, ctm: state.ctm, brush: state.brush)
+            currentTool
+                .handleTouch(touch, ctm: state.ctm, brush: state.brush, isPencil: false)
         case .fingerDrawCanceled:
             if let brushTool = currentTool as? TCBrushTool {
                 brushTool.endStroke()
@@ -265,7 +266,8 @@ extension TCViewModel {
             clearGrayscaleTexture()
             clearStrokeTexture()
         case .pencilDraw(let touch):
-            currentTool.handlePencilTouch(touch, ctm: state.ctm, brush: state.brush)
+            currentTool
+                .handleTouch(touch, ctm: state.ctm, brush: state.brush, isPencil: true)
         case .transformInit(let touchMap):
             transformer.reset()
             transformer.initialize(withTouches: touchMap)
