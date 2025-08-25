@@ -34,7 +34,7 @@ class ViewController: UIViewController {
         canvas.load(in: view)
         
         view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
-        setupToolbar()
+        setupBrushPropertiesView()
         
         view.addSubview(eraserCheckbox)
         NSLayoutConstraint.activate([
@@ -43,27 +43,27 @@ class ViewController: UIViewController {
         ])
     }
     
-    func setupToolbar() {
-        let toolbar = ToolbarView()
+    func setupBrushPropertiesView() {
+        let brushPropertiesView = BrushPropertiesView()
         
-        toolbar.onOpacityChange = { [weak self] in
+        brushPropertiesView.onOpacityChange = { [weak self] in
             guard let self else { return }
             brush.opacity = $0
             canvas.updateBrush(with: brush)
         }
-        toolbar.onSizeChange = { [weak self] in
+        brushPropertiesView.onSizeChange = { [weak self] in
             guard let self else { return }
             brush.size = $0
             canvas.updateBrush(with: brush)
         }
         
-        view.addSubview(toolbar)
+        view.addSubview(brushPropertiesView)
         
         NSLayoutConstraint.activate([
-            toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
-            toolbar.widthAnchor.constraint(equalToConstant: 40),
-            toolbar.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35),
-            toolbar.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            brushPropertiesView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            brushPropertiesView.widthAnchor.constraint(equalToConstant: 40),
+            brushPropertiesView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35),
+            brushPropertiesView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
     }
     
