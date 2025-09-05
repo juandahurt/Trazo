@@ -18,11 +18,13 @@ class ViewController: UIViewController {
         true
     }
     
-    private lazy var eraserCheckbox: UISwitch = {
-        let checkbox = UISwitch()
-        checkbox.addTarget(self, action: #selector(onCheckboxToggle), for: .valueChanged)
-        return checkbox
-    }()
+//    private lazy var eraserCheckbox: UISwitch = {
+//        let checkbox = UISwitch()
+//        checkbox.addTarget(self, action: #selector(onCheckboxToggle), for: .valueChanged)
+//        return checkbox
+//    }()
+    
+    private let toolbarView: ToolbarView = .init()
 
     required init?(coder: NSCoder) {
         let canvasConfig = TCConfig(isTransformEnabled: true, brush: brush)
@@ -35,12 +37,12 @@ class ViewController: UIViewController {
         
         view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
         setupBrushPropertiesView()
-        
-        view.addSubview(eraserCheckbox)
-        NSLayoutConstraint.activate([
-            eraserCheckbox.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            eraserCheckbox.topAnchor.constraint(equalTo: view.topAnchor)
-        ])
+        setupToolbarView()
+//        view.addSubview(eraserCheckbox)
+//        NSLayoutConstraint.activate([
+//            eraserCheckbox.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+//            eraserCheckbox.topAnchor.constraint(equalTo: view.topAnchor)
+//        ])
     }
     
     func setupBrushPropertiesView() {
@@ -67,8 +69,19 @@ class ViewController: UIViewController {
         ])
     }
     
-    @objc
-    func onCheckboxToggle() {
-        canvas.setTool(eraserCheckbox.isOn ? .erase : .draw)
+    private func setupToolbarView() {
+        view.addSubview(toolbarView)
+        
+        NSLayoutConstraint.activate([
+            toolbarView.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            toolbarView.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            toolbarView.topAnchor.constraint(equalTo: view.topAnchor),
+            toolbarView.heightAnchor.constraint(equalToConstant: 46)
+        ])
     }
+    
+//    @objc
+//    func onCheckboxToggle() {
+//        canvas.setTool(eraserCheckbox.isOn ? .erase : .draw)
+//    }
 }
