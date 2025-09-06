@@ -13,20 +13,19 @@ import TCanvas
 class ViewController: UIViewController {
     var brush = TCBrush.normal
     let canvas: TCanvas
+    var selectedTool: TCToolType
+    
+    private var brushItem: UIBarButtonItem!
+    private var eraserItem: UIBarButtonItem!
     
     override var prefersStatusBarHidden: Bool {
         true
     }
-    
-    private lazy var eraserCheckbox: UISwitch = {
-        let checkbox = UISwitch()
-        checkbox.addTarget(self, action: #selector(onCheckboxToggle), for: .valueChanged)
-        return checkbox
-    }()
 
     required init?(coder: NSCoder) {
         let canvasConfig = TCConfig(isTransformEnabled: true, brush: brush)
         canvas = .init(config: canvasConfig)
+        selectedTool = canvas.selectedTool
         super.init(coder: coder)
     }
     
@@ -34,41 +33,84 @@ class ViewController: UIViewController {
         canvas.load(in: view)
         
         view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
+        setupBrushPropertiesView()
         setupToolbar()
-        
-        view.addSubview(eraserCheckbox)
-        NSLayoutConstraint.activate([
-            eraserCheckbox.trailingAnchor.constraint(equalTo: view.trailingAnchor),
-            eraserCheckbox.topAnchor.constraint(equalTo: view.topAnchor)
-        ])
     }
     
     func setupToolbar() {
-        let toolbar = ToolbarView()
+        let appearence = UIToolbarAppearance()
+        appearence.backgroundColor = .black.withAlphaComponent(0.85)
         
-        toolbar.onOpacityChange = { [weak self] in
+        let toolbar = UIToolbar()
+        toolbar.standardAppearance = appearence
+        toolbar.scrollEdgeAppearance = appearence
+        toolbar.translatesAutoresizingMaskIntoConstraints = false
+        
+        let space = UIBarButtonItem(barButtonSystemItem: .flexibleSpace, target: nil, action: nil)
+        eraserItem = UIBarButtonItem(
+            image: .init(systemName: "eraser.fill"),
+            style: .plain,
+            target: self,
+            action: #selector(onEraserItemTap)
+        )
+        eraserItem.tintColor = .white.withAlphaComponent(selectedTool == .erase ? 1 : 0.4)
+        brushItem = UIBarButtonItem(
+            image: .init(systemName: "paintbrush.pointed.fill"),
+            style: .plain,
+            target: self,
+            action: #selector(onBrushItemTap)
+        )
+        brushItem.tintColor = .white.withAlphaComponent(selectedTool == .draw ? 1 : 0.4)
+        toolbar.setItems([space, brushItem, eraserItem, space], animated: false)
+        view.addSubview(toolbar)
+        
+        NSLayoutConstraint.activate([
+            toolbar.topAnchor.constraint(equalTo: view.topAnchor),
+            toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor),
+            toolbar.trailingAnchor.constraint(equalTo: view.trailingAnchor),
+            toolbar.heightAnchor.constraint(equalToConstant: 46)
+        ])
+    }
+    
+    func setupBrushPropertiesView() {
+        let brushPropertiesView = BrushPropertiesView()
+        
+        brushPropertiesView.onOpacityChange = { [weak self] in
             guard let self else { return }
             brush.opacity = $0
             canvas.updateBrush(with: brush)
         }
-        toolbar.onSizeChange = { [weak self] in
+        brushPropertiesView.onSizeChange = { [weak self] in
             guard let self else { return }
             brush.size = $0
             canvas.updateBrush(with: brush)
         }
         
-        view.addSubview(toolbar)
+        view.addSubview(brushPropertiesView)
         
         NSLayoutConstraint.activate([
-            toolbar.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
-            toolbar.widthAnchor.constraint(equalToConstant: 40),
-            toolbar.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35),
-            toolbar.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+            brushPropertiesView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 8),
+            brushPropertiesView.widthAnchor.constraint(equalToConstant: 40),
+            brushPropertiesView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.35),
+            brushPropertiesView.centerYAnchor.constraint(equalTo: view.centerYAnchor)
         ])
+    }
+}
+
+extension ViewController {
+    @objc
+    func onBrushItemTap() {
+        selectedTool = .draw
+        canvas.selectedTool = .draw
+        brushItem.tintColor = brushItem.tintColor?.withAlphaComponent(1)
+        eraserItem.tintColor = eraserItem.tintColor?.withAlphaComponent(0.5)
     }
     
     @objc
-    func onCheckboxToggle() {
-        canvas.setTool(eraserCheckbox.isOn ? .erase : .draw)
+    func onEraserItemTap() {
+        selectedTool = .erase
+        canvas.selectedTool = .erase
+        brushItem.tintColor = brushItem.tintColor?.withAlphaComponent(0.5)
+        eraserItem.tintColor = eraserItem.tintColor?.withAlphaComponent(1)
     }
 }

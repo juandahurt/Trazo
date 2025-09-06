@@ -1,22 +1,15 @@
-//
-//  ToolbarView.swift
-//  Trazo
-//
-//  Created by apolo on 10/05/25.
-//
-
 import UIKit
 
-struct ToolbarConfig {
-    let brushSizeValue:         CGFloat
-    let brushSizeMaxValue:      CGFloat
-    let brushSizeMinValue:      CGFloat
-    let brushOpacityValue:      CGFloat
-    let brushOpacityMaxValue:   CGFloat
-    let brushOpacityMinValue:   CGFloat
-}
-
-class ToolbarView: UIView {
+class BrushPropertiesView: UIView {
+    struct BrushPropertiesConfig {
+        let brushSizeValue:         CGFloat
+        let brushSizeMaxValue:      CGFloat
+        let brushSizeMinValue:      CGFloat
+        let brushOpacityValue:      CGFloat
+        let brushOpacityMaxValue:   CGFloat
+        let brushOpacityMinValue:   CGFloat
+    }
+    
     private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.translatesAutoresizingMaskIntoConstraints = false
@@ -134,7 +127,7 @@ class ToolbarView: UIView {
     }
 }
 
-private extension ToolbarView {
+private extension BrushPropertiesView {
     @objc
     func onOpacityValueChange(_ sender: Slider) {
         onOpacityChange?(Float(sender.value))
