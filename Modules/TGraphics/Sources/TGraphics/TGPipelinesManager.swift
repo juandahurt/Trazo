@@ -2,7 +2,7 @@ import Foundation
 import Metal
 import simd
 
-class TGPipelinesManager {
+class TGPipelinesManager: @unchecked Sendable {
     enum TGComputePipelineType: String, CaseIterable {
         case fill = "fill_color"
         case merge = "merge_textures"
@@ -42,16 +42,18 @@ class TGPipelinesManager {
         count: TGRenderPipelineType.allCases.count
     )
     private let dispatchGroup = DispatchGroup()
+    private let queue = DispatchQueue.global()
     
     func load() {
         for index in TGComputePipelineType.allCases.indices {
-            dispatchGroup.enter()
-            makeComputePipelineState(
-                usingFunctionNamed: TGComputePipelineType.allCases[index].rawValue
-            ) { [weak self] in
+            queue.async(group: dispatchGroup) { [weak self] in
                 guard let self else { return }
-                computePipelineStates[index] = $0
-                dispatchGroup.leave()
+                makeComputePipelineState(
+                    usingFunctionNamed: TGComputePipelineType.allCases[index].rawValue
+                ) { [weak self] in
+                    guard let self else { return }
+                    computePipelineStates[index] = $0
+                }
             }
         }
         dispatchGroup.wait()
