@@ -57,19 +57,13 @@ class BrushPropertiesView: UIView {
     
     private func setup() {
         addBlur()
-        
-        translatesAutoresizingMaskIntoConstraints = false
-        layer.masksToBounds = true
-        layer.cornerRadius = 8
+      
         backgroundColor = .init(
             red: 0.172,
             green: 0.172,
             blue: 0.172,
             alpha: 0.7
         )
-        
-        layer.borderColor = UIColor.white.withAlphaComponent(0.1).cgColor
-        layer.borderWidth = 1
         
         setupStackView()
     }
@@ -117,13 +111,20 @@ class BrushPropertiesView: UIView {
             alpha: 0.8
         )
         imageView.translatesAutoresizingMaskIntoConstraints = false
-//        stackView.addArrangedSubview(imageView)
-//        NSLayoutConstraint.activate([
-//            imageView.heightAnchor
-//                .constraint(equalTo: imageView.widthAnchor, multiplier: 1)
-//        ])
         
         return stackView
+    }
+    
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let path = UIBezierPath(
+            roundedRect: bounds,
+            cornerRadius: 8
+        )
+        let maskLayer = CAShapeLayer()
+        maskLayer.path = path.cgPath
+        translatesAutoresizingMaskIntoConstraints = false
+        layer.mask = maskLayer
     }
 }
 
