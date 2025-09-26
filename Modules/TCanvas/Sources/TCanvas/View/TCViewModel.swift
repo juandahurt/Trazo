@@ -55,52 +55,60 @@ class TCViewModel {
             Int(size.width * renderableView.contentScaleFactor),
             Int(size.height * renderableView.contentScaleFactor)
         ]
+        let magicNumber = 8
+        let tileSize = viewSize / magicNumber
+        state.tileSize = simd_float2(tileSize)
+        state.canvasSize = viewSize
+        let cols = viewSize.x / tileSize.x
+        let rows = viewSize.y / tileSize.y
         
-        guard let grayScaleTextureId = graphics.makeTexture(
-            ofSize: viewSize,
-            label: "Grayscale Texture"
-        ) else { return }
-        state.grayscaleTexture = grayScaleTextureId
+        state.grayscaleTexture = graphics.makeTiledTexture(
+            named: "Grayscale Texture",
+            rows: rows,
+            cols: cols,
+            tileWidth: tileSize.x,
+            tileHeight: tileSize.y
+        )
         
         // MARK: - layers setup
-        guard let bgTextureId = graphics.makeTexture(
-            ofSize: viewSize,
-            label: "Background"
-        ) else { return }
-        graphics.fillTexture(bgTextureId, with: [1, 1, 1, 1])
-        
-        guard let texture1Id = graphics.makeTexture(
-            ofSize: viewSize,
-            label: "Texture 1"
-        ) else { return }
+//        guard let bgTextureId = graphics.makeTexture(
+//            ofSize: viewSize,
+//            label: "Background"
+//        ) else { return }
+//        graphics.fillTexture(bgTextureId, with: [1, 1, 1, 1])
+//        
+//        guard let texture1Id = graphics.makeTexture(
+//            ofSize: viewSize,
+//            label: "Texture 1"
+//        ) else { return }
         
         // layers
-        let texture1Layer = TCLayer(textureId: texture1Id, name: "Texture 1")
-        let bgLayer = TCLayer(textureId: bgTextureId, name: "Background")
-        for layer in [bgLayer, texture1Layer] {
-            state.addLayer(layer)
-        }
-        state.currentLayerIndex = 1
+//        let texture1Layer = TCLayer(textureId: texture1Id, name: "Texture 1")
+//        let bgLayer = TCLayer(textureId: bgTextureId, name: "Background")
+//        for layer in [bgLayer, texture1Layer] {
+//            state.addLayer(layer)
+//        }
+//        state.currentLayerIndex = 1
         
         // renderable texture
-        guard let renderableTextureId = graphics.makeTexture(
-            ofSize: viewSize,
-            label: "Renderable texture"
-        ) else {
-            return
-        }
-        state.renderableTexture = renderableTextureId
-        
-        // stroke texture
-        guard let strokeTextureId = graphics.makeTexture(
-            ofSize: viewSize,
-            label: "Stroke texture"
-        ) else {
-            return
-        }
-        state.strokeTexture = strokeTextureId
-        
-        mergeLayers(usingStrokeTexture: false)
+//        guard let renderableTextureId = graphics.makeTexture(
+//            ofSize: viewSize,
+//            label: "Renderable texture"
+//        ) else {
+//            return
+//        }
+//        state.renderableTexture = renderableTextureId
+//        
+//        // stroke texture
+//        guard let strokeTextureId = graphics.makeTexture(
+//            ofSize: viewSize,
+//            label: "Stroke texture"
+//        ) else {
+//            return
+//        }
+//        state.strokeTexture = strokeTextureId
+//        
+//        mergeLayers(usingStrokeTexture: false)
         
         renderableViewNeedsDisplaySubject.send(())
     }
@@ -143,7 +151,7 @@ class TCViewModel {
     
     func clearGrayscaleTexture() {
         graphics.pushDebugGroup("Clear grasycale texture")
-        graphics.fillTexture(state.grayscaleTexture, with: [0, 0, 0, 0])
+//        graphics.fillTexture(state.grayscaleTexture, with: [0, 0, 0, 0])
         graphics.popDebugGroup()
     }
     
@@ -162,11 +170,11 @@ class TCViewModel {
             if index == state.currentLayerIndex && ignoringCurrentTexture {
                 continue
             }
-            graphics.merge(
-                state.renderableTexture,
-                with: state.layers[index].textureId,
-                on: state.renderableTexture
-            )
+//            graphics.merge(
+//                state.renderableTexture,
+//                with: state.layers[index].textureId,
+//                on: state.renderableTexture
+//            )
         }
         graphics.popDebugGroup()
     }
@@ -177,16 +185,16 @@ class TCViewModel {
         clearBackground: Bool = false
     ) {
         graphics.pushDebugGroup("Draw grayscale points")
-        graphics.drawGrayscalePoints(
-            points,
-            numPoints: pointsCount,
-            in: state.grayscaleTexture,
-            opacity: state.brush.opacity,
-            shapeTextureId: -1, // TODO: pass correct id
-            transform: state.ctm.inverse,
-            projection: state.projectionMatrix,
-            clearBackground: clearBackground
-        )
+//        graphics.drawGrayscalePoints(
+//            points,
+//            numPoints: pointsCount,
+//            in: state.grayscaleTexture,
+//            opacity: state.brush.opacity,
+//            shapeTextureId: -1, // TODO: pass correct id
+//            transform: state.ctm.inverse,
+//            projection: state.projectionMatrix,
+//            clearBackground: clearBackground
+//        )
         graphics.popDebugGroup()
     }
 }
@@ -250,6 +258,14 @@ extension TCViewModel {
         switch event {
         case .fingerDraw(let touch):
             currentTool.handleFingerTouch(touch, ctm: state.ctm, brush: state.brush)
+            var location = touch.location.applying(state.ctm.inverse)
+            location.y *= -1
+            location.x += Float(state.canvasSize.x) / 2
+            location.y += Float(state.canvasSize.y) / 2
+            print(location)
+            let col = Int(location.x / state.tileSize.x)
+            let row = Int(location.y / state.tileSize.y)
+            print(col, row)
         case .fingerDrawCanceled:
             if let brushTool = currentTool as? TCBrushTool {
                 brushTool.endStroke()

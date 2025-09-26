@@ -7,11 +7,11 @@ extension TCViewModel: TCCanvasPresenter {
         guard pointsCount > 0 else { return }
         drawGrayscalePoints(points: points, pointsCount: pointsCount)
         graphics.pushDebugGroup("Colorize")
-        graphics.colorize(
-            grayscaleTexture: state.grayscaleTexture,
-            withColor: [0, 0, 0, 1],
-            on: state.strokeTexture
-        )
+//        graphics.colorize(
+//            grayscaleTexture: state.grayscaleTexture,
+//            withColor: [0, 0, 0, 1],
+//            on: state.strokeTexture
+//        )
         graphics.popDebugGroup()
     }
     
@@ -26,11 +26,11 @@ extension TCViewModel: TCCanvasPresenter {
             clearBackground: true
         )
         graphics.pushDebugGroup("Colorize")
-        graphics.colorize(
-            grayscaleTexture: state.grayscaleTexture,
-            withColor: [0, 0, 0, 1],
-            on: state.strokeTexture
-        )
+//        graphics.colorize(
+//            grayscaleTexture: state.grayscaleTexture,
+//            withColor: [0, 0, 0, 1],
+//            on: state.strokeTexture
+//        )
         graphics.popDebugGroup()
     }
     
@@ -39,11 +39,11 @@ extension TCViewModel: TCCanvasPresenter {
     }
     
     func updateCurrentLayerAfterDrawing() {
-        graphics.merge(
-            state.strokeTexture,
-            with: state.layers[state.currentLayerIndex].textureId,
-            on: state.layers[state.currentLayerIndex].textureId
-        )
+//        graphics.merge(
+//            state.strokeTexture,
+//            with: state.layers[state.currentLayerIndex].textureId,
+//            on: state.layers[state.currentLayerIndex].textureId
+//        )
     }
     
     func erase(segment: TCDrawableSegment) {
@@ -52,11 +52,11 @@ extension TCViewModel: TCCanvasPresenter {
         guard pointsCount > 0 else { return }
         drawGrayscalePoints(points: points, pointsCount: pointsCount)
         graphics.pushDebugGroup("Substract points")
-        graphics.substract(
-            textureA: state.layers[state.currentLayerIndex].textureId,
-            textureB: state.grayscaleTexture,
-            on: state.strokeTexture
-        )
+//        graphics.substract(
+//            textureA: state.layers[state.currentLayerIndex].textureId,
+//            textureB: state.grayscaleTexture,
+//            on: state.strokeTexture
+//        )
         graphics.popDebugGroup()
     }
     
@@ -66,11 +66,11 @@ extension TCViewModel: TCCanvasPresenter {
         guard pointsCount > 0 else { return }
         drawGrayscalePoints(points: points, pointsCount: pointsCount)
         graphics.pushDebugGroup("Substract points")
-        graphics.substract(
-            textureA: state.layers[state.currentLayerIndex].textureId,
-            textureB: state.grayscaleTexture,
-            on: state.strokeTexture
-        )
+//        graphics.substract(
+//            textureA: state.layers[state.currentLayerIndex].textureId,
+//            textureB: state.grayscaleTexture,
+//            on: state.strokeTexture
+//        )
         graphics.popDebugGroup()
     }
     
@@ -79,17 +79,17 @@ extension TCViewModel: TCCanvasPresenter {
     }
     
     func copyCurrrentLayerToStrokeTexture() {
-        graphics.copy(
-            texture: state.layers[state.currentLayerIndex].textureId,
-            on: state.strokeTexture
-        )
+//        graphics.copy(
+//            texture: state.layers[state.currentLayerIndex].textureId,
+//            on: state.strokeTexture
+//        )
     }
     
     func updateCurrentLayerAfterErasing() {
-        graphics.copy(
-            texture: state.strokeTexture,
-            on: state.layers[state.currentLayerIndex].textureId
-        )
+//        graphics.copy(
+//            texture: state.strokeTexture,
+//            on: state.layers[state.currentLayerIndex].textureId
+//        )
     }
     
     func didFinishPencilGesture() {

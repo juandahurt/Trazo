@@ -19,11 +19,11 @@ final class TGTextureManager {
         return texture
     }
     
-    func makeTexture(ofSize size: simd_long2, label: String? = nil) -> Int? {
+    func makeTexture(ofWidth width: Int, height: Int, label: String? = nil) -> Int? {
         let descriptor = MTLTextureDescriptor()
         descriptor.pixelFormat = .rgba8Unorm
-        descriptor.width = size.x
-        descriptor.height = size.y
+        descriptor.width = width
+        descriptor.height = height
         descriptor.usage = [.shaderRead, .shaderWrite, .renderTarget]
         
         guard let texture = TGDevice.device.makeTexture(descriptor: descriptor)

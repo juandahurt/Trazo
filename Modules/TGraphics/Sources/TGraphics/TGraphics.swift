@@ -17,8 +17,35 @@ public class TGraphics {
         reset()
     }
     
-    public func makeTexture(ofSize size: simd_long2, label: String? = nil) -> Int? {
-        textureManager.makeTexture(ofSize: size, label: label)
+    public func makeTiledTexture(
+        named name: String,
+        rows: Int,
+        cols: Int,
+        tileWidth: Int,
+        tileHeight: Int
+    ) -> TGTiledTexture {
+        var texture = TGTiledTexture(name: name)
+        for row in 0..<rows {
+            for col in 0..<cols {
+                let tilePosX = Float(col) * Float(tileWidth)
+                let tilePosY = Float(row) * Float(tileHeight)
+                
+                if let textureId = makeTexture(
+                    ofWidth: tileWidth,
+                    height: tileHeight,
+                    label: "\(texture.name) (\(row),\(col))"
+                ) {
+                    let tile = TGTile(position: .init(x: tilePosX, y: tilePosY), textureId: textureId)
+                    texture.tiles.append(tile)
+                }
+            }
+        }
+        return texture
+    }
+    
+    public func makeTexture(ofWidth width: Int, height: Int, label: String? = nil) -> Int? {
+        textureManager
+            .makeTexture(ofWidth: width, height: height, label: label)
     }
    
     public func texture(byId id: Int) -> MTLTexture? {
