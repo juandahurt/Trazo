@@ -300,7 +300,8 @@ class TGRenderer {
                 var posRelativeToCenter = tile.position
                 posRelativeToCenter.x -= Float(outputTexture.width) / 2
                 posRelativeToCenter.y -= Float(outputTexture.height) / 2
-//                posRelativeToCenter.y *= -1
+                posRelativeToCenter.y *= -1
+                posRelativeToCenter.y -= Float(texture.height)
                 
                 let vertices: [Float] = [
                     posRelativeToCenter.x, posRelativeToCenter.y, // top left
