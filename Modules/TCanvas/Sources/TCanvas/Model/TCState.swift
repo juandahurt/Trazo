@@ -4,7 +4,7 @@ import TGraphics
 
 struct TCState {
     private(set) var layers: [TCLayer]  = []
-    var renderableTexture               = -1
+    var renderableTexture: TGTiledTexture?
     var grayscaleTexture: TGTiledTexture?
     var strokeTexture                   = -1
     var projectionMatrix                = matrix_identity_float4x4
@@ -25,18 +25,6 @@ struct TCState {
 }
 
 struct TCLayer {
-//    var textureId: Int
-    var tiles: [TCTile] = []
+    var texture: TGTiledTexture
     var name: String
-}
-
-struct TCTile {
-    let position: simd_float2
-    let textureId: Int
-}
-
-
-struct TCTiledTexture {
-    var name: String
-    var tiles: [TCTile] = []
 }

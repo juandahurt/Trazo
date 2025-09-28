@@ -162,6 +162,19 @@ public class TGraphics {
         renderer.fillTexture(texture: texture, with: color, using: commandBuffer)
     }
     
+    public func fillTexture(_ tiledTexture: TGTiledTexture, color: simd_float4) {
+        guard let commandBuffer else { return }
+        for tile in tiledTexture.tiles {
+            if let texture = textureManager.texture(byId: tile.textureId) {
+                renderer.fillTexture(
+                    texture: texture,
+                    with: color,
+                    using: commandBuffer
+                )
+            }
+        }
+    }
+    
     public func merge(
         _ sourceTextureId: Int,
         with secondTextureId: Int,
@@ -182,6 +195,25 @@ public class TGraphics {
                 on: destinationTexture,
                 using: commandBuffer
             )
+    }
+    
+    public func drawTexture(
+        _ tiledTexture: TGTiledTexture,
+        on drawable: CAMetalDrawable,
+        clearColor: simd_float4,
+        transform: simd_float4x4,
+        projection: simd_float4x4
+    ) {
+        guard let commandBuffer else { return }
+        renderer.drawTiledTexture(
+            tiledTexture,
+            on: drawable.texture,
+            using: commandBuffer,
+            textureManager: textureManager,
+            clearColor: clearColor,
+            transform: transform,
+            projection: projection
+        )
     }
     
     // I don't like have this `CAMetalDrawable` as parameter.

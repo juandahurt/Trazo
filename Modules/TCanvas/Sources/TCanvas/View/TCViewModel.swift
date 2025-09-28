@@ -69,35 +69,40 @@ class TCViewModel {
             tileWidth: tileSize.x,
             tileHeight: tileSize.y
         )
-        
+       
         // MARK: - layers setup
-//        guard let bgTextureId = graphics.makeTexture(
-//            ofSize: viewSize,
-//            label: "Background"
-//        ) else { return }
-//        graphics.fillTexture(bgTextureId, with: [1, 1, 1, 1])
-//        
-//        guard let texture1Id = graphics.makeTexture(
-//            ofSize: viewSize,
-//            label: "Texture 1"
-//        ) else { return }
+        let bgTexture = graphics.makeTiledTexture(
+            named: "Background texture",
+            rows: rows,
+            cols: cols,
+            tileWidth: tileSize.x,
+            tileHeight: tileSize.y
+        )
+        graphics.fillTexture(bgTexture, color: [1, 1, 1, 1])
+        let texture1 = graphics.makeTiledTexture(
+            named: "Layer 1 texture",
+            rows: rows,
+            cols: cols,
+            tileWidth: tileSize.x,
+            tileHeight: tileSize.y
+        )
+        let bgLayer = TCLayer(texture: bgTexture, name: "Background texture")
+        let layer1 = TCLayer(texture: texture1, name: "Layer 1")
         
-        // layers
-//        let texture1Layer = TCLayer(textureId: texture1Id, name: "Texture 1")
-//        let bgLayer = TCLayer(textureId: bgTextureId, name: "Background")
-//        for layer in [bgLayer, texture1Layer] {
-//            state.addLayer(layer)
-//        }
-//        state.currentLayerIndex = 1
+        for layer in [bgLayer, layer1] {
+            state.addLayer(layer)
+        }
+        state.currentLayerIndex = 1
         
         // renderable texture
-//        guard let renderableTextureId = graphics.makeTexture(
-//            ofSize: viewSize,
-//            label: "Renderable texture"
-//        ) else {
-//            return
-//        }
-//        state.renderableTexture = renderableTextureId
+        let renderableTexture = graphics.makeTiledTexture(
+            named: "Renderable texture",
+            rows: rows,
+            cols: cols,
+            tileWidth: tileSize.x,
+            tileHeight: tileSize.y
+        )
+        state.renderableTexture = renderableTexture
 //        
 //        // stroke texture
 //        guard let strokeTextureId = graphics.makeTexture(
@@ -108,7 +113,7 @@ class TCViewModel {
 //        }
 //        state.strokeTexture = strokeTextureId
 //        
-//        mergeLayers(usingStrokeTexture: false)
+        mergeLayers(usingStrokeTexture: false)
         
         renderableViewNeedsDisplaySubject.send(())
     }
@@ -138,8 +143,10 @@ class TCViewModel {
     }
     
     func clearRenderableTexture() {
+        guard let renderableTexture = state.renderableTexture else { return }
         graphics.pushDebugGroup("Clear renderable texture")
-        graphics.fillTexture(state.renderableTexture, with: [0, 0, 0, 0])
+        graphics.fillTexture(renderableTexture, color: [0, 0, 0, 0])
+//        graphics.fillTexture(state.renderableTexture, with: [0, 0, 0, 0])
         graphics.popDebugGroup()
     }
     
@@ -156,19 +163,34 @@ class TCViewModel {
     }
     
     func mergeLayers(usingStrokeTexture: Bool, ignoringCurrentTexture: Bool = false) {
+        guard let renderableTexture = state.renderableTexture else { return }
         graphics.pushDebugGroup("Merge layers")
         clearRenderableTexture()
         for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
             //            if !state.layers[index].isVisible { continue }
             if index == state.currentLayerIndex && usingStrokeTexture {
-                graphics.merge(
-                    state.renderableTexture,
-                    with: state.strokeTexture,
-                    on: state.renderableTexture
-                )
+//                for i in 0..<renderableTexture.tiles.count {
+//                    graphics.merge(
+//                        renderableTexture.tiles[i].textureId,
+//                        with: <#T##Int#>,
+//                        on: <#T##Int#>
+//                    )
+//                }
+//                graphics.merge(
+//                    state.renderableTexture,
+//                    with: state.strokeTexture,
+//                    on: state.renderableTexture
+//                )
             }
             if index == state.currentLayerIndex && ignoringCurrentTexture {
                 continue
+            }
+            for i in 0..<renderableTexture.tiles.count {
+                graphics.merge(
+                    renderableTexture.tiles[i].textureId,
+                    with: state.layers[index].texture.tiles[i].textureId,
+                    on: renderableTexture.tiles[i].textureId
+                )
             }
 //            graphics.merge(
 //                state.renderableTexture,
@@ -204,14 +226,22 @@ extension TCViewModel: TGRenderableViewDelegate {
         _ renderableView: TGRenderableView,
         willPresentCurrentDrawable currentDrawable: any CAMetalDrawable
     ) {
+        guard let renderableTexture = state.renderableTexture else { return }
         graphics.pushDebugGroup("Present canvas")
         graphics.drawTexture(
-            state.renderableTexture,
+            renderableTexture,
             on: currentDrawable,
             clearColor: state.clearColor,
             transform: state.ctm,
             projection: state.projectionMatrix
         )
+//        graphics.drawTexture(
+//            renderableTexture,
+//            on: currentDrawable,
+//            clearColor: state.clearColor,
+//            transform: state.ctm,
+//            projection: state.projectionMatrix
+//        )
         graphics.popDebugGroup()
     }
     
