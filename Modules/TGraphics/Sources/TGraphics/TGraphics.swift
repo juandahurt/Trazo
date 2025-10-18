@@ -116,6 +116,93 @@ public class TGraphics {
         )
     }
     
+    public func colorize(
+        grayscaleTexture texture: TGTiledTexture,
+        withColor color: simd_float4,
+        on outputTexture: TGTiledTexture,
+        dirtyTiles: Set<Int>
+    ) {
+        guard let commandBuffer else { return }
+        renderer.colorize(
+            grayscaleTexture: texture,
+            withColor: color,
+            on: outputTexture,
+            dirtyTiles: dirtyTiles,
+            textureManager: textureManager,
+            using: commandBuffer
+        )
+    }
+    
+    public func drawGrayscalePoints(
+        _ points: [TGRenderablePoint],
+        in tiledTexture: TGTiledTexture,
+        dirtyTiles: Set<Int>,
+        tileSize: simd_float2,
+        canvasSize: simd_long2,
+        opacity: Float,
+        shapeTextureId: Int = -1,
+        transform: simd_float4x4,
+        clearBackground: Bool = false
+    ) {
+        guard
+             let commandBuffer
+         else { return }
+        
+        guard
+            let shapeTexture = textureManager.texture(byId: 0),
+            let granuralityTexture = textureManager.texture(byId: 1)
+        else { return }
+        
+        // TODO: create one buffer for any drawing operation
+        guard let positionsBuffer = TGDevice.device.makeBuffer(
+           bytes: points,
+           length: MemoryLayout<TGRenderablePoint>.stride * points.count
+        ) else { return }
+       
+        for index in dirtyTiles {
+            let row = index / 8
+            let col = index % 8
+            
+            var matrix = matrix_identity_float4x4
+            matrix *= .init(scaledBy: [1, -1, 0])
+            matrix *= .init(translateBy: [Float(canvasSize.x) / 2, Float(canvasSize.y) / 2, 0])
+            matrix *= .init(translateBy: [-Float(col) * tileSize.x, -Float(row) * tileSize.y, 0])
+            matrix *= .init(translateBy: [-tileSize.x / 2, -tileSize.y / 2, 0])
+            matrix *= .init(scaledBy: [1, -1, 0])
+            var transform = transform
+            transform = matrix * transform
+
+            if let texture = textureManager.texture(byId: tiledTexture.tiles[index].textureId) {
+                let viewSize = Double(texture.height)
+                let aspect = Double(texture.width) / Double(texture.height)
+                let rect = CGRect(
+                    x: Double(-viewSize * aspect) * 0.5,
+                    y: Double(viewSize) * 0.5,
+                    width: Double(viewSize * aspect),
+                    height: Double(viewSize))
+                
+                let projectionMatrix = simd_float4x4(
+                    ortho: rect,
+                    near: 0,
+                    far: 1
+                )
+
+                renderer.drawGrayscalePoints(
+                    positionsBuffer: positionsBuffer,
+                    numPoints: points.count,
+                    withOpacity: opacity,
+                    on: texture,
+                    shapeTexture: shapeTexture,
+                    granularityTexture: granuralityTexture,
+                    transform: transform,
+                    projection: projectionMatrix,
+                    using: commandBuffer,
+                    clearingBackground: false
+                )
+            }
+        }
+    }
+    
     public func drawGrayscalePoints(
         _ drawablePoints: [TGRenderablePoint],
         numPoints: Int,
@@ -162,15 +249,34 @@ public class TGraphics {
         renderer.fillTexture(texture: texture, with: color, using: commandBuffer)
     }
     
-    public func fillTexture(_ tiledTexture: TGTiledTexture, color: simd_float4) {
+    public func fillTexture(
+        _ tiledTexture: TGTiledTexture,
+        dirtyTiles: Set<Int>? = nil,
+        color: simd_float4
+    ) {
+        // la logica esta al reves
         guard let commandBuffer else { return }
-        for tile in tiledTexture.tiles {
-            if let texture = textureManager.texture(byId: tile.textureId) {
-                renderer.fillTexture(
-                    texture: texture,
-                    with: color,
-                    using: commandBuffer
-                )
+        if let dirtyTiles {
+            for index in dirtyTiles {
+                let tile = tiledTexture.tiles[index]
+                if let texture = textureManager.texture(byId: tile.textureId) {
+                    renderer.fillTexture(
+                        texture: texture,
+                        with: color,
+                        using: commandBuffer
+                    )
+                }
+            }
+        } else {
+            for index in 0..<tiledTexture.tiles.count {
+                let tile = tiledTexture.tiles[index]
+                if let texture = textureManager.texture(byId: tile.textureId) {
+                    renderer.fillTexture(
+                        texture: texture,
+                        with: color,
+                        using: commandBuffer
+                    )
+                }
             }
         }
     }

@@ -120,7 +120,62 @@ class TGRenderer {
         )
         encoder?.endEncoding()
     }
-   
+  
+    func colorize(
+        grayscaleTexture: TGTiledTexture,
+        withColor color: simd_float4,
+        on outputTexture: TGTiledTexture,
+        dirtyTiles: Set<Int>,
+        textureManager: TGTextureManager,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        guard
+            let pipelineState = pipelineManager.computePipeline(ofType: .colorize)
+        else { return }
+        let encoder = commandBuffer.makeComputeCommandEncoder()
+        encoder?.setComputePipelineState(pipelineState)
+        
+        var color = color
+        encoder?.setBytes(
+            &color,
+            length: MemoryLayout<simd_float4>.stride,
+            index: 0
+        )
+        
+        for tileIndex in dirtyTiles {
+            
+            if
+                let tileTexture = textureManager.texture(
+                    byId: grayscaleTexture.tiles[tileIndex].textureId
+                ),
+                let outputTileTexture = textureManager.texture(
+                    byId: outputTexture.tiles[tileIndex].textureId
+                )
+            {
+                encoder?.setTexture(tileTexture, index: 0)
+                encoder?.setTexture(outputTileTexture, index: 1)
+                
+                let threadsGroupsPerGrid = MTLSize(
+                    width: (tileTexture.width + threadGroupLength - 1) / threadGroupLength,
+                    height: (tileTexture.height + threadGroupLength - 1) / threadGroupLength,
+                    depth: 1
+                )
+                // TODO: check this little equation
+                let threadsPerThreadGroup = MTLSize(
+                    width: threadGroupLength,
+                    height: threadGroupLength,
+                    depth: 1
+                )
+                
+                encoder?.dispatchThreadgroups(
+                    threadsGroupsPerGrid,
+                    threadsPerThreadgroup: threadsPerThreadGroup
+                )
+            }
+        }
+        encoder?.endEncoding()
+    }
+    
     func colorize(
         grayscaleTexture texture: MTLTexture,
         withColor color: simd_float4,

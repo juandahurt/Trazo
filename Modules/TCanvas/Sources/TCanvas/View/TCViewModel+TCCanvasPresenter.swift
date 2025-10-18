@@ -2,80 +2,89 @@ import TGraphics
 
 extension TCViewModel: TCCanvasPresenter {
     func draw(segment: TCDrawableSegment) {
-        let points = segment.points
-        let pointsCount = segment.pointsCount
-        guard pointsCount > 0 else { return }
-        drawGrayscalePoints(points: points, pointsCount: pointsCount)
+        guard let grayscaleTexture = state.grayscaleTexture else { return }
+        guard let strokeTexture = state.strokeTexture else { return }
+        guard !segment.points.isEmpty else { return }
+        drawGrayscalePoints(points: segment.points)
         graphics.pushDebugGroup("Colorize")
-//        graphics.colorize(
-//            grayscaleTexture: state.grayscaleTexture,
-//            withColor: [0, 0, 0, 1],
-//            on: state.strokeTexture
-//        )
+        graphics.colorize(
+            grayscaleTexture: grayscaleTexture,
+            withColor: [0, 0, 1, 1],
+            on: strokeTexture,
+            dirtyTiles: state.dirtyTilesInSegment
+        )
         graphics.popDebugGroup()
     }
     
     
     func draw(stroke: TCDrawableStroke) {
-        let points = stroke.points
-        let pointsCount = stroke.pointsCount
-        guard pointsCount > 0 else { return }
-        drawGrayscalePoints(
-            points: points,
-            pointsCount: pointsCount,
-            clearBackground: true
-        )
-        graphics.pushDebugGroup("Colorize")
+        // TODO: implement
+//        let points = stroke.points
+//        let pointsCount = stroke.pointsCount
+//        guard pointsCount > 0 else { return }
+//        drawGrayscalePoints(
+//            points: points,
+//            clearBackground: true
+//        )
+//        graphics.pushDebugGroup("Colorize")
 //        graphics.colorize(
 //            grayscaleTexture: state.grayscaleTexture,
 //            withColor: [0, 0, 0, 1],
 //            on: state.strokeTexture
 //        )
-        graphics.popDebugGroup()
+//        graphics.popDebugGroup()
     }
     
     func mergeLayersWhenDrawing() {
-        mergeLayers(usingStrokeTexture: true)
+        mergeLayers(
+            usingStrokeTexture: true,
+            dirtyTiles: state.dirtyTilesInSegment
+        )
+        state.dirtyTilesInSegment = []
     }
     
     func updateCurrentLayerAfterDrawing() {
-//        graphics.merge(
-//            state.strokeTexture,
-//            with: state.layers[state.currentLayerIndex].textureId,
-//            on: state.layers[state.currentLayerIndex].textureId
-//        )
+        guard let strokeTexture = state.strokeTexture else { return }
+        for i in strokeTexture.tiles.indices {
+            graphics.merge(
+                strokeTexture.tiles[i].textureId,
+                with: state.layers[state.currentLayerIndex].texture.tiles[i].textureId,
+                on: state.layers[state.currentLayerIndex].texture.tiles[i].textureId
+            )
+        }
     }
     
     func erase(segment: TCDrawableSegment) {
-        let points = segment.points
-        let pointsCount = segment.pointsCount
-        guard pointsCount > 0 else { return }
-        drawGrayscalePoints(points: points, pointsCount: pointsCount)
-        graphics.pushDebugGroup("Substract points")
+        // TODO: implement
+//        let points = segment.points
+//        let pointsCount = segment.pointsCount
+//        guard pointsCount > 0 else { return }
+//        drawGrayscalePoints(points: points, pointsCount: pointsCount)
+//        graphics.pushDebugGroup("Substract points")
 //        graphics.substract(
 //            textureA: state.layers[state.currentLayerIndex].textureId,
 //            textureB: state.grayscaleTexture,
 //            on: state.strokeTexture
 //        )
-        graphics.popDebugGroup()
+//        graphics.popDebugGroup()
     }
     
     func erase(stroke: TCDrawableStroke) {
-        let points = stroke.points
-        let pointsCount = stroke.pointsCount
-        guard pointsCount > 0 else { return }
-        drawGrayscalePoints(points: points, pointsCount: pointsCount)
-        graphics.pushDebugGroup("Substract points")
+//        let points = stroke.points
+//        let pointsCount = stroke.pointsCount
+//        guard pointsCount > 0 else { return }
+//        drawGrayscalePoints(points: points, pointsCount: pointsCount)
+//        graphics.pushDebugGroup("Substract points")
 //        graphics.substract(
 //            textureA: state.layers[state.currentLayerIndex].textureId,
 //            textureB: state.grayscaleTexture,
 //            on: state.strokeTexture
 //        )
-        graphics.popDebugGroup()
+//        graphics.popDebugGroup()
     }
     
     func mergeLayersWhenErasing() {
-        mergeLayers(usingStrokeTexture: true, ignoringCurrentTexture: true)
+//        mergeLayers(usingStrokeTexture: true, ignoringCurrentTexture: true)
     }
     
     func copyCurrrentLayerToStrokeTexture() {
@@ -93,12 +102,12 @@ extension TCViewModel: TCCanvasPresenter {
     }
     
     func didFinishPencilGesture() {
-        if let brushTool = currentTool as? TCBrushTool {
-            brushTool.endStroke()
-        }
-        // update the renderable texture with the updated layer
-        mergeLayers(usingStrokeTexture: false)
-        clearGrayscaleTexture()
-        clearStrokeTexture()
+//        if let brushTool = currentTool as? TCBrushTool {
+//            brushTool.endStroke()
+//        }
+//        // update the renderable texture with the updated layer
+//        mergeLayers(usingStrokeTexture: false)
+//        clearGrayscaleTexture()
+//        clearStrokeTexture()
     }
 }
