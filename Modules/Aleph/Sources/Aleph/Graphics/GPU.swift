@@ -8,4 +8,10 @@ struct GPU {
     }
     
     static let commandQueue = GPU.device.makeCommandQueue()!
+    
+    static let library: MTLLibrary = {
+        let lib = try? device.makeDefaultLibrary(bundle: .module)
+        assert(lib != nil, "couldn't create default library")
+        return lib!
+    }()
 }

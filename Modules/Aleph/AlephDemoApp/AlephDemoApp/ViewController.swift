@@ -6,6 +6,7 @@ class ViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        engine.load()
         engine.addCanvas(in: view)
     }
 }
