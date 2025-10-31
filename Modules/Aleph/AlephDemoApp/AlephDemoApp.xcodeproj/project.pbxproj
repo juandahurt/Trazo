@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		BCA3919C2EB5467A0025C348 /* Aleph in Frameworks */ = {isa = PBXBuildFile; productRef = BCA3919B2EB5467A0025C348 /* Aleph */; };
+		BCA391BF2EB57FC50025C348 /* Tartar in Frameworks */ = {isa = PBXBuildFile; productRef = BCA391BE2EB57FC50025C348 /* Tartar */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +41,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				BCA391BF2EB57FC50025C348 /* Tartar in Frameworks */,
 				BCA3919C2EB5467A0025C348 /* Aleph in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,6 +86,7 @@
 			name = AlephDemoApp;
 			packageProductDependencies = (
 				BCA3919B2EB5467A0025C348 /* Aleph */,
+				BCA391BE2EB57FC50025C348 /* Tartar */,
 			);
 			productName = AlephDemoApp;
 			productReference = BCA391822EB546650025C348 /* AlephDemoApp.app */;
@@ -115,6 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				BCA3919A2EB5467A0025C348 /* XCLocalSwiftPackageReference "../../Aleph" */,
+				BCA391BD2EB57FC50025C348 /* XCLocalSwiftPackageReference "../../Tartar" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BCA391832EB546650025C348 /* Products */;
@@ -356,12 +360,20 @@
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../Aleph;
 		};
+		BCA391BD2EB57FC50025C348 /* XCLocalSwiftPackageReference "../../Tartar" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Tartar;
+		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
 		BCA3919B2EB5467A0025C348 /* Aleph */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Aleph;
+		};
+		BCA391BE2EB57FC50025C348 /* Tartar */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Tartar;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
