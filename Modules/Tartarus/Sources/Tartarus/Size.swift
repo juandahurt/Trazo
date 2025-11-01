@@ -7,3 +7,8 @@ public struct Size {
         self.height = height
     }
 }
+
+public extension Size {
+    nonisolated(unsafe)
+    static let zero: Size = .init(width: 0, height: 0)
+}
