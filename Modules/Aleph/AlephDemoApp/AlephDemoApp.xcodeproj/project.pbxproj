@@ -7,8 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		BC666BC32EB65CAC00A5D3CF /* Tartarus in Frameworks */ = {isa = PBXBuildFile; productRef = BC666BC22EB65CAC00A5D3CF /* Tartarus */; };
 		BCA3919C2EB5467A0025C348 /* Aleph in Frameworks */ = {isa = PBXBuildFile; productRef = BCA3919B2EB5467A0025C348 /* Aleph */; };
-		BCA391BF2EB57FC50025C348 /* Tartar in Frameworks */ = {isa = PBXBuildFile; productRef = BCA391BE2EB57FC50025C348 /* Tartar */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -41,8 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BCA391BF2EB57FC50025C348 /* Tartar in Frameworks */,
 				BCA3919C2EB5467A0025C348 /* Aleph in Frameworks */,
+				BC666BC32EB65CAC00A5D3CF /* Tartarus in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -86,7 +86,7 @@
 			name = AlephDemoApp;
 			packageProductDependencies = (
 				BCA3919B2EB5467A0025C348 /* Aleph */,
-				BCA391BE2EB57FC50025C348 /* Tartar */,
+				BC666BC22EB65CAC00A5D3CF /* Tartarus */,
 			);
 			productName = AlephDemoApp;
 			productReference = BCA391822EB546650025C348 /* AlephDemoApp.app */;
@@ -118,7 +118,7 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				BCA3919A2EB5467A0025C348 /* XCLocalSwiftPackageReference "../../Aleph" */,
-				BCA391BD2EB57FC50025C348 /* XCLocalSwiftPackageReference "../../Tartar" */,
+				BC666BC12EB65CAC00A5D3CF /* XCLocalSwiftPackageReference "../../Tartarus" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BCA391832EB546650025C348 /* Products */;
@@ -356,24 +356,24 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		BC666BC12EB65CAC00A5D3CF /* XCLocalSwiftPackageReference "../../Tartarus" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Tartarus;
+		};
 		BCA3919A2EB5467A0025C348 /* XCLocalSwiftPackageReference "../../Aleph" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../Aleph;
 		};
-		BCA391BD2EB57FC50025C348 /* XCLocalSwiftPackageReference "../../Tartar" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../Tartar;
-		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		BC666BC22EB65CAC00A5D3CF /* Tartarus */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = Tartarus;
+		};
 		BCA3919B2EB5467A0025C348 /* Aleph */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Aleph;
-		};
-		BCA391BE2EB57FC50025C348 /* Tartar */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Tartar;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
