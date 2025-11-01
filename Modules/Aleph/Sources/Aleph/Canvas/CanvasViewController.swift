@@ -15,6 +15,12 @@ class CanvasViewController: UIViewController {
         canvasView.delegate = self
         view = canvasView
     }
+    
+    override func viewDidLoad() {
+        let fingerRecognizer = FingerGestureRecognizer()
+        fingerRecognizer.fingerGestureDelegate = self
+        view.addGestureRecognizer(fingerRecognizer)
+    }
 }
 
 extension CanvasViewController: MTKViewDelegate {
@@ -32,5 +38,14 @@ extension CanvasViewController: MTKViewDelegate {
         encoder?.endEncoding()
         commandBuffer?.present(drawable)
         commandBuffer?.commit()
+    }
+}
+
+extension CanvasViewController: FingerGestureRecognizerDelegate {
+    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
+        print("touch")
+        // check gesture type
+        // if transform: transform the canvas and render it
+        // if draw: run the draw workflow and render the canvas
     }
 }
