@@ -32,6 +32,32 @@ final class TextureManager {
         return storeTexture(texture)
     }
     
+    static func makeTiledTexture(
+        named name: String,
+        rows: Int,
+        columns: Int,
+        tileSize: Size
+    ) -> TiledTexture {
+        var tiledTexture = TiledTexture(name: name)
+        for row in 0..<rows {
+            for col in 0..<columns {
+                let position = Point(x: 0, y: 0)
+                if let textureId = makeTexture(
+                    ofSize: tileSize,
+                    label: "\(name) (\(row),\(col)"
+                ) {
+                    tiledTexture.tiles.append(
+                        .init(
+                            position: position,
+                            textureId: textureId
+                        )
+                    )
+                }
+            }
+        }
+        return tiledTexture
+    }
+    
     private static func storeTexture(_ texture: MTLTexture) -> TextureID {
         textures[currId] = texture
         currId += 1

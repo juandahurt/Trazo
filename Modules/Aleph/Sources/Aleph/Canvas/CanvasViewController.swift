@@ -2,7 +2,16 @@ import MetalKit
 import UIKit
 
 class CanvasViewController: UIViewController {
-    init() {
+    var state: CanvasState
+    
+    init(canvasSize: CGRect) {
+        state = CanvasState(
+            canvasSize: .init(
+                width: Float(canvasSize.width),
+                height: Float(canvasSize.height)
+            )
+        )
+        
         super.init(nibName: nil, bundle: nil)
     }
     
@@ -20,10 +29,17 @@ class CanvasViewController: UIViewController {
         let fingerRecognizer = FingerGestureRecognizer()
         fingerRecognizer.fingerGestureDelegate = self
         view.addGestureRecognizer(fingerRecognizer)
+        
+        setupCanvas()
     }
     
     func setupCanvas() {
-        
+        state.renderableTexture = TextureManager.makeTiledTexture(
+            named: "Renderable texture",
+            rows: 8,
+            columns: 8,
+            tileSize: state.tileSize
+        )
     }
 }
 
