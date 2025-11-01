@@ -13,7 +13,7 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(name: "Tartar", path: "../Tartar")
+        .package(name: "Tartarus", path: "../Tartarus")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.

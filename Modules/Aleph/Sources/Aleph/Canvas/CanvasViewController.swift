@@ -21,6 +21,10 @@ class CanvasViewController: UIViewController {
         fingerRecognizer.fingerGestureDelegate = self
         view.addGestureRecognizer(fingerRecognizer)
     }
+    
+    func setupCanvas() {
+        
+    }
 }
 
 extension CanvasViewController: MTKViewDelegate {

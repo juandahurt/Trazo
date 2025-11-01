@@ -1,5 +1,5 @@
 import Metal
-import Tartar
+import Tartarus
 
 typealias TextureID = UInt
 
