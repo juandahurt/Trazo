@@ -1,8 +1,10 @@
 import MetalKit
+import Tartarus
 import UIKit
 
 class CanvasViewController: UIViewController {
     var state: CanvasState!
+    let renderer = Renderer()
     
     init(canvasSize: CGRect) {
         state = CanvasState(
@@ -35,6 +37,7 @@ class CanvasViewController: UIViewController {
     }
     
     func setupCanvas() {
+        renderer.reset()
         state.renderableTexture = TextureManager.makeTiledTexture(
             named: "Renderable texture",
             rows: 8,
@@ -42,12 +45,26 @@ class CanvasViewController: UIViewController {
             tileSize: state.tileSize,
             canvasSize: state.canvasSize
         )
+        renderer.fillTexture(state.renderableTexture!, color: .white)
     }
 }
 
 extension CanvasViewController: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        print(size)
+        let viewSize = Float(size.height)
+        let aspect = Float(size.width) / Float(size.height)
+        let rect = Rect(
+            x: -viewSize * aspect * 0.5,
+            y: Float(viewSize) * 0.5,
+            width: Float(viewSize * aspect),
+            height: Float(viewSize)
+        )
+        
+        state.cpm = .init(
+            ortho: rect,
+            near: 0,
+            far: 1
+        )
     }
 
     func draw(in view: MTKView) {
@@ -58,8 +75,16 @@ extension CanvasViewController: MTKViewDelegate {
         let commandBuffer = GPU.commandQueue.makeCommandBuffer()
         let encoder = commandBuffer?.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor)
         encoder?.endEncoding()
-        commandBuffer?.present(drawable)
-        commandBuffer?.commit()
+        renderer.drawTiledTexture(
+            state.renderableTexture!,
+            on: drawable.texture,
+            clearColor: [0, 0, 0, 0],
+            transform: state.ctm,
+            projection: state.cpm
+        )
+        renderer.present(drawable)
+        renderer.commit()
+        renderer.reset()
     }
 }
 

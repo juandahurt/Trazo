@@ -52,7 +52,7 @@ final class TextureManager {
                 position.y -= canvasSize.height / 2
                 if let textureId = makeTexture(
                     ofSize: tileSize,
-                    label: "\(name) (\(row),\(col)"
+                    label: "\(name) (\(row),\(col))"
                 ) {
                     tiledTexture.tiles.append(
                         .init(
@@ -67,8 +67,8 @@ final class TextureManager {
     }
     
     private static func storeTexture(_ texture: MTLTexture) -> TextureID {
-        textures[currId] = texture
         currId += 1
+        textures[currId] = texture
         return currId
     }
 }

@@ -1,3 +1,4 @@
+import simd
 import Tartarus
 
 struct CanvasState {
@@ -13,6 +14,11 @@ struct CanvasState {
             updateTileSize()
         }
     }
+    
+    /// Current transform matrix.
+    var ctm = matrix_identity_float4x4
+    /// Current projection matrix.
+    var cpm = matrix_identity_float4x4
     
     var renderableTexture: TiledTexture?
     
