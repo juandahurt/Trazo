@@ -5,6 +5,7 @@ import UIKit
 class CanvasViewController: UIViewController {
     var state: CanvasState!
     let renderer = Renderer()
+    let gestureController = GestureController()
     
     init(canvasSize: CGRect) {
         state = CanvasState(
@@ -90,9 +91,7 @@ extension CanvasViewController: MTKViewDelegate {
 
 extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
-        print("touch")
-        // check gesture type
-        // if transform: transform the canvas and render it
-        // if draw: run the draw workflow and render the canvas
+        let touches = touches.map { Touch(touch: $0, in: view) }
+        gestureController.handleFingerTouches(touches)
     }
 }
