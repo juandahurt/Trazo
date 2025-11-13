@@ -1,3 +1,4 @@
+import Foundation
 import Tartarus
 
 class Transformer {
@@ -47,29 +48,31 @@ class Transformer {
         let startCenter = (initialPointA - initialPointB) / 2 + initialPointB
         let currentCenter = (currentPointA - currentPointB) / 2 + currentPointB
         let deltaTranslation = currentCenter - startCenter
+
+        let startVector = initialPointA - initialPointB
+        let currentVector = currentPointA - currentPointB
+        let startAngle = atan2f(startVector.y, startVector.x)
+        let endAngle = atan2f(currentVector.y, currentVector.x)
+        let deltaAngle = endAngle - startAngle
         
-        print(deltaTranslation)
-//
-//        let startVector = initialPointA - initialPointB
-//        let currentVector = currentPointA - currentPointB
-//        let startAngle = atan2(startVector.y, startVector.x)
-//        let endAngle = atan2(currentVector.y, currentVector.x)
-//        let deltaAngle = endAngle - startAngle
-//        
-//        let scale = length(currentVector) / length(startVector)
-//
-//        let pivotPoint = SIMD3<Float>(currentCenter.x, currentCenter.y, 0)
-//        let translateToOrigin = simd_float4x4(translateBy: [-pivotPoint.x, -pivotPoint.y, 0])
-//        let scaleMatrix = simd_float4x4(scaledBy: [scale, scale, 1])
-//        let rotationMatrix = simd_float4x4(rotateZ: -deltaAngle)
-//        let translateBack = simd_float4x4(translateBy: [pivotPoint.x, pivotPoint.y, 0])
-//        let pivotTransform = translateBack * rotationMatrix * scaleMatrix * translateToOrigin
-//
-//        let translationMatrix = simd_float4x4(
-//            translateBy: [deltaTranslation.x, deltaTranslation.y, 0]
-//        )
-//        
-//        currentTransform = pivotTransform * translationMatrix
+        let scale = currentVector.length() / startVector.length()
+
+        let pivotPoint = Point(x: currentCenter.x, y: currentCenter.y)
+        let translateToOrigin = Transform(translateByX: -pivotPoint.x, y: -pivotPoint.y)
+        let scaleMatrix = Transform(scaledBy: scale)
+        let rotationMatrix = Transform(rotatedBy: -deltaAngle)
+        let translateBack = Transform(translateByX: pivotPoint.x, y: pivotPoint.y)
+        let pivotTransform = translateBack
+            .concatenating(rotationMatrix)
+            .concatenating(scaleMatrix)
+            .concatenating(translateToOrigin)
+
+        let translationMatrix = Transform(
+            translateByX: deltaTranslation.x,
+            y: deltaTranslation.y
+        )
+        
+        currentTransform = pivotTransform.concatenating(translationMatrix)
     }
     
     func reset() {

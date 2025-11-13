@@ -1,52 +1,72 @@
+import simd
+
 public struct Transform {
-    var a, b, c, d: Float
-    var tx, ty: Float
+    public typealias Matrix = simd_float4x4
+    var matrix: Matrix
     
     public var inverse: Transform {
-        let det = a * d - c * b
-        guard det != 0 else { return self }
-        
-        let invA = d / det
-        let invB = -b / det
-        let invC = -c / det
-        let invD = a / det
-        let invTx = -(invA * tx + invC * ty)
-        let invTy = -(invB * tx + invD * ty)
-        
-        return .init(
-            a: invA,
-            b: invB,
-            c: invC,
-            d: invD,
-            tx: invTx,
-            ty: invTy
-        )
+        return .init(matrix: matrix.inverse)
     }
 }
 
 // MARK: - Multiplication
 public extension Transform {
     func concatenating(_ other: Transform) -> Transform {
-        Transform(
-            a: a * other.a + c * other.b,
-            b: b * other.a + d * other.b,
-            c: a * other.c + c * other.d,
-            d: b * other.c + d * other.d,
-            tx: a * other.tx + c * other.ty + tx,
-            ty: b * other.tx + d * other.ty + ty
-        )
+        Transform(matrix: matrix * other.matrix)
+    }
+}
+
+// MARK: - Useful initializers
+public extension Transform {
+    init(ortho rect: Rect, near: Float, far: Float) {
+        let left = rect.x
+        let right = rect.x + rect.width
+        let top = rect.y
+        let bottom = rect.y - rect.height
+        let X = simd_float4(2 / (right - left), 0, 0, 0)
+        let Y = simd_float4(0, 2 / (top - bottom), 0, 0)
+        let Z = simd_float4(0, 0, 1 / (far - near), 0)
+        let W = simd_float4(
+            (left + right) / (left - right),
+            (top + bottom) / (bottom - top),
+            near / (near - far),
+            1)
+        matrix = .init(columns: (X, Y, Z, W))
+    }
+    
+    public init(rotatedBy angle: Float) {
+        let rows: [simd_float4] = [
+            [ cos(angle), sin(angle), 0, 0],
+            [-sin(angle), cos(angle), 0, 0],
+            [          0,          0, 1, 0],
+            [          0,          0, 0, 1]
+        ]
+        self.init(matrix: .init(rows: rows))
+    }
+    
+    public init(scaledBy value: Float) {
+        let rows: [simd_float4] = [
+            [value,         0,         0, 0],
+            [      0,   value,         0, 0],
+            [      0,       0,         1, 0],
+            [      0,       0,         0, 1]
+        ]
+        self.init(matrix: .init(rows: rows))
+    }
+    
+    public init(translateByX x: Float, y: Float) {
+        let rows: [simd_float4] = [
+            [1, 0, 0, x],
+            [0, 1, 0, y],
+            [0, 0, 1, 0],
+            [0, 0, 0, 1]
+        ]
+        self.init(matrix: .init(rows: rows))
     }
 }
 
 // MARK: - Static properties
 public extension Transform {
     nonisolated(unsafe)
-    static let identity = Transform(
-        a: 1,
-        b: 0,
-        c: 0,
-        d: 1,
-        tx: 0,
-        ty: 0
-    )
+    static let identity = Transform(matrix: matrix_identity_float4x4)
 }

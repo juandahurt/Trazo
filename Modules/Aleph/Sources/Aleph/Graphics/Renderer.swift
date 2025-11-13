@@ -1,4 +1,6 @@
-import MetalKit
+import Metal
+import QuartzCore
+import Tartarus
 
 class Renderer {
     private var commandBuffer: MTLCommandBuffer?
@@ -26,9 +28,9 @@ class Renderer {
     func drawTiledTexture(
             _ tiledTexture: TiledTexture,
             on outputTexture: MTLTexture,
-            clearColor: simd_float4,
-            transform: simd_float4x4,
-            projection: simd_float4x4
+            clearColor: Color,
+            transform: Transform,
+            projection: Transform
         ) {
             guard
                 let commandBuffer,
@@ -42,10 +44,10 @@ class Renderer {
             passDescriptor.colorAttachments[0].texture = outputTexture
             passDescriptor.colorAttachments[0].loadAction = .clear
             passDescriptor.colorAttachments[0].clearColor = .init(
-                red: Double(clearColor.x),
-                green: Double(clearColor.y),
-                blue: Double(clearColor.z),
-                alpha: Double(clearColor.w)
+                red: Double(clearColor.r),
+                green: Double(clearColor.g),
+                blue: Double(clearColor.b),
+                alpha: Double(clearColor.a)
             )
             
             let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
@@ -91,12 +93,12 @@ class Renderer {
                     
                     encoder?.setVertexBytes(
                         &modelMatrix,
-                        length: MemoryLayout<simd_float4x4>.stride,
+                        length: MemoryLayout<Transform.Matrix>.stride,
                         index: 2
                     )
                     encoder?.setVertexBytes(
                         &projectionMatrix,
-                        length: MemoryLayout<simd_float4x4>.stride,
+                        length: MemoryLayout<Transform.Matrix>.stride,
                         index: 3
                     )
                     encoder?

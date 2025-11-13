@@ -1,10 +1,27 @@
+import simd
+
 public struct Point {
-    public var x: Float
-    public var y: Float
+    public var x: Float {
+        get {
+            _value.x
+        }
+        set {
+            _value.x = newValue
+        }
+    }
+    public var y: Float {
+        get {
+            _value.y
+        }
+        set {
+            _value.y = newValue
+        }
+    }
+   
+    var _value: simd_float2
     
     public init(x: Float, y: Float) {
-        self.x = x
-        self.y = y
+        _value = [x, y]
     }
 }
 
@@ -21,13 +38,16 @@ public extension Point {
     static func /(lhs: Point, value: Float) -> Point {
         .init(x: lhs.x / value, y: lhs.y / value)
     }
+    
+    func length() -> Float {
+        simd.length(_value)
+    }
 }
 
 // MARK: - Transformations
 public extension Point {
     func applying(_ transform: Transform) -> Point {
-        let x = self.x * transform.a + self.y * transform.c + transform.tx
-        let y = self.x * transform.b + self.y * transform.d + transform.ty
-        return .init(x: x, y: y)
+        let transformedPoint = transform.matrix * [x, y, 0 ,1]
+        return .init(x: transformedPoint.x, y: transformedPoint.y)
     }
 }

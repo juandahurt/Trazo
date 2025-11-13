@@ -82,7 +82,7 @@ extension CanvasViewController: MTKViewDelegate {
         renderer.drawTiledTexture(
             state.renderableTexture!,
             on: drawable.texture,
-            clearColor: [0, 0, 0, 0],
+            clearColor: .init([0, 0, 0, 0]),
             transform: state.ctm,
             projection: state.cpm
         )
@@ -98,6 +98,7 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
         _ controller: GestureController,
         touchesMap: [Int : [Touch]]
     ) {
+        transformer.reset()
         transformer.initialize(withTouches: touchesMap)
     }
 
@@ -106,7 +107,7 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
         touchesMap: [Int : [Touch]]
     ) {
         transformer.transform(currentTouches: touchesMap)
-//        state.ctm = transformer.transform
+        state.ctm = transformer.transform
     }
 }
 

@@ -16,9 +16,9 @@ struct CanvasState {
     }
     
     /// Current transform matrix.
-    var ctm = matrix_identity_float4x4
+    var ctm = Transform.identity
     /// Current projection matrix.
-    var cpm = matrix_identity_float4x4
+    var cpm = Transform.identity
     
     var renderableTexture: TiledTexture?
     
