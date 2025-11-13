@@ -6,6 +6,7 @@ class CanvasViewController: UIViewController {
     var state: CanvasState!
     let renderer = Renderer()
     let gestureController = GestureController()
+    let transformer = Transformer()
     
     init(canvasSize: CGRect) {
         state = CanvasState(
@@ -35,6 +36,8 @@ class CanvasViewController: UIViewController {
         
         state.contentScaleFactor = Float(view.contentScaleFactor)
         setupCanvas()
+        
+        gestureController.delegate = self
     }
     
     func setupCanvas() {
@@ -89,6 +92,25 @@ extension CanvasViewController: MTKViewDelegate {
     }
 }
 
+// MARK: - Gesture delegate
+extension CanvasViewController: @preconcurrency GestureControllerDelegate {
+    func gestureControllerDidStartTransform(
+        _ controller: GestureController,
+        touchesMap: [Int : [Touch]]
+    ) {
+        transformer.initialize(withTouches: touchesMap)
+    }
+
+    func gestureControllerDidTransform(
+        _ controller: GestureController,
+        touchesMap: [Int : [Touch]]
+    ) {
+        transformer.transform(currentTouches: touchesMap)
+//        state.ctm = transformer.transform
+    }
+}
+
+// MARK: - Finger gesture delegate
 extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
         let touches = touches.map { Touch(touch: $0, in: view) }

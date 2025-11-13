@@ -1,4 +1,4 @@
-import simd
+import Tartarus
 
 class Transformer {
     /// First touch of finger A
@@ -10,10 +10,10 @@ class Transformer {
         initialTouchA != nil && initialTouchB != nil
     }
     
-    private var baseTransform = matrix_identity_float4x4
-    private var currentTransform = matrix_identity_float4x4
+    private var baseTransform = Transform.identity
+    private var currentTransform = Transform.identity
     
-    var transform: simd_float4x4 { baseTransform * currentTransform }
+    var transform: Transform { baseTransform.concatenating(currentTransform) }
     
     func initialize(withTouches touchesDict: [Int: [Touch]]) {
         guard
@@ -28,28 +28,28 @@ class Transformer {
         initialTouchB = touchB
     }
     
-    func transform(
-        usingCurrentTouches touchesDict: [Int: [Touch]]
-    ) {
+    func transform(currentTouches: [Int: [Touch]]) {
         guard
             let initialTouchA,
             let initialTouchB,
-            let lastTouchA = touchesDict[initialTouchA.id]?.last,
-            let lastTouchB = touchesDict[initialTouchB.id]?.last
+            let lastTouchA = currentTouches[initialTouchA.id]?.last,
+            let lastTouchB = currentTouches[initialTouchB.id]?.last
         else {
             return
         }
         
-//        let initialPointA = initialTouchA.location.applying(baseTransform.inverse)
-//        let currentPointA = lastTouchA.location.applying(baseTransform.inverse)
-//        let initialPointB = initialTouchB.location.applying(baseTransform.inverse)
-//        let currentPointB = lastTouchB.location.applying(baseTransform.inverse)
-//        
-//        // midpoint displacement
-//        let startCenter = (initialPointA - initialPointB) / 2 + initialPointB
-//        let currentCenter = (currentPointA - currentPointB) / 2 + currentPointB
-//        let deltaTranslation = currentCenter - startCenter
-//        
+        let initialPointA = initialTouchA.location.applying(baseTransform.inverse)
+        let currentPointA = lastTouchA.location.applying(baseTransform.inverse)
+        let initialPointB = initialTouchB.location.applying(baseTransform.inverse)
+        let currentPointB = lastTouchB.location.applying(baseTransform.inverse)
+        
+        // midpoint displacement
+        let startCenter = (initialPointA - initialPointB) / 2 + initialPointB
+        let currentCenter = (currentPointA - currentPointB) / 2 + currentPointB
+        let deltaTranslation = currentCenter - startCenter
+        
+        print(deltaTranslation)
+//
 //        let startVector = initialPointA - initialPointB
 //        let currentVector = currentPointA - currentPointB
 //        let startAngle = atan2(startVector.y, startVector.x)
@@ -75,7 +75,7 @@ class Transformer {
     func reset() {
         initialTouchA = nil
         initialTouchB = nil
-        baseTransform *= currentTransform
-        currentTransform = matrix_identity_float4x4
+        baseTransform = baseTransform.concatenating(currentTransform)
+        currentTransform = .identity
     }
 }
