@@ -25,6 +25,7 @@ class Transformer {
         else {
             fatalError("failed to initialize transformer")
         }
+        reset()
         initialTouchA = touchA
         initialTouchB = touchB
     }

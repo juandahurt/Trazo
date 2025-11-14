@@ -21,11 +21,22 @@ import UIKit
 extension Touch {
     init(touch: UITouch, in view: UIView) {
         id = touch.hashValue
-        let location = touch.location(in: view)
-        self.location = .init(
-            x: Float(location.x),
-            y: Float(location.y)
-        )
+        var cgLocation = touch.location(in: view)
+        let viewSize = Size(
+            width: Float(view.bounds.width),
+            height: Float(view.bounds.height)
+        ) * Float(view.contentScaleFactor)
+        var location = .init(
+            x: Float(cgLocation.x),
+            y: Float(cgLocation.y)
+        ) * Float(view.contentScaleFactor)
+        
+        location.x -= viewSize.width / 2
+        location.y -= viewSize.height / 2
+        location.y *= -1
+        
+        self.location = location
+        
         phase = switch (touch.phase) {
         case .began: .began
         case .moved: .moved

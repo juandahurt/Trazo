@@ -98,7 +98,6 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
         _ controller: GestureController,
         touchesMap: [Int : [Touch]]
     ) {
-        transformer.reset()
         transformer.initialize(withTouches: touchesMap)
     }
 

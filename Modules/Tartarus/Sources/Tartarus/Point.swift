@@ -39,6 +39,10 @@ public extension Point {
         .init(x: lhs.x / value, y: lhs.y / value)
     }
     
+    static func *(lhs: Point, value: Float) -> Point {
+        .init(x: lhs.x * value, y: lhs.y * value)
+    }
+    
     func length() -> Float {
         simd.length(_value)
     }

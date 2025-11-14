@@ -9,6 +9,12 @@ public struct Size {
 }
 
 public extension Size {
+    static func * (size: Size, value: Float) -> Size {
+        .init(width: size.width * value, height: size.height * value)
+    }
+}
+
+public extension Size {
     nonisolated(unsafe)
     static let zero: Size = .init(width: 0, height: 0)
 }
