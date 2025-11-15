@@ -38,8 +38,8 @@ final class TextureManager {
         columns: Int,
         tileSize: Size,
         canvasSize: Size
-    ) -> TiledTexture {
-        var tiledTexture = TiledTexture(name: name)
+    ) -> Texture {
+        var tiledTexture = Texture(name: name)
         for row in 0..<rows {
             for col in 0..<columns {
                 var position = Point(

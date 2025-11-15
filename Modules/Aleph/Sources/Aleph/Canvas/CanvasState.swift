@@ -15,12 +15,8 @@ struct CanvasState {
         }
     }
     
-    /// Current transform matrix.
-    var ctm = Transform.identity
-    /// Current projection matrix.
-    var cpm = Transform.identity
-    
-    var renderableTexture: TiledTexture?
+    var renderableTexture: Texture?
+    var grayscaleTexture: Texture?
     
     init(canvasSize: Size) {
         self.canvasSize = canvasSize

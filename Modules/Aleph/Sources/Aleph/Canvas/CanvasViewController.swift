@@ -49,7 +49,28 @@ class CanvasViewController: UIViewController {
             tileSize: state.tileSize,
             canvasSize: state.canvasSize
         )
+        state.grayscaleTexture = TextureManager.makeTiledTexture(
+            named: "Grayscale texture",
+            rows: 8,
+            columns: 8,
+            tileSize: state.tileSize,
+            canvasSize: state.canvasSize
+        )
         renderer.fillTexture(state.renderableTexture!, color: .white)
+    }
+    
+    func drawPoints() {
+        renderer
+            .drawGrayscalePoints(
+                [
+                    .init(position: .init(x: 10, y: 10), size: 5),
+                    .init(position: .init(x: 30, y: 60), size: 5),
+                    .init(position: .init(x: 50, y: 80), size: 5),
+                    .init(position: .init(x: 70, y: 100), size: 5),
+                    .init(position: .init(x: 90, y: 130), size: 5),
+                ],
+                on: state.grayscaleTexture!
+            )
     }
 }
 
@@ -64,7 +85,7 @@ extension CanvasViewController: MTKViewDelegate {
             height: Float(viewSize)
         )
         
-        state.cpm = .init(
+        renderer.ctx.cpm = .init(
             ortho: rect,
             near: 0,
             far: 1
@@ -79,12 +100,11 @@ extension CanvasViewController: MTKViewDelegate {
         let commandBuffer = GPU.commandQueue.makeCommandBuffer()
         let encoder = commandBuffer?.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor)
         encoder?.endEncoding()
+        drawPoints()
         renderer.drawTiledTexture(
             state.renderableTexture!,
             on: drawable.texture,
-            clearColor: .init([0, 0, 0, 0]),
-            transform: state.ctm,
-            projection: state.cpm
+            clearColor: .init([0.93, 0.93, 0.93, 1])
         )
         renderer.present(drawable)
         renderer.commit()
@@ -106,7 +126,7 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
         touchesMap: [Int : [Touch]]
     ) {
         transformer.transform(currentTouches: touchesMap)
-        state.ctm = transformer.transform
+        renderer.ctx.ctm = transformer.transform
     }
 }
 

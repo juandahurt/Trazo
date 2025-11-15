@@ -7,20 +7,24 @@ class PipelinesManager {
     
     enum RenderType: CaseIterable {
         case drawTexture
+        case drawGrayscalePoints
         
         var label: String {
             switch self {
             case .drawTexture: "draw_texture"
+            case .drawGrayscalePoints: "draw_grayscale_points"
             }
         }
         var vertexFunction: String {
             switch self {
             case .drawTexture: "draw_texture_vert"
+            case .drawGrayscalePoints: "grayscale_point_vert"
             }
         }
         var fragmentFunction: String {
             switch self {
             case .drawTexture: "draw_texture_frag"
+            case .drawGrayscalePoints: "grayscale_point_frag"
             }
         }
     }
@@ -54,14 +58,36 @@ class PipelinesManager {
                 .makeFunction(name: type.vertexFunction)
             descriptor.fragmentFunction = GPU.library
                 .makeFunction(name: type.fragmentFunction)
-            guard
-                let state = try? GPU.device.makeRenderPipelineState(
+            if type == .drawGrayscalePoints {
+                let vertexDesc = MTLVertexDescriptor()
+                let vertexDescriptor = MTLVertexDescriptor()
+                vertexDescriptor.attributes[0].format = .float2
+                
+                vertexDescriptor.attributes[1].format = .float
+                vertexDescriptor
+                    .attributes[1].offset = MemoryLayout<SIMD2<Float>>.stride
+                
+                vertexDescriptor
+                    .layouts[0]
+                    .stride = MemoryLayout<DrawablePoint>.stride
+                
+                descriptor.vertexDescriptor = vertexDescriptor
+                descriptor.colorAttachments[0].isBlendingEnabled = true
+                descriptor.colorAttachments[0].rgbBlendOperation = .add
+                descriptor.colorAttachments[0].alphaBlendOperation = .add
+                descriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
+                descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
+                descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
+                descriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+            }
+            do {
+                let state = try GPU.device.makeRenderPipelineState(
                     descriptor: descriptor
                 )
-            else {
+                renderPipelines[type] = state
+            } catch {
                 assert(false, "render pipeline \(type.label) could not be created.")
             }
-            renderPipelines[type] = state
         }
     }
     

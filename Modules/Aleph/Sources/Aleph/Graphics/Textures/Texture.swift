@@ -1,4 +1,4 @@
-class TiledTexture {
+class Texture {
     var name: String
     var tiles: [Tile] = []
     
