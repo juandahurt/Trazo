@@ -7,6 +7,7 @@ class CanvasViewController: UIViewController {
     let renderer = Renderer()
     let gestureController = GestureController()
     let transformer = Transformer()
+    let currentTool = BrushTool()
     
     init(canvasSize: CGRect) {
         state = CanvasState(
@@ -127,6 +128,13 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
     ) {
         transformer.transform(currentTouches: touchesMap)
         renderer.ctx.ctm = transformer.transform
+    }
+    
+    func gestureControllerDidStartPanWithFinger(
+        _ controller: GestureController,
+        touch: Touch
+    ) {
+        currentTool.handleFingerTouch(touch, ctm: renderer.ctx.ctm)
     }
 }
 
