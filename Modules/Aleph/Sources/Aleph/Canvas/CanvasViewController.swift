@@ -143,5 +143,6 @@ extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
         let touches = touches.map { Touch(touch: $0, in: view) }
         gestureController.handleFingerTouches(touches)
+        view.setNeedsDisplay()
     }
 }

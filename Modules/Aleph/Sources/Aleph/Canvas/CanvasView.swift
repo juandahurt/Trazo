@@ -3,6 +3,8 @@ import MetalKit
 class CanvasView: MTKView {
     init() {
         super.init(frame: .zero, device: GPU.device)
+        isPaused = true
+        enableSetNeedsDisplay = true
         colorPixelFormat = .rgba8Unorm
     }
 
