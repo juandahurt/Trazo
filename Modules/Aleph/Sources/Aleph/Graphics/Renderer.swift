@@ -3,6 +3,7 @@ import QuartzCore
 import Tartarus
 
 struct RendererContext {
+    var dirtyIndices: Set<Int> = [0]
     var ctm: Transform = .identity
     var cpm: Transform = .identity
 }
@@ -42,50 +43,54 @@ class Renderer {
         commandBuffer.pushDebugGroup("draw grayscale points")
         defer { commandBuffer.popDebugGroup() }
         
-        guard let texture = TextureManager.findTexture(
-            id: grayScaleTexture.tiles.first!.textureId
-        ) else { return }
-        let passDescriptor = MTLRenderPassDescriptor()
-        passDescriptor.colorAttachments[0].texture = texture
-        passDescriptor.colorAttachments[0].loadAction = .load
-        passDescriptor.colorAttachments[0].storeAction = .store
-        
-        let positionsBuffer = GPU.device.makeBuffer(
-            bytes: points,
-            length: MemoryLayout<DrawablePoint>.stride * points.count
-        )
-        
-        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
-        encoder?.setRenderPipelineState(pipelineState)
-        encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
-        
-        var opacity = opacity
-        
-        encoder?.setVertexBytes(
-            &ctx.ctm,
-            length: MemoryLayout<Transform.Matrix>.stride,
-            index: 1
-        )
-        encoder?.setVertexBytes(
-            &ctx.cpm,
-            length: MemoryLayout<Transform.Matrix>.stride,
-            index: 2
-        )
-        encoder?.setVertexBytes(
-            &opacity,
-            length: MemoryLayout<Float>.stride,
-            index: 3
-        )
-        
-        //        encoder?.setFragmentTexture(shapeTexture, index: 0)
-        //        encoder?.setFragmentTexture(granularityTexture, index: 1)
-        
-        encoder?.drawPrimitives(
-            type: .point,
-            vertexStart: 0,
-            vertexCount: points.count
-        )
-        encoder?.endEncoding()
+        for index in ctx.dirtyIndices {
+            let tile = grayScaleTexture.tiles[index]
+            guard let texture = TextureManager.findTexture(
+                id: tile.textureId
+            ) else { return }
+            
+            let passDescriptor = MTLRenderPassDescriptor()
+            passDescriptor.colorAttachments[0].texture = texture
+            passDescriptor.colorAttachments[0].loadAction = .load
+            passDescriptor.colorAttachments[0].storeAction = .store
+            
+            let positionsBuffer = GPU.device.makeBuffer(
+                bytes: points,
+                length: MemoryLayout<DrawablePoint>.stride * points.count
+            )
+            
+            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+            encoder?.setRenderPipelineState(pipelineState)
+            encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+            
+            var opacity = opacity
+            
+            encoder?.setVertexBytes(
+                &ctx.ctm,
+                length: MemoryLayout<Transform.Matrix>.stride,
+                index: 1
+            )
+            encoder?.setVertexBytes(
+                &ctx.cpm,
+                length: MemoryLayout<Transform.Matrix>.stride,
+                index: 2
+            )
+            encoder?.setVertexBytes(
+                &opacity,
+                length: MemoryLayout<Float>.stride,
+                index: 3
+            )
+            
+            //        encoder?.setFragmentTexture(shapeTexture, index: 0)
+            //        encoder?.setFragmentTexture(granularityTexture, index: 1)
+            
+            encoder?.drawPrimitives(
+                type: .point,
+                vertexStart: 0,
+                vertexCount: points.count
+            )
+            encoder?.endEncoding()
+        }
     }
     
     func fillTexture(_ texture: Texture, color: Color) {
@@ -121,7 +126,8 @@ class Renderer {
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(pipelineState)
         
-        for tile in tiledTexture.tiles {
+        for index in ctx.dirtyIndices {
+            let tile = tiledTexture.tiles[index]
             if let texture = TextureManager.findTexture(id: tile.textureId) {
                 encoder?.setFragmentTexture(texture, index: 3)
                 
