@@ -6,8 +6,11 @@ struct RendererContext {
     var dirtyIndices: Set<Int> = [0]
     var ctm: Transform = .identity
     var cpm: Transform = .identity
+    var tileSize: Size = .zero
+    var canvasSize: Size = .zero
 }
 
+// TODO: use a single buffer for drawing points
 class Renderer {
     private var commandBuffer: MTLCommandBuffer?
     var ctx = RendererContext()
@@ -64,14 +67,53 @@ class Renderer {
             encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
             
             var opacity = opacity
-            
+            // we need to transform the point coord from canvas coords
+            // to the tiles coords
+            let row = index / 8
+            let col = index % 8
+            var matrix = Transform.identity
+            matrix = matrix
+                .concatenating(.init(scaledByX: 1, y: -1))
+                .concatenating(
+                    .init(
+                        translateByX: ctx.canvasSize.width / Float(2),
+                        y: ctx.canvasSize.height / Float(2)
+                    )
+                )
+                .concatenating(
+                    .init(
+                        translateByX: -Float(col) * ctx.tileSize.width,
+                        y: -Float(row) * ctx.tileSize.height
+                    )
+                )
+                .concatenating(
+                    .init(
+                        translateByX: -ctx.tileSize.width / 2,
+                        y: -ctx.tileSize.height / 2
+                    )
+                )
+                .concatenating(.init(scaledByX: 1, y: -1))
+            var transform = matrix.concatenating(ctx.ctm)
             encoder?.setVertexBytes(
-                &ctx.ctm,
+                &transform,
                 length: MemoryLayout<Transform.Matrix>.stride,
                 index: 1
             )
+            let viewSize = Float(texture.height)
+            let aspect = Float(texture.width) / Float(texture.height)
+            let rect = Rect(
+                x: -viewSize * aspect * 0.5,
+                y: viewSize * 0.5,
+                width: viewSize * aspect,
+                height: viewSize
+            )
+            var pm = Transform(
+                ortho: rect,
+                near: 0,
+                far: 1
+            )
             encoder?.setVertexBytes(
-                &ctx.cpm,
+                &pm,
                 length: MemoryLayout<Transform.Matrix>.stride,
                 index: 2
             )

@@ -45,9 +45,13 @@ public extension Transform {
     }
     
     public init(scaledBy value: Float) {
+        self.init(scaledByX: value, y: value)
+    }
+   
+    public init(scaledByX x: Float, y: Float) {
         let rows: [simd_float4] = [
-            [value,         0,         0, 0],
-            [      0,   value,         0, 0],
+            [x,         0,         0, 0],
+            [      0,   y,         0, 0],
             [      0,       0,         1, 0],
             [      0,       0,         0, 1]
         ]

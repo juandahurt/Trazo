@@ -45,6 +45,7 @@ class CanvasViewController: UIViewController {
     
     func setupCanvas() {
         renderer.reset()
+        renderer.ctx.tileSize = state.tileSize
         state.renderableTexture = TextureManager.makeTiledTexture(
             named: "Renderable texture",
             rows: 8,
@@ -78,7 +79,11 @@ extension CanvasViewController: MTKViewDelegate {
             width: Float(viewSize * aspect),
             height: Float(viewSize)
         )
-        
+       
+        renderer.ctx.canvasSize = Size(
+            width: Float(size.width),
+            height: Float(size.height)
+        )
         renderer.ctx.cpm = .init(
             ortho: rect,
             near: 0,
