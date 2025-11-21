@@ -7,17 +7,32 @@ class StrokeGenerator {
         touches.append(touch)
     }
     
-    func generateSegmentsForLastTouch(ctm: Transform) {
-        guard let touch = touches.last else { return }
-        
+    func generateSegmentsForLastTouch(ctm: Transform) -> [StrokeSegment] {
+        guard let touch = touches.last else { return [] }
+        print(touch.phase)
         switch touch.phase {
         case .moved:
-            guard touches.count >= 3 else { return }
+            guard touches.count >= 3 else { return [] }
             if touches.count == 3 {
-                findFirstSegment(ctm: ctm)
+                return [findFirstSegment(ctm: ctm)]
+            } else {
+                return [findMiddleSegment(ctm: ctm)]
             }
         default: break
         }
+        
+        return []
+    }
+    
+    private func findMiddleSegment(ctm: Transform) -> StrokeSegment {
+        let index = touches.count - 3
+        let curve = BezierCurve(
+            p0: touches[index - 1].location,
+            p1: touches[index    ].location,
+            p2: touches[index + 1].location,
+            p3: touches[index + 2].location
+        )
+        return segment(for: curve, ctm: ctm)
     }
     
     private func findFirstSegment(ctm: Transform) -> StrokeSegment {

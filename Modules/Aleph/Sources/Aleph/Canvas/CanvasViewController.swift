@@ -18,6 +18,8 @@ class CanvasViewController: UIViewController {
         )
         
         super.init(nibName: nil, bundle: nil)
+        
+        currentTool.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -60,18 +62,9 @@ class CanvasViewController: UIViewController {
         renderer.fillTexture(state.renderableTexture!, color: .white)
     }
     
-    func drawPoints() {
+    func drawPoints(points: [DrawablePoint]) {
         renderer
-            .drawGrayscalePoints(
-                [
-                    .init(position: .init(x: 10, y: 10), size: 5),
-                    .init(position: .init(x: 30, y: 60), size: 5),
-                    .init(position: .init(x: 50, y: 80), size: 5),
-                    .init(position: .init(x: 70, y: 100), size: 5),
-                    .init(position: .init(x: 90, y: 130), size: 5),
-                ],
-                on: state.grayscaleTexture!
-            )
+            .drawGrayscalePoints(points, on: state.grayscaleTexture!)
     }
 }
 
@@ -100,8 +93,8 @@ extension CanvasViewController: MTKViewDelegate {
         else { return }
         let commandBuffer = GPU.commandQueue.makeCommandBuffer()
         let encoder = commandBuffer?.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor)
+        print("drawing")
         encoder?.endEncoding()
-        drawPoints()
         renderer.drawTiledTexture(
             state.renderableTexture!,
             on: drawable.texture,
@@ -128,9 +121,17 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
     ) {
         transformer.transform(currentTouches: touchesMap)
         renderer.ctx.ctm = transformer.transform
+        view.setNeedsDisplay()
     }
     
     func gestureControllerDidStartPanWithFinger(
+        _ controller: GestureController,
+        touch: Touch
+    ) {
+        currentTool.handleFingerTouch(touch, ctm: renderer.ctx.ctm)
+    }
+    
+    func gestureControllerDidPanWithFinger(
         _ controller: GestureController,
         touch: Touch
     ) {
@@ -143,6 +144,13 @@ extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
         let touches = touches.map { Touch(touch: $0, in: view) }
         gestureController.handleFingerTouches(touches)
+    }
+}
+
+// MARK: - Brush tool delegate
+extension CanvasViewController: @preconcurrency BrushToolDelegate {
+    func brushTool(_ tool: BrushTool, didGenerateSegments segments: [StrokeSegment]) {
+        drawPoints(points: segments[0].points)
         view.setNeedsDisplay()
     }
 }

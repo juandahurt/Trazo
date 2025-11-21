@@ -47,8 +47,8 @@ class Renderer {
         ) else { return }
         let passDescriptor = MTLRenderPassDescriptor()
         passDescriptor.colorAttachments[0].texture = texture
-        passDescriptor.colorAttachments[0].loadAction = .clear
-        passDescriptor.colorAttachments[0].storeAction = .dontCare
+        passDescriptor.colorAttachments[0].loadAction = .load
+        passDescriptor.colorAttachments[0].storeAction = .store
         
         let positionsBuffer = GPU.device.makeBuffer(
             bytes: points,

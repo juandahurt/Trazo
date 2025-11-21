@@ -13,6 +13,10 @@ protocol GestureControllerDelegate: AnyObject {
         _ controller: GestureController,
         touch: Touch
     )
+    func gestureControllerDidPanWithFinger(
+        _ controller: GestureController,
+        touch: Touch
+    )
 }
 
 class GestureController {
@@ -39,8 +43,12 @@ class GestureController {
         store(touches: touches)
         
         if touchCount == 1 {
-            if let touch = touches.first, currentGesture == .idle {
-                delegate?.gestureControllerDidStartPanWithFinger(self, touch: touch)
+            if let touch = touches.first {
+                if currentGesture == .idle {
+                    delegate?.gestureControllerDidStartPanWithFinger(self, touch: touch)
+                } else {
+                    delegate?.gestureControllerDidPanWithFinger(self, touch: touch)
+                }
             }
             currentGesture = .panWithFinger
         }
