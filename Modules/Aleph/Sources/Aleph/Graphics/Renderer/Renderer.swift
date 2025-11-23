@@ -12,7 +12,7 @@ struct RendererContext {
 
 // TODO: use a single buffer for drawing points
 class Renderer {
-    private var commandBuffer: MTLCommandBuffer?
+    var commandBuffer: MTLCommandBuffer?
     var ctx = RendererContext()
     
     func reset() {
@@ -222,31 +222,7 @@ class Renderer {
         encoder?.endEncoding()
     }
     
-    private func fillTexture(_ texture: MTLTexture, color: Color) {
-        guard
-            let pipelineState = PipelinesManager.computePipeline(for: .fill),
-            let commandBuffer
-        else {
-            return
-        }
-        
-        let encoder = commandBuffer.makeComputeCommandEncoder()
-        encoder?.setComputePipelineState(pipelineState)
-        encoder?.setTexture(texture, index: 0)
-        encoder?.setBytes(
-            [color.r, color.g, color.b, color.a],
-            length: MemoryLayout<Float>.stride * 4,
-            index: 1
-        )
-        let (threadgroupsPerGrid, threadsPerThreadgroup) = calculateThreads(in: texture)
-        encoder?.dispatchThreadgroups(
-            threadgroupsPerGrid,
-            threadsPerThreadgroup: threadsPerThreadgroup
-        )
-        encoder?.endEncoding()
-    }
-    
-    private func calculateThreads(in texture: MTLTexture) -> (
+    func calculateThreads(in texture: MTLTexture) -> (
         groupsPerGrid: MTLSize,
         threadsPerGroup: MTLSize
     ) {

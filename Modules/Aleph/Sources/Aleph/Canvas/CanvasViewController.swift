@@ -60,12 +60,24 @@ class CanvasViewController: UIViewController {
             tileSize: state.tileSize,
             canvasSize: state.canvasSize
         )
-        renderer.fillTexture(state.renderableTexture!, color: .white)
+        state.strokeTexture = TextureManager.makeTiledTexture(
+            named: "Stroke texture",
+            rows: 8,
+            columns: 8,
+            tileSize: state.tileSize,
+            canvasSize: state.canvasSize
+        )
     }
     
     func drawPoints(points: [DrawablePoint]) {
+        renderer.drawGrayscalePoints(points, on: state.grayscaleTexture!)
         renderer
-            .drawGrayscalePoints(points, on: state.grayscaleTexture!)
+            .colorize(
+                texture: state.grayscaleTexture!,
+                withColor: .init([0, 1, 1, 1]),
+                on: state.strokeTexture!
+            )
+        
     }
 }
 

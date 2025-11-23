@@ -17,6 +17,7 @@ struct CanvasState {
     
     var renderableTexture: Texture?
     var grayscaleTexture: Texture?
+    var strokeTexture: Texture?
     
     init(canvasSize: Size) {
         self.canvasSize = canvasSize

@@ -67,10 +67,22 @@ fragment float4 grayscale_point_frag(
 //                                      texture2d<float, access::sample> shapeTexture [[texture(0)]],
 //                                      texture2d<float, access::sample> granularityTexture [[texture(1)]])
 {
+    // TODO: implement with shape and granularity textures
 //    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
 //    float granAlpha = granularityTexture.sample(defaultSampler, pointCoord).a;
 //    float shapeAlpha = shapeTexture.sample(defaultSampler, pointCoord).a;
 //    float alpha = granAlpha * shapeAlpha * pointData.opacity;
     float alpha = 1;
     return float4(alpha, alpha, alpha, 0.3);
+}
+
+kernel void colorize(
+                     texture2d<float, access::read> inputTexture [[texture(0)]],
+                     texture2d<float, access::write> outputTexture [[texture(1)]],
+                     constant float4& color [[buffer(0)]],
+                     uint2 gid [[thread_position_in_grid]])
+{
+    float alpha = inputTexture.read(gid).a * color[3];
+    float4 newColor = float4(alpha * color[0], alpha * color[1], alpha * color[2], alpha);
+    outputTexture.write(newColor, gid);
 }

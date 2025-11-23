@@ -3,6 +3,7 @@ import Metal
 class PipelinesManager {
     enum ComputeType: String, CaseIterable {
         case fill = "fill_color"
+        case colorize = "colorize"
     }
     
     enum RenderType: CaseIterable {
