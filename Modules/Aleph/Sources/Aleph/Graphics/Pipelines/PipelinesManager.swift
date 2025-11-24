@@ -4,6 +4,7 @@ class PipelinesManager {
     enum ComputeType: String, CaseIterable {
         case fill = "fill_color"
         case colorize = "colorize"
+        case merge = "merge"
     }
     
     enum RenderType: CaseIterable {

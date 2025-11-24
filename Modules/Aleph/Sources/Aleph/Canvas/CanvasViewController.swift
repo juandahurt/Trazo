@@ -67,17 +67,28 @@ class CanvasViewController: UIViewController {
             tileSize: state.tileSize,
             canvasSize: state.canvasSize
         )
-    }
-    
-    func drawPoints(points: [DrawablePoint]) {
-        renderer.drawGrayscalePoints(points, on: state.grayscaleTexture!)
-        renderer
-            .colorize(
-                texture: state.grayscaleTexture!,
-                withColor: .init([0, 1, 1, 1]),
-                on: state.strokeTexture!
-            )
         
+        // layers
+        let bgTexture = TextureManager.makeTiledTexture(
+            named: "Background texture",
+            rows: 8,
+            columns: 8,
+            tileSize: state.tileSize,
+            canvasSize: state.canvasSize
+        )
+        renderer.fillTexture(bgTexture, color: .white)
+        let bgLayer = Layer(named: "Background", texture: bgTexture)
+        let firstLayerTexture = TextureManager.makeTiledTexture(
+            named: "Background texture",
+            rows: 8,
+            columns: 8,
+            tileSize: state.tileSize,
+            canvasSize: state.canvasSize
+        )
+        let firstLayer = Layer(named: "Background", texture: bgTexture)
+        
+        state.layers = [bgLayer, firstLayer]
+        state.currentLayerIndex = 1
     }
 }
 
@@ -91,7 +102,7 @@ extension CanvasViewController: MTKViewDelegate {
             width: Float(viewSize * aspect),
             height: Float(viewSize)
         )
-       
+        
         renderer.ctx.canvasSize = Size(
             width: Float(size.width),
             height: Float(size.height)
@@ -102,7 +113,7 @@ extension CanvasViewController: MTKViewDelegate {
             far: 1
         )
     }
-
+    
     func draw(in view: MTKView) {
         guard
             let drawable = view.currentDrawable,
@@ -131,7 +142,7 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
     ) {
         transformer.initialize(withTouches: touchesMap)
     }
-
+    
     func gestureControllerDidTransform(
         _ controller: GestureController,
         touchesMap: [Int : [Touch]]
@@ -168,6 +179,41 @@ extension CanvasViewController: FingerGestureRecognizerDelegate {
 extension CanvasViewController: @preconcurrency BrushToolDelegate {
     func brushTool(_ tool: BrushTool, didGenerateSegments segments: [StrokeSegment]) {
         drawPoints(points: segments[0].points)
+        mergeLayers()
         view.setNeedsDisplay()
+    }
+}
+
+// MARK: - Rendering
+extension CanvasViewController {
+    func mergeLayers(usingStrokeTexture: Bool = true) {
+        //            clearRenderableTexture()
+        renderer.fillTexture(state.renderableTexture!, color: .clear)
+        for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
+            //            if !state.layers[index].isVisible { continue }
+            if index == state.currentLayerIndex && usingStrokeTexture {
+                renderer.merge(
+                    state.renderableTexture!,
+                    with: state.strokeTexture!,
+                    on: state.renderableTexture!
+                )
+            } else {
+                renderer.merge(
+                    state.renderableTexture!,
+                    with: state.layers[index].texture,
+                    on: state.renderableTexture!
+                )
+            }
+        }
+    }
+    
+    func drawPoints(points: [DrawablePoint]) {
+        renderer.drawGrayscalePoints(points, on: state.grayscaleTexture!)
+        renderer
+            .colorize(
+                texture: state.grayscaleTexture!,
+                withColor: .init([0, 1, 1, 1]),
+                on: state.strokeTexture!
+            )
     }
 }

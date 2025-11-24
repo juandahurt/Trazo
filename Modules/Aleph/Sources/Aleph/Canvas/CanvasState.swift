@@ -1,6 +1,16 @@
 import simd
 import Tartarus
 
+struct Layer {
+    var name: String
+    var texture: Texture
+    
+    init(named name: String, texture: Texture) {
+        self.name = name
+        self.texture = texture
+    }
+}
+
 struct CanvasState {
     let tilesPerRow = 8
     let tilesPerColumn = 8
@@ -18,6 +28,9 @@ struct CanvasState {
     var renderableTexture: Texture?
     var grayscaleTexture: Texture?
     var strokeTexture: Texture?
+    
+    var layers: [Layer] = []
+    var currentLayerIndex = -1
     
     init(canvasSize: Size) {
         self.canvasSize = canvasSize

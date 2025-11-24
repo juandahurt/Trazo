@@ -12,6 +12,7 @@ struct Color {
 }
 
 extension Color {
+    static let clear = Color([0, 0, 0, 0])
     static let white = Color([1, 1, 1, 1])
     static let black = Color([0, 0, 0, 1])
 }
