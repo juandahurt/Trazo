@@ -93,7 +93,7 @@ class Renderer {
                     )
                 )
                 .concatenating(.init(scaledByX: 1, y: -1))
-            var transform = matrix.concatenating(ctx.ctm)
+            var transform = matrix.concatenating(ctx.ctm.inverse)
             encoder?.setVertexBytes(
                 &transform,
                 length: MemoryLayout<Transform.Matrix>.stride,

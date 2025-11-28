@@ -49,7 +49,7 @@ final class TextureManager {
                 // translate the position so the origin is in the middle
                 // of the canvas
                 position.x -= canvasSize.width / 2
-                position.y -= canvasSize.height / 2
+                position.y += canvasSize.height / 2 - tileSize.height
                 if let textureId = makeTexture(
                     ofSize: tileSize,
                     label: "\(name) (\(row),\(col))"
