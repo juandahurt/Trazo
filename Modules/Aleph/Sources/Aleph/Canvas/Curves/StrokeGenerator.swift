@@ -47,17 +47,18 @@ class StrokeGenerator {
     
     private func segment(for curve: BezierCurve, ctm: Transform) -> StrokeSegment {
         let n = 10 // number of points
-        var points = [DrawablePoint]()
+        var segment = StrokeSegment()
         for i in 0..<n {
             let t = Float(i) / Float(n)
             let position = curve.point(at: t)
-            points.append(
-                .init(
+            segment.add(
+                point: .init(
                     position: [position.x, position.y],
                     size: 10
-                )
+                ),
+                ctm: ctm
             )
         }
-        return .init(points: points)
+        return segment
     }
 }

@@ -50,6 +50,10 @@ public extension Point {
     func length() -> Float {
         simd.length(_value)
     }
+    
+    func dist(to other: Point) -> Float {
+        distance(_value, other._value)
+    }
 }
 
 // MARK: - Transformations
