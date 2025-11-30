@@ -43,20 +43,21 @@ final class TextureManager {
         for row in 0..<rows {
             for col in 0..<columns {
                 var position = Point(
-                    x: Float(col) * tileSize.width,
-                    y: Float(row) * tileSize.height
+                    x: -canvasSize.width / 2 + Float(col) * tileSize.width,
+                    y: canvasSize.height / 2 - Float(row) * tileSize.height
                 )
-                // translate the position so the origin is in the middle
-                // of the canvas
-                position.x -= canvasSize.width / 2
-                position.y += canvasSize.height / 2 - tileSize.height
                 if let textureId = makeTexture(
                     ofSize: tileSize,
                     label: "\(name) (\(row),\(col))"
                 ) {
                     tiledTexture.tiles.append(
                         .init(
-                            position: position,
+                            bounds: .init(
+                                x: position.x,
+                                y: position.y,
+                                width: tileSize.width,
+                                height: tileSize.height
+                            ),
                             textureId: textureId
                         )
                     )

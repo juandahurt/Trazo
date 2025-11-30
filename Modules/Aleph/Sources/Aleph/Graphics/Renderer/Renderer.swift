@@ -3,7 +3,7 @@ import QuartzCore
 import Tartarus
 
 struct RendererContext {
-    var dirtyIndices: Set<Int> = [0]
+    var dirtyIndices: Set<Int> = .init((0...63))
     var ctm: Transform = .identity
     var cpm: Transform = .identity
     var tileSize: Size = .zero
@@ -21,16 +21,38 @@ class Renderer {
     
     func commit() {
         commandBuffer?.commit()
+        commandBuffer?.waitUntilCompleted()
     }
     
     func present(_ drawable: CAMetalDrawable) {
         commandBuffer?.present(drawable)
     }
     
+    func draw(segment segment: StrokeSegment, on texture: Texture) {
+        guard let commandBuffer else { return }
+        // add blendmode to the brush
+        // use the blend mode of the current brush
+        // to draw the points
+        commandBuffer.pushDebugGroup("draw grayscale points")
+        defer { commandBuffer.popDebugGroup() }
+        for index in 0..<64 {
+            let tile = texture.tiles[index]
+            if tile.bounds.intersects(with: segment.bounds) {
+                // add dirty tile
+                ctx.dirtyIndices.insert(index)
+            }
+            guard let texture = TextureManager.findTexture(id: tile.textureId) else {
+                return
+            }
+            drawGrayscalePoints(segment.points, tileIndex: index, on: texture)
+        }
+    }
+    
     func drawGrayscalePoints(
         _ points: [DrawablePoint],
         withOpacity opacity: Float = 1,
-        on grayScaleTexture: Texture
+        tileIndex: Int,
+        on texture: MTLTexture
     ) {
         guard
             let pipelineState = PipelinesManager.renderPipeline(
@@ -40,99 +62,86 @@ class Renderer {
         else {
             return
         }
-        // add blendmode to the brush
-        // use the blend mode of the current brush
-        // to draw the points
-        commandBuffer.pushDebugGroup("draw grayscale points")
-        defer { commandBuffer.popDebugGroup() }
+        let passDescriptor = MTLRenderPassDescriptor()
+        passDescriptor.colorAttachments[0].texture = texture
+        passDescriptor.colorAttachments[0].loadAction = .load
+        passDescriptor.colorAttachments[0].storeAction = .store
         
-        for index in ctx.dirtyIndices {
-            let tile = grayScaleTexture.tiles[index]
-            guard let texture = TextureManager.findTexture(
-                id: tile.textureId
-            ) else { return }
-            
-            let passDescriptor = MTLRenderPassDescriptor()
-            passDescriptor.colorAttachments[0].texture = texture
-            passDescriptor.colorAttachments[0].loadAction = .load
-            passDescriptor.colorAttachments[0].storeAction = .store
-            
-            let positionsBuffer = GPU.device.makeBuffer(
-                bytes: points,
-                length: MemoryLayout<DrawablePoint>.stride * points.count
-            )
-            
-            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
-            encoder?.setRenderPipelineState(pipelineState)
-            encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
-            
-            var opacity = opacity
-            // we need to transform the point coord from canvas coords
-            // to the tiles coords
-            let row = index / 8
-            let col = index % 8
-            var matrix = Transform.identity
-            matrix = matrix
-                .concatenating(.init(scaledByX: 1, y: -1))
-                .concatenating(
-                    .init(
-                        translateByX: ctx.canvasSize.width / Float(2),
-                        y: ctx.canvasSize.height / Float(2)
-                    )
+        let positionsBuffer = GPU.device.makeBuffer(
+            bytes: points,
+            length: MemoryLayout<DrawablePoint>.stride * points.count
+        )
+        
+        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
+        encoder?.setRenderPipelineState(pipelineState)
+        encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+        
+        var opacity = opacity
+        // we need to transform the point coord from canvas coords
+        // to the tiles coords
+        let row = 8 - tileIndex / 8
+        let col = tileIndex % 8
+        var matrix = Transform.identity
+        matrix = matrix
+            .concatenating(.init(scaledByX: 1, y: -1))
+            .concatenating(
+                .init(
+                    translateByX: ctx.canvasSize.width / Float(2),
+                    y: ctx.canvasSize.height / Float(2)
                 )
-                .concatenating(
-                    .init(
-                        translateByX: -Float(col) * ctx.tileSize.width,
-                        y: -Float(row) * ctx.tileSize.height
-                    )
+            )
+            .concatenating(
+                .init(
+                    translateByX: -Float(col) * ctx.tileSize.width,
+                    y: -Float(row) * ctx.tileSize.height
                 )
-                .concatenating(
-                    .init(
-                        translateByX: -ctx.tileSize.width / 2,
-                        y: -ctx.tileSize.height / 2
-                    )
+            )
+            .concatenating(
+                .init(
+                    translateByX: -ctx.tileSize.width / 2,
+                    y: ctx.tileSize.height / 2
                 )
-                .concatenating(.init(scaledByX: 1, y: -1))
-            var transform = matrix.concatenating(ctx.ctm.inverse)
-            encoder?.setVertexBytes(
-                &transform,
-                length: MemoryLayout<Transform.Matrix>.stride,
-                index: 1
             )
-            let viewSize = Float(texture.height)
-            let aspect = Float(texture.width) / Float(texture.height)
-            let rect = Rect(
-                x: -viewSize * aspect * 0.5,
-                y: viewSize * 0.5,
-                width: viewSize * aspect,
-                height: viewSize
-            )
-            var pm = Transform(
-                ortho: rect,
-                near: 0,
-                far: 1
-            )
-            encoder?.setVertexBytes(
-                &pm,
-                length: MemoryLayout<Transform.Matrix>.stride,
-                index: 2
-            )
-            encoder?.setVertexBytes(
-                &opacity,
-                length: MemoryLayout<Float>.stride,
-                index: 3
-            )
-            
-            //        encoder?.setFragmentTexture(shapeTexture, index: 0)
-            //        encoder?.setFragmentTexture(granularityTexture, index: 1)
-            
-            encoder?.drawPrimitives(
-                type: .point,
-                vertexStart: 0,
-                vertexCount: points.count
-            )
-            encoder?.endEncoding()
-        }
+//            .concatenating(.init(scaledByX: 1, y: -1))
+        var transform = matrix.concatenating(ctx.ctm.inverse)
+        encoder?.setVertexBytes(
+            &transform,
+            length: MemoryLayout<Transform.Matrix>.stride,
+            index: 1
+        )
+        let viewSize = Float(texture.height)
+        let aspect = Float(texture.width) / Float(texture.height)
+        let rect = Rect(
+            x: -viewSize * aspect * 0.5,
+            y: viewSize * 0.5,
+            width: viewSize * aspect,
+            height: viewSize
+        )
+        var pm = Transform(
+            ortho: rect,
+            near: 0,
+            far: 1
+        )
+        encoder?.setVertexBytes(
+            &pm,
+            length: MemoryLayout<Transform.Matrix>.stride,
+            index: 2
+        )
+        encoder?.setVertexBytes(
+            &opacity,
+            length: MemoryLayout<Float>.stride,
+            index: 3
+        )
+        
+        //        encoder?.setFragmentTexture(shapeTexture, index: 0)
+        //        encoder?.setFragmentTexture(granularityTexture, index: 1)
+        
+        encoder?.drawPrimitives(
+            type: .point,
+            vertexStart: 0,
+            vertexCount: points.count
+        )
+        encoder?.endEncoding()
     }
     
     func fillTexture(_ texture: Texture, color: Color) {
@@ -167,17 +176,19 @@ class Renderer {
         
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(pipelineState)
-        
+//        encoder?.setTriangleFillMode(.lines)
         for index in ctx.dirtyIndices {
             let tile = tiledTexture.tiles[index]
             if let texture = TextureManager.findTexture(id: tile.textureId) {
                 encoder?.setFragmentTexture(texture, index: 3)
                 
                 let vertices: [Float] = [
-                    tile.position.x, tile.position.y, // top left
-                    tile.position.x + Float(texture.width), tile.position.y, // top right
-                    tile.position.x, tile.position.y + Float(texture.height), // bottom left
-                    tile.position.x + Float(texture.width), tile.position.y + Float(texture.height), // bottom right
+                    tile.bounds.x, tile.bounds.y, // top left
+                    tile.bounds.x + Float(texture.width), tile.bounds.y, // top right
+                    tile.bounds.x, tile.bounds.y - Float(texture.height), // bottom left
+                    tile.bounds.x + Float(texture.width), tile.bounds.y - Float(
+                        texture.height
+                    ), // bottom right
                 ]
                 
                 // TODO: Remove buffer creation for vertex

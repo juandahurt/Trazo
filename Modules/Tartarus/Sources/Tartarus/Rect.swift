@@ -1,3 +1,4 @@
+/// A rectangle.
 public struct Rect {
     public var x: Float
     public var y: Float
@@ -15,4 +16,13 @@ public struct Rect {
 public extension Rect {
     nonisolated(unsafe)
     static let zero = Rect(x: 0, y: 0, width: 0, height: 0)
+}
+
+public extension Rect {
+    func intersects(with other: Rect) -> Bool {
+        x <= other.x + other.width &&
+        x + width >= other.x &&
+        y >= other.y + other.height &&
+        y - height <= other.y
+    }
 }

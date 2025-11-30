@@ -1,7 +1,7 @@
 import Tartarus
 
 struct StrokeSegment {
-    var boundingBox: Rect = .zero
+    var bounds: Rect = .zero
     var points: [DrawablePoint] = []
     
     mutating func add(point: DrawablePoint, ctm: Transform) {
@@ -9,23 +9,19 @@ struct StrokeSegment {
         let pos = Point(x: point.position.x, y: point.position.y).applying(ctm.inverse)
         defer { points.append(point) }
         guard !points.isEmpty else {
-            boundingBox.x = pos.x
-            boundingBox.y = pos.y
+            bounds.x = pos.x
+            bounds.y = pos.y
             return
         }
         
-        // finding the box dimensions
-        let distX = abs(pos.x - boundingBox.x)
-        if distX > boundingBox.width {
-            boundingBox.width = distX
-        }
-        let distY = abs(pos.y - boundingBox.y)
-        if distY > boundingBox.height {
-            boundingBox.height = distY
-        }
+        let minX = min(pos.x, bounds.x)
+        let maxX = max(pos.x, bounds.x + bounds.width)
+        let minY = min(pos.y, bounds.y)
+        let maxY = max(pos.y, bounds.y + bounds.height)
         
-        // finding the origin of the box
-        boundingBox.y = max(boundingBox.y, pos.y)
-        boundingBox.x = min(boundingBox.x, pos.x)
+        bounds.x = minX
+        bounds.y = minY
+        bounds.width = maxX - minX
+        bounds.height = maxY - minY
     }
 }

@@ -119,9 +119,9 @@ extension CanvasViewController: MTKViewDelegate {
             let drawable = view.currentDrawable,
             let currentRenderPassDescriptor = view.currentRenderPassDescriptor
         else { return }
-        let commandBuffer = GPU.commandQueue.makeCommandBuffer()
-        let encoder = commandBuffer?.makeRenderCommandEncoder(descriptor: currentRenderPassDescriptor)
-        print("drawing")
+        let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(
+            descriptor: currentRenderPassDescriptor
+        )
         encoder?.endEncoding()
         renderer.drawTiledTexture(
             state.renderableTexture!,
@@ -178,7 +178,9 @@ extension CanvasViewController: FingerGestureRecognizerDelegate {
 // MARK: - Brush tool delegate
 extension CanvasViewController: @preconcurrency BrushToolDelegate {
     func brushTool(_ tool: BrushTool, didGenerateSegments segments: [StrokeSegment]) {
-        drawPoints(points: segments[0].points)
+        for segment in segments {
+            draw(segment: segment)
+        }
         mergeLayers()
         view.setNeedsDisplay()
     }
@@ -207,13 +209,17 @@ extension CanvasViewController {
         }
     }
     
-    func drawPoints(points: [DrawablePoint]) {
-        renderer.drawGrayscalePoints(points, on: state.grayscaleTexture!)
+    func draw(segment: StrokeSegment) {
+        guard
+            let grayscaleTexture = state.grayscaleTexture,
+            let strokeTexture = state.strokeTexture
+        else { return }
+        renderer.draw(segment: segment, on: grayscaleTexture)
         renderer
             .colorize(
-                texture: state.grayscaleTexture!,
+                texture: grayscaleTexture,
                 withColor: .init([0, 1, 1, 1]),
-                on: state.strokeTexture!
+                on: strokeTexture
             )
     }
 }

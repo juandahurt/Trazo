@@ -5,12 +5,12 @@ protocol BrushToolDelegate: AnyObject {
 }
 
 class BrushTool {
-    var touches: [Touch] = []
     let strokeGenerator = StrokeGenerator()
     
     weak var delegate: BrushToolDelegate?
     
     func handleFingerTouch(_ touch: Touch, ctm: Transform) {
+        if touch.phase == .began { strokeGenerator.reset() }
         strokeGenerator.add(touch)
         let segments = strokeGenerator.generateSegmentsForLastTouch(ctm: ctm)
         guard !segments.isEmpty else { return }

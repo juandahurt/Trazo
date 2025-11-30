@@ -7,6 +7,10 @@ class StrokeGenerator {
         touches.append(touch)
     }
     
+    func reset() {
+        touches = []
+    }
+    
     func generateSegmentsForLastTouch(ctm: Transform) -> [StrokeSegment] {
         guard let touch = touches.last else { return [] }
         print(touch.phase)
