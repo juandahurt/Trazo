@@ -29,6 +29,12 @@ class CanvasViewController: UIViewController {
     override func loadView() {
         let canvasView = CanvasView()
         canvasView.delegate = self
+        canvasView.clearColor = .init(
+            red: Double(renderer.ctx.clearColor.r),
+            green: Double(renderer.ctx.clearColor.g),
+            blue: Double(renderer.ctx.clearColor.b),
+            alpha: 1
+        )
         view = canvasView
     }
     
@@ -44,7 +50,6 @@ class CanvasViewController: UIViewController {
     }
     
     func setupCanvas() {
-        renderer.reset()
         renderer.ctx.tileSize = state.tileSize
         state.renderableTexture = TextureManager.makeTiledTexture(
             named: "Renderable texture",
@@ -89,6 +94,8 @@ class CanvasViewController: UIViewController {
         
         state.layers = [bgLayer, firstLayer]
         state.currentLayerIndex = 1
+        
+        mergeLayers()
     }
 }
 
@@ -117,20 +124,21 @@ extension CanvasViewController: MTKViewDelegate {
     func draw(in view: MTKView) {
         guard
             let drawable = view.currentDrawable,
-            let currentRenderPassDescriptor = view.currentRenderPassDescriptor
+            var currentRenderPassDescriptor = view.currentRenderPassDescriptor,
+            let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(
+                descriptor: currentRenderPassDescriptor
+            )
         else { return }
-        let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(
-            descriptor: currentRenderPassDescriptor
-        )
-        encoder?.endEncoding()
         renderer.drawTiledTexture(
             state.renderableTexture!,
             on: drawable.texture,
-            clearColor: .init([0.93, 0.93, 0.93, 1])
+            using: encoder
         )
         renderer.present(drawable)
         renderer.commit()
         renderer.reset()
+        
+        print("draw")
     }
 }
 
@@ -190,7 +198,7 @@ extension CanvasViewController: @preconcurrency BrushToolDelegate {
 extension CanvasViewController {
     func mergeLayers(usingStrokeTexture: Bool = true) {
         //            clearRenderableTexture()
-        renderer.fillTexture(state.renderableTexture!, color: .clear)
+        renderer.fillTexture(state.renderableTexture!, color: .clear, onlyDirtTiles: true)
         for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
             //            if !state.layers[index].isVisible { continue }
             if index == state.currentLayerIndex && usingStrokeTexture {

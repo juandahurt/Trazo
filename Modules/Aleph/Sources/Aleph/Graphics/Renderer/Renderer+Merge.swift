@@ -12,7 +12,9 @@ extension Renderer {
         else {
             return
         }
-        
+       
+        commandBuffer
+            .pushDebugGroup("Merging \(sourceTexture.name) with \(secondTexture.name)")
         let encoder = commandBuffer.makeComputeCommandEncoder()
         encoder?.setComputePipelineState(pipelineState)
         for index in ctx.dirtyIndices {
@@ -38,5 +40,6 @@ extension Renderer {
             )
         }
         encoder?.endEncoding()
+        commandBuffer.popDebugGroup()
     }
 }

@@ -8,15 +8,21 @@ struct RendererContext {
     var cpm: Transform = .identity
     var tileSize: Size = .zero
     var canvasSize: Size = .zero
+    let clearColor = Color([0.93, 0.93, 0.93, 1])
 }
 
 // TODO: use a single buffer for drawing points
 class Renderer {
     var commandBuffer: MTLCommandBuffer?
     var ctx = RendererContext()
+   
+    init() {
+        commandBuffer = GPU.commandQueue.makeCommandBuffer()
+    }
     
     func reset() {
         commandBuffer = GPU.commandQueue.makeCommandBuffer()
+        ctx.dirtyIndices = []
     }
     
     func commit() {
@@ -40,11 +46,12 @@ class Renderer {
             if tile.bounds.intersects(with: segment.bounds) {
                 // add dirty tile
                 ctx.dirtyIndices.insert(index)
+                
+                guard let texture = TextureManager.findTexture(id: tile.textureId) else {
+                    return
+                }
+                drawGrayscalePoints(segment.points, tileIndex: index, on: texture)
             }
-            guard let texture = TextureManager.findTexture(id: tile.textureId) else {
-                return
-            }
-            drawGrayscalePoints(segment.points, tileIndex: index, on: texture)
         }
     }
     
@@ -144,43 +151,29 @@ class Renderer {
         encoder?.endEncoding()
     }
     
-    func fillTexture(_ texture: Texture, color: Color) {
-        for tile in texture.tiles {
+    func fillTexture(_ texture: Texture, color: Color, onlyDirtTiles: Bool = false) {
+        commandBuffer?.pushDebugGroup("Fill \(texture.name)")
+        let indices = onlyDirtTiles ? ctx.dirtyIndices : .init((0...63))
+        for index in indices {
+            let tile = texture.tiles[index]
             if let mtlTexture = TextureManager.findTexture(id: tile.textureId) {
                 fillTexture(mtlTexture, color: color)
             }
         }
+        commandBuffer?.popDebugGroup()
     }
     
     func drawTiledTexture(
         _ tiledTexture: Texture,
         on outputTexture: MTLTexture,
-        clearColor: Color
+        using encoder: MTLRenderCommandEncoder
     ) {
-        guard
-            let commandBuffer,
-            let pipelineState = PipelinesManager.renderPipeline(for: .drawTexture)
-        else {
-            return
-        }
-        
-        let passDescriptor = MTLRenderPassDescriptor()
-        passDescriptor.colorAttachments[0].texture = outputTexture
-        passDescriptor.colorAttachments[0].loadAction = .clear
-        passDescriptor.colorAttachments[0].clearColor = .init(
-            red: Double(clearColor.r),
-            green: Double(clearColor.g),
-            blue: Double(clearColor.b),
-            alpha: Double(clearColor.a)
-        )
-        
-        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
-        encoder?.setRenderPipelineState(pipelineState)
-//        encoder?.setTriangleFillMode(.lines)
-        for index in ctx.dirtyIndices {
-            let tile = tiledTexture.tiles[index]
+        guard let pipelineState = PipelinesManager.renderPipeline(for: .drawTexture)
+        else { return }
+        encoder.setRenderPipelineState(pipelineState)
+        for tile in tiledTexture.tiles {
             if let texture = TextureManager.findTexture(id: tile.textureId) {
-                encoder?.setFragmentTexture(texture, index: 3)
+                encoder.setFragmentTexture(texture, index: 3)
                 
                 let vertices: [Float] = [
                     tile.bounds.x, tile.bounds.y, // top left
@@ -197,29 +190,29 @@ class Renderer {
                     length: MemoryLayout<Float>.stride * vertices.count
                 )
                 
-                encoder?.setVertexBuffer(
+                encoder.setVertexBuffer(
                     vertexBuffer,
                     offset: 0,
                     index: 0
                 )
                 
-                encoder?.setVertexBuffer(
+                encoder.setVertexBuffer(
                     Buffer.quad.textureBuffer,
                     offset: 0,
                     index: 1
                 )
                 
-                encoder?.setVertexBytes(
+                encoder.setVertexBytes(
                     &ctx.ctm,
                     length: MemoryLayout<Transform.Matrix>.stride,
                     index: 2
                 )
-                encoder?.setVertexBytes(
+                encoder.setVertexBytes(
                     &ctx.cpm,
                     length: MemoryLayout<Transform.Matrix>.stride,
                     index: 3
                 )
-                encoder?
+                encoder
                     .drawIndexedPrimitives(
                         type: .triangle,
                         indexCount: Buffer.quad.indexCount,
@@ -230,7 +223,7 @@ class Renderer {
             }
         }
         
-        encoder?.endEncoding()
+        encoder.endEncoding()
     }
     
     func calculateThreads(in texture: MTLTexture) -> (

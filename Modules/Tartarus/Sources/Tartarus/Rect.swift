@@ -22,7 +22,7 @@ public extension Rect {
     func intersects(with other: Rect) -> Bool {
         x <= other.x + other.width &&
         x + width >= other.x &&
-        y >= other.y + other.height &&
-        y - height <= other.y
+        y - height <= other.y &&
+        y >= other.y - other.height
     }
 }

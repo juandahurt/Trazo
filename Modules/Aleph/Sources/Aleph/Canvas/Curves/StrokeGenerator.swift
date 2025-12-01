@@ -13,7 +13,6 @@ class StrokeGenerator {
     
     func generateSegmentsForLastTouch(ctm: Transform) -> [StrokeSegment] {
         guard let touch = touches.last else { return [] }
-        print(touch.phase)
         switch touch.phase {
         case .moved:
             guard touches.count >= 3 else { return [] }
@@ -22,6 +21,15 @@ class StrokeGenerator {
             } else {
                 return [findMiddleSegment(ctm: ctm)]
             }
+        case .ended, .cancelled:
+            guard touches.count > 3 else { return [] }
+            var segments: [StrokeSegment] = []
+            // add the second-last curve
+            var segment = findMiddleSegment(ctm: ctm)
+            segments.append(segment)
+            // add the last curve
+            segment = findLastSegment(ctm: ctm)
+            segments.append(segment)
         default: break
         }
         
@@ -49,8 +57,24 @@ class StrokeGenerator {
         return segment(for: curve, ctm: ctm)
     }
     
+    private func findLastSegment(ctm: Transform) -> StrokeSegment {
+        let index = touches.count - 1
+        let curve = BezierCurve(
+            p0: touches[index - 1].location,
+            p1: touches[index].location,
+            p2: touches[index].location,
+            p3: touches[index].location
+        )
+        return segment(for: curve, ctm: ctm)
+    }
+    
     private func segment(for curve: BezierCurve, ctm: Transform) -> StrokeSegment {
-        let n = 10 // number of points
+        let inverse = ctm.inverse
+        let length =
+            curve.c0.dist(to: curve.c1) +
+            curve.c1.dist(to: curve.c2) +
+            curve.c2.dist(to: curve.c3)
+        let n = Int(length) // number of points
         var segment = StrokeSegment()
         for i in 0..<n {
             let t = Float(i) / Float(n)

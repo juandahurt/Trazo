@@ -16,11 +16,11 @@ struct StrokeSegment {
         
         let minX = min(pos.x, bounds.x)
         let maxX = max(pos.x, bounds.x + bounds.width)
-        let minY = min(pos.y, bounds.y)
-        let maxY = max(pos.y, bounds.y + bounds.height)
+        let minY = min(pos.y, bounds.y - bounds.height)
+        let maxY = max(pos.y, bounds.y)
         
         bounds.x = minX
-        bounds.y = minY
+        bounds.y = maxY
         bounds.width = maxX - minX
         bounds.height = maxY - minY
     }
