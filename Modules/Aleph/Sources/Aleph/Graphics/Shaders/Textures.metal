@@ -41,6 +41,7 @@ struct GrayScalePoint {
     float4 position [[position]];
     float pointSize [[point_size]];
     float opacity;
+    float4 debugColor;
 };
 
 struct DrawablePoint {
@@ -80,11 +81,16 @@ kernel void colorize(
                      texture2d<float, access::read> inputTexture [[texture(0)]],
                      texture2d<float, access::write> outputTexture [[texture(1)]],
                      constant float4& color [[buffer(0)]],
+                     constant float4& debugColor [[buffer(1)]],
                      uint2 gid [[thread_position_in_grid]])
 {
     float alpha = inputTexture.read(gid).a * color[3];
-    float4 newColor = float4(alpha * color[0], alpha * color[1], alpha * color[2], alpha);
-    outputTexture.write(newColor, gid);
+    if (alpha > 0) {
+        float4 newColor = float4(alpha * color[0], alpha * color[1], alpha * color[2], alpha);
+        outputTexture.write(newColor, gid);
+    } else {
+        outputTexture.write(debugColor, gid);
+    }
 }
 
 kernel void merge(

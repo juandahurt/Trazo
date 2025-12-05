@@ -12,6 +12,10 @@ struct RendererContext {
 }
 
 // TODO: use a single buffer for drawing points
+// TODO: maybe use a non-tiled texture for the renderable texture (?)
+//       it seems that it always clears the view, so maybe using a texture
+//       and copying only the affected tiles to the desired regions of the texture
+//       will do the trick
 class Renderer {
     var commandBuffer: MTLCommandBuffer?
     var ctx = RendererContext()
