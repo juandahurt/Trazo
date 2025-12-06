@@ -28,6 +28,8 @@ struct CanvasState {
     var renderableTexture: Texture?
     var grayscaleTexture: Texture?
     var strokeTexture: Texture?
+   
+    var intermediateTexture: TextureID?
     
     var layers: [Layer] = []
     var currentLayerIndex = -1

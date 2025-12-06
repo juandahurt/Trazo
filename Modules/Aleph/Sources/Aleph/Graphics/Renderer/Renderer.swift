@@ -11,11 +11,6 @@ struct RendererContext {
     let clearColor = Color([0.93, 0.93, 0.93, 1])
 }
 
-// TODO: use a single buffer for drawing points
-// TODO: maybe use a non-tiled texture for the renderable texture (?)
-//       it seems that it always clears the view, so maybe using a texture
-//       and copying only the affected tiles to the desired regions of the texture
-//       will do the trick
 class Renderer {
     var commandBuffer: MTLCommandBuffer?
     var ctx = RendererContext()
@@ -42,6 +37,44 @@ class Renderer {
     
     func present(_ drawable: CAMetalDrawable) {
         commandBuffer?.present(drawable)
+    }
+   
+    func copy(
+        sourceTiledTexture: Texture,
+        destTextureID: TextureID
+    ) {
+        guard
+            let destTexture = TextureManager.findTexture(id: destTextureID),
+            let commandBuffer
+        else { return }
+        let blitEncoder = commandBuffer.makeBlitCommandEncoder()
+        for dirtyIndex in ctx.dirtyIndices {
+            let tile = sourceTiledTexture.tiles[dirtyIndex]
+            guard let srcTexture = TextureManager.findTexture(id: tile.textureId)
+            else { return }
+            let row = 8 - dirtyIndex / 8
+            blitEncoder?
+                .copy(
+                    from: srcTexture,
+                    sourceSlice: 0,
+                    sourceLevel: 0,
+                    sourceOrigin: .init(x: 0, y: 0, z: 0),
+                    sourceSize: .init(
+                        width: srcTexture.width,
+                        height: srcTexture.height,
+                        depth: 1
+                    ),
+                    to: destTexture,
+                    destinationSlice: 0,
+                    destinationLevel: 0,
+                    destinationOrigin: .init(
+                        x: Int(ctx.canvasSize.width / 2 + tile.bounds.x),
+                        y: Int(ctx.canvasSize.height - Float(row) * tile.bounds.height),
+                        z: 0
+                    )
+                )
+        }
+        blitEncoder?.endEncoding()
     }
     
     func draw(
@@ -119,7 +152,7 @@ class Renderer {
         let col = tileIndex % 8
         var matrix = Transform.identity
         matrix = matrix
-            .concatenating(.init(scaledByX: 1, y: -1))
+//            .concatenating(.init(scaledByX: 1, y: -1))
             .concatenating(
                 .init(
                     translateByX: ctx.canvasSize.width / Float(2),
@@ -191,67 +224,69 @@ class Renderer {
         commandBuffer?.popDebugGroup()
     }
     
-    func drawTiledTexture(
-        _ tiledTexture: Texture,
+    func drawTexture(
+        _ textureID: TextureID,
         on outputTexture: MTLTexture,
         using encoder: MTLRenderCommandEncoder
     ) {
         guard let pipelineState = PipelinesManager.renderPipeline(for: .drawTexture)
         else { return }
         encoder.setRenderPipelineState(pipelineState)
-        for tile in tiledTexture.tiles {
-            if let texture = TextureManager.findTexture(id: tile.textureId) {
-                encoder.setFragmentTexture(texture, index: 3)
-                
-                let vertices: [Float] = [
-                    tile.bounds.x, tile.bounds.y, // top left
-                    tile.bounds.x + Float(texture.width), tile.bounds.y, // top right
-                    tile.bounds.x, tile.bounds.y - Float(texture.height), // bottom left
-                    tile.bounds.x + Float(texture.width), tile.bounds.y - Float(
-                        texture.height
-                    ), // bottom right
-                ]
-                
-                // TODO: Remove buffer creation for vertex
-                let vertexBuffer = GPU.device.makeBuffer(
-                    bytes: vertices,
-                    length: MemoryLayout<Float>.stride * vertices.count
+        if let texture = TextureManager.findTexture(id: textureID) {
+            encoder.setFragmentTexture(texture, index: 3)
+            
+//            let vertices: [Float] = [
+//                tile.bounds.x, tile.bounds.y, // top left
+//                tile.bounds.x + Float(texture.width), tile.bounds.y, // top right
+//                tile.bounds.x, tile.bounds.y - Float(texture.height), // bottom left
+//                tile.bounds.x + Float(texture.width), tile.bounds.y - Float(
+//                    texture.height
+//                ), // bottom right
+//            ]
+            let vertices: [Float] = [
+                Float(-texture.width / 2), Float(-texture.height / 2),// top left
+                Float(texture.width / 2), Float(-texture.height / 2), // top right
+                Float(-texture.width / 2), Float(texture.height / 2), // bottom left
+                Float(texture.width / 2), Float(texture.height / 2) // bottom right
+            ]
+            
+            // TODO: Remove buffer creation for vertex
+            let vertexBuffer = GPU.device.makeBuffer(
+                bytes: vertices,
+                length: MemoryLayout<Float>.stride * vertices.count
+            )
+            
+            encoder.setVertexBuffer(
+                vertexBuffer,
+                offset: 0,
+                index: 0
+            )
+            
+            encoder.setVertexBuffer(
+                Buffer.quad.textureBuffer,
+                offset: 0,
+                index: 1
+            )
+            
+            encoder.setVertexBytes(
+                &ctx.ctm,
+                length: MemoryLayout<Transform.Matrix>.stride,
+                index: 2
+            )
+            encoder.setVertexBytes(
+                &ctx.cpm,
+                length: MemoryLayout<Transform.Matrix>.stride,
+                index: 3
+            )
+            encoder
+                .drawIndexedPrimitives(
+                    type: .triangle,
+                    indexCount: Buffer.quad.indexCount,
+                    indexType: .uint16,
+                    indexBuffer: Buffer.quad.indexBuffer,
+                    indexBufferOffset: 0
                 )
-                
-                encoder.setVertexBuffer(
-                    vertexBuffer,
-                    offset: 0,
-                    index: 0
-                )
-                
-                encoder.setVertexBuffer(
-                    Buffer.quad.textureBuffer,
-                    offset: 0,
-                    index: 1
-                )
-                
-                encoder.setVertexBytes(
-                    &ctx.ctm,
-                    length: MemoryLayout<Transform.Matrix>.stride,
-                    index: 2
-                )
-                encoder.setVertexBytes(
-                    &ctx.cpm,
-                    length: MemoryLayout<Transform.Matrix>.stride,
-                    index: 3
-                )
-                encoder
-                    .drawIndexedPrimitives(
-                        type: .triangle,
-                        indexCount: Buffer.quad.indexCount,
-                        indexType: .uint16,
-                        indexBuffer: Buffer.quad.indexBuffer,
-                        indexBufferOffset: 0
-                    )
-            }
         }
-        
-        encoder.endEncoding()
     }
     
     func calculateThreads(in texture: MTLTexture) -> (

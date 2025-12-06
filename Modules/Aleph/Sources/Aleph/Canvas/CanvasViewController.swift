@@ -95,6 +95,12 @@ class CanvasViewController: UIViewController {
         state.layers = [bgLayer, firstLayer]
         state.currentLayerIndex = 1
         
+        state.intermediateTexture = TextureManager
+            .makeTexture(
+                ofSize: state.canvasSize,
+                label: "Intermediate texture"
+            )
+        
         mergeLayers()
     }
 }
@@ -124,16 +130,21 @@ extension CanvasViewController: MTKViewDelegate {
     func draw(in view: MTKView) {
         guard
             let drawable = view.currentDrawable,
-            var currentRenderPassDescriptor = view.currentRenderPassDescriptor,
-            let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(
-                descriptor: currentRenderPassDescriptor
-            )
+            var currentRenderPassDescriptor = view.currentRenderPassDescriptor
         else { return }
-        renderer.drawTiledTexture(
-            state.renderableTexture!,
-            on: drawable.texture,
-            using: encoder
+        renderer.copy(
+            sourceTiledTexture: state.renderableTexture!,
+            destTextureID: state.intermediateTexture!
         )
+        let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(
+            descriptor: currentRenderPassDescriptor
+        )
+        renderer.drawTexture(
+            state.intermediateTexture!,
+            on: drawable.texture,
+            using: encoder!
+        )
+        encoder?.endEncoding()
         renderer.present(drawable)
         renderer.commit()
         renderer.reset()
@@ -230,7 +241,7 @@ extension CanvasViewController {
         renderer
             .colorize(
                 texture: grayscaleTexture,
-                withColor: .init([0, 0, 0, 1]),
+                withColor: .init([0, 0, 0, 0.3]),
                 on: strokeTexture
             )
     }
