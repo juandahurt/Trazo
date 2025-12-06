@@ -19,9 +19,15 @@ struct RendererContext {
 class Renderer {
     var commandBuffer: MTLCommandBuffer?
     var ctx = RendererContext()
+    
+    var pointsBuffer: MTLBuffer?
    
     init() {
         commandBuffer = GPU.commandQueue.makeCommandBuffer()
+        pointsBuffer = GPU.device.makeBuffer(
+            length: MemoryLayout<DrawablePoint>.stride * 250,
+            options: .storageModeShared
+        )
     }
     
     func reset() {
@@ -49,6 +55,7 @@ class Renderer {
         // to draw the points
         commandBuffer.pushDebugGroup("draw grayscale points")
         defer { commandBuffer.popDebugGroup() }
+        // TODO: improve this search
         for index in 0..<64 {
             let tile = texture.tiles[index]
             if tile.bounds.intersects(with: segment.bounds) {
@@ -89,14 +96,21 @@ class Renderer {
         passDescriptor.colorAttachments[0].loadAction = .load
         passDescriptor.colorAttachments[0].storeAction = .store
         
-        let positionsBuffer = GPU.device.makeBuffer(
-            bytes: points,
-            length: MemoryLayout<DrawablePoint>.stride * points.count
+        // update points buffer
+        var data = pointsBuffer?.contents().bindMemory(
+            to: [DrawablePoint].self,
+            capacity: points.count
+        )
+        var points = points
+        memcpy(
+            pointsBuffer?.contents(),
+            &points,
+            MemoryLayout<DrawablePoint>.stride * points.count
         )
         
         let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
         encoder?.setRenderPipelineState(pipelineState)
-        encoder?.setVertexBuffer(positionsBuffer, offset: 0, index: 0)
+        encoder?.setVertexBuffer(pointsBuffer, offset: 0, index: 0)
         
         var opacity = opacity
         // we need to transform the point coord from canvas coords
