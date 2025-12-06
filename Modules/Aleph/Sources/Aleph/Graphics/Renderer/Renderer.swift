@@ -38,7 +38,11 @@ class Renderer {
         commandBuffer?.present(drawable)
     }
     
-    func draw(segment segment: StrokeSegment, on texture: Texture) {
+    func draw(
+        segment segment: StrokeSegment,
+        shapeTextureID: TextureID,
+        on texture: Texture
+    ) {
         guard let commandBuffer else { return }
         // add blendmode to the brush
         // use the blend mode of the current brush
@@ -54,7 +58,12 @@ class Renderer {
                 guard let texture = TextureManager.findTexture(id: tile.textureId) else {
                     return
                 }
-                drawGrayscalePoints(segment.points, tileIndex: index, on: texture)
+                drawGrayscalePoints(
+                    segment.points,
+                    tileIndex: index,
+                    shapeTextureID: shapeTextureID,
+                    on: texture
+                )
             }
         }
     }
@@ -63,13 +72,15 @@ class Renderer {
         _ points: [DrawablePoint],
         withOpacity opacity: Float = 1,
         tileIndex: Int,
+        shapeTextureID: TextureID,
         on texture: MTLTexture
     ) {
         guard
             let pipelineState = PipelinesManager.renderPipeline(
                 for: .drawGrayscalePoints
             ),
-            let commandBuffer
+            let commandBuffer,
+            let shapeTexture = TextureManager.findTexture(id: shapeTextureID)
         else {
             return
         }
@@ -113,7 +124,6 @@ class Renderer {
                     y: ctx.tileSize.height / 2
                 )
             )
-//            .concatenating(.init(scaledByX: 1, y: -1))
         var transform = matrix.concatenating(ctx.ctm.inverse)
         encoder?.setVertexBytes(
             &transform,
@@ -144,7 +154,7 @@ class Renderer {
             index: 3
         )
         
-        //        encoder?.setFragmentTexture(shapeTexture, index: 0)
+        encoder?.setFragmentTexture(shapeTexture, index: 0)
         //        encoder?.setFragmentTexture(granularityTexture, index: 1)
         
         encoder?.drawPrimitives(

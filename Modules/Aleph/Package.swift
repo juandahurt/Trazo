@@ -22,7 +22,8 @@ let package = Package(
             name: "Aleph",
             dependencies: ["Tartarus"],
             resources: [
-                .process("Graphics/Shaders/Textures.metal")
+                .process("Graphics/Shaders/Textures.metal"),
+                .process("Resources/default-shape.png")
             ]
         ),
 

@@ -64,17 +64,16 @@ vertex GrayScalePoint grayscale_point_vert(DrawablePoint point [[stage_in]],
 
 fragment float4 grayscale_point_frag(
                                       GrayScalePoint pointData [[stage_in]],
-                                      float2 pointCoord [[point_coord]])
-//                                      texture2d<float, access::sample> shapeTexture [[texture(0)]],
+                                      float2 pointCoord [[point_coord]],
+                                      texture2d<float, access::sample> shapeTexture [[texture(0)]])
 //                                      texture2d<float, access::sample> granularityTexture [[texture(1)]])
 {
     // TODO: implement with shape and granularity textures
-//    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
+    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
 //    float granAlpha = granularityTexture.sample(defaultSampler, pointCoord).a;
-//    float shapeAlpha = shapeTexture.sample(defaultSampler, pointCoord).a;
-//    float alpha = granAlpha * shapeAlpha * pointData.opacity;
-    float alpha = 1;
-    return float4(alpha, alpha, alpha, 0.3);
+    float shapeAlpha = shapeTexture.sample(defaultSampler, pointCoord).a;
+    float alpha = /*granAlpha **/ shapeAlpha * pointData.opacity;
+    return float4(alpha, alpha, alpha, alpha);
 }
 
 kernel void colorize(

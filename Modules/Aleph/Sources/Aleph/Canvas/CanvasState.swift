@@ -32,8 +32,18 @@ struct CanvasState {
     var layers: [Layer] = []
     var currentLayerIndex = -1
     
+    var selectedBrush: Brush
+    
     init(canvasSize: Size) {
         self.canvasSize = canvasSize
+        
+        // TODO: move creation to other place
+        selectedBrush = .init(
+            shapeTextureID: TextureManager.loadTexture(
+                fromFile: "default-shape",
+                withExtension: "png"
+            )!
+        )
     }
     
     private mutating func updateTileSize() {

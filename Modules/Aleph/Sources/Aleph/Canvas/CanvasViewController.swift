@@ -222,7 +222,11 @@ extension CanvasViewController {
             let grayscaleTexture = state.grayscaleTexture,
             let strokeTexture = state.strokeTexture
         else { return }
-        renderer.draw(segment: segment, on: grayscaleTexture)
+        renderer.draw(
+            segment: segment,
+            shapeTextureID: state.selectedBrush.shapeTextureID,
+            on: grayscaleTexture
+        )
         renderer
             .colorize(
                 texture: grayscaleTexture,

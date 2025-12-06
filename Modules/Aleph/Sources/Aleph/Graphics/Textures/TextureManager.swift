@@ -1,4 +1,4 @@
-import Metal
+import MetalKit
 import Tartarus
 
 typealias TextureID = UInt
@@ -9,6 +9,23 @@ final class TextureManager {
     
     nonisolated(unsafe)
     static private var currId: TextureID = 0
+   
+    static func loadTexture(fromFile name: String, withExtension ext: String) -> TextureID? {
+        let textureLoader = MTKTextureLoader(device: GPU.device)
+        guard let url = Bundle.module.url(forResource: name, withExtension: ext) else {
+            print("couldn't find a file named \(name).\(ext)")
+            return nil
+        }
+        if let texture = try? textureLoader.newTexture(
+            URL: url,
+            options: [.textureUsage: MTLTextureUsage.shaderRead.rawValue]
+        ) {
+            return storeTexture(texture)
+        } else {
+            print("couldn't load texture \(name).\(ext)")
+            return nil
+        }
+    }
     
     static func findTexture(id: TextureID) -> MTLTexture? {
         guard let texture = textures[id] else {
