@@ -70,11 +70,15 @@ class StrokeGenerator {
     
     private func segment(for curve: BezierCurve, ctm: Transform) -> StrokeSegment {
         let inverse = ctm.inverse
+        let c0 = curve.c0.applying(inverse)
+        let c1 = curve.c1.applying(inverse)
+        let c2 = curve.c2.applying(inverse)
+        let c3 = curve.c3.applying(inverse)
         let length =
-            curve.c0.dist(to: curve.c1) +
-            curve.c1.dist(to: curve.c2) +
-            curve.c2.dist(to: curve.c3)
-        let n = Int(length) // number of points
+            c0.dist(to: c1) +
+            c1.dist(to: c2) +
+            c2.dist(to: c3)
+        let n = max(1, Int(length))  // number of points
         var segment = StrokeSegment()
         for i in 0..<n {
             let t = Float(i) / Float(n)

@@ -42,7 +42,7 @@ extension Renderer {
             length: MemoryLayout<Color>.stride,
             index: 0
         )
-        var debugColor = Color(.init([0.2, 0.3, 0.1, 0.2]))
+        var debugColor = Color(.init([0.2, 0.3, 0.1, 0]))
         encoder?.setBytes(
             &debugColor,
             length: MemoryLayout<Color>.stride,
