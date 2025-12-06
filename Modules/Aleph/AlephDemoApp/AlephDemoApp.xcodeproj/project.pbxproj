@@ -7,42 +7,27 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BC666BC32EB65CAC00A5D3CF /* Tartarus in Frameworks */ = {isa = PBXBuildFile; productRef = BC666BC22EB65CAC00A5D3CF /* Tartarus */; };
-		BCA3919C2EB5467A0025C348 /* Aleph in Frameworks */ = {isa = PBXBuildFile; productRef = BCA3919B2EB5467A0025C348 /* Aleph */; };
+		2F491B1E2EE3A88200A47F98 /* Aleph in Frameworks */ = {isa = PBXBuildFile; productRef = 2F491B1D2EE3A88200A47F98 /* Aleph */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		BCA391822EB546650025C348 /* AlephDemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = AlephDemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		2F491AFA2EE3A79700A47F98 /* DemoApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = DemoApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		BCA391942EB546660025C348 /* Exceptions for "AlephDemoApp" folder in "AlephDemoApp" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				Info.plist,
-			);
-			target = BCA391812EB546650025C348 /* AlephDemoApp */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		BCA391842EB546650025C348 /* AlephDemoApp */ = {
+		2F491AFB2EE3A79700A47F98 /* DemoApp */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				BCA391942EB546660025C348 /* Exceptions for "AlephDemoApp" folder in "AlephDemoApp" target */,
-			);
-			path = AlephDemoApp;
+			path = DemoApp;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
-		BCA3917F2EB546650025C348 /* Frameworks */ = {
+		2F491AF72EE3A79700A47F98 /* Frameworks */ = {
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BCA3919C2EB5467A0025C348 /* Aleph in Frameworks */,
-				BC666BC32EB65CAC00A5D3CF /* Tartarus in Frameworks */,
+				2F491B1E2EE3A88200A47F98 /* Aleph in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -52,7 +37,7 @@
 		BCA391792EB546650025C348 = {
 			isa = PBXGroup;
 			children = (
-				BCA391842EB546650025C348 /* AlephDemoApp */,
+				2F491AFB2EE3A79700A47F98 /* DemoApp */,
 				BCA391832EB546650025C348 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -60,7 +45,7 @@
 		BCA391832EB546650025C348 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				BCA391822EB546650025C348 /* AlephDemoApp.app */,
+				2F491AFA2EE3A79700A47F98 /* DemoApp.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -68,28 +53,27 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		BCA391812EB546650025C348 /* AlephDemoApp */ = {
+		2F491AF92EE3A79700A47F98 /* DemoApp */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = BCA391952EB546660025C348 /* Build configuration list for PBXNativeTarget "AlephDemoApp" */;
+			buildConfigurationList = 2F491B022EE3A79900A47F98 /* Build configuration list for PBXNativeTarget "DemoApp" */;
 			buildPhases = (
-				BCA3917E2EB546650025C348 /* Sources */,
-				BCA3917F2EB546650025C348 /* Frameworks */,
-				BCA391802EB546650025C348 /* Resources */,
+				2F491AF62EE3A79700A47F98 /* Sources */,
+				2F491AF72EE3A79700A47F98 /* Frameworks */,
+				2F491AF82EE3A79700A47F98 /* Resources */,
 			);
 			buildRules = (
 			);
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				BCA391842EB546650025C348 /* AlephDemoApp */,
+				2F491AFB2EE3A79700A47F98 /* DemoApp */,
 			);
-			name = AlephDemoApp;
+			name = DemoApp;
 			packageProductDependencies = (
-				BCA3919B2EB5467A0025C348 /* Aleph */,
-				BC666BC22EB65CAC00A5D3CF /* Tartarus */,
+				2F491B1D2EE3A88200A47F98 /* Aleph */,
 			);
-			productName = AlephDemoApp;
-			productReference = BCA391822EB546650025C348 /* AlephDemoApp.app */;
+			productName = DemoApp;
+			productReference = 2F491AFA2EE3A79700A47F98 /* DemoApp.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -102,7 +86,7 @@
 				LastSwiftUpdateCheck = 2600;
 				LastUpgradeCheck = 2600;
 				TargetAttributes = {
-					BCA391812EB546650025C348 = {
+					2F491AF92EE3A79700A47F98 = {
 						CreatedOnToolsVersion = 26.0;
 					};
 				};
@@ -117,21 +101,21 @@
 			mainGroup = BCA391792EB546650025C348;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				BCA3919A2EB5467A0025C348 /* XCLocalSwiftPackageReference "../../Aleph" */,
 				BC666BC12EB65CAC00A5D3CF /* XCLocalSwiftPackageReference "../../Tartarus" */,
+				2F491B1C2EE3A88200A47F98 /* XCLocalSwiftPackageReference "../../Aleph" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = BCA391832EB546650025C348 /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				BCA391812EB546650025C348 /* AlephDemoApp */,
+				2F491AF92EE3A79700A47F98 /* DemoApp */,
 			);
 		};
 /* End PBXProject section */
 
 /* Begin PBXResourcesBuildPhase section */
-		BCA391802EB546650025C348 /* Resources */ = {
+		2F491AF82EE3A79700A47F98 /* Resources */ = {
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -141,7 +125,7 @@
 /* End PBXResourcesBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
-		BCA3917E2EB546650025C348 /* Sources */ = {
+		2F491AF62EE3A79700A47F98 /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
@@ -151,7 +135,7 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin XCBuildConfiguration section */
-		BCA391962EB546660025C348 /* Debug */ = {
+		2F491B032EE3A79900A47F98 /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -159,35 +143,43 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9TP4HMDZ7W;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AlephDemoApp/Info.plist;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationLandscapeRight;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.juandahurt.AlephDemoApp;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.juandahurt.DemoApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Debug;
 		};
-		BCA391972EB546660025C348 /* Release */ = {
+		2F491B042EE3A79900A47F98 /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
@@ -195,31 +187,39 @@
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 9TP4HMDZ7W;
+				ENABLE_APP_SANDBOX = YES;
+				ENABLE_HARDENED_RUNTIME = YES;
+				ENABLE_PREVIEWS = YES;
+				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = AlephDemoApp/Info.plist;
-				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
-				INFOPLIST_KEY_UIMainStoryboardFile = Main;
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
-				LD_RUNPATH_SEARCH_PATHS = (
-					"$(inherited)",
-					"@executable_path/Frameworks",
-				);
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphoneos*]" = YES;
+				"INFOPLIST_KEY_UILaunchScreen_Generation[sdk=iphonesimulator*]" = YES;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphoneos*]" = UIStatusBarStyleDefault;
+				"INFOPLIST_KEY_UIStatusBarStyle[sdk=iphonesimulator*]" = UIStatusBarStyleDefault;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationLandscapeRight;
+				IPHONEOS_DEPLOYMENT_TARGET = 26.0;
+				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
+				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = com.juandahurt.AlephDemoApp;
+				PRODUCT_BUNDLE_IDENTIFIER = dev.juandahurt.DemoApp;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				REGISTER_APP_GROUPS = YES;
+				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
-				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
-				SUPPORTS_MACCATALYST = NO;
-				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
-				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator macosx xros xrsimulator";
 				SWIFT_APPROACHABLE_CONCURRENCY = YES;
 				SWIFT_DEFAULT_ACTOR_ISOLATION = MainActor;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_UPCOMING_FEATURE_MEMBER_IMPORT_VISIBILITY = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = 2;
+				TARGETED_DEVICE_FAMILY = "1,2,7";
+				XROS_DEPLOYMENT_TARGET = 26.0;
 			};
 			name = Release;
 		};
@@ -345,6 +345,15 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
+		2F491B022EE3A79900A47F98 /* Build configuration list for PBXNativeTarget "DemoApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				2F491B032EE3A79900A47F98 /* Debug */,
+				2F491B042EE3A79900A47F98 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
 		BCA3917D2EB546650025C348 /* Build configuration list for PBXProject "AlephDemoApp" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
@@ -354,34 +363,21 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		BCA391952EB546660025C348 /* Build configuration list for PBXNativeTarget "AlephDemoApp" */ = {
-			isa = XCConfigurationList;
-			buildConfigurations = (
-				BCA391962EB546660025C348 /* Debug */,
-				BCA391972EB546660025C348 /* Release */,
-			);
-			defaultConfigurationIsVisible = 0;
-			defaultConfigurationName = Release;
-		};
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
+		2F491B1C2EE3A88200A47F98 /* XCLocalSwiftPackageReference "../../Aleph" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../../Aleph;
+		};
 		BC666BC12EB65CAC00A5D3CF /* XCLocalSwiftPackageReference "../../Tartarus" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../../Tartarus;
 		};
-		BCA3919A2EB5467A0025C348 /* XCLocalSwiftPackageReference "../../Aleph" */ = {
-			isa = XCLocalSwiftPackageReference;
-			relativePath = ../../Aleph;
-		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		BC666BC22EB65CAC00A5D3CF /* Tartarus */ = {
-			isa = XCSwiftPackageProductDependency;
-			productName = Tartarus;
-		};
-		BCA3919B2EB5467A0025C348 /* Aleph */ = {
+		2F491B1D2EE3A88200A47F98 /* Aleph */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = Aleph;
 		};
