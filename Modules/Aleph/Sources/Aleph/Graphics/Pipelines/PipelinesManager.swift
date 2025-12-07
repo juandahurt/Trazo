@@ -69,6 +69,10 @@ class PipelinesManager {
                 vertexDescriptor
                     .attributes[1].offset = MemoryLayout<SIMD2<Float>>.stride
                 
+                vertexDescriptor.attributes[2].format = .float
+                vertexDescriptor
+                    .attributes[2].offset = MemoryLayout<SIMD2<Float>>.stride + MemoryLayout<Float>.stride
+                
                 vertexDescriptor
                     .layouts[0]
                     .stride = MemoryLayout<DrawablePoint>.stride

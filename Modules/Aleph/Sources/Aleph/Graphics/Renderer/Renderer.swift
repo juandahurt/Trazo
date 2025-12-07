@@ -152,7 +152,6 @@ class Renderer {
         let col = tileIndex % 8
         var matrix = Transform.identity
         matrix = matrix
-//            .concatenating(.init(scaledByX: 1, y: -1))
             .concatenating(
                 .init(
                     translateByX: ctx.canvasSize.width / Float(2),
@@ -235,14 +234,6 @@ class Renderer {
         if let texture = TextureManager.findTexture(id: textureID) {
             encoder.setFragmentTexture(texture, index: 3)
             
-//            let vertices: [Float] = [
-//                tile.bounds.x, tile.bounds.y, // top left
-//                tile.bounds.x + Float(texture.width), tile.bounds.y, // top right
-//                tile.bounds.x, tile.bounds.y - Float(texture.height), // bottom left
-//                tile.bounds.x + Float(texture.width), tile.bounds.y - Float(
-//                    texture.height
-//                ), // bottom right
-//            ]
             let vertices: [Float] = [
                 Float(-texture.width / 2), Float(-texture.height / 2),// top left
                 Float(texture.width / 2), Float(-texture.height / 2), // top right

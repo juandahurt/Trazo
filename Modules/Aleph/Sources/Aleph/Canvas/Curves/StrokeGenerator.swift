@@ -86,7 +86,8 @@ class StrokeGenerator {
             segment.add(
                 point: .init(
                     position: [position.x, position.y],
-                    size: 10
+                    size: .random(in: 3...15),
+                    opacity: .random(in: 0...0.2)
                 ),
                 ctm: ctm
             )

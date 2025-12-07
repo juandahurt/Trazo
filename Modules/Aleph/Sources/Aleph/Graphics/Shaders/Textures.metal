@@ -47,6 +47,7 @@ struct GrayScalePoint {
 struct DrawablePoint {
     float2 position [[attribute(0)]];
     float size [[attribute(1)]];
+    float opacity [[attribute(2)]];
 };
 
 vertex GrayScalePoint grayscale_point_vert(DrawablePoint point [[stage_in]],
@@ -58,7 +59,7 @@ vertex GrayScalePoint grayscale_point_vert(DrawablePoint point [[stage_in]],
     return {
         .position = position,
         .pointSize = point.size,
-        .opacity = opacity
+        .opacity = point.opacity
     };
 }
 
