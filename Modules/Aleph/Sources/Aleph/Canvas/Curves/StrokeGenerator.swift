@@ -78,16 +78,17 @@ class StrokeGenerator {
             c0.dist(to: c1) +
             c1.dist(to: c2) +
             c2.dist(to: c3)
-        let n = max(1, Int(length))  // number of points
+        let n = max(1, Int(length * 0.3))  // number of points
         var segment = StrokeSegment()
         for i in 0..<n {
             let t = Float(i) / Float(n)
             let position = curve.point(at: t)
+            let alpha = Float.random(in: 0...1)
             segment.add(
                 point: .init(
-                    position: [position.x, position.y],
-                    size: .random(in: 3...15),
-                    opacity: .random(in: 0...0.2)
+                    position: [position.x + .random(in: -10...10), position.y + .random(in: -10...10)],
+                    size: 15,
+                    opacity: 0.2
                 ),
                 ctm: ctm
             )

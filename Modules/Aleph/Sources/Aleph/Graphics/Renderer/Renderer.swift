@@ -43,6 +43,8 @@ class Renderer {
         sourceTiledTexture: Texture,
         destTextureID: TextureID
     ) {
+        commandBuffer?.pushDebugGroup("Copy texture \(sourceTiledTexture.name)")
+        defer { commandBuffer?.popDebugGroup() }
         guard
             let destTexture = TextureManager.findTexture(id: destTextureID),
             let commandBuffer
@@ -86,7 +88,7 @@ class Renderer {
         // add blendmode to the brush
         // use the blend mode of the current brush
         // to draw the points
-        commandBuffer.pushDebugGroup("draw grayscale points")
+        commandBuffer.pushDebugGroup("Draw grayscale points")
         defer { commandBuffer.popDebugGroup() }
         // TODO: improve this search
         for index in 0..<64 {
