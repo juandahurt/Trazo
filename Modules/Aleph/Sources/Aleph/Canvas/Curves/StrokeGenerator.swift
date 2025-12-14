@@ -99,7 +99,7 @@ class StrokeGenerator {
         while let t = findTForNextPoint(
             in: curve,
             startingAt: currT,
-            spaceBetweenPoints: 15 * scale,
+            spaceBetweenPoints: 5 * scale,
         ) {
             let pos = curve.point(at: t)
             segment.add(
@@ -141,7 +141,7 @@ class StrokeGenerator {
             // number of iterations
             let length = curve.length(from: t0, to: mid)
             let diff = abs(length - targetLength)
-            if diff <= 0.01 {
+            if diff <= 0.5 {
                 offset = 0
                 return mid
             }

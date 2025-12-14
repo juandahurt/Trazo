@@ -33,7 +33,7 @@ struct BezierCurve {
     ///   - t0: start
     ///   - t1: end
     func length(from t0: Float, to t1: Float) -> Float {
-        let n = 26 // number of iterations
+        let n = 10 // number of iterations
         assert(n.isMultiple(of: 2)) // te value must be even
         let deltaT = (t1 - t0) / Float(n)
         var sum: Float = 0.0
