@@ -99,8 +99,7 @@ class StrokeGenerator {
         while let t = findTForNextPoint(
             in: curve,
             startingAt: currT,
-            spaceBetweenPoints: 15,
-            scale: scale
+            spaceBetweenPoints: 15 * scale,
         ) {
             let pos = curve.point(at: t)
             segment.add(
@@ -119,10 +118,9 @@ class StrokeGenerator {
     private func findTForNextPoint(
         in curve: BezierCurve,
         startingAt t0: Float,
-        spaceBetweenPoints: Float,
-        scale: Float
+        spaceBetweenPoints: Float
     ) -> Float? {
-        let targetLength: Float = (offset == 0 ? spaceBetweenPoints : offset) * scale
+        let targetLength: Float = offset == 0 ? spaceBetweenPoints : offset
         let lengthToTheEndOfSegment = curve.length(from: t0, to: 1)
         
         if lengthToTheEndOfSegment < targetLength {

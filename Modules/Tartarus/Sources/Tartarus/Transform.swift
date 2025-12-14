@@ -9,7 +9,7 @@ public struct Transform {
     }
     
     public var scale: Float {
-       1
+        length(simd_float2([matrix.columns.0.x, matrix.columns.0.y]))
     }
 }
 
