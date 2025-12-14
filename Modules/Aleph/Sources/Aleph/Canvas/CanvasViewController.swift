@@ -241,7 +241,7 @@ extension CanvasViewController {
         renderer
             .colorize(
                 texture: grayscaleTexture,
-                withColor: .init([0, 0, 0, 0.3]),
+                withColor: .black,
                 on: strokeTexture
             )
     }

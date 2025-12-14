@@ -7,6 +7,10 @@ public struct Transform {
     public var inverse: Transform {
         return .init(matrix: matrix.inverse)
     }
+    
+    public var scale: Float {
+       1
+    }
 }
 
 // MARK: - Multiplication

@@ -2,6 +2,11 @@ import Tartarus
 
 class StrokeGenerator {
     private var touches: [Touch] = []
+    private var stroke: [StrokeSegment] = []
+    
+    /// The difference of the target distance and the distance from a `t0` to
+    /// the end of the segment in the last segment
+    private var offset: Float = 0
     
     func add(_ touch: Touch) {
         touches.append(touch)
@@ -9,6 +14,7 @@ class StrokeGenerator {
     
     func reset() {
         touches = []
+        stroke = []
     }
     
     func generateSegmentsForLastTouch(ctm: Transform) -> [StrokeSegment] {
@@ -17,9 +23,13 @@ class StrokeGenerator {
         case .moved:
             guard touches.count >= 3 else { return [] }
             if touches.count == 3 {
-                return [findFirstSegment(ctm: ctm)]
+                let segment = findFirstSegment(ctm: ctm)
+                stroke.append(segment)
+                return [segment]
             } else {
-                return [findMiddleSegment(ctm: ctm)]
+                let segment = findMiddleSegment(ctm: ctm)
+                stroke.append(segment)
+                return [segment]
             }
         case .ended, .cancelled:
             guard touches.count > 3 else { return [] }
@@ -30,6 +40,7 @@ class StrokeGenerator {
             // add the last curve
             segment = findLastSegment(ctm: ctm)
             segments.append(segment)
+            stroke.append(contentsOf: segments)
         default: break
         }
         
@@ -69,30 +80,84 @@ class StrokeGenerator {
     }
     
     private func segment(for curve: BezierCurve, ctm: Transform) -> StrokeSegment {
-        let inverse = ctm.inverse
-        let c0 = curve.c0.applying(inverse)
-        let c1 = curve.c1.applying(inverse)
-        let c2 = curve.c2.applying(inverse)
-        let c3 = curve.c3.applying(inverse)
-        let length =
-            c0.dist(to: c1) +
-            c1.dist(to: c2) +
-            c2.dist(to: c3)
-        let n = max(1, Int(length * 0.3))  // number of points
         var segment = StrokeSegment()
-        for i in 0..<n {
-            let t = Float(i) / Float(n)
-            let position = curve.point(at: t)
-            let alpha = Float.random(in: 0...1)
+        // if the stroke is empty, add the first point of the first curve
+        if stroke.isEmpty {
+            let pos = curve.point(at: 0)
             segment.add(
                 point: .init(
-                    position: [position.x + .random(in: -10...10), position.y + .random(in: -10...10)],
-                    size: 15,
-                    opacity: 0.2
+                    position: [pos.x, pos.y],
+                    size: 10,
+                    opacity: 1
                 ),
                 ctm: ctm
             )
         }
+        // find the correct `t` values along the curve
+        var currT: Float = 0
+        let scale = ctm.scale
+        while let t = findTForNextPoint(
+            in: curve,
+            startingAt: currT,
+            spaceBetweenPoints: 15,
+            scale: scale
+        ) {
+            let pos = curve.point(at: t)
+            segment.add(
+                point: .init(
+                    position: [pos.x, pos.y],
+                    size: 10,
+                    opacity: 1
+                ),
+                ctm: ctm
+            )
+            currT = t
+        }
         return segment
+    }
+    
+    private func findTForNextPoint(
+        in curve: BezierCurve,
+        startingAt t0: Float,
+        spaceBetweenPoints: Float,
+        scale: Float
+    ) -> Float? {
+        let targetLength: Float = (offset == 0 ? spaceBetweenPoints : offset) * scale
+        let lengthToTheEndOfSegment = curve.length(from: t0, to: 1)
+        
+        if lengthToTheEndOfSegment < targetLength {
+            // it exceeds the length to the end of the segment
+            // this difference will be used as target distance in the next segment
+            offset = targetLength - lengthToTheEndOfSegment
+            return nil
+        }
+        
+        let numberOfTimesToBisect = 20
+        var bottom: Float = t0
+        var top: Float = 1
+        var mid: Float = bottom + ((top - bottom) / 2)
+
+        for _ in 0..<numberOfTimesToBisect {
+            // it doesn't necesarly need to loop that number of times,
+            // most of the times will get the correct value way before that
+            // number of iterations
+            let length = curve.length(from: t0, to: mid)
+            let diff = abs(length - targetLength)
+            if diff <= 0.01 {
+                offset = 0
+                return mid
+            }
+            if length > targetLength {
+                // move downwards
+                top = mid
+                mid = bottom + ((top - bottom) / 2)
+            }
+            if length < targetLength {
+                // move upwards
+                bottom = mid
+                mid += ((top - mid) / 2)
+            }
+        }
+        return nil
     }
 }
