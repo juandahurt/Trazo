@@ -18,8 +18,6 @@ class CanvasViewController: UIViewController {
         )
         
         super.init(nibName: nil, bundle: nil)
-        
-        currentTool.delegate = self
     }
     
     required init?(coder: NSCoder) {
@@ -182,7 +180,13 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
         _ controller: GestureController,
         touch: Touch
     ) {
-        currentTool.handleFingerTouch(touch, ctm: renderer.ctx.ctm)
+        let segments = currentTool.handleFingerTouch(touch, ctm: renderer.ctx.ctm)
+        guard !segments.isEmpty else { return }
+        for segment in segments {
+            draw(segment: segment)
+        }
+        mergeLayers()
+        view.setNeedsDisplay()
     }
 }
 
@@ -191,17 +195,6 @@ extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
         let touches = touches.map { Touch(touch: $0, in: view) }
         gestureController.handleFingerTouches(touches)
-    }
-}
-
-// MARK: - Brush tool delegate
-extension CanvasViewController: @preconcurrency BrushToolDelegate {
-    func brushTool(_ tool: BrushTool, didGenerateSegments segments: [StrokeSegment]) {
-        for segment in segments {
-            draw(segment: segment)
-        }
-        mergeLayers()
-        view.setNeedsDisplay()
     }
 }
 
