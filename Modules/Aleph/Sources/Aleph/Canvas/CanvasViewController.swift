@@ -2,12 +2,41 @@ import MetalKit
 import Tartarus
 import UIKit
 
+class SegmentBuffer {
+    private var segments: [StrokeSegment] = []
+    private let queue = DispatchQueue(label: "test")
+    
+    func count() -> Int {
+        queue.sync { segments.count }
+    }
+    
+    func add(_ segments: [StrokeSegment]) {
+        queue.async {
+            self.segments.append(contentsOf: segments)
+        }
+    }
+    
+    func drain() -> [StrokeSegment] {
+        queue.sync {
+            let drained = segments
+            segments = []
+            return drained
+        }
+    }
+}
+
 class CanvasViewController: UIViewController {
     var state: CanvasState!
     let renderer = Renderer()
     let gestureController = GestureController()
     let transformer = Transformer()
     let currentTool = BrushTool()
+    
+    var segmentBuffer = SegmentBuffer()
+    let renderQueue = DispatchQueue(label: "")
+    
+    var drawCalls = 0
+    var segmentCount = 0
     
     init(canvasSize: CGRect) {
         state = CanvasState(
@@ -45,6 +74,47 @@ class CanvasViewController: UIViewController {
         setupCanvas()
         
         gestureController.delegate = self
+        
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
+//            self.gestureControllerDidStartPanWithFinger(
+//                self.gestureController,
+//                touch: .init(
+//                    id: .random(in: 0...1000),
+//                    location: .init(x: 0, y: 0),
+//                    phase: .began
+//                )
+//            )
+//        }
+//        var count = 6
+//        var accTime = 1.0
+//        while count > 0 {
+//            count -= 1
+//            var x : Float = 0
+//            var y: Float = 0
+//            DispatchQueue.main.asyncAfter(deadline: .now() + accTime) {
+//                self.gestureControllerDidPanWithFinger(
+//                    self.gestureController,
+//                    touch: .init(
+//                        id: .random(in: 0...1000),
+//                        location: .init(x: x, y: y),
+//                        phase: .moved
+//                    )
+//                )
+//            }
+//            accTime += .random(in: 0.5...1.5)
+//            y += 100
+//            x += 100
+//        }
+//        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
+//            self.gestureControllerDidPanWithFinger(
+//                self.gestureController,
+//                touch: .init(
+//                    id: .random(in: 0...1000),
+//                    location: .init(x: 100, y: 29),
+//                    phase: .ended
+//                )
+//            )
+//        }
     }
     
     func setupCanvas() {
@@ -79,7 +149,7 @@ class CanvasViewController: UIViewController {
             tileSize: state.tileSize,
             canvasSize: state.canvasSize
         )
-        renderer.fillTexture(bgTexture, color: .white)
+        renderer.fillTexture(bgTexture, color: .black, using: renderer.commandBuffer!)
         let bgLayer = Layer(named: "Background", texture: bgTexture)
         let firstLayerTexture = TextureManager.makeTiledTexture(
             named: "Background texture",
@@ -99,7 +169,14 @@ class CanvasViewController: UIViewController {
                 label: "Intermediate texture"
             )
         
-        mergeLayers()
+        renderer
+            .merge(
+                layers: state.layers,
+                currentLayerIndex: state.currentLayerIndex,
+                renderableTexture: state.renderableTexture!,
+                strokeTexture: state.strokeTexture!,
+                usingStrokeTexture: false
+            )
     }
 }
 
@@ -130,19 +207,45 @@ extension CanvasViewController: MTKViewDelegate {
             let drawable = view.currentDrawable,
             var currentRenderPassDescriptor = view.currentRenderPassDescriptor
         else { return }
+        print(drawCalls, segmentCount)
+        print("debug: dentro de draw")
+        print("debug: empieza a procesar \(segmentBuffer.count()) segmentos pendientes")
+        let segments = segmentBuffer.drain()
+        if !segments.isEmpty {
+            renderer.draw(
+                segments: segments,
+                shapeTextureId: state.selectedBrush.shapeTextureID,
+                grayscaleTexture: state.grayscaleTexture!,
+                strokeTexture: state.strokeTexture!
+            )
+            print("debug: despues de dibujar y colorear")
+            print(renderer.ctx.getDirtyIndices())
+            renderer
+                .merge(
+                    layers: state.layers,
+                    currentLayerIndex: state.currentLayerIndex,
+                    renderableTexture: state.renderableTexture!,
+                    strokeTexture: state.strokeTexture!
+                )
+            print("debug: despues de merge")
+            print("debug: termina procesar segmentos pendientes")
+        }
+        
+        let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(
+            descriptor: currentRenderPassDescriptor
+        )
         renderer.copy(
             sourceTiledTexture: state.renderableTexture!,
             destTextureID: state.intermediateTexture!
         )
-        let encoder = renderer.commandBuffer?.makeRenderCommandEncoder(
-            descriptor: currentRenderPassDescriptor
-        )
+        print("debug: despues de copy")
         renderer.drawTexture(
             state.intermediateTexture!,
             on: drawable.texture,
             using: encoder!
         )
         encoder?.endEncoding()
+        drawCalls += 1
         renderer.present(drawable)
         renderer.commit()
         renderer.reset()
@@ -173,20 +276,32 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
         _ controller: GestureController,
         touch: Touch
     ) {
-        currentTool.handleFingerTouch(touch, ctm: renderer.ctx.ctm)
+        print("debug: primer touch")
+        renderQueue.async { [weak self] in
+            guard let self else { return }
+            currentTool.handleFingerTouch(touch, ctm: renderer.ctx.ctm)
+        }
     }
     
     func gestureControllerDidPanWithFinger(
         _ controller: GestureController,
         touch: Touch
     ) {
-        let segments = currentTool.handleFingerTouch(touch, ctm: renderer.ctx.ctm)
-        guard !segments.isEmpty else { return }
-        for segment in segments {
-            draw(segment: segment)
+        renderQueue.async { [weak self] in
+            guard let self else { return }
+            print("debug: empieza a generar segmentos")
+            let segments = currentTool.handleFingerTouch(touch, ctm: renderer.ctx.ctm)
+            segmentCount += segments.count
+            guard !segments.isEmpty else {
+                print("debug: ningun segmento generado")
+                return
+            }
+            print("debug: \(segments.count) segmentos generados")
+            segmentBuffer.add(segments)
+            
+//            print("debug: llama a schedule frame")
+            scheduleFrame()
         }
-        mergeLayers()
-        view.setNeedsDisplay()
     }
 }
 
@@ -200,42 +315,19 @@ extension CanvasViewController: FingerGestureRecognizerDelegate {
 
 // MARK: - Rendering
 extension CanvasViewController {
-    func mergeLayers(usingStrokeTexture: Bool = true) {
-        //            clearRenderableTexture()
-        renderer.fillTexture(state.renderableTexture!, color: .clear, onlyDirtTiles: true)
-        for index in stride(from: state.layers.count - 1, to: -1, by: -1) {
-            //            if !state.layers[index].isVisible { continue }
-            if index == state.currentLayerIndex && usingStrokeTexture {
-                renderer.merge(
-                    state.renderableTexture!,
-                    with: state.strokeTexture!,
-                    on: state.renderableTexture!
-                )
-            } else {
-                renderer.merge(
-                    state.renderableTexture!,
-                    with: state.layers[index].texture,
-                    on: state.renderableTexture!
-                )
-            }
-        }
+    func processPendingSegments() {
+        
     }
     
-    func draw(segment: StrokeSegment) {
-        guard
-            let grayscaleTexture = state.grayscaleTexture,
-            let strokeTexture = state.strokeTexture
-        else { return }
-        renderer.draw(
-            segment: segment,
-            shapeTextureID: state.selectedBrush.shapeTextureID,
-            on: grayscaleTexture
-        )
-        renderer
-            .colorize(
-                texture: grayscaleTexture,
-                withColor: .black,
-                on: strokeTexture
-            )
+    func scheduleFrame() {
+//        renderQueue.async { [weak self] in
+//            guard let self else { return }
+//            
+            DispatchQueue.main.async { [weak self] in
+                guard let self else { return }
+                print("debug: pide display")
+                view.setNeedsDisplay()
+            }
+//        }
     }
 }

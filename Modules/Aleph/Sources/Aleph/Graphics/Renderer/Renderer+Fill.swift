@@ -1,10 +1,12 @@
 import Metal
 
 extension Renderer {
-    func fillTexture(_ texture: MTLTexture, color: Color) {
-        guard
-            let pipelineState = PipelinesManager.computePipeline(for: .fill),
-            let commandBuffer
+    func fillTexture(
+        _ texture: MTLTexture,
+        color: Color,
+        using commandBuffer: MTLCommandBuffer
+    ) {
+        guard let pipelineState = PipelinesManager.computePipeline(for: .fill)
         else {
             return
         }

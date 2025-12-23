@@ -1,3 +1,4 @@
+import Foundation
 import Tartarus
 
 class StrokeGenerator {
