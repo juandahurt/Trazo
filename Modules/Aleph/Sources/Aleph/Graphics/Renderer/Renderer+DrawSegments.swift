@@ -19,7 +19,7 @@ extension Renderer {
         guard let commandBuffer = GPU.commandQueue.makeCommandBuffer() else { return }
         colorize(
             texture: grayscaleTexture,
-            withColor: .white,
+            withColor: .black,
             on: strokeTexture,
             using: commandBuffer
         )

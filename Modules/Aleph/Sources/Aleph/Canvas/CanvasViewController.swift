@@ -74,47 +74,6 @@ class CanvasViewController: UIViewController {
         setupCanvas()
         
         gestureController.delegate = self
-        
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 0.4) {
-//            self.gestureControllerDidStartPanWithFinger(
-//                self.gestureController,
-//                touch: .init(
-//                    id: .random(in: 0...1000),
-//                    location: .init(x: 0, y: 0),
-//                    phase: .began
-//                )
-//            )
-//        }
-//        var count = 6
-//        var accTime = 1.0
-//        while count > 0 {
-//            count -= 1
-//            var x : Float = 0
-//            var y: Float = 0
-//            DispatchQueue.main.asyncAfter(deadline: .now() + accTime) {
-//                self.gestureControllerDidPanWithFinger(
-//                    self.gestureController,
-//                    touch: .init(
-//                        id: .random(in: 0...1000),
-//                        location: .init(x: x, y: y),
-//                        phase: .moved
-//                    )
-//                )
-//            }
-//            accTime += .random(in: 0.5...1.5)
-//            y += 100
-//            x += 100
-//        }
-//        DispatchQueue.main.asyncAfter(deadline: .now() + 8) {
-//            self.gestureControllerDidPanWithFinger(
-//                self.gestureController,
-//                touch: .init(
-//                    id: .random(in: 0...1000),
-//                    location: .init(x: 100, y: 29),
-//                    phase: .ended
-//                )
-//            )
-//        }
     }
     
     func setupCanvas() {
@@ -149,7 +108,7 @@ class CanvasViewController: UIViewController {
             tileSize: state.tileSize,
             canvasSize: state.canvasSize
         )
-        renderer.fillTexture(bgTexture, color: .black, using: renderer.commandBuffer!)
+        renderer.fillTexture(bgTexture, color: .white, using: renderer.commandBuffer!)
         let bgLayer = Layer(named: "Background", texture: bgTexture)
         let firstLayerTexture = TextureManager.makeTiledTexture(
             named: "Background texture",

@@ -100,7 +100,7 @@ class StrokeGenerator {
         while let t = findTForNextPoint(
             in: curve,
             startingAt: currT,
-            spaceBetweenPoints: 5 * scale,
+            spaceBetweenPoints: 2 * scale,
         ) {
             let pos = curve.point(at: t)
             segment.add(
