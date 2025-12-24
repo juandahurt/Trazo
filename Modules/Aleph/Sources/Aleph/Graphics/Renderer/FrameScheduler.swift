@@ -5,6 +5,7 @@ class FrameScheduler {
     enum Intent {
         case stroke
         case present
+        case fill(TextureID, Color)
     }
     
     var intentQueue: [Intent] = []
@@ -25,6 +26,8 @@ class FrameScheduler {
                 PresentPass()
             case .stroke:
                 StrokePass()
+            case .fill(let textureId, let color):
+                FillPass(color: color, textureId: textureId)
             }
         }
     }

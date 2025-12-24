@@ -50,4 +50,8 @@ class CanvasRenderer {
             drawable: drawable
         )
     }
+    
+    func fill(texture: TextureID, with color: Color) {
+        frameScheduler.enqueue(.fill(texture, color))
+    }
 }

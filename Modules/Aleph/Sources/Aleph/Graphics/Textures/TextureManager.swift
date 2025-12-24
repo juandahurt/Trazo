@@ -6,6 +6,9 @@ typealias TextureID = UInt
 final class TextureManager {
     nonisolated(unsafe)
     static private var textures: [TextureID: MTLTexture] = [:]
+   
+    nonisolated(unsafe)
+    static private var tiledTextures: [TextureID: Texture] = [:]
     
     nonisolated(unsafe)
     static private var currId: TextureID = 0
@@ -35,6 +38,14 @@ final class TextureManager {
         return texture
     }
     
+    static func findTiledTexture(id: TextureID) -> Texture? {
+        guard let tiledTexture = tiledTextures[id] else {
+            print("tiled texture \(id) not found")
+            return nil
+        }
+        return tiledTexture
+    }
+    
     static func makeTexture(ofSize size: Size, label: String? = nil) -> TextureID? {
         let descriptor = MTLTextureDescriptor()
         descriptor.pixelFormat = .rgba8Unorm
@@ -55,7 +66,7 @@ final class TextureManager {
         columns: Int,
         tileSize: Size,
         canvasSize: Size
-    ) -> Texture {
+    ) -> TextureID {
         var tiledTexture = Texture(name: name)
         for row in 0..<rows {
             for col in 0..<columns {
@@ -81,12 +92,20 @@ final class TextureManager {
                 }
             }
         }
-        return tiledTexture
+        return storeTiledTexture(tiledTexture)
     }
     
     private static func storeTexture(_ texture: MTLTexture) -> TextureID {
+        print("storing texture", currId + 1)
         currId += 1
         textures[currId] = texture
+        return currId
+    }
+    
+    private static func storeTiledTexture(_ texture: Texture) -> TextureID {
+        print("storing tiled texture", currId + 1)
+        currId += 1
+        tiledTextures[currId] = texture
         return currId
     }
 }

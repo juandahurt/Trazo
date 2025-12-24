@@ -8,33 +8,33 @@ extension Renderer {
         strokeTexture: Texture,
         usingStrokeTexture: Bool = true
     ) {
-        guard let commandBuffer = GPU.commandQueue.makeCommandBuffer() else { return }
-        fillTexture(
-            renderableTexture,
-            color: .clear,
-            onlyDirtTiles: true,
-            using: commandBuffer
-        )
-        for index in stride(from: layers.count - 1, to: -1, by: -1) {
-            //            if !state.layers[index].isVisible { continue }
-            if index == currentLayerIndex && usingStrokeTexture {
-                merge(
-                    renderableTexture,
-                    with: strokeTexture,
-                    on: renderableTexture,
-                    using: commandBuffer
-                )
-            } else {
-                merge(
-                    renderableTexture,
-                    with: layers[index].texture,
-                    on: renderableTexture,
-                    using: commandBuffer
-                )
-            }
-        }
-        commandBuffer.commit()
-        commandBuffer.waitUntilCompleted()
+//        guard let commandBuffer = GPU.commandQueue.makeCommandBuffer() else { return }
+//        fillTexture(
+//            renderableTexture,
+//            color: .clear,
+//            onlyDirtTiles: true,
+//            using: commandBuffer
+//        )
+//        for index in stride(from: layers.count - 1, to: -1, by: -1) {
+//            //            if !state.layers[index].isVisible { continue }
+//            if index == currentLayerIndex && usingStrokeTexture {
+//                merge(
+//                    renderableTexture,
+//                    with: strokeTexture,
+//                    on: renderableTexture,
+//                    using: commandBuffer
+//                )
+//            } else {
+//                merge(
+//                    renderableTexture,
+//                    with: layers[index].texture,
+//                    on: renderableTexture,
+//                    using: commandBuffer
+//                )
+//            }
+//        }
+//        commandBuffer.commit()
+//        commandBuffer.waitUntilCompleted()
     }
     
     func merge(

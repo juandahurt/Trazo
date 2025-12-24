@@ -3,9 +3,9 @@ import Tartarus
 
 struct Layer {
     var name: String
-    var texture: Texture
+    var texture: TextureID
     
-    init(named name: String, texture: Texture) {
+    init(named name: String, texture: TextureID) {
         self.name = name
         self.texture = texture
     }
@@ -21,18 +21,15 @@ struct CanvasState {
         didSet {
             canvasSize.width *= contentScaleFactor
             canvasSize.height *= contentScaleFactor
-            updateTileSize()
+            update()
         }
     }
     
-    var renderableTexture: Texture?
-    var grayscaleTexture: Texture?
-    var strokeTexture: Texture?
-   
-    var intermediateTexture: TextureID?
-    
     var layers: [Layer] = []
-    var currentLayerIndex = -1
+    var currentLayerIndex = 0
+    var currentLayer: Layer {
+        layers[currentLayerIndex]
+    }
     
     var selectedBrush: Brush
     
@@ -48,10 +45,35 @@ struct CanvasState {
         )
     }
     
-    private mutating func updateTileSize() {
+    private mutating func update() {
         tileSize = .init(
             width: canvasSize.width / Float(tilesPerRow),
             height: canvasSize.height / Float(tilesPerColumn)
         )
+        layers = [
+            .init(
+                named: "Background layer",
+                texture: TextureManager
+                    .makeTiledTexture(
+                        named: "Background texture",
+                        rows: 8,
+                        columns: 8,
+                        tileSize: tileSize,
+                        canvasSize: canvasSize
+                    )
+            ),
+            .init(
+                named: "Layer 1",
+                texture: TextureManager
+                    .makeTiledTexture(
+                        named: "Layer texture 1",
+                        rows: 8,
+                        columns: 8,
+                        tileSize: tileSize,
+                        canvasSize: canvasSize
+                    )
+            )
+        ]
+        currentLayerIndex = 1
     }
 }

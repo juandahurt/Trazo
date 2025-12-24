@@ -3,7 +3,7 @@ import Tartarus
 import UIKit
 
 class CanvasViewController: UIViewController {
-    var state: CanvasState!
+    var state: CanvasState
     let gestureController = GestureController()
     let transformer = Transformer()
     let renderer: CanvasRenderer
@@ -31,12 +31,6 @@ class CanvasViewController: UIViewController {
     override func loadView() {
         let canvasView = CanvasView()
         canvasView.delegate = self
-//        canvasView.clearColor = .init(
-//            red: Double(renderer.ctx.clearColor.r),
-//            green: Double(renderer.ctx.clearColor.g),
-//            blue: Double(renderer.ctx.clearColor.b),
-//            alpha: 1
-//        )
         view = canvasView
     }
     
@@ -44,7 +38,6 @@ class CanvasViewController: UIViewController {
         let fingerRecognizer = FingerGestureRecognizer()
         fingerRecognizer.fingerGestureDelegate = self
         view.addGestureRecognizer(fingerRecognizer)
-        
         state.contentScaleFactor = Float(view.contentScaleFactor)
         setupCanvas()
         
@@ -55,6 +48,7 @@ class CanvasViewController: UIViewController {
     }
     
     func setupCanvas() {
+        renderer.fill(texture: state.layers.first!.texture, with: .white)
 //        renderer.ctx.tileSize = state.tileSize
 //        state.renderableTexture = TextureManager.makeTiledTexture(
 //            named: "Renderable texture",
