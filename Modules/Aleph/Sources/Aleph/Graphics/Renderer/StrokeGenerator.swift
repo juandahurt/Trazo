@@ -1,7 +1,7 @@
 import Foundation
 import Tartarus
 
-class StrokeGenerator {
+class StrokeSystem {
     private var touches: [Touch] = []
     private var stroke: [StrokeSegment] = []
     
@@ -18,8 +18,10 @@ class StrokeGenerator {
         stroke = []
     }
     
-    func generateSegmentsForLastTouch(ctm: Transform) -> [StrokeSegment] {
-        guard let touch = touches.last else { return [] }
+    func process(_ touch: Touch, ctm: Transform) -> [StrokeSegment] {
+        if touch.phase == .began { reset() }
+        add(touch)
+        
         switch touch.phase {
         case .moved:
             guard touches.count >= 3 else { return [] }
@@ -42,6 +44,7 @@ class StrokeGenerator {
             segment = findLastSegment(ctm: ctm)
             segments.append(segment)
             stroke.append(contentsOf: segments)
+            return segments
         default: break
         }
         
