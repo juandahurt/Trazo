@@ -12,7 +12,8 @@ class TileSystem {
         var res = Set<Int>()
         for segment in segments {
             for boxIndex in boundingBoxes.indices {
-                if boundingBoxes[boxIndex].intersects(with: segment.bounds) {
+                if boundingBoxes[boxIndex].intersects(with: segment.bounds) &&
+                    !segment.points.isEmpty {
                     res.insert(boxIndex)
                 }
             }
