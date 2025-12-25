@@ -3,6 +3,7 @@ import Tartarus
 
 struct Layer {
     var name: String
+    var isVisible = true
     var texture: TextureID
     
     init(named name: String, texture: TextureID) {

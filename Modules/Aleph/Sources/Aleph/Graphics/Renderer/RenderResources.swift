@@ -1,9 +1,31 @@
 import Tartarus
 
 class RenderResources {
+    let rows: Int
+    let cols: Int
+    let canvasSize: Size
+    let tileSize: Size
     let intermidiateTexture: TextureID
+    let renderableTexture: TextureID
     
-    init(canvasSize: Size) {
+    init(
+        canvasSize: Size,
+        tileSize: Size,
+        rows: Int,
+        cols: Int
+    ) {
+        self.canvasSize = canvasSize
+        self.tileSize = tileSize
+        self.rows = rows
+        self.cols = cols
         intermidiateTexture = TextureManager.makeTexture(ofSize: canvasSize)!
+        renderableTexture = TextureManager
+            .makeTiledTexture(
+                named: "Renderable texture",
+                rows: rows,
+                columns: cols,
+                tileSize: tileSize,
+                canvasSize: canvasSize
+            )
     }
 }

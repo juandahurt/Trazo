@@ -6,6 +6,7 @@ class FrameScheduler {
         case stroke
         case present
         case fill(TextureID, Color)
+        case merge(layers: [TextureID], onlyDirtyIndices: Bool)
     }
     
     var intentQueue: [Intent] = []
@@ -28,6 +29,11 @@ class FrameScheduler {
                 StrokePass()
             case .fill(let textureId, let color):
                 FillPass(color: color, textureId: textureId)
+            case .merge(let layers, let onlyDirtyIndices):
+                MergePass(
+                    layersTexturesIds: layers,
+                    onlyDirtyIndices: onlyDirtyIndices
+                )
             }
         }
     }

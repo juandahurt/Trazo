@@ -5,16 +5,69 @@ protocol FrameRequester: AnyObject {
     func requestFrame()
 }
 
+struct LayersModel {
+    var layers: [Layer]
+    var currentLayerIndex: Int
+    
+    var visibleLayers: [Layer] {
+        layers.filter { $0.isVisible }
+    }
+}
+
 class CanvasRenderer {
     let strokeWorker = StrokeWorker()
     let frameScheduler = FrameScheduler()
     let commandExcecutor = CommandExcecutor()
     let renderResources: RenderResources
+    let layersModel: LayersModel
     
     weak var frameRequester: FrameRequester?
   
     init(canvasSize: Size) {
-        renderResources = .init(canvasSize: canvasSize)
+        let rows = 8
+        let cols = 8
+        let tileSize = Size(
+            width: canvasSize.width / Float(cols),
+            height: canvasSize.height / Float(rows)
+        )
+        renderResources = .init(
+            canvasSize: canvasSize,
+            tileSize: tileSize,
+            rows: rows,
+            cols: cols
+        )
+        layersModel = .init(
+            layers: [
+                .init(
+                    named: "Background layer",
+                    texture: TextureManager
+                        .makeTiledTexture(
+                            named: "Background texture",
+                            rows: rows,
+                            columns: cols,
+                            tileSize: tileSize,
+                            canvasSize: canvasSize
+                        )
+                ),
+                .init(
+                    named: "Layer 1",
+                    texture: TextureManager
+                        .makeTiledTexture(
+                            named: "Layer 1 texture",
+                            rows: rows,
+                            columns: cols,
+                            tileSize: tileSize,
+                            canvasSize: canvasSize
+                        )
+                )
+            ],
+            currentLayerIndex: 1
+        )
+        
+        // fill background texture with white
+        fill(texture: layersModel.layers.first!.texture, with: .white)
+        // merge
+        merge()
     }
     
     func updateCurrentTransform(_ transform: Transform) {
@@ -51,7 +104,19 @@ class CanvasRenderer {
         )
     }
     
-    func fill(texture: TextureID, with color: Color) {
+    private func fill(texture: TextureID, with color: Color) {
         frameScheduler.enqueue(.fill(texture, color))
+    }
+    
+    private func merge() {
+        let visibleLayersIds = layersModel
+            .visibleLayers
+            .map { $0.texture }
+        frameScheduler.enqueue(
+            .merge(
+                layers: visibleLayersIds,
+                onlyDirtyIndices: false
+            )
+        )
     }
 }

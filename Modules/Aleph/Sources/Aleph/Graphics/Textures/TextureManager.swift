@@ -96,14 +96,12 @@ final class TextureManager {
     }
     
     private static func storeTexture(_ texture: MTLTexture) -> TextureID {
-        print("storing texture", currId + 1)
         currId += 1
         textures[currId] = texture
         return currId
     }
     
     private static func storeTiledTexture(_ texture: Texture) -> TextureID {
-        print("storing tiled texture", currId + 1)
         currId += 1
         tiledTextures[currId] = texture
         return currId
