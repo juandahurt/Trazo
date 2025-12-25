@@ -1,0 +1,58 @@
+import MetalKit
+
+class TileResolvePass: RenderPass {
+    let onlyDirtyTiles: Bool
+    
+    init(onlyDirtyTiles: Bool) {
+        self.onlyDirtyTiles = onlyDirtyTiles
+    }
+    
+    func encode(
+        context: FrameContext,
+        resources: RenderResources,
+        commandBuffer: any MTLCommandBuffer,
+        drawable: any CAMetalDrawable
+    ) {
+        print("encoding tile resolve pass")
+        commandBuffer.pushDebugGroup("Copy texture")
+        defer { commandBuffer.popDebugGroup() }
+        guard let destTexture = TextureManager.findTexture(id: resources.intermidiateTexture)
+        else { return }
+        let blitEncoder = commandBuffer.makeBlitCommandEncoder()
+        let indices = onlyDirtyTiles ? context.dirtyTiles : Set(0..<(resources.rows * resources.cols))
+        for index in indices {
+            guard
+                let srcTiledTexture = TextureManager.findTiledTexture(id: resources.renderableTexture)
+            else { return }
+            let srcTile = srcTiledTexture.tiles[index]
+            guard let srcTexture = TextureManager.findTexture(id: srcTile.textureId)
+            else { return }
+            let row = resources.rows - index / resources.rows
+            blitEncoder?
+                .copy(
+                    from: srcTexture,
+                    sourceSlice: 0,
+                    sourceLevel: 0,
+                    sourceOrigin: .init(x: 0, y: 0, z: 0),
+                    sourceSize: .init(
+                        width: srcTexture.width,
+                        height: srcTexture.height,
+                        depth: 1
+                    ),
+                    to: destTexture,
+                    destinationSlice: 0,
+                    destinationLevel: 0,
+                    destinationOrigin: .init(
+                        x: Int(resources.canvasSize.width / 2 + srcTile.bounds.x),
+                        y: Int(
+                            resources.canvasSize.height - Float(
+                                row
+                            ) * srcTile.bounds.height
+                        ),
+                        z: 0
+                    )
+                )
+        }
+        blitEncoder?.endEncoding()
+    }
+}

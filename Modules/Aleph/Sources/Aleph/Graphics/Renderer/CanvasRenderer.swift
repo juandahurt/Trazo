@@ -68,6 +68,10 @@ class CanvasRenderer {
         fill(texture: layersModel.layers.first!.texture, with: .white)
         // merge
         merge()
+        // copy renderable texture to intermdiate texture
+        frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
+        // present
+        frameScheduler.enqueue(.present)
     }
     
     func updateCurrentTransform(_ transform: Transform) {
@@ -82,6 +86,9 @@ class CanvasRenderer {
         strokeWorker.submit(touch) { [weak self] contribution in
             guard let self else { return }
             frameScheduler.ingest(contribution)
+            frameScheduler.enqueue(.stroke)
+            frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
+            merge()
             frameScheduler.enqueue(.present)
             
             frameRequester?.requestFrame()
@@ -89,7 +96,6 @@ class CanvasRenderer {
     }
     
     func notifyChange() {
-        frameScheduler.enqueue(.present)
         frameRequester?.requestFrame()
     }
     

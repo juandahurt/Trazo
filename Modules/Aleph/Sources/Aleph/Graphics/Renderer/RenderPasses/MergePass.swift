@@ -35,7 +35,8 @@ class MergePass: RenderPass {
                 with: layerTexture,
                 on: outputTexture,
                 using: commandBuffer,
-                context: context
+                context: context,
+                resources: resources
             )
                     //            if !state.layers[index].isVisible { continue }
 //                    if index == currentLayerIndex && usingStrokeTexture {
@@ -55,7 +56,8 @@ class MergePass: RenderPass {
         with secondTexture: Texture,
         on destinationTexture: Texture,
         using commandBuffer: MTLCommandBuffer,
-        context: FrameContext
+        context: FrameContext,
+        resources: RenderResources
     ) {
         guard
             let pipelineState = PipelinesManager.computePipeline(for: .merge)
@@ -67,7 +69,8 @@ class MergePass: RenderPass {
             .pushDebugGroup("Merging \(sourceTexture.name) with \(secondTexture.name)")
         let encoder = commandBuffer.makeComputeCommandEncoder()
         encoder?.setComputePipelineState(pipelineState)
-        for index in context.dirtyTiles {
+        let indices = onlyDirtyIndices ? context.dirtyTiles : Set(0..<(resources.rows * resources.cols))
+        for index in indices {
             let sourceTile = sourceTexture.tiles[index]
             let secondTile = secondTexture.tiles[index]
             let destTile = destinationTexture.tiles[index]

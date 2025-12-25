@@ -7,6 +7,7 @@ class FrameScheduler {
         case present
         case fill(TextureID, Color)
         case merge(layers: [TextureID], onlyDirtyIndices: Bool)
+        case tileResolve(onlyDirtyIndices: Bool)
     }
     
     var intentQueue: [Intent] = []
@@ -34,6 +35,8 @@ class FrameScheduler {
                     layersTexturesIds: layers,
                     onlyDirtyIndices: onlyDirtyIndices
                 )
+            case .tileResolve(let onlyDirtyIndices):
+                TileResolvePass(onlyDirtyTiles: onlyDirtyIndices)
             }
         }
     }

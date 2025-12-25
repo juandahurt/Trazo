@@ -28,6 +28,7 @@ class CanvasViewController: UIViewController {
     }
     
     override func viewDidLoad() {
+        gestureController.delegate = self
         let fingerRecognizer = FingerGestureRecognizer()
         fingerRecognizer.fingerGestureDelegate = self
         view.addGestureRecognizer(fingerRecognizer)
@@ -81,9 +82,10 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
         _ controller: GestureController,
         touchesMap: [Int : [Touch]]
     ) {
+        guard let renderer else { return }
         transformer.transform(currentTouches: touchesMap)
-//        renderer.updateCurrentTransform(transformer.transform)
-//        renderer.notifyChange()
+        renderer.updateCurrentTransform(transformer.transform)
+        renderer.notifyChange()
     }
     
     func gestureControllerDidStartPanWithFinger(

@@ -18,7 +18,10 @@ class RenderResources {
         self.tileSize = tileSize
         self.rows = rows
         self.cols = cols
-        intermidiateTexture = TextureManager.makeTexture(ofSize: canvasSize)!
+        intermidiateTexture = TextureManager.makeTexture(
+            ofSize: canvasSize,
+            label: "Intermidiate texture"
+        )!
         renderableTexture = TextureManager
             .makeTiledTexture(
                 named: "Renderable texture",

@@ -13,7 +13,6 @@ class PresentPass: RenderPass {
         else { return }
         let descriptor = MTLRenderPassDescriptor()
         descriptor.colorAttachments[0].texture = drawable.texture
-        descriptor.colorAttachments[0].storeAction = .dontCare
         descriptor.colorAttachments[0].loadAction = .clear
         guard
             let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
