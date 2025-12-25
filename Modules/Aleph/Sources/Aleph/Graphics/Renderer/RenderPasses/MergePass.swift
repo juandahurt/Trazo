@@ -18,7 +18,7 @@ class MergePass: RenderPass {
         commandBuffer: any MTLCommandBuffer,
         drawable: any CAMetalDrawable
     ) {
-        print("encoding merge")
+        print("encoding merge", context.dirtyTiles)
         // TODO: clear ouput texture
         for index in stride(from: layersTexturesIds.count - 1, to: -1, by: -1) {
             let layerTextureId = layersTexturesIds[index]
@@ -38,16 +38,6 @@ class MergePass: RenderPass {
                 context: context,
                 resources: resources
             )
-                    //            if !state.layers[index].isVisible { continue }
-//                    if index == currentLayerIndex && usingStrokeTexture {
-//                        merge(
-//                            renderableTexture,
-//                            with: strokeTexture,
-//                            on: renderableTexture,
-//                            using: commandBuffer
-//                        )
-//                    } else {
-            //                    }
         }
     }
     
@@ -64,7 +54,7 @@ class MergePass: RenderPass {
         else {
             return
         }
-       
+        print("will merge", context.dirtyTiles)
         commandBuffer
             .pushDebugGroup("Merging \(sourceTexture.name) with \(secondTexture.name)")
         let encoder = commandBuffer.makeComputeCommandEncoder()

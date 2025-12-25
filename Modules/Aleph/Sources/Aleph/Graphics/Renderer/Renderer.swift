@@ -114,7 +114,7 @@ class Renderer {
         for index in indices {
             let tile = texture.tiles[index]
             if let mtlTexture = TextureManager.findTexture(id: tile.textureId) {
-                fillTexture(mtlTexture, color: color, using: commandBuffer)
+//                fillTexture(mtlTexture, color: color, using: commandBuffer)
             }
         }
         commandBuffer.popDebugGroup()

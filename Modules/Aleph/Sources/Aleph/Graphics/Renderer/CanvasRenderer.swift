@@ -67,7 +67,7 @@ class CanvasRenderer {
         // fill background texture with white
         fill(texture: layersModel.layers.first!.texture, with: .white)
         // merge
-        merge()
+        merge(onlyDirtyTiles: true)
         // copy renderable texture to intermdiate texture
         frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
         // present
@@ -83,12 +83,22 @@ class CanvasRenderer {
     }
     
     func handleInput(_ touch: Touch) {
-        strokeWorker.submit(touch) { [weak self] contribution in
+        // TODO: find a better way to pass the bounding boxes
+        let tiledTexture = TextureManager.findTiledTexture(
+            id: layersModel.layers.first!.texture
+        )!
+        strokeWorker.submit(
+            touch,
+            ctm: frameScheduler.ctm,
+            boundingBoxes: tiledTexture.tiles.map {
+                $0.bounds
+            })
+        { [weak self] contribution in
             guard let self else { return }
             frameScheduler.ingest(contribution)
             frameScheduler.enqueue(.stroke)
+            merge(onlyDirtyTiles: true)
             frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
-            merge()
             frameScheduler.enqueue(.present)
             
             frameRequester?.requestFrame()
@@ -114,14 +124,14 @@ class CanvasRenderer {
         frameScheduler.enqueue(.fill(texture, color))
     }
     
-    private func merge() {
+    private func merge(onlyDirtyTiles: Bool) {
         let visibleLayersIds = layersModel
             .visibleLayers
             .map { $0.texture }
         frameScheduler.enqueue(
             .merge(
                 layers: visibleLayersIds,
-                onlyDirtyIndices: false
+                onlyDirtyIndices: onlyDirtyTiles
             )
         )
     }

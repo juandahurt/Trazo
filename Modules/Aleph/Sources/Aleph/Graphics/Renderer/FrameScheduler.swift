@@ -59,7 +59,7 @@ class FrameScheduler {
         lockQueue.async { [weak self] in
             guard let self else { return }
             accSegments.append(contentsOf: contribution.segments)
-            
+            accDirtyTiles.formUnion(contribution.dirtyTiles)
         }
     }
     
