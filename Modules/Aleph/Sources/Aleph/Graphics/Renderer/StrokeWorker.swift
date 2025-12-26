@@ -14,14 +14,12 @@ class StrokeWorker {
     ) {
         backgroundQueue.async { [weak self] in
             guard let self else { return }
-            let segments = strokeSystem.process(touch, ctm: .identity)
-            print("generated:", segments.count)
+            let segments = strokeSystem.process(touch, ctm: ctm)
             guard !segments.isEmpty else { return }
             let dirtyTiles = tileSystem.invalidate(
                 with: segments,
                 boundingBoxes: boundingBoxes
             )
-            print("dirty indices:", dirtyTiles)
             let frameContribution = FrameContribution(
                 segments: segments,
                 dirtyTiles: dirtyTiles

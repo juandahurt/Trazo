@@ -99,6 +99,7 @@ class CanvasRenderer {
     
     func updateCurrentTransform(_ transform: Transform) {
         frameScheduler.updateCurrentTransform(transform)
+        frameScheduler.enqueue(.present)
     }
     
     func updateCurrentProjection(_ transform: Transform) {
@@ -119,12 +120,16 @@ class CanvasRenderer {
         { [weak self] contribution in
             guard let self else { return }
             frameScheduler.ingest(contribution)
+            let visibleLayersIds = canvasState
+                .visibleLayers
+                .map { $0.texture }
             frameScheduler.enqueue(
-                .stroke(shape: canvasState.selectedBrush.shapeTextureID)
+                .stroke(
+                    shape: canvasState.selectedBrush.shapeTextureID,
+                    layers: visibleLayersIds,
+                    currentLayerIndex: canvasState.currentLayerIndex
+                )
             )
-            merge(onlyDirtyTiles: true, isDrawing: true)
-            frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
-            frameScheduler.enqueue(.present)
             
             frameRequester?.requestFrame()
         }

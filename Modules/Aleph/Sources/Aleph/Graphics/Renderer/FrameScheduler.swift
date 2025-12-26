@@ -1,9 +1,14 @@
 import CoreFoundation
+import Foundation
 import Tartarus
 
 class FrameScheduler {
     enum Intent {
-        case stroke(shape: TextureID)
+        case stroke(
+            shape: TextureID,
+            layers: [TextureID],
+            currentLayerIndex: Int
+        )
         case present
         case fill(TextureID, Color)
         case merge(
@@ -23,7 +28,13 @@ class FrameScheduler {
     let lockQueue = DispatchQueue(label: "")
     
     func enqueue(_ intent: Intent) {
-        intentQueue.append(intent)
+        lockQueue.async { [weak self] in
+            guard let self else { return }
+            if intent is StrokePass {
+                guard !intentQueue.contains(where: { $0 is StrokePass }) else { return }
+            }
+            intentQueue.append(intent)
+        }
     }
     
     func buildFrameGraph() -> [RenderPass] {
@@ -32,9 +43,19 @@ class FrameScheduler {
             switch intent {
             case .present:
                 passes.append(PresentPass())
-            case .stroke(let shapeTexture):
+            case .stroke(let shapeTexture, let layers, let currentLayerIndex):
                 passes.append(StrokePass(shapeTextureId: shapeTexture))
                 passes.append(ColorizePass(color: .black))
+                passes.append(
+                    MergePass(
+                        layersTexturesIds: layers,
+                        onlyDirtyIndices: true,
+                        isDrawing: true,
+                        currentLayerIndex: currentLayerIndex
+                    )
+                )
+                passes.append(TileResolvePass(onlyDirtyTiles: true))
+                passes.append(PresentPass())
             case .fill(let textureId, let color):
                 passes.append(FillPass(color: color, textureId: textureId))
             case .merge(let layers, let onlyDirtyIndices, let isDrawing, let currentLayerIndex):
