@@ -41,6 +41,7 @@ class PipelinesManager {
         for type in ComputeType.allCases {
             guard let function = GPU.library.makeFunction(name: type.rawValue) else {
                 assert(false, "function \(type.rawValue) not found.")
+                return
             }
             guard
                 let state = try? GPU.device.makeComputePipelineState(function: function)
@@ -49,6 +50,7 @@ class PipelinesManager {
                     false,
                     "compute pipeline state \(type.rawValue) could not be created."
                 )
+                return
             }
             computePipelines[type] = state
         }

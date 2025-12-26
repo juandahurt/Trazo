@@ -23,7 +23,6 @@ class CanvasViewController: UIViewController {
     
     override func loadView() {
         let canvasView = CanvasView()
-        canvasView.delegate = self
         view = canvasView
     }
     
@@ -36,36 +35,10 @@ class CanvasViewController: UIViewController {
         renderer = .init(
             canvasSize: canvasSize * Float(view.contentScaleFactor)
         )
+        (view as? MTKView)?.delegate = renderer
         guard let renderer else { return }
         renderer.frameRequester = self
         renderer.notifyChange()
-    }
-}
-
-extension CanvasViewController: MTKViewDelegate {
-    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        guard let renderer else { return }
-        let viewSize = Float(size.height)
-        let aspect = Float(size.width) / Float(size.height)
-        let rect = Rect(
-            x: -viewSize * aspect * 0.5,
-            y: Float(viewSize) * 0.5,
-            width: Float(viewSize * aspect),
-            height: Float(viewSize)
-        )
-        renderer.updateCurrentProjection(
-            .init(
-                ortho: rect,
-                near: 0,
-                far: 1
-            )
-        )
-    }
-    
-    func draw(in view: MTKView) {
-        guard let renderer else { return }
-        guard let drawable = view.currentDrawable else { return }
-        renderer.draw(drawable: drawable)
     }
 }
 

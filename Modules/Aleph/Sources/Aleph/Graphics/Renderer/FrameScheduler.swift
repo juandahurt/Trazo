@@ -9,7 +9,6 @@ class FrameScheduler {
             layers: [TextureID],
             currentLayerIndex: Int
         )
-        case present
         case fill(TextureID, Color)
         case merge(
             layers: [TextureID],
@@ -25,6 +24,7 @@ class FrameScheduler {
     var accDirtyTiles: Set<Int> = []
     var ctm: Transform = .identity
     var cpm: Transform = .identity
+    var needsToPresent = false
     let lockQueue = DispatchQueue(label: "")
     
     func enqueue(_ intent: Intent) {
@@ -41,8 +41,6 @@ class FrameScheduler {
         var passes: [RenderPass] = []
         for intent in intentQueue {
             switch intent {
-            case .present:
-                passes.append(PresentPass())
             case .stroke(let shapeTexture, let layers, let currentLayerIndex):
                 passes.append(StrokePass(shapeTextureId: shapeTexture))
                 passes.append(ColorizePass(color: .black))
@@ -55,7 +53,6 @@ class FrameScheduler {
                     )
                 )
                 passes.append(TileResolvePass(onlyDirtyTiles: true))
-                passes.append(PresentPass())
             case .fill(let textureId, let color):
                 passes.append(FillPass(color: color, textureId: textureId))
             case .merge(let layers, let onlyDirtyIndices, let isDrawing, let currentLayerIndex):
@@ -70,6 +67,9 @@ class FrameScheduler {
             case .tileResolve(let onlyDirtyIndices):
                 passes.append(TileResolvePass(onlyDirtyTiles: onlyDirtyIndices))
             }
+        }
+        if needsToPresent {
+            passes.append(PresentPass())
         }
         return passes
     }

@@ -37,7 +37,7 @@ struct CanvasState {
     }
 }
 
-class CanvasRenderer {
+class CanvasRenderer: NSObject {
     let strokeWorker = StrokeWorker()
     let frameScheduler = FrameScheduler()
     let commandExcecutor = CommandExcecutor()
@@ -86,6 +86,7 @@ class CanvasRenderer {
             ],
             currentLayerIndex: 1
         )
+        super.init()
         
         // fill background texture with white
         fill(texture: canvasState.layers.first!.texture, with: .white)
@@ -94,12 +95,12 @@ class CanvasRenderer {
         // copy renderable texture to intermdiate texture
         frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
         // present
-        frameScheduler.enqueue(.present)
+        frameScheduler.needsToPresent = true
     }
     
     func updateCurrentTransform(_ transform: Transform) {
         frameScheduler.updateCurrentTransform(transform)
-        frameScheduler.enqueue(.present)
+        frameScheduler.needsToPresent = true
     }
     
     func updateCurrentProjection(_ transform: Transform) {
@@ -139,17 +140,6 @@ class CanvasRenderer {
         frameRequester?.requestFrame()
     }
     
-    func draw(drawable: CAMetalDrawable) {
-        let passes = frameScheduler.buildFrameGraph()
-        let context = frameScheduler.drain()
-        commandExcecutor.excecute(
-            passes: passes,
-            context: context,
-            renderResources: renderResources,
-            drawable: drawable
-        )
-    }
-    
     private func fill(texture: TextureID, with color: Color) {
         frameScheduler.enqueue(.fill(texture, color))
     }
@@ -165,6 +155,38 @@ class CanvasRenderer {
                 isDrawing: isDrawing,
                 currentLayerIndex: canvasState.currentLayerIndex
             )
+        )
+    }
+}
+
+extension CanvasRenderer: MTKViewDelegate {
+    func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        let viewSize = Float(size.height)
+        let aspect = Float(size.width) / Float(size.height)
+        let rect = Rect(
+            x: -viewSize * aspect * 0.5,
+            y: Float(viewSize) * 0.5,
+            width: Float(viewSize * aspect),
+            height: Float(viewSize)
+        )
+        updateCurrentProjection(
+            .init(
+                ortho: rect,
+                near: 0,
+                far: 1
+            )
+        )
+    }
+    
+    func draw(in view: MTKView) {
+        guard let drawable = view.currentDrawable else { return }
+        let passes = frameScheduler.buildFrameGraph()
+        let context = frameScheduler.drain()
+        commandExcecutor.excecute(
+            passes: passes,
+            context: context,
+            renderResources: renderResources,
+            drawable: drawable
         )
     }
 }
