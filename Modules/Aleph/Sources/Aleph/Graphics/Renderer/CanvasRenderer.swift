@@ -5,12 +5,35 @@ protocol FrameRequester: AnyObject {
     func requestFrame()
 }
 
-struct LayersModel {
+struct Layer {
+    var name: String
+    var isVisible = true
+    var texture: TextureID
+    
+    init(named name: String, texture: TextureID) {
+        self.name = name
+        self.texture = texture
+    }
+}
+
+struct CanvasState {
     var layers: [Layer]
     var currentLayerIndex: Int
+    var selectedBrush: Brush
     
     var visibleLayers: [Layer] {
         layers.filter { $0.isVisible }
+    }
+    
+    init(layers: [Layer], currentLayerIndex: Int) {
+        self.layers = layers
+        self.currentLayerIndex = currentLayerIndex
+        selectedBrush = .init(
+            shapeTextureID: TextureManager.loadTexture(
+                fromFile: "default-shape",
+                withExtension: "png"
+            )!
+        )
     }
 }
 
@@ -19,7 +42,7 @@ class CanvasRenderer {
     let frameScheduler = FrameScheduler()
     let commandExcecutor = CommandExcecutor()
     let renderResources: RenderResources
-    let layersModel: LayersModel
+    let canvasState: CanvasState
     
     weak var frameRequester: FrameRequester?
   
@@ -36,7 +59,7 @@ class CanvasRenderer {
             rows: rows,
             cols: cols
         )
-        layersModel = .init(
+        canvasState = .init(
             layers: [
                 .init(
                     named: "Background layer",
@@ -65,7 +88,7 @@ class CanvasRenderer {
         )
         
         // fill background texture with white
-        fill(texture: layersModel.layers.first!.texture, with: .white)
+        fill(texture: canvasState.layers.first!.texture, with: .white)
         // merge
         merge(onlyDirtyTiles: true)
         // copy renderable texture to intermdiate texture
@@ -85,7 +108,7 @@ class CanvasRenderer {
     func handleInput(_ touch: Touch) {
         // TODO: find a better way to pass the bounding boxes
         let tiledTexture = TextureManager.findTiledTexture(
-            id: layersModel.layers.first!.texture
+            id: canvasState.layers.first!.texture
         )!
         strokeWorker.submit(
             touch,
@@ -96,7 +119,9 @@ class CanvasRenderer {
         { [weak self] contribution in
             guard let self else { return }
             frameScheduler.ingest(contribution)
-            frameScheduler.enqueue(.stroke)
+            frameScheduler.enqueue(
+                .stroke(shape: canvasState.selectedBrush.shapeTextureID)
+            )
             merge(onlyDirtyTiles: true)
             frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
             frameScheduler.enqueue(.present)
@@ -125,7 +150,7 @@ class CanvasRenderer {
     }
     
     private func merge(onlyDirtyTiles: Bool) {
-        let visibleLayersIds = layersModel
+        let visibleLayersIds = canvasState
             .visibleLayers
             .map { $0.texture }
         frameScheduler.enqueue(

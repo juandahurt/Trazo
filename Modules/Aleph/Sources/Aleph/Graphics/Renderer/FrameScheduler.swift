@@ -3,7 +3,7 @@ import Tartarus
 
 class FrameScheduler {
     enum Intent {
-        case stroke
+        case stroke(shape: TextureID)
         case present
         case fill(TextureID, Color)
         case merge(layers: [TextureID], onlyDirtyIndices: Bool)
@@ -26,8 +26,8 @@ class FrameScheduler {
             switch $0 {
             case .present:
                 PresentPass()
-            case .stroke:
-                StrokePass()
+            case .stroke(let shapeTexture):
+                StrokePass(shapeTextureId: shapeTexture)
             case .fill(let textureId, let color):
                 FillPass(color: color, textureId: textureId)
             case .merge(let layers, let onlyDirtyIndices):

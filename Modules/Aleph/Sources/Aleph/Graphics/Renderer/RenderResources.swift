@@ -7,6 +7,7 @@ class RenderResources {
     let tileSize: Size
     let intermidiateTexture: TextureID
     let renderableTexture: TextureID
+    let grayscaleTexture: TextureID
     
     init(
         canvasSize: Size,
@@ -25,6 +26,14 @@ class RenderResources {
         renderableTexture = TextureManager
             .makeTiledTexture(
                 named: "Renderable texture",
+                rows: rows,
+                columns: cols,
+                tileSize: tileSize,
+                canvasSize: canvasSize
+            )
+        grayscaleTexture = TextureManager
+            .makeTiledTexture(
+                named: "Grayscale texture",
                 rows: rows,
                 columns: cols,
                 tileSize: tileSize,
