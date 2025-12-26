@@ -90,7 +90,7 @@ class CanvasRenderer {
         // fill background texture with white
         fill(texture: canvasState.layers.first!.texture, with: .white)
         // merge
-        merge(onlyDirtyTiles: true)
+        merge(onlyDirtyTiles: true, isDrawing: false)
         // copy renderable texture to intermdiate texture
         frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
         // present
@@ -122,7 +122,7 @@ class CanvasRenderer {
             frameScheduler.enqueue(
                 .stroke(shape: canvasState.selectedBrush.shapeTextureID)
             )
-            merge(onlyDirtyTiles: true)
+            merge(onlyDirtyTiles: true, isDrawing: true)
             frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
             frameScheduler.enqueue(.present)
             
@@ -149,14 +149,16 @@ class CanvasRenderer {
         frameScheduler.enqueue(.fill(texture, color))
     }
     
-    private func merge(onlyDirtyTiles: Bool) {
+    private func merge(onlyDirtyTiles: Bool, isDrawing: Bool) {
         let visibleLayersIds = canvasState
             .visibleLayers
             .map { $0.texture }
         frameScheduler.enqueue(
             .merge(
                 layers: visibleLayersIds,
-                onlyDirtyIndices: onlyDirtyTiles
+                onlyDirtyIndices: onlyDirtyTiles,
+                isDrawing: isDrawing,
+                currentLayerIndex: canvasState.currentLayerIndex
             )
         )
     }

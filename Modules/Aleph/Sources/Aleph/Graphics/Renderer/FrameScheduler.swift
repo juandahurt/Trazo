@@ -6,7 +6,12 @@ class FrameScheduler {
         case stroke(shape: TextureID)
         case present
         case fill(TextureID, Color)
-        case merge(layers: [TextureID], onlyDirtyIndices: Bool)
+        case merge(
+            layers: [TextureID],
+            onlyDirtyIndices: Bool,
+            isDrawing: Bool,
+            currentLayerIndex: Int
+        )
         case tileResolve(onlyDirtyIndices: Bool)
     }
     
@@ -22,23 +27,30 @@ class FrameScheduler {
     }
     
     func buildFrameGraph() -> [RenderPass] {
-        intentQueue.map {
-            switch $0 {
+        var passes: [RenderPass] = []
+        for intent in intentQueue {
+            switch intent {
             case .present:
-                PresentPass()
+                passes.append(PresentPass())
             case .stroke(let shapeTexture):
-                StrokePass(shapeTextureId: shapeTexture)
+                passes.append(StrokePass(shapeTextureId: shapeTexture))
+                passes.append(ColorizePass(color: .black))
             case .fill(let textureId, let color):
-                FillPass(color: color, textureId: textureId)
-            case .merge(let layers, let onlyDirtyIndices):
-                MergePass(
-                    layersTexturesIds: layers,
-                    onlyDirtyIndices: onlyDirtyIndices
+                passes.append(FillPass(color: color, textureId: textureId))
+            case .merge(let layers, let onlyDirtyIndices, let isDrawing, let currentLayerIndex):
+                passes.append(
+                    MergePass(
+                        layersTexturesIds: layers,
+                        onlyDirtyIndices: onlyDirtyIndices,
+                        isDrawing: isDrawing,
+                        currentLayerIndex: currentLayerIndex
+                    )
                 )
             case .tileResolve(let onlyDirtyIndices):
-                TileResolvePass(onlyDirtyTiles: onlyDirtyIndices)
+                passes.append(TileResolvePass(onlyDirtyTiles: onlyDirtyIndices))
             }
         }
+        return passes
     }
    
     func updateCurrentTransform(_ transform: Transform) {

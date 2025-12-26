@@ -3,13 +3,19 @@ import MetalKit
 class MergePass: RenderPass {
     let layersTexturesIds: [TextureID]
     let onlyDirtyIndices: Bool
+    let isDrawing: Bool
+    let currentLayerIndex: Int
     
     init(
         layersTexturesIds: [TextureID],
-        onlyDirtyIndices: Bool
+        onlyDirtyIndices: Bool,
+        isDrawing: Bool,
+        currentLayerIndex: Int
     ) {
         self.layersTexturesIds = layersTexturesIds
         self.onlyDirtyIndices = onlyDirtyIndices
+        self.isDrawing = isDrawing
+        self.currentLayerIndex = currentLayerIndex
     }
     
     func encode(
@@ -24,20 +30,34 @@ class MergePass: RenderPass {
             let layerTextureId = layersTexturesIds[index]
             guard
                 let layerTexture = TextureManager.findTiledTexture(id: layerTextureId),
+                let strokeTexture = TextureManager.findTiledTexture(
+                    id: resources.strokeTexture
+                ),
                 let outputTexture = TextureManager.findTiledTexture(
                     id: resources.renderableTexture
                 )
             else {
                 return
             }
-            merge(
-                outputTexture,
-                with: layerTexture,
-                on: outputTexture,
-                using: commandBuffer,
-                context: context,
-                resources: resources
-            )
+            if index == currentLayerIndex && isDrawing {
+                merge(
+                    strokeTexture,
+                    with: layerTexture,
+                    on: outputTexture,
+                    using: commandBuffer,
+                    context: context,
+                    resources: resources
+                )
+            } else {
+                merge(
+                    outputTexture,
+                    with: layerTexture,
+                    on: outputTexture,
+                    using: commandBuffer,
+                    context: context,
+                    resources: resources
+                )
+            }
         }
     }
     
