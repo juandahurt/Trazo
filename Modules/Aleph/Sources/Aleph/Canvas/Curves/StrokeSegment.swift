@@ -9,15 +9,17 @@ struct StrokeSegment {
         let pos = Point(x: point.position.x, y: point.position.y).applying(ctm.inverse)
         defer { points.append(point) }
         guard !points.isEmpty else {
-            bounds.x = pos.x
-            bounds.y = pos.y
+            bounds.x = pos.x - point.size / 2
+            bounds.y = pos.y + point.size / 2
+            bounds.width = point.size / 2
+            bounds.height = point.size / 2
             return
         }
         
-        let minX = min(pos.x, bounds.x)
-        let maxX = max(pos.x, bounds.x + bounds.width)
-        let minY = min(pos.y, bounds.y - bounds.height)
-        let maxY = max(pos.y, bounds.y)
+        let minX = min(pos.x - point.size / 2, bounds.x)
+        let maxX = max(pos.x + point.size / 2, bounds.x + bounds.width)
+        let minY = min(pos.y - point.size / 2, bounds.y - bounds.height)
+        let maxY = max(pos.y + point.size / 2, bounds.y)
         
         bounds.x = minX
         bounds.y = maxY
