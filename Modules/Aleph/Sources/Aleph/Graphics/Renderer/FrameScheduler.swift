@@ -38,40 +38,42 @@ class FrameScheduler {
     }
     
     func buildFrameGraph() -> [RenderPass] {
-        var passes: [RenderPass] = []
-        for intent in intentQueue {
-            switch intent {
-            case .stroke(let shapeTexture, let layers, let currentLayerIndex):
-                passes.append(StrokePass(shapeTextureId: shapeTexture))
-                passes.append(ColorizePass(color: .black))
-                passes.append(
-                    MergePass(
-                        layersTexturesIds: layers,
-                        onlyDirtyIndices: true,
-                        isDrawing: true,
-                        currentLayerIndex: currentLayerIndex
+        lockQueue.sync {
+            var passes: [RenderPass] = []
+            for intent in intentQueue {
+                switch intent {
+                case .stroke(let shapeTexture, let layers, let currentLayerIndex):
+                    passes.append(StrokePass(shapeTextureId: shapeTexture))
+                    passes.append(ColorizePass(color: .black))
+                    passes.append(
+                        MergePass(
+                            layersTexturesIds: layers,
+                            onlyDirtyIndices: true,
+                            isDrawing: true,
+                            currentLayerIndex: currentLayerIndex
+                        )
                     )
-                )
-                passes.append(TileResolvePass(onlyDirtyTiles: true))
-            case .fill(let textureId, let color):
-                passes.append(FillPass(color: color, textureId: textureId))
-            case .merge(let layers, let onlyDirtyIndices, let isDrawing, let currentLayerIndex):
-                passes.append(
-                    MergePass(
-                        layersTexturesIds: layers,
-                        onlyDirtyIndices: onlyDirtyIndices,
-                        isDrawing: isDrawing,
-                        currentLayerIndex: currentLayerIndex
+                    passes.append(TileResolvePass(onlyDirtyTiles: true))
+                case .fill(let textureId, let color):
+                    passes.append(FillPass(color: color, textureId: textureId))
+                case .merge(let layers, let onlyDirtyIndices, let isDrawing, let currentLayerIndex):
+                    passes.append(
+                        MergePass(
+                            layersTexturesIds: layers,
+                            onlyDirtyIndices: onlyDirtyIndices,
+                            isDrawing: isDrawing,
+                            currentLayerIndex: currentLayerIndex
+                        )
                     )
-                )
-            case .tileResolve(let onlyDirtyIndices):
-                passes.append(TileResolvePass(onlyDirtyTiles: onlyDirtyIndices))
+                case .tileResolve(let onlyDirtyIndices):
+                    passes.append(TileResolvePass(onlyDirtyTiles: onlyDirtyIndices))
+                }
             }
+            if needsToPresent {
+                passes.append(PresentPass())
+            }
+            return passes
         }
-        if needsToPresent {
-            passes.append(PresentPass())
-        }
-        return passes
     }
    
     func updateCurrentTransform(_ transform: Transform) {
