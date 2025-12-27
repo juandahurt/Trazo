@@ -38,11 +38,11 @@ class StrokeSystem {
             guard touches.count > 3 else { return [] }
             var segments: [StrokeSegment] = []
             // add the second-last curve
-            var segment = findMiddleSegment(ctm: ctm)
-            segments.append(segment)
+            var secondLast = findMiddleSegment(ctm: ctm)
+            segments.append(secondLast)
             // add the last curve
-            segment = findLastSegment(ctm: ctm)
-            segments.append(segment)
+            var last = findLastSegment(ctm: ctm)
+            segments.append(last)
             stroke.append(contentsOf: segments)
             return segments
         default: break
@@ -76,7 +76,7 @@ class StrokeSystem {
         let index = touches.count - 1
         let curve = BezierCurve(
             p0: touches[index - 1].location,
-            p1: touches[index].location,
+            p1: touches[index - 1].location,
             p2: touches[index].location,
             p3: touches[index].location
         )
