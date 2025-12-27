@@ -31,6 +31,9 @@ class CanvasViewController: UIViewController {
         let fingerRecognizer = FingerGestureRecognizer()
         fingerRecognizer.fingerGestureDelegate = self
         view.addGestureRecognizer(fingerRecognizer)
+        let pencilRecognizer = PencilGestureRecognizer()
+        pencilRecognizer.pencilGestureDelegate = self
+        view.addGestureRecognizer(pencilRecognizer)
         
         renderer = .init(
             canvasSize: canvasSize * Float(view.contentScaleFactor)
@@ -81,6 +84,16 @@ extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
         let touches = touches.map { Touch(touch: $0, in: view) }
         gestureController.handleFingerTouches(touches)
+    }
+}
+
+extension CanvasViewController: PencilGestureRecognizerDelegate {
+    func didReceivePencilTouches(_ touches: Set<UITouch>) {
+        // TODO: finish implementation
+        let touches = touches.map { Touch(touch: $0, in: view) }
+        for touch in touches {
+            renderer?.handleInput(touch)
+        }
     }
 }
 
