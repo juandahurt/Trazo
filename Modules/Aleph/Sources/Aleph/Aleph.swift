@@ -7,12 +7,13 @@ public class Aleph {
        // TODO: load textures
     }
     
-    public static func makeCanvas(in viewController: UIViewController) {
+    public static func makeCanvas(in viewController: UIViewController) -> CanvasViewController {
         let canvasViewController = CanvasViewController(
             canvasSize: viewController.view.frame
         )
         viewController.addChild(canvasViewController)
         viewController.view.addSubview(canvasViewController.view)
         canvasViewController.view.constrainEdges(to: viewController.view)
+        return canvasViewController
     }
 }

@@ -2,7 +2,7 @@ import MetalKit
 import Tartarus
 import UIKit
 
-class CanvasViewController: UIViewController {
+public class CanvasViewController: UIViewController {
     let gestureController = GestureController()
     let transformer = Transformer()
     var renderer: CanvasRenderer?
@@ -21,12 +21,12 @@ class CanvasViewController: UIViewController {
         fatalError()
     }
     
-    override func loadView() {
+    public override func loadView() {
         let canvasView = CanvasView()
         view = canvasView
     }
     
-    override func viewDidLoad() {
+    public override func viewDidLoad() {
         gestureController.delegate = self
         let fingerRecognizer = FingerGestureRecognizer()
         fingerRecognizer.fingerGestureDelegate = self
@@ -103,5 +103,13 @@ extension CanvasViewController: @MainActor FrameRequester {
             guard let self else { return }
             view.setNeedsDisplay()
         }
+    }
+}
+
+
+// MARK: - API
+public extension CanvasViewController {
+    func setSpacing(_ value: Float) {
+        renderer?.canvasState.selectedBrush.spacing = value
     }
 }

@@ -18,19 +18,20 @@ class StrokeSystem {
         stroke = []
     }
     
-    func process(_ touch: Touch, ctm: Transform) -> [StrokeSegment] {
+    func process(_ touch: Touch, brush: Brush, ctm: Transform) -> [StrokeSegment] {
         if touch.phase == .began { reset() }
         add(touch)
+        print(touches.count)
         
         switch touch.phase {
         case .moved:
             guard touches.count >= 3 else { return [] }
             if touches.count == 3 {
-                let segment = findFirstSegment(ctm: ctm)
+                let segment = findFirstSegment(brush: brush, ctm: ctm)
                 stroke.append(segment)
                 return [segment]
             } else {
-                let segment = findMiddleSegment(ctm: ctm)
+                let segment = findMiddleSegment(brush: brush, ctm: ctm)
                 stroke.append(segment)
                 return [segment]
             }
@@ -38,10 +39,10 @@ class StrokeSystem {
             guard touches.count > 3 else { return [] }
             var segments: [StrokeSegment] = []
             // add the second-last curve
-            var secondLast = findMiddleSegment(ctm: ctm)
+            var secondLast = findMiddleSegment(brush: brush, ctm: ctm)
             segments.append(secondLast)
             // add the last curve
-            var last = findLastSegment(ctm: ctm)
+            var last = findLastSegment(brush: brush, ctm: ctm)
             segments.append(last)
             stroke.append(contentsOf: segments)
             return segments
@@ -51,7 +52,7 @@ class StrokeSystem {
         return []
     }
     
-    private func findMiddleSegment(ctm: Transform) -> StrokeSegment {
+    private func findMiddleSegment(brush: Brush, ctm: Transform) -> StrokeSegment {
         let index = touches.count - 3
         let curve = BezierCurve(
             p0: touches[index - 1].location,
@@ -59,20 +60,20 @@ class StrokeSystem {
             p2: touches[index + 1].location,
             p3: touches[index + 2].location
         )
-        return segment(for: curve, ctm: ctm)
+        return segment(for: curve, brush: brush, ctm: ctm)
     }
     
-    private func findFirstSegment(ctm: Transform) -> StrokeSegment {
+    private func findFirstSegment(brush: Brush, ctm: Transform) -> StrokeSegment {
         let curve = BezierCurve(
             p0: touches[0].location,
             p1: touches[0].location,
             p2: touches[1].location,
             p3: touches[2].location
         )
-        return segment(for: curve, ctm: ctm)
+        return segment(for: curve, brush: brush, ctm: ctm)
     }
     
-    private func findLastSegment(ctm: Transform) -> StrokeSegment {
+    private func findLastSegment(brush: Brush, ctm: Transform) -> StrokeSegment {
         let index = touches.count - 1
         let curve = BezierCurve(
             p0: touches[index - 1].location,
@@ -80,10 +81,10 @@ class StrokeSystem {
             p2: touches[index].location,
             p3: touches[index].location
         )
-        return segment(for: curve, ctm: ctm)
+        return segment(for: curve, brush: brush, ctm: ctm)
     }
     
-    private func segment(for curve: BezierCurve, ctm: Transform) -> StrokeSegment {
+    private func segment(for curve: BezierCurve, brush: Brush, ctm: Transform) -> StrokeSegment {
         var segment = StrokeSegment()
         // if the stroke is empty, add the first point of the first curve
         if stroke.isEmpty {
@@ -91,7 +92,7 @@ class StrokeSystem {
             segment.add(
                 point: .init(
                     position: [pos.x, pos.y],
-                    size: 10,
+                    size: 20,
                     opacity: 1
                 ),
                 ctm: ctm
@@ -103,13 +104,13 @@ class StrokeSystem {
         while let t = findTForNextPoint(
             in: curve,
             startingAt: currT,
-            spaceBetweenPoints: 2 * scale,
+            spaceBetweenPoints: brush.spacing * scale,
         ) {
             let pos = curve.point(at: t)
             segment.add(
                 point: .init(
                     position: [pos.x, pos.y],
-                    size: 10,
+                    size: 20,
                     opacity: 1
                 ),
                 ctm: ctm

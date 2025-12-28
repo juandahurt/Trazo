@@ -32,7 +32,8 @@ struct CanvasState {
             shapeTextureID: TextureManager.loadTexture(
                 fromFile: "default-shape",
                 withExtension: "png"
-            )!
+            )!,
+            spacing: 2
         )
     }
 }

@@ -10,11 +10,12 @@ class StrokeWorker {
         _ touch: Touch,
         ctm: Transform,
         boundingBoxes: [Rect],
+        brush: Brush,
         completion: @escaping (FrameContribution) -> Void
     ) {
         backgroundQueue.async { [weak self] in
             guard let self else { return }
-            let segments = strokeSystem.process(touch, ctm: ctm)
+            let segments = strokeSystem.process(touch, brush: brush, ctm: ctm)
             guard !segments.isEmpty else { return }
             let dirtyTiles = tileSystem.invalidate(
                 with: segments,
