@@ -69,7 +69,7 @@ class FrameScheduler {
                     passes.append(TileResolvePass(onlyDirtyTiles: onlyDirtyIndices))
                 }
             }
-            if needsToPresent && !passes.isEmpty {
+            if needsToPresent {
                 passes.append(PresentPass())
             }
             return passes
