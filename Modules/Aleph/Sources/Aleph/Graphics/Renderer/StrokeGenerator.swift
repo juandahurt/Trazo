@@ -16,6 +16,7 @@ class StrokeSystem {
     func reset() {
         touches = []
         stroke = []
+        offset = 0
     }
     
     func process(_ touch: Touch, brush: Brush, ctm: Transform) -> [StrokeSegment] {
