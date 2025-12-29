@@ -33,7 +33,8 @@ struct CanvasState {
                 fromFile: "default-shape",
                 withExtension: "png"
             )!,
-            spacing: 2
+            spacing: 2,
+            pointSize: 10
         )
     }
 }
@@ -163,6 +164,7 @@ class CanvasRenderer: NSObject {
 
 extension CanvasRenderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
+        self.view = view
         let viewSize = Float(size.height)
         let aspect = Float(size.width) / Float(size.height)
         let rect = Rect(
@@ -190,5 +192,15 @@ extension CanvasRenderer: MTKViewDelegate {
             renderResources: renderResources,
             drawable: drawable
         )
+        
+        // show bounding boxes of the segments
+        var transform: CGAffineTransform = context.ctm.inverse.affineTransform()
+        for segment in context.segments.filter { !$0.points.isEmpty } {
+            let shape = CAShapeLayer()
+            shape.path = .init(
+                rect: .init(
+                    x: Int(segment.bounds.x / 2) + Int(view.bounds.width / 2),
+                    y: Int(-segment.bounds.y / 2) + Int(view.bounds.height / 2),
+                    width: Int(segment.bounds.width) / 2,
     }
 }

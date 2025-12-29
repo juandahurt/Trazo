@@ -112,4 +112,8 @@ public extension CanvasViewController {
     func setSpacing(_ value: Float) {
         renderer?.canvasState.selectedBrush.spacing = value
     }
+    
+    func setPointSize(_ value: Float) {
+        renderer?.canvasState.selectedBrush.pointSize = value
+    }
 }

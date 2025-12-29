@@ -18,14 +18,11 @@ class ViewController: UIViewController {
         Aleph.load()
         canvasViewController = Aleph.makeCanvas(in: self)
     }
-    
-    func setSpacing(_ value: Float) {
-        canvasViewController?.setSpacing(value)
-    }
 }
 
 struct ViewControllerWrapper: UIViewControllerRepresentable {
-    @Binding var spcaing: Float
+    @Binding var spacing: Float
+    @Binding var pointSize: Float
     
     func makeUIViewController(context: Context) -> ViewController {
         ViewController()
@@ -35,6 +32,7 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
         _ viewController: ViewController,
         context: Context
     ) {
-        viewController.setSpacing(spcaing)
+        viewController.canvasViewController?.setSpacing(spacing)
+        viewController.canvasViewController?.setPointSize(pointSize)
     }
 }

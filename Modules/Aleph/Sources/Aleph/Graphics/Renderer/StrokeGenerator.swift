@@ -93,7 +93,7 @@ class StrokeSystem {
             segment.add(
                 point: .init(
                     position: [pos.x, pos.y],
-                    size: 20,
+                    size: brush.pointSize,
                     opacity: 1
                 ),
                 ctm: ctm
@@ -111,7 +111,7 @@ class StrokeSystem {
             segment.add(
                 point: .init(
                     position: [pos.x, pos.y],
-                    size: 20,
+                    size: brush.pointSize,
                     opacity: 1
                 ),
                 ctm: ctm
