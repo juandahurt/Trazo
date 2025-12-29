@@ -92,7 +92,7 @@ class CanvasRenderer: NSObject {
         // fill background texture with white
         fill(texture: canvasState.layers.first!.texture, with: .white)
         // merge
-        merge(onlyDirtyTiles: true, isDrawing: false)
+        merge(onlyDirtyTiles: false, isDrawing: false)
         // copy renderable texture to intermdiate texture
         frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
         // present
@@ -118,7 +118,8 @@ class CanvasRenderer: NSObject {
             ctm: frameScheduler.ctm,
             boundingBoxes: tiledTexture.tiles.map {
                 $0.bounds
-            })
+            },
+            brush: canvasState.selectedBrush)
         { [weak self] contribution in
             guard let self else { return }
             frameScheduler.ingest(contribution)
