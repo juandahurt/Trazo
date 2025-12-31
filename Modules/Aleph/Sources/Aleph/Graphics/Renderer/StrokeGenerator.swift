@@ -94,7 +94,8 @@ class StrokeSystem {
                 point: .init(
                     position: [pos.x, pos.y],
                     size: brush.pointSize,
-                    opacity: 1
+                    opacity: 1,
+                    angle: 0
                 ),
                 ctm: ctm
             )
@@ -108,11 +109,13 @@ class StrokeSystem {
             spaceBetweenPoints: brush.spacing * scale,
         ) {
             let pos = curve.point(at: t)
+            let angle = pos.angle(.init(x: 0, y: 1))
             segment.add(
                 point: .init(
                     position: [pos.x, pos.y],
                     size: brush.pointSize,
-                    opacity: 1
+                    opacity: 1,
+                    angle: angle
                 ),
                 ctm: ctm
             )

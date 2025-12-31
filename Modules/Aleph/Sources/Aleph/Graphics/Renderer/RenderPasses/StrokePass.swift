@@ -35,7 +35,8 @@ class StrokePass: RenderPass {
         guard !points.isEmpty else { return }
         let tranforms: [Transform] = points.map {
             .init(translateByX: $0.position.x, y: $0.position.y)
-            .concatenating(.init(scaledBy: 3))
+            .concatenating(.init(rotatedBy: $0.angle))
+            .concatenating(.init(scaledBy: 10 * context.ctm.scale))
         }
         let transformsBuffer = GPU.device
             .makeBuffer(
@@ -56,7 +57,7 @@ class StrokePass: RenderPass {
             let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
             encoder?.setRenderPipelineState(pipelineState)
             encoder?.setVertexBuffer(Buffer.quad.vertexBuffer, offset: 0, index: 0)
-            encoder?.setTriangleFillMode(.lines)
+//            encoder?.setTriangleFillMode(.lines)
             
             var opacity = 1
             // we need to transform the point coord from canvas coords
