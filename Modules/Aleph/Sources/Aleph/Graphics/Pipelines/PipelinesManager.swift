@@ -67,17 +67,17 @@ class PipelinesManager {
                 let vertexDescriptor = MTLVertexDescriptor()
                 vertexDescriptor.attributes[0].format = .float2
                 
-                vertexDescriptor.attributes[1].format = .float
-                vertexDescriptor
-                    .attributes[1].offset = MemoryLayout<SIMD2<Float>>.stride
-                
-                vertexDescriptor.attributes[2].format = .float
-                vertexDescriptor
-                    .attributes[2].offset = MemoryLayout<SIMD2<Float>>.stride + MemoryLayout<Float>.stride
+//                vertexDescriptor.attributes[1].format = .float
+//                vertexDescriptor
+//                    .attributes[1].offset = MemoryLayout<SIMD2<Float>>.stride
+//                
+//                vertexDescriptor.attributes[2].format = .float
+//                vertexDescriptor
+//                    .attributes[2].offset = MemoryLayout<SIMD2<Float>>.stride + MemoryLayout<Float>.stride
                 
                 vertexDescriptor
                     .layouts[0]
-                    .stride = MemoryLayout<DrawablePoint>.stride
+                    .stride = MemoryLayout<SIMD2<Float>>.stride
                 
                 descriptor.vertexDescriptor = vertexDescriptor
                 descriptor.colorAttachments[0].isBlendingEnabled = true

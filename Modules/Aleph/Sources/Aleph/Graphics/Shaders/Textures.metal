@@ -39,27 +39,28 @@ fragment float4 draw_texture_frag(TextureOuput data [[stage_in]],
 
 struct GrayScalePoint {
     float4 position [[position]];
-    float pointSize [[point_size]];
     float opacity;
     float4 debugColor;
 };
 
-struct DrawablePoint {
-    float2 position [[attribute(0)]];
-    float size [[attribute(1)]];
-    float opacity [[attribute(2)]];
-};
+//struct DrawablePoint {
+//    float2 position [[attribute(0)]];
+//    float size [[attribute(1)]];
+//    float opacity [[attribute(2)]];
+//};
 
-vertex GrayScalePoint grayscale_point_vert(DrawablePoint point [[stage_in]],
+vertex GrayScalePoint grayscale_point_vert(constant float2* positions [[buffer(0)]],
                                             constant float4x4& modelMatrix [[buffer(1)]],
                                             constant float4x4& projectionMatrix [[buffer(2)]],
-                                            constant float& opacity [[buffer(3)]])
+                                            constant float& opacity [[buffer(3)]],
+                                           constant float4x4* transforms [[buffer(4)]],
+                                           uint vertexId [[vertex_id]],
+                                           uint instanceId [[instance_id]])
 {
-    float4 position = projectionMatrix * modelMatrix * float4(point.position, 0, 1);
+    float4 position = projectionMatrix * modelMatrix * transforms[instanceId] * float4(positions[vertexId], 0, 1);
     return {
         .position = position,
-        .pointSize = point.size,
-        .opacity = point.opacity
+        .opacity = 1
     };
 }
 
@@ -70,10 +71,11 @@ fragment float4 grayscale_point_frag(
 //                                      texture2d<float, access::sample> granularityTexture [[texture(1)]])
 {
     // TODO: implement with shape and granularity textures
-    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
+//    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
 //    float granAlpha = granularityTexture.sample(defaultSampler, pointCoord).a;
-    float shapeAlpha = shapeTexture.sample(defaultSampler, pointCoord).a;
-    float alpha = /*granAlpha **/ shapeAlpha * pointData.opacity;
+//    float shapeAlpha = shapeTexture.sample(defaultSampler, pointCoord).a;
+//    float alpha = /*granAlpha **/ shapeAlpha * pointData.opacity;
+    float alpha = 0.5;
     return float4(alpha, alpha, alpha, alpha);
 }
 
