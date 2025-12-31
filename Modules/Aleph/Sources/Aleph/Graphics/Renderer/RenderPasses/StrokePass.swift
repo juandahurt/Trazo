@@ -36,7 +36,7 @@ class StrokePass: RenderPass {
         let tranforms: [Transform] = points.map {
             .init(translateByX: $0.position.x, y: $0.position.y)
             .concatenating(.init(rotatedBy: $0.angle))
-            .concatenating(.init(scaledBy: 10 * context.ctm.scale))
+            .concatenating(.init(scaledBy: $0.size * context.ctm.scale))
         }
         let transformsBuffer = GPU.device
             .makeBuffer(
@@ -44,7 +44,6 @@ class StrokePass: RenderPass {
                 length: MemoryLayout<Transform>.stride * tranforms.count
             )
         for index in context.dirtyTiles {
-            print("drawing points in", index)
             let tile = grayscaleTexture.tiles[index]
             guard let outputTexture = TextureManager.findTexture(id: tile.textureId) else {
                 return
@@ -57,7 +56,6 @@ class StrokePass: RenderPass {
             let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
             encoder?.setRenderPipelineState(pipelineState)
             encoder?.setVertexBuffer(Buffer.quad.vertexBuffer, offset: 0, index: 0)
-//            encoder?.setTriangleFillMode(.lines)
             
             var opacity = 1
             // we need to transform the point coord from canvas coords
@@ -117,6 +115,11 @@ class StrokePass: RenderPass {
                 transformsBuffer,
                 offset: 0,
                 index: 4
+            )
+            encoder?.setVertexBuffer(
+                Buffer.quad.textureBuffer,
+                offset: 0,
+                index: 5
             )
             
             encoder?.setFragmentTexture(shapeTexture, index: 0)

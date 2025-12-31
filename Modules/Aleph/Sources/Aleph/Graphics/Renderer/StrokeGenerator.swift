@@ -103,16 +103,18 @@ class StrokeSystem {
         // find the correct `t` values along the curve
         var currT: Float = 0
         let scale = ctm.scale
+        var prevPoint = curve.point(at: 0)
         while let t = findTForNextPoint(
             in: curve,
             startingAt: currT,
             spaceBetweenPoints: brush.spacing * scale,
         ) {
-            let pos = curve.point(at: t)
-            let angle = pos.angle(.init(x: 0, y: 1))
+            let currentPoint = curve.point(at: t)
+            let dir = currentPoint - prevPoint
+            let angle = atan2(dir.x, dir.y)
             segment.add(
                 point: .init(
-                    position: [pos.x, pos.y],
+                    position: [currentPoint.x, currentPoint.y],
                     size: brush.pointSize,
                     opacity: 1,
                     angle: angle
@@ -120,6 +122,7 @@ class StrokeSystem {
                 ctm: ctm
             )
             currT = t
+            prevPoint = currentPoint
         }
         return segment
     }

@@ -40,42 +40,36 @@ fragment float4 draw_texture_frag(TextureOuput data [[stage_in]],
 struct GrayScalePoint {
     float4 position [[position]];
     float opacity;
-    float4 debugColor;
+    float2 uv;
 };
-
-//struct DrawablePoint {
-//    float2 position [[attribute(0)]];
-//    float size [[attribute(1)]];
-//    float opacity [[attribute(2)]];
-//};
 
 vertex GrayScalePoint grayscale_point_vert(constant float2* positions [[buffer(0)]],
                                             constant float4x4& modelMatrix [[buffer(1)]],
                                             constant float4x4& projectionMatrix [[buffer(2)]],
                                             constant float& opacity [[buffer(3)]],
                                            constant float4x4* transforms [[buffer(4)]],
+                                           constant float2* uv [[buffer(5)]],
                                            uint vertexId [[vertex_id]],
                                            uint instanceId [[instance_id]])
 {
     float4 position = projectionMatrix * modelMatrix * transforms[instanceId] * float4(positions[vertexId], 0, 1);
     return {
         .position = position,
-        .opacity = 1
+        .opacity = 1,
+        .uv = uv[vertexId]
     };
 }
 
 fragment float4 grayscale_point_frag(
                                       GrayScalePoint pointData [[stage_in]],
-                                      float2 pointCoord [[point_coord]],
                                       texture2d<float, access::sample> shapeTexture [[texture(0)]])
 //                                      texture2d<float, access::sample> granularityTexture [[texture(1)]])
 {
     // TODO: implement with shape and granularity textures
-//    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
+    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
 //    float granAlpha = granularityTexture.sample(defaultSampler, pointCoord).a;
-//    float shapeAlpha = shapeTexture.sample(defaultSampler, pointCoord).a;
-//    float alpha = /*granAlpha **/ shapeAlpha * pointData.opacity;
-    float alpha = 0.5;
+    float shapeAlpha = shapeTexture.sample(defaultSampler, pointData.uv).a;
+    float alpha = /*granAlpha **/ shapeAlpha * pointData.opacity;
     return float4(alpha, alpha, alpha, alpha);
 }
 
