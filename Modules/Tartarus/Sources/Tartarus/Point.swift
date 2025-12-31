@@ -54,6 +54,14 @@ public extension Point {
     func dist(to other: Point) -> Float {
         distance(_value, other._value)
     }
+    
+    func dot(_ other: Point) -> Float {
+        simd.dot(_value, other._value)
+    }
+    
+    func angle(_ other: Point) -> Float {
+        acos(dot(other) / length() * other.length())
+    }
 }
 
 // MARK: - Transformations

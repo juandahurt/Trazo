@@ -164,7 +164,6 @@ class CanvasRenderer: NSObject {
 
 extension CanvasRenderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        self.view = view
         let viewSize = Float(size.height)
         let aspect = Float(size.width) / Float(size.height)
         let rect = Rect(
@@ -194,7 +193,7 @@ extension CanvasRenderer: MTKViewDelegate {
         )
         
         // show bounding boxes of the segments
-        var transform: CGAffineTransform = context.ctm.inverse.affineTransform()
+        var transform: CGAffineTransform = context.ctm.affineTransform()
         for segment in context.segments.filter { !$0.points.isEmpty } {
             let shape = CAShapeLayer()
             shape.path = .init(
@@ -202,5 +201,23 @@ extension CanvasRenderer: MTKViewDelegate {
                     x: Int(segment.bounds.x / 2) + Int(view.bounds.width / 2),
                     y: Int(-segment.bounds.y / 2) + Int(view.bounds.height / 2),
                     width: Int(segment.bounds.width) / 2,
+                    height: Int(segment.bounds.height) / 2
+                ),
+                transform: &transform
+            )
+            shape.borderWidth = 1
+            shape.strokeColor = UIColor.blue.withAlphaComponent(0.2).cgColor
+            shape.fillColor = UIColor.blue.withAlphaComponent(0.2).cgColor
+            shape.opacity = 0
+            
+            let fade = CABasicAnimation()
+            fade.toValue = 0
+            fade.fromValue = 1
+            fade.duration = 0.3
+            fade.keyPath = "opacity"
+            shape.add(fade, forKey: "fadeOut")
+            
+            view.layer.addSublayer(shape)
+        }
     }
 }

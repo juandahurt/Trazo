@@ -78,3 +78,18 @@ public extension Transform {
     nonisolated(unsafe)
     static let identity = Transform(matrix: matrix_identity_float4x4)
 }
+// MARK: - CoreGraphics
+import CoreGraphics
+
+public extension Transform {
+    func affineTransform() -> CGAffineTransform {
+        .init(
+            a:  CGFloat(matrix.columns.0.x),
+            b:  CGFloat(matrix.columns.0.y),
+            c:  CGFloat(matrix.columns.1.x),
+            d:  CGFloat(matrix.columns.1.y),
+            tx: CGFloat(matrix.columns.3.x),
+            ty: CGFloat(matrix.columns.3.y)
+        )
+    }
+}
