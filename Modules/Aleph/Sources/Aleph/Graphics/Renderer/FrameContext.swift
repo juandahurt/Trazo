@@ -6,4 +6,5 @@ struct FrameContext {
     let segments: [StrokeSegment]
     let ctm: Transform
     let cpm: Transform
+    var opacity: Float // TODO: find a better place to put this thing
 }

@@ -109,7 +109,8 @@ class FrameScheduler {
                 dirtyTiles: accDirtyTiles,
                 segments: accSegments,
                 ctm: ctm,
-                cpm: cpm 
+                cpm: cpm,
+                opacity: 0
             )
         }
     }

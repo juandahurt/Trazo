@@ -56,7 +56,7 @@ class StrokePass: RenderPass {
             encoder?.setRenderPipelineState(pipelineState)
             encoder?.setVertexBuffer(Buffer.quad.vertexBuffer, offset: 0, index: 0)
             
-            var opacity: Float = 0.5
+            var opacity: Float = context.opacity
             // we need to transform the point coord from canvas coords
             // to the tiles coords
             let row = resources.rows - index / resources.rows

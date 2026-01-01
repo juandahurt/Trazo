@@ -185,7 +185,8 @@ extension CanvasRenderer: MTKViewDelegate {
     func draw(in view: MTKView) {
         guard let drawable = view.currentDrawable else { return }
         let passes = frameScheduler.buildFrameGraph()
-        let context = frameScheduler.drain()
+        var context = frameScheduler.drain()
+        context.opacity = canvasState.selectedBrush.opacity
         commandExcecutor.excecute(
             passes: passes,
             context: context,
