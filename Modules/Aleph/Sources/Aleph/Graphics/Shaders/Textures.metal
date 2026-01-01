@@ -55,7 +55,7 @@ vertex GrayScalePoint grayscale_point_vert(constant float2* positions [[buffer(0
     float4 position = projectionMatrix * modelMatrix * transforms[instanceId] * float4(positions[vertexId], 0, 1);
     return {
         .position = position,
-        .opacity = 1,
+        .opacity = opacity,
         .uv = uv[vertexId]
     };
 }

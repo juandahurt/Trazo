@@ -8,7 +8,6 @@ class PresentPass: RenderPass {
         commandBuffer: any MTLCommandBuffer,
         drawable: CAMetalDrawable
     ) {
-        print("encoding present pass")
         guard let pipelineState = PipelinesManager.renderPipeline(for: .drawTexture)
         else { return }
         let descriptor = MTLRenderPassDescriptor()

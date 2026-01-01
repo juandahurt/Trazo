@@ -44,7 +44,7 @@ class CanvasRenderer: NSObject {
     let frameScheduler = FrameScheduler()
     let commandExcecutor = CommandExcecutor()
     let renderResources: RenderResources
-    let canvasState: CanvasState
+    var canvasState: CanvasState
     
     weak var frameRequester: FrameRequester?
   

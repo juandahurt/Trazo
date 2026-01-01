@@ -13,7 +13,6 @@ class TileResolvePass: RenderPass {
         commandBuffer: any MTLCommandBuffer,
         drawable: any CAMetalDrawable
     ) {
-        print("encoding tile resolve pass")
         commandBuffer.pushDebugGroup("Copy texture")
         defer { commandBuffer.popDebugGroup() }
         guard let destTexture = TextureManager.findTexture(id: resources.intermidiateTexture)

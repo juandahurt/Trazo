@@ -22,7 +22,6 @@ class StrokeSystem {
     func process(_ touch: Touch, brush: Brush, ctm: Transform) -> [StrokeSegment] {
         if touch.phase == .began { reset() }
         add(touch)
-        print(touches.count)
         
         switch touch.phase {
         case .moved:
@@ -87,19 +86,6 @@ class StrokeSystem {
     
     private func segment(for curve: BezierCurve, brush: Brush, ctm: Transform) -> StrokeSegment {
         var segment = StrokeSegment()
-        // if the stroke is empty, add the first point of the first curve
-        if stroke.isEmpty {
-            let pos = curve.point(at: 0)
-            segment.add(
-                point: .init(
-                    position: [pos.x, pos.y],
-                    size: brush.pointSize,
-                    opacity: 1,
-                    angle: 0
-                ),
-                ctm: ctm
-            )
-        }
         // find the correct `t` values along the curve
         var currT: Float = 0
         let scale = ctm.scale
