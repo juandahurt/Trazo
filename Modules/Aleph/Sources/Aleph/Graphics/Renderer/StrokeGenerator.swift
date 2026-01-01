@@ -102,7 +102,7 @@ class StrokeSystem {
                 point: .init(
                     position: [currentPoint.x, currentPoint.y],
                     size: brush.pointSize,
-                    opacity: 1,
+                    opacity: brush.opacity,
                     angle: angle
                 ),
                 ctm: ctm

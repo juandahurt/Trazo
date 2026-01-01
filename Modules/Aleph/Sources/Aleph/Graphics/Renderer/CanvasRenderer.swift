@@ -34,7 +34,8 @@ struct CanvasState {
                 withExtension: "png"
             )!,
             spacing: 2,
-            pointSize: 10
+            pointSize: 10,
+            opacity: 1
         )
     }
 }

@@ -116,4 +116,8 @@ public extension CanvasViewController {
     func setPointSize(_ value: Float) {
         renderer?.canvasState.selectedBrush.pointSize = value
     }
+    
+    func setOpacity(_ value: Float) {
+        renderer?.canvasState.selectedBrush.opacity = value
+    }
 }
