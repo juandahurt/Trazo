@@ -1,9 +1,18 @@
+import Aleph
 import SwiftUI
 
 struct ContentView: View {
+    @State var isDebugSheetPresented = false
     @State var spacing: Float = 5
     @State var pointSize: Float = 10
     @State var opacity: Float = 1
+    @State var shapeTextures: [TextureID]
+    @State var selectedShapeTexture: TextureID
+    
+    init() {
+        shapeTextures = Aleph.debugTextures
+        selectedShapeTexture = Aleph.debugTextures.first!
+    }
     
     var spacingView: some View {
         VStack(alignment: .leading) {
@@ -26,28 +35,43 @@ struct ContentView: View {
         }.padding()
     }
     
+    var brushShapeView: some View {
+        Picker(selection: $selectedShapeTexture) {
+            ForEach(shapeTextures, id: \.self) { shapeTextureId in
+                Text("\(shapeTextureId)")
+            }
+        } label: {
+            Text("Shape texture")
+        }
+    }
+    
     var debugProperties: some View {
-        ScrollView {
+        List {
             spacingView
             pointSizeView
             opacityView
+            brushShapeView
         }
         .background(.black.opacity(0.2))
         .clipShape(RoundedRectangle(cornerRadius: 10))
-        .frame(width: 150)
         .padding()
-        .padding(.bottom)
     }
     
     var body: some View {
-        ZStack(alignment: .bottomLeading) {
+        ZStack(alignment: .bottomTrailing) {
             ViewControllerWrapper(
                 spacing: $spacing,
                 pointSize: $pointSize,
-                opacity: $opacity
+                opacity: $opacity,
+                selectedShapeTexture: $selectedShapeTexture
             )
-            debugProperties
+                .ignoresSafeArea()
+            Button("", systemImage: "ladybug") {
+                isDebugSheetPresented.toggle()
+            }.frame(width: 40, height: 40)
         }
-            .ignoresSafeArea()
+            .sheet(isPresented: $isDebugSheetPresented) {
+                debugProperties
+            }
     }
 }

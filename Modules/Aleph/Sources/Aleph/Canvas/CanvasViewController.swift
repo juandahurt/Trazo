@@ -120,4 +120,8 @@ public extension CanvasViewController {
     func setOpacity(_ value: Float) {
         renderer?.canvasState.selectedBrush.opacity = value
     }
+    
+    func setShapeTexture(_ id: TextureID) {
+        renderer?.canvasState.selectedBrush.shapeTextureID = id
+    }
 }

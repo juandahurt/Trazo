@@ -1,10 +1,22 @@
 import UIKit
 
 /// Drawing engine! :)
-public class Aleph { 
+public class Aleph {
+    public static let debugTextures: [TextureID] = {
+        var ids: [TextureID] = []
+        var count = 0
+        while let id = TextureManager.loadTexture(
+            fromFile: "shape-\(count)",
+            withExtension: "png"
+        ) {
+            count += 1
+            ids.append(id)
+        }
+        return ids
+    }()
+    
     public static func load() {
         PipelinesManager.load()
-       // TODO: load textures
     }
     
     public static func makeCanvas(in viewController: UIViewController) -> CanvasViewController {

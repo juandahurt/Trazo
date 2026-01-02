@@ -29,10 +29,7 @@ struct CanvasState {
         self.layers = layers
         self.currentLayerIndex = currentLayerIndex
         selectedBrush = .init(
-            shapeTextureID: TextureManager.loadTexture(
-                fromFile: "default-shape",
-                withExtension: "png"
-            )!,
+            shapeTextureID: .max, // just a wrong number while we pass the selected brush
             spacing: 2,
             pointSize: 10,
             opacity: 1

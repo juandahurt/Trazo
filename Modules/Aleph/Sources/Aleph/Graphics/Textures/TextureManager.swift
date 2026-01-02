@@ -1,7 +1,7 @@
 import MetalKit
 import Tartarus
 
-typealias TextureID = UInt
+public typealias TextureID = UInt
 
 final class TextureManager {
     nonisolated(unsafe)
