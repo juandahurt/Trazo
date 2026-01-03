@@ -31,9 +31,9 @@ extension Touch {
             y: Float(cgLocation.y)
         ) * Float(view.contentScaleFactor)
         
-        location.x -= viewSize.width / 2
-        location.y -= viewSize.height / 2
-        location.y *= -1
+//        location.x -= viewSize.width / 2
+//        location.y -= viewSize.height / 2
+//        location.y *= -1
         
         self.location = location
         

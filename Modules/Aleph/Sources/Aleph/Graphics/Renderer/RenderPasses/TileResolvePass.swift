@@ -26,7 +26,7 @@ class TileResolvePass: RenderPass {
             let srcTile = srcTiledTexture.tiles[index]
             guard let srcTexture = TextureManager.findTexture(id: srcTile.textureId)
             else { return }
-            let row = resources.rows - index / resources.rows
+            let row = index / resources.cols
             blitEncoder?
                 .copy(
                     from: srcTexture,
@@ -42,12 +42,8 @@ class TileResolvePass: RenderPass {
                     destinationSlice: 0,
                     destinationLevel: 0,
                     destinationOrigin: .init(
-                        x: Int(resources.canvasSize.width / 2 + srcTile.bounds.x),
-                        y: Int(
-                            resources.canvasSize.height - Float(
-                                row
-                            ) * srcTile.bounds.height
-                        ),
+                        x: Int(srcTile.bounds.x),
+                        y: Int(Float(row) * srcTile.bounds.height),
                         z: 0
                     )
                 )

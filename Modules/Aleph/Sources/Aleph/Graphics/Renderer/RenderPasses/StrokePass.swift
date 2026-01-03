@@ -32,16 +32,6 @@ class StrokePass: RenderPass {
         let points: [DrawablePoint] = nonEmptySegments
             .reduce([], { $0 + $1.points })
         guard !points.isEmpty else { return }
-        let tranforms: [Transform] = points.map {
-            .init(translateByX: $0.position.x, y: $0.position.y)
-            .concatenating(.init(rotatedBy: $0.angle))
-            .concatenating(.init(scaledBy: $0.size * context.ctm.scale))
-        }
-        let transformsBuffer = GPU.device
-            .makeBuffer(
-                bytes: tranforms,
-                length: MemoryLayout<Transform>.stride * tranforms.count
-            )
         for index in context.dirtyTiles {
             let tile = grayscaleTexture.tiles[index]
             guard let outputTexture = TextureManager.findTexture(id: tile.textureId) else {
@@ -56,44 +46,49 @@ class StrokePass: RenderPass {
             encoder?.setRenderPipelineState(pipelineState)
             encoder?.setVertexBuffer(Buffer.quad.vertexBuffer, offset: 0, index: 0)
             
+            let tranforms: [Transform] = points.map {
+                .init(
+                    translateByX: $0.position.x - tile.bounds.x,
+                    y: $0.position.y - tile.bounds.y
+                )
+                .concatenating(.init(rotatedBy: $0.angle))
+                .concatenating(.init(scaledBy: $0.size * context.ctm.scale))
+            }
+            let transformsBuffer = GPU.device
+                .makeBuffer(
+                    bytes: tranforms,
+                    length: MemoryLayout<Transform>.stride * tranforms.count
+                )
+            
             var opacity: Float = context.opacity
-            // we need to transform the point coord from canvas coords
-            // to the tiles coords
-            let row = resources.rows - index / resources.rows
-            let col = index % resources.cols
-            var matrix = Transform.identity
-            matrix = matrix
+            var view = Transform.identity
                 .concatenating(
                     .init(
-                        translateByX: resources.canvasSize.width / Float(2),
-                        y: resources.canvasSize.height / Float(2)
+                        translateByX: 0,
+                        y: resources.tileSize.height
                     )
                 )
                 .concatenating(
                     .init(
-                        translateByX: -Float(col) * resources.tileSize.width,
-                        y: -Float(row) * resources.tileSize.height
+                        scaledByX: 1,
+                        y: -1
                     )
                 )
-                .concatenating(
-                    .init(
-                        translateByX: -resources.tileSize.width / 2,
-                        y: resources.tileSize.height / 2
-                    )
-                )
-            var transform = matrix.concatenating(context.ctm.inverse)
+                .concatenating(context.ctm.inverse)
             encoder?.setVertexBytes(
-                &transform,
+                &view,
                 length: MemoryLayout<Transform.Matrix>.stride,
                 index: 1
             )
             let viewSize = Float(outputTexture.height)
             let aspect = Float(outputTexture.width) / Float(outputTexture.height)
+            let halfW = resources.tileSize.width / 2
+            let halfH = resources.tileSize.height / 2
             let rect = Rect(
-                x: -viewSize * aspect * 0.5,
-                y: viewSize * 0.5,
-                width: viewSize * aspect,
-                height: viewSize
+                x: 0,
+                y: resources.tileSize.height,
+                width: resources.tileSize.width,
+                height: resources.tileSize.height
             )
             var pm = Transform(
                 ortho: rect,

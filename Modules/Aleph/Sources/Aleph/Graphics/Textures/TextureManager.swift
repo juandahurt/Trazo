@@ -71,8 +71,8 @@ final class TextureManager {
         for row in 0..<rows {
             for col in 0..<columns {
                 var position = Point(
-                    x: -canvasSize.width / 2 + Float(col) * tileSize.width,
-                    y: canvasSize.height / 2 - Float(row) * tileSize.height
+                    x: Float(col) * tileSize.width,
+                    y: Float(row) * tileSize.height
                 )
                 if let textureId = makeTexture(
                     ofSize: tileSize,

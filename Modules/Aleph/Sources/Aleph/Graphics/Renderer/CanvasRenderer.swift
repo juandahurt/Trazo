@@ -47,8 +47,8 @@ class CanvasRenderer: NSObject {
     weak var frameRequester: FrameRequester?
   
     init(canvasSize: Size) {
-        let rows = 8
-        let cols = 8
+        let rows = 41
+        let cols = 59
         let tileSize = Size(
             width: canvasSize.width / Float(cols),
             height: canvasSize.height / Float(rows)
@@ -197,8 +197,8 @@ extension CanvasRenderer: MTKViewDelegate {
             let shape = CAShapeLayer()
             shape.path = .init(
                 rect: .init(
-                    x: Int(segment.bounds.x / 2) + Int(view.bounds.width / 2),
-                    y: Int(-segment.bounds.y / 2) + Int(view.bounds.height / 2),
+                    x: Int(segment.bounds.x) / 2,
+                    y: Int(segment.bounds.y) / 2,
                     width: Int(segment.bounds.width) / 2,
                     height: Int(segment.bounds.height) / 2
                 ),
