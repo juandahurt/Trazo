@@ -21,10 +21,10 @@ class PresentPass: RenderPass {
             encoder.setFragmentTexture(texture, index: 3)
             
             let vertices: [Float] = [
-                Float(-texture.width / 2), Float(-texture.height / 2),// top left
-                Float(texture.width / 2), Float(-texture.height / 2), // top right
-                Float(-texture.width / 2), Float(texture.height / 2), // bottom left
-                Float(texture.width / 2), Float(texture.height / 2) // bottom right
+                0, 0,// top left
+                Float(texture.width), 0, // top right
+                0, Float(texture.height), // bottom left
+                Float(texture.width), Float(texture.height) // bottom right
             ]
             
             // TODO: Remove buffer creation for vertex

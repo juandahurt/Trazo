@@ -16,7 +16,7 @@ public struct Transform {
 // MARK: - Multiplication
 public extension Transform {
     func concatenating(_ other: Transform) -> Transform {
-        Transform(matrix: matrix * other.matrix)
+        Transform(matrix: other.matrix * matrix)
     }
 }
 
@@ -26,7 +26,7 @@ public extension Transform {
         let left = rect.x
         let right = rect.x + rect.width
         let top = rect.y
-        let bottom = rect.y - rect.height
+        let bottom = rect.y + rect.height
         let X = simd_float4(2 / (right - left), 0, 0, 0)
         let Y = simd_float4(0, 2 / (top - bottom), 0, 0)
         let Z = simd_float4(0, 0, 1 / (far - near), 0)

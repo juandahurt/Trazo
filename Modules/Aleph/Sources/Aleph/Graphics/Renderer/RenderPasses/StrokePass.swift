@@ -45,14 +45,14 @@ class StrokePass: RenderPass {
             let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: passDescriptor)
             encoder?.setRenderPipelineState(pipelineState)
             encoder?.setVertexBuffer(Buffer.quad.vertexBuffer, offset: 0, index: 0)
-            
+           
+//            var points = [DrawablePoint(position: .init(x: 100, y: 100), size: 10, opacity: 1, angle: 0)]
             let tranforms: [Transform] = points.map {
-                .init(
-                    translateByX: $0.position.x - tile.bounds.x,
-                    y: $0.position.y - tile.bounds.y
-                )
-                .concatenating(.init(rotatedBy: $0.angle))
+                Transform.identity
                 .concatenating(.init(scaledBy: $0.size * context.ctm.scale))
+                .concatenating(.init(translateByX: $0.position.x,y: $0.position.y))
+//                .concatenating(.init(rotatedBy: $0.angle))
+                
             }
             let transformsBuffer = GPU.device
                 .makeBuffer(
@@ -62,31 +62,29 @@ class StrokePass: RenderPass {
             
             var opacity: Float = context.opacity
             var view = Transform.identity
-                .concatenating(
-                    .init(
-                        translateByX: 0,
-                        y: resources.tileSize.height
-                    )
-                )
+                .concatenating(context.ctm.inverse)
+                .concatenating(.init(translateByX: -tile.bounds.x, y: -tile.bounds.y))
                 .concatenating(
                     .init(
                         scaledByX: 1,
                         y: -1
                     )
                 )
-                .concatenating(context.ctm.inverse)
+                .concatenating(
+                    .init(
+                        translateByX: 0,
+                        y: resources.tileSize.height
+                    )
+                )
             encoder?.setVertexBytes(
                 &view,
                 length: MemoryLayout<Transform.Matrix>.stride,
                 index: 1
             )
             let viewSize = Float(outputTexture.height)
-            let aspect = Float(outputTexture.width) / Float(outputTexture.height)
-            let halfW = resources.tileSize.width / 2
-            let halfH = resources.tileSize.height / 2
             let rect = Rect(
                 x: 0,
-                y: resources.tileSize.height,
+                y: 0,
                 width: resources.tileSize.width,
                 height: resources.tileSize.height
             )

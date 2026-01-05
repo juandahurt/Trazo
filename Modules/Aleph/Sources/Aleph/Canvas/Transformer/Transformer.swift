@@ -14,7 +14,7 @@ class Transformer {
     private var baseTransform = Transform.identity
     private var currentTransform = Transform.identity
     
-    var transform: Transform { baseTransform.concatenating(currentTransform) }
+    var transform: Transform { currentTransform.concatenating(baseTransform) }
     
     func initialize(withTouches touchesDict: [Int: [Touch]]) {
         guard
@@ -63,23 +63,24 @@ class Transformer {
         let scaleMatrix = Transform(scaledBy: scale)
         let rotationMatrix = Transform(rotatedBy: -deltaAngle)
         let translateBack = Transform(translateByX: pivotPoint.x, y: pivotPoint.y)
-        let pivotTransform = translateBack
-            .concatenating(rotationMatrix)
-            .concatenating(scaleMatrix)
+        let pivotTransform = Transform.identity
             .concatenating(translateToOrigin)
+            .concatenating(scaleMatrix)
+            .concatenating(rotationMatrix)
+            .concatenating(translateBack)
 
         let translationMatrix = Transform(
             translateByX: deltaTranslation.x,
             y: deltaTranslation.y
         )
         
-        currentTransform = pivotTransform.concatenating(translationMatrix)
+        currentTransform = translationMatrix.concatenating(pivotTransform)
     }
     
     func reset() {
         initialTouchA = nil
         initialTouchB = nil
-        baseTransform = baseTransform.concatenating(currentTransform)
+        baseTransform = currentTransform.concatenating(baseTransform)
         currentTransform = .identity
     }
 }

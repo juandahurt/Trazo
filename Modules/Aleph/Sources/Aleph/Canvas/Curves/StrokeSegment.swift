@@ -7,7 +7,6 @@ struct StrokeSegment {
     mutating func add(point: DrawablePoint, ctm: Transform) {
         // we need to take into account the current transformation
         let pos = Point(x: point.position.x, y: point.position.y).applying(ctm.inverse)
-        print(pos)
         defer { points.append(point) }
         guard !points.isEmpty else {
             bounds.x = pos.x

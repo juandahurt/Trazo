@@ -47,8 +47,8 @@ class CanvasRenderer: NSObject {
     weak var frameRequester: FrameRequester?
   
     init(canvasSize: Size) {
-        let rows = 41
-        let cols = 59
+        let rows = 8
+        let cols = 8
         let tileSize = Size(
             width: canvasSize.width / Float(cols),
             height: canvasSize.height / Float(rows)
@@ -91,7 +91,7 @@ class CanvasRenderer: NSObject {
         // fill background texture with white
         fill(texture: canvasState.layers.first!.texture, with: .white)
         // merge
-        merge(onlyDirtyTiles: false, isDrawing: false)
+//        merge(onlyDirtyTiles: false, isDrawing: false)
         // copy renderable texture to intermdiate texture
         frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
         // present
@@ -162,13 +162,11 @@ class CanvasRenderer: NSObject {
 
 extension CanvasRenderer: MTKViewDelegate {
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
-        let viewSize = Float(size.height)
-        let aspect = Float(size.width) / Float(size.height)
         let rect = Rect(
-            x: -viewSize * aspect * 0.5,
-            y: Float(viewSize) * 0.5,
-            width: Float(viewSize * aspect),
-            height: Float(viewSize)
+            x: 0,
+            y: 0,
+            width: Float(size.width),
+            height: Float(size.height)
         )
         updateCurrentProjection(
             .init(

@@ -43,7 +43,9 @@ class TileResolvePass: RenderPass {
                     destinationLevel: 0,
                     destinationOrigin: .init(
                         x: Int(srcTile.bounds.x),
-                        y: Int(Float(row) * srcTile.bounds.height),
+                        y: Int(resources.canvasSize.height) - Int(
+                            Float(row) * srcTile.bounds.height
+                        ) - Int(resources.tileSize.height),
                         z: 0
                     )
                 )

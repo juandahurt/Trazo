@@ -36,6 +36,7 @@ extension Touch {
 //        location.y *= -1
         
         self.location = location
+//        print(location)
         
         phase = switch (touch.phase) {
         case .began: .began
