@@ -46,13 +46,11 @@ class StrokePass: RenderPass {
             encoder?.setRenderPipelineState(pipelineState)
             encoder?.setVertexBuffer(Buffer.quad.vertexBuffer, offset: 0, index: 0)
            
-//            var points = [DrawablePoint(position: .init(x: 100, y: 100), size: 10, opacity: 1, angle: 0)]
             let tranforms: [Transform] = points.map {
                 Transform.identity
                 .concatenating(.init(scaledBy: $0.size * context.ctm.scale))
+                .concatenating(.init(rotatedBy: $0.angle))
                 .concatenating(.init(translateByX: $0.position.x,y: $0.position.y))
-//                .concatenating(.init(rotatedBy: $0.angle))
-                
             }
             let transformsBuffer = GPU.device
                 .makeBuffer(
