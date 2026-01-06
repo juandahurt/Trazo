@@ -117,6 +117,7 @@ class CanvasRenderer: NSObject {
             ctm: frameScheduler.ctm,
             brush: canvasState.selectedBrush,
             tileSize: renderResources.tileSize,
+            rows: renderResources.rows,
             cols: renderResources.cols)
         { [weak self] contribution in
             guard let self else { return }
@@ -188,34 +189,34 @@ extension CanvasRenderer: MTKViewDelegate {
             drawable: drawable
         )
         
-        frameScheduler.needsToPresent = false
+//        frameScheduler.needsToPresent = false
         
         // show bounding boxes of the segments
-        var transform: CGAffineTransform = .identity
-        for segment in context.segments.filter { !$0.points.isEmpty } {
-            let shape = CAShapeLayer()
-            shape.path = .init(
-                rect: .init(
-                    x: Int(segment.bounds.x) / 2,
-                    y: Int(segment.bounds.y) / 2,
-                    width: Int(segment.bounds.width) / 2,
-                    height: Int(segment.bounds.height) / 2
-                ),
-                transform: &transform
-            )
-            shape.borderWidth = 1
-            shape.strokeColor = UIColor.blue.withAlphaComponent(0.2).cgColor
-            shape.fillColor = UIColor.blue.withAlphaComponent(0.2).cgColor
-            shape.opacity = 0
-            
-            let fade = CABasicAnimation()
-            fade.toValue = 0
-            fade.fromValue = 1
-            fade.duration = 0.3
-            fade.keyPath = "opacity"
-            shape.add(fade, forKey: "fadeOut")
-            
-            view.layer.addSublayer(shape)
-        }
+//        var transform: CGAffineTransform = .identity
+//        for segment in context.segments.filter { !$0.points.isEmpty } {
+//            let shape = CAShapeLayer()
+//            shape.path = .init(
+//                rect: .init(
+//                    x: Int(segment.bounds.x) / 2,
+//                    y: Int(segment.bounds.y) / 2,
+//                    width: Int(segment.bounds.width) / 2,
+//                    height: Int(segment.bounds.height) / 2
+//                ),
+//                transform: &transform
+//            )
+//            shape.borderWidth = 1
+//            shape.strokeColor = UIColor.blue.withAlphaComponent(0.2).cgColor
+//            shape.fillColor = UIColor.blue.withAlphaComponent(0.2).cgColor
+//            shape.opacity = 0
+//            
+//            let fade = CABasicAnimation()
+//            fade.toValue = 0
+//            fade.fromValue = 1
+//            fade.duration = 0.3
+//            fade.keyPath = "opacity"
+//            shape.add(fade, forKey: "fadeOut")
+//            
+//            view.layer.addSublayer(shape)
+//        }
     }
 }

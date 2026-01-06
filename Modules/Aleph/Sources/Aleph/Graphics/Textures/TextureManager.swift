@@ -55,6 +55,7 @@ final class TextureManager {
         
         guard let texture = GPU.device.makeTexture(descriptor: descriptor) else {
             assert(false, "texture could not be created.")
+            return nil
         }
         texture.label = label
         return storeTexture(texture)

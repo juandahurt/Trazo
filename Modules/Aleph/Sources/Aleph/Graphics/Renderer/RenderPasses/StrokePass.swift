@@ -3,9 +3,11 @@ import Tartarus
 
 class StrokePass: RenderPass {
     let shapeTextureId: TextureID
+    let color: Color
     
-    init(shapeTextureId: TextureID) {
+    init(shapeTextureId: TextureID, color: Color) {
         self.shapeTextureId = shapeTextureId
+        self.color = color
     }
     
     func encode(
@@ -21,7 +23,7 @@ class StrokePass: RenderPass {
                 for: .drawGrayscalePoints
             ),
             let grayscaleTexture = TextureManager.findTiledTexture(
-                id: resources.grayscaleTexture
+                id: resources.strokeTexture
             ),
             let shapeTexture = TextureManager.findTexture(id: shapeTextureId)
         else {
@@ -110,6 +112,12 @@ class StrokePass: RenderPass {
                 Buffer.quad.textureBuffer,
                 offset: 0,
                 index: 5
+            )
+            var color = color
+            encoder?.setVertexBytes(
+                &color,
+                length: MemoryLayout<Color>.stride,
+                index: 6
             )
             
             encoder?.setFragmentTexture(shapeTexture, index: 0)

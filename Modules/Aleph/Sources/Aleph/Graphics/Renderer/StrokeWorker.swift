@@ -11,6 +11,7 @@ class StrokeWorker {
         ctm: Transform,
         brush: Brush,
         tileSize: Size,
+        rows: Int,
         cols: Int,
         completion: @escaping (FrameContribution) -> Void
     ) {
@@ -20,6 +21,7 @@ class StrokeWorker {
             guard !segments.isEmpty else { return }
             let dirtyTiles = tileSystem.invalidate(
                 with: segments,
+                rows: rows,
                 cols: cols,
                 tileSize: tileSize,
                 ctm: ctm

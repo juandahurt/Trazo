@@ -43,8 +43,8 @@ class FrameScheduler {
             for intent in intentQueue {
                 switch intent {
                 case .stroke(let shapeTexture, let layers, let currentLayerIndex):
-                    passes.append(StrokePass(shapeTextureId: shapeTexture))
-                    passes.append(ColorizePass(color: .black))
+                    passes.append(StrokePass(shapeTextureId: shapeTexture, color: .black))
+//                    passes.append(ColorizePass(color: .black))
                     passes.append(
                         MergePass(
                             layersTexturesIds: layers,
