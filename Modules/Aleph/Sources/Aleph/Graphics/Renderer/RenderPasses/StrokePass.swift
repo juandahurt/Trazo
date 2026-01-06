@@ -48,9 +48,9 @@ class StrokePass: RenderPass {
            
             let tranforms: [Transform] = points.map {
                 Transform.identity
-                .concatenating(.init(scaledBy: $0.size * context.ctm.scale))
-                .concatenating(.init(rotatedBy: $0.angle))
-                .concatenating(.init(translateByX: $0.position.x,y: $0.position.y))
+                    .concatenating(.init(rotatedBy: $0.angle))
+                    .concatenating(.init(scaledBy: $0.size * context.ctm.scale))
+                    .concatenating(.init(translateByX: $0.position.x,y: $0.position.y))
             }
             let transformsBuffer = GPU.device
                 .makeBuffer(

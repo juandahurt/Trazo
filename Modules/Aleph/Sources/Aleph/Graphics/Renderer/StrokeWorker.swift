@@ -9,8 +9,9 @@ class StrokeWorker {
     func submit(
         _ touch: Touch,
         ctm: Transform,
-        boundingBoxes: [Rect],
         brush: Brush,
+        tileSize: Size,
+        cols: Int,
         completion: @escaping (FrameContribution) -> Void
     ) {
         backgroundQueue.async { [weak self] in
@@ -19,7 +20,9 @@ class StrokeWorker {
             guard !segments.isEmpty else { return }
             let dirtyTiles = tileSystem.invalidate(
                 with: segments,
-                boundingBoxes: boundingBoxes
+                cols: cols,
+                tileSize: tileSize,
+                ctm: ctm
             )
             let frameContribution = FrameContribution(
                 segments: segments,

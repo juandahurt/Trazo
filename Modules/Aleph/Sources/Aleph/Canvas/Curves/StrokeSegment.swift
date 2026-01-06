@@ -7,19 +7,20 @@ struct StrokeSegment {
     mutating func add(point: DrawablePoint, ctm: Transform) {
         // we need to take into account the current transformation
         let pos = Point(x: point.position.x, y: point.position.y).applying(ctm.inverse)
+        let size = point.size * ctm.scale
         defer { points.append(point) }
         guard !points.isEmpty else {
             bounds.x = pos.x
             bounds.y = pos.y
-            bounds.width = point.size / 2
-            bounds.height = point.size / 2
+            bounds.width = size / 2
+            bounds.height = size / 2
             return
         }
         
-        let minX = min(pos.x - point.size / 2, bounds.x)
-        let maxX = max(pos.x + point.size / 2, bounds.x + bounds.width)
-        let minY = min(pos.y - point.size / 2, bounds.y)
-        let maxY = max(pos.y + point.size / 2, bounds.y + bounds.height)
+        let minX = min(pos.x - size / 2, bounds.x)
+        let maxX = max(pos.x + size / 2, bounds.x + bounds.width)
+        let minY = min(pos.y - size / 2, bounds.y)
+        let maxY = max(pos.y + size / 2, bounds.y + bounds.height)
         
         bounds.x = minX
         bounds.y = minY

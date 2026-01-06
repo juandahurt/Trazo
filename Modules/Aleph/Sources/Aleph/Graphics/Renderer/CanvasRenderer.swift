@@ -47,8 +47,8 @@ class CanvasRenderer: NSObject {
     weak var frameRequester: FrameRequester?
   
     init(canvasSize: Size) {
-        let rows = 8
-        let cols = 8
+        let rows = 41
+        let cols = 59
         let tileSize = Size(
             width: canvasSize.width / Float(cols),
             height: canvasSize.height / Float(rows)
@@ -91,7 +91,7 @@ class CanvasRenderer: NSObject {
         // fill background texture with white
         fill(texture: canvasState.layers.first!.texture, with: .white)
         // merge
-//        merge(onlyDirtyTiles: false, isDrawing: false)
+        merge(onlyDirtyTiles: false, isDrawing: false)
         // copy renderable texture to intermdiate texture
         frameScheduler.enqueue(.tileResolve(onlyDirtyIndices: false))
         // present
@@ -115,10 +115,9 @@ class CanvasRenderer: NSObject {
         strokeWorker.submit(
             touch,
             ctm: frameScheduler.ctm,
-            boundingBoxes: tiledTexture.tiles.map {
-                $0.bounds
-            },
-            brush: canvasState.selectedBrush)
+            brush: canvasState.selectedBrush,
+            tileSize: renderResources.tileSize,
+            cols: renderResources.cols)
         { [weak self] contribution in
             guard let self else { return }
             frameScheduler.ingest(contribution)
@@ -132,7 +131,7 @@ class CanvasRenderer: NSObject {
                     currentLayerIndex: canvasState.currentLayerIndex
                 )
             )
-            
+            frameScheduler.needsToPresent = true
             frameRequester?.requestFrame()
         }
     }
@@ -189,8 +188,10 @@ extension CanvasRenderer: MTKViewDelegate {
             drawable: drawable
         )
         
+        frameScheduler.needsToPresent = false
+        
         // show bounding boxes of the segments
-        var transform: CGAffineTransform = context.ctm.affineTransform()
+        var transform: CGAffineTransform = .identity
         for segment in context.segments.filter { !$0.points.isEmpty } {
             let shape = CAShapeLayer()
             shape.path = .init(
