@@ -4,14 +4,18 @@ import SwiftUI
 struct ContentView: View {
     @State var isDebugSheetPresented = false
     @State var spacing: Float = 5
-    @State var pointSize: Float = 10
+    @State var pointSize: Float = 30
     @State var opacity: Float = 1
     @State var shapeTextures: [TextureID]
     @State var selectedShapeTexture: TextureID
+    @State var granularityTextures: [TextureID]
+    @State var selectedGranularityTexture: TextureID
     
     init() {
-        shapeTextures = Aleph.debugTextures
-        selectedShapeTexture = Aleph.debugTextures.first!
+        shapeTextures = Aleph.debugShapeTextures
+        selectedShapeTexture = Aleph.debugShapeTextures.first!
+        granularityTextures = Aleph.debugGranularityTextures
+        selectedGranularityTexture = Aleph.debugGranularityTextures.first!
     }
     
     var spacingView: some View {
@@ -24,7 +28,7 @@ struct ContentView: View {
     var pointSizeView: some View {
         VStack(alignment: .leading) {
             Text("Point size")
-            Slider(value: $pointSize, in: 5...50)
+            Slider(value: $pointSize, in: 5...100)
         }.padding()
     }
     
@@ -45,12 +49,23 @@ struct ContentView: View {
         }
     }
     
+    var brushGranularityView: some View {
+        Picker(selection: $selectedGranularityTexture) {
+            ForEach(granularityTextures, id: \.self) { granTextureId in
+                Text("\(granTextureId)")
+            }
+        } label: {
+            Text("Shape granularity")
+        }
+    }
+    
     var debugProperties: some View {
         List {
             spacingView
             pointSizeView
             opacityView
             brushShapeView
+            brushGranularityView
         }
         .background(.black.opacity(0.2))
         .clipShape(RoundedRectangle(cornerRadius: 10))
@@ -63,7 +78,8 @@ struct ContentView: View {
                 spacing: $spacing,
                 pointSize: $pointSize,
                 opacity: $opacity,
-                selectedShapeTexture: $selectedShapeTexture
+                selectedShapeTexture: $selectedShapeTexture,
+                selectedGranularityTexture: $selectedGranularityTexture
             )
                 .ignoresSafeArea()
             Button("", systemImage: "ladybug") {

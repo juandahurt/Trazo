@@ -30,6 +30,7 @@ struct CanvasState {
         self.currentLayerIndex = currentLayerIndex
         selectedBrush = .init(
             shapeTextureID: .max, // just a wrong number while we pass the selected brush
+            granularityTextureID: .max,
             spacing: 2,
             pointSize: 10,
             opacity: 1
@@ -128,6 +129,7 @@ class CanvasRenderer: NSObject {
             frameScheduler.enqueue(
                 .stroke(
                     shape: canvasState.selectedBrush.shapeTextureID,
+                    granularity: canvasState.selectedBrush.granularityTextureID,
                     layers: visibleLayersIds,
                     currentLayerIndex: canvasState.currentLayerIndex
                 )

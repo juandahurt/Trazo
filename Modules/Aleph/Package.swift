@@ -27,6 +27,8 @@ let package = Package(
                 .process("Resources/shape-1.png"),
                 .process("Resources/shape-2.png"),
                 .process("Resources/shape-3.png"),
+                .process("Resources/gran-0.png"),
+                .process("Resources/gran-1.png"),
             ]
         ),
 

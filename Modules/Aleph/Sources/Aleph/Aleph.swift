@@ -2,11 +2,24 @@ import UIKit
 
 /// Drawing engine! :)
 public class Aleph {
-    public static let debugTextures: [TextureID] = {
+    public static let debugShapeTextures: [TextureID] = {
         var ids: [TextureID] = []
         var count = 0
         while let id = TextureManager.loadTexture(
             fromFile: "shape-\(count)",
+            withExtension: "png"
+        ) {
+            count += 1
+            ids.append(id)
+        }
+        return ids
+    }()
+    
+    public static let debugGranularityTextures: [TextureID] = {
+        var ids: [TextureID] = []
+        var count = 0
+        while let id = TextureManager.loadTexture(
+            fromFile: "gran-\(count)",
             withExtension: "png"
         ) {
             count += 1

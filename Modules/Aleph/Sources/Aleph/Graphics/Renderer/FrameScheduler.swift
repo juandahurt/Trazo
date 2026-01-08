@@ -6,6 +6,7 @@ class FrameScheduler {
     enum Intent {
         case stroke(
             shape: TextureID,
+            granularity: TextureID,
             layers: [TextureID],
             currentLayerIndex: Int
         )
@@ -42,8 +43,15 @@ class FrameScheduler {
             var passes: [RenderPass] = []
             for intent in intentQueue {
                 switch intent {
-                case .stroke(let shapeTexture, let layers, let currentLayerIndex):
-                    passes.append(StrokePass(shapeTextureId: shapeTexture, color: .black))
+                case .stroke(let shapeTexture, let granTexture, let layers, let currentLayerIndex):
+                    passes
+                        .append(
+                            StrokePass(
+                                shapeTextureId: shapeTexture,
+                                granularityTextureId: granTexture,
+                                color: .black
+                            )
+                        )
 //                    passes.append(ColorizePass(color: .black))
                     passes.append(
                         MergePass(

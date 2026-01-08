@@ -25,6 +25,7 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
     @Binding var pointSize: Float
     @Binding var opacity: Float
     @Binding var selectedShapeTexture: TextureID
+    @Binding var selectedGranularityTexture: TextureID
     
     func makeUIViewController(context: Context) -> ViewController {
         ViewController()
@@ -38,5 +39,6 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
         viewController.canvasViewController?.setPointSize(pointSize)
         viewController.canvasViewController?.setOpacity(opacity)
         viewController.canvasViewController?.setShapeTexture(selectedShapeTexture)
+        viewController.canvasViewController?.setGranularityTexture(selectedGranularityTexture)
     }
 }

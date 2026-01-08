@@ -3,10 +3,12 @@ import Tartarus
 
 class StrokePass: RenderPass {
     let shapeTextureId: TextureID
+    let granularityTextureId: TextureID
     let color: Color
     
-    init(shapeTextureId: TextureID, color: Color) {
+    init(shapeTextureId: TextureID, granularityTextureId: TextureID, color: Color) {
         self.shapeTextureId = shapeTextureId
+        self.granularityTextureId = granularityTextureId
         self.color = color
     }
     
@@ -25,7 +27,8 @@ class StrokePass: RenderPass {
             let grayscaleTexture = TextureManager.findTiledTexture(
                 id: resources.strokeTexture
             ),
-            let shapeTexture = TextureManager.findTexture(id: shapeTextureId)
+            let shapeTexture = TextureManager.findTexture(id: shapeTextureId),
+            let granularityTexture = TextureManager.findTexture(id: granularityTextureId)
         else {
             return
         }
@@ -121,7 +124,7 @@ class StrokePass: RenderPass {
             )
             
             encoder?.setFragmentTexture(shapeTexture, index: 0)
-            //        encoder?.setFragmentTexture(granularityTexture, index: 1)
+            encoder?.setFragmentTexture(granularityTexture, index: 1)
             encoder?
                 .drawIndexedPrimitives(
                     type: .triangle,

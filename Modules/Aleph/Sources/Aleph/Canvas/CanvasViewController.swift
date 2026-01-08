@@ -124,4 +124,8 @@ public extension CanvasViewController {
     func setShapeTexture(_ id: TextureID) {
         renderer?.canvasState.selectedBrush.shapeTextureID = id
     }
+    
+    func setGranularityTexture(_ id: TextureID) {
+        renderer?.canvasState.selectedBrush.granularityTextureID = id
+    }
 }
