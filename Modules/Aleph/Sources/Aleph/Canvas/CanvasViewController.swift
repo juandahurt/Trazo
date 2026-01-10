@@ -3,11 +3,12 @@ import Tartarus
 import UIKit
 
 public class CanvasViewController: UIViewController {
-    let gestureController = GestureController()
-    let transformer = Transformer()
-    var renderer: CanvasRenderer?
+//    let gestureController = GestureController()
+//    let transformer = Transformer()
+//    var renderer: CanvasRenderer?
     
     let canvasSize: Size
+    let engine = Engine()
     
     init(canvasSize: CGRect) {
         self.canvasSize = .init(
@@ -27,7 +28,7 @@ public class CanvasViewController: UIViewController {
     }
     
     public override func viewDidLoad() {
-        gestureController.delegate = self
+//        gestureController.delegate = self
         let fingerRecognizer = FingerGestureRecognizer()
         fingerRecognizer.fingerGestureDelegate = self
         view.addGestureRecognizer(fingerRecognizer)
@@ -35,13 +36,13 @@ public class CanvasViewController: UIViewController {
         pencilRecognizer.pencilGestureDelegate = self
         view.addGestureRecognizer(pencilRecognizer)
         
-        renderer = .init(
-            canvasSize: canvasSize * Float(view.contentScaleFactor)
-        )
-        (view as? MTKView)?.delegate = renderer
-        guard let renderer else { return }
-        renderer.frameRequester = self
-        renderer.notifyChange()
+//        renderer = .init(
+//            canvasSize: canvasSize * Float(view.contentScaleFactor)
+//        )
+        (view as? MTKView)?.delegate = engine
+//        guard let renderer else { return }
+//        renderer.frameRequester = self
+//        renderer.notifyChange()
     }
 }
 
@@ -51,49 +52,52 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
         _ controller: GestureController,
         touchesMap: [Int : [Touch]]
     ) {
-        transformer.initialize(withTouches: touchesMap)
+//        transformer.initialize(withTouches: touchesMap)
     }
     
     func gestureControllerDidTransform(
         _ controller: GestureController,
         touchesMap: [Int : [Touch]]
     ) {
-        guard let renderer else { return }
-        transformer.transform(currentTouches: touchesMap)
-        renderer.updateCurrentTransform(transformer.transform)
-        renderer.notifyChange()
+//        guard let renderer else { return }
+//        transformer.transform(currentTouches: touchesMap)
+//        renderer.updateCurrentTransform(transformer.transform)
+//        renderer.notifyChange()
     }
     
     func gestureControllerDidStartPanWithFinger(
         _ controller: GestureController,
         touch: Touch
     ) {
-        renderer?.handleInput(touch)
+//        renderer?.handleInput(touch)
     }
     
     func gestureControllerDidPanWithFinger(
         _ controller: GestureController,
         touch: Touch
     ) {
-        renderer?.handleInput(touch)
+//        renderer?.handleInput(touch)
     }
 }
 
 // MARK: - Finger gesture delegate
 extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
+//        guard let renderer else { return }
         let touches = touches.map { Touch(touch: $0, in: view) }
-        gestureController.handleFingerTouches(touches)
+        engine.inputSystem.enqueue(touches)
+//        renderer.collectInput(touches)
+//        gestureController.handleFingerTouches(touches)
     }
 }
 
 extension CanvasViewController: PencilGestureRecognizerDelegate {
     func didReceivePencilTouches(_ touches: Set<UITouch>) {
         // TODO: finish implementation
-        let touches = touches.map { Touch(touch: $0, in: view) }
-        for touch in touches {
-            renderer?.handleInput(touch)
-        }
+//        let touches = touches.map { Touch(touch: $0, in: view) }
+//        for touch in touches {
+//            renderer?.handleInput(touch)
+//        }
     }
 }
 
@@ -110,22 +114,22 @@ extension CanvasViewController: @MainActor FrameRequester {
 // MARK: - API
 public extension CanvasViewController {
     func setSpacing(_ value: Float) {
-        renderer?.canvasState.selectedBrush.spacing = value
+//        renderer?.canvasState.selectedBrush.spacing = value
     }
     
     func setPointSize(_ value: Float) {
-        renderer?.canvasState.selectedBrush.pointSize = value
+//        renderer?.canvasState.selectedBrush.pointSize = value
     }
     
     func setOpacity(_ value: Float) {
-        renderer?.canvasState.selectedBrush.opacity = value
+//        renderer?.canvasState.selectedBrush.opacity = value
     }
     
     func setShapeTexture(_ id: TextureID) {
-        renderer?.canvasState.selectedBrush.shapeTextureID = id
+//        renderer?.canvasState.selectedBrush.shapeTextureID = id
     }
     
     func setGranularityTexture(_ id: TextureID) {
-        renderer?.canvasState.selectedBrush.granularityTextureID = id
+//        renderer?.canvasState.selectedBrush.granularityTextureID = id
     }
 }
