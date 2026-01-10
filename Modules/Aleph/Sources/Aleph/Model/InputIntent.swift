@@ -1,5 +1,8 @@
+enum TransformIntent {
+    case start, update
+}
+
 enum InputIntent {
-    case startTransform([Int: [Touch]])
-    case transform([Int: [Touch]])
+    case transform(TransformIntent, [Int: [Touch]])
     case unknown
 }

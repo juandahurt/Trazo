@@ -7,7 +7,7 @@ class Engine: NSObject {
     
     var context = SceneContext()
     
-    func tick() {
+    func tick(in view: MTKView) {
         print("begin frame")
         // 1. resolve intents
         let pendingInput = inputSystem.drain()
@@ -15,10 +15,13 @@ class Engine: NSObject {
         // 2. update
         for intent in intents {
             switch intent {
-            case .startTransform(let touchMap):
-                transformSystem.reset(touchMap: touchMap)
-            case .transform(let touchMap):
-                transformSystem.update(ctx: &context, touchMap: touchMap)
+            case .transform(let transformIntent, let touchMap):
+                switch transformIntent {
+                case .start:
+                    transformSystem.reset(touchMap: touchMap)
+                case .update:
+                    transformSystem.update(ctx: &context, touchMap: touchMap)
+                }
             case .unknown:
                 print("unknown")
             }
@@ -35,6 +38,6 @@ extension Engine: MTKViewDelegate {
     }
     
     func draw(in view: MTKView) {
-        tick()
+        tick(in: view)
     }
 }

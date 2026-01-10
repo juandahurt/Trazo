@@ -23,11 +23,11 @@ class IntentSystem {
             if touchCount == 2 {
                 if currentGesture == .idle {
                     // when we don't have any gesture, we start a new transform
-                    intent = .startTransform(touchMap)
+                    intent = .transform(.start, touchMap)
                 }
                 if currentGesture == .transform {
                     // when tranforming, we update the current tranform
-                    intent = .transform(touchMap)
+                    intent = .transform(.update, touchMap)
                 }
                 currentGesture = .transform
             }
