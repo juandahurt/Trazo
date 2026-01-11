@@ -3,8 +3,7 @@ import Tartarus
 
 class PresentPass: RenderPass {
     func encode(
-        context: FrameContext,
-        resources: RenderResources,
+        context: SceneContext,
         commandBuffer: any MTLCommandBuffer,
         drawable: CAMetalDrawable
     ) {
@@ -13,11 +12,19 @@ class PresentPass: RenderPass {
         let descriptor = MTLRenderPassDescriptor()
         descriptor.colorAttachments[0].texture = drawable.texture
         descriptor.colorAttachments[0].loadAction = .clear
+        descriptor.colorAttachments[0].clearColor = .init(
+            red: 0.2,
+            green: 0.4,
+            blue: 0.2,
+            alpha: 1
+        )
         guard
             let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
         else { return }
         encoder.setRenderPipelineState(pipelineState)
-        if let texture = TextureManager.findTexture(id: resources.intermidiateTexture) {
+        if let texture = TextureManager.findTexture(
+            id: context.renderContext.intermidiateTexture
+        ) {
             encoder.setFragmentTexture(texture, index: 3)
             
             let vertices: [Float] = [
@@ -45,13 +52,13 @@ class PresentPass: RenderPass {
                 index: 1
             )
             
-            var ctm = context.ctm
+            var ctm = context.renderContext.transform
             encoder.setVertexBytes(
                 &ctm,
                 length: MemoryLayout<Transform.Matrix>.stride,
                 index: 2
             )
-            var cpm = context.cpm
+            var cpm = context.renderContext.projectionTransform
             encoder.setVertexBytes(
                 &cpm,
                 length: MemoryLayout<Transform.Matrix>.stride,

@@ -8,7 +8,7 @@ public class CanvasViewController: UIViewController {
 //    var renderer: CanvasRenderer?
     
     let canvasSize: Size
-    let engine = Engine()
+    var engine: Engine?
     
     init(canvasSize: CGRect) {
         self.canvasSize = .init(
@@ -36,9 +36,9 @@ public class CanvasViewController: UIViewController {
         pencilRecognizer.pencilGestureDelegate = self
         view.addGestureRecognizer(pencilRecognizer)
         
-//        renderer = .init(
-//            canvasSize: canvasSize * Float(view.contentScaleFactor)
-//        )
+        engine = .init(
+            canvasSize: canvasSize * Float(view.contentScaleFactor)
+        )
         (view as? MTKView)?.delegate = engine
 //        guard let renderer else { return }
 //        renderer.frameRequester = self
@@ -83,7 +83,7 @@ extension CanvasViewController: @preconcurrency GestureControllerDelegate {
 // MARK: - Finger gesture delegate
 extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
-//        guard let renderer else { return }
+        guard let engine else { return }
         let touches = touches.map { Touch(touch: $0, in: view) }
         engine.inputSystem.enqueue(touches)
 //        renderer.collectInput(touches)

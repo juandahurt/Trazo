@@ -2,8 +2,7 @@ import MetalKit
 
 protocol RenderPass {
     func encode(
-        context: FrameContext,
-        resources: RenderResources,
+        context: SceneContext,
         commandBuffer: MTLCommandBuffer,
         drawable: CAMetalDrawable
     )
