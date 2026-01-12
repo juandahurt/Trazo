@@ -85,7 +85,7 @@ extension CanvasViewController: FingerGestureRecognizerDelegate {
     func didReceiveFingerTouches(_ touches: Set<UITouch>) {
         guard let engine else { return }
         let touches = touches.map { Touch(touch: $0, in: view) }
-        engine.inputSystem.enqueue(touches)
+        engine.enqueue(.input(.touches(touches)))
 //        renderer.collectInput(touches)
 //        gestureController.handleFingerTouches(touches)
     }

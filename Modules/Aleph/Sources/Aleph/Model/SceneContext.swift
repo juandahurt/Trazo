@@ -18,10 +18,6 @@ struct RenderContext {
         rows: Int,
         cols: Int
     ) {
-//        self.canvasSize = canvasSize
-//        self.tileSize = tileSize
-//        self.rows = rows
-//        self.cols = cols
         intermidiateTexture = TextureManager.makeTexture(
             ofSize: canvasSize,
             label: "Intermidiate texture"

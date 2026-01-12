@@ -2,12 +2,24 @@ import MetalKit
 import Tartarus
 
 class Engine: NSObject {
-    let inputSystem = InputSystem()
+    // MARK: Event queue
+    var eventQueue: [Event] = []
+    
+    // MARK: Input
+    private let inputTracker = InputTracker()
+    
+    // MARK: Gestures
+    private let gesturePipeline = GesturePipeline()
+    
+    // MARK: Systems
     let intentSystem = IntentSystem()
     let transformSystem = TransformSystem()
     
+    // MARK: Rendering
     let planBuilder = RenderPlanBuilder()
-    let planExcecutor = RenderPlanExcecutor()
+    let planExecutor = RenderPlanExecutor()
+    
+    // MARK: Context/State
     var sceneContext: SceneContext
     
     init(canvasSize: Size) {
@@ -28,30 +40,43 @@ class Engine: NSObject {
     }
     
     func tick(in view: MTKView) {
-        print("begin frame")
         // 1. resolve intents
-        let pendingInput = inputSystem.drain()
-        let intents = intentSystem.resolve(pendingInput)
+        var intents: [Intent] = []
+        for e in eventQueue {
+            switch e {
+            case .input(let inputEvent):
+                switch inputEvent {
+                case .touches(let touches):
+                    inputTracker.store(touches)
+                    let gestureIntents = gesturePipeline.process(inputTracker.touchMap)
+                    gestureIntents.forEach { intents.append(.input($0)) }
+                }
+            case .lifeCycle(_): break
+            }
+        }
         // 2. update
         for intent in intents {
             switch intent {
-            case .transform(let transformIntent, let touchMap):
-                switch transformIntent {
-                case .start:
-                    transformSystem.reset(ctx: &sceneContext, touchMap: touchMap)
-                case .update:
-                    transformSystem.update(ctx: &sceneContext, touchMap: touchMap)
-                }
-            case .unknown:
-                print("unknown")
+            case .input(let inputIntent):
+                transformSystem.update(ctx: &sceneContext, intent: inputIntent)
             }
         }
         // 3. build render plan
-        let passes = planBuilder.buildPlan(ctx: sceneContext, intents: intents)
-        
-        // 4. excecute plan
-        planExcecutor.excecute(passes, ctx: sceneContext, drawable: view.currentDrawable!)
-        print("end frame")
+        let passes = planBuilder.buildPlan(ctx: sceneContext)
+        // 4. render
+        planExecutor.excecute(passes, ctx: sceneContext, drawable: view.currentDrawable!)
+        // 5. end frame
+        endFrame()
+    }
+    
+    func enqueue(_ event: Event) {
+        eventQueue.append(event)
+    }
+    
+    func endFrame() {
+        // clear events
+        eventQueue = []
+        inputTracker.removeEndedTouches()
     }
 }
 
@@ -76,12 +101,12 @@ extension Engine: MTKViewDelegate {
 }
 
 class RenderPlanBuilder {
-    func buildPlan(ctx: SceneContext, intents: [InputIntent]) -> [RenderPass] {
+    func buildPlan(ctx: SceneContext) -> [RenderPass] {
         [PresentPass()]
     }
 }
 
-class RenderPlanExcecutor {
+class RenderPlanExecutor {
     func excecute(_ passes: [RenderPass], ctx: SceneContext, drawable: CAMetalDrawable) {
         guard let commandBuffer = GPU.commandQueue.makeCommandBuffer() else { return }
         for pass in passes {

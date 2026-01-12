@@ -1,8 +1,20 @@
-enum TransformIntent {
-    case start, update
+import Tartarus
+
+struct TransformData {
+    let startPointA: Point
+    let startPointB: Point
+    let currPointA: Point
+    let currPointB: Point
+}
+
+enum GesturePhase {
+    case began, update, ended
 }
 
 enum InputIntent {
-    case transform(TransformIntent, [Int: [Touch]])
-    case unknown
+    case transform(GesturePhase, TransformData?)
+}
+
+enum Intent {
+    case input(InputIntent)
 }

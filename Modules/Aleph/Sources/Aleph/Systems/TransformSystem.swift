@@ -2,47 +2,16 @@ import Foundation
 import Tartarus
 
 class TransformSystem {
-    /// First touch of finger A
-    var initialTouchA: Touch?
-    /// First touch of finger B
-    var initialTouchB: Touch?
-    
-    var isInitialized: Bool {
-        initialTouchA != nil && initialTouchB != nil
-    }
-    
-    func reset(ctx: inout SceneContext, touchMap: [Int: [Touch]]) {
-        guard
-            let keyA = touchMap.keys.sorted().first,
-            let keyB = touchMap.keys.sorted().last,
-            let touchA = touchMap[keyA]?.first, // since we have only one touch in the array
-            let touchB = touchMap[keyB]?.first  // we select the first and only element
-        else {
-            fatalError("failed to reset transform system")
-        }
-        ctx.renderContext.baseTransform = ctx.renderContext.currentTransform.concatenating(ctx.renderContext.baseTransform)
-        ctx.renderContext.currentTransform = .identity
-        
-        initialTouchA = touchA
-        initialTouchB = touchB
-    }
-    
-    func update(ctx: inout SceneContext, touchMap: [Int: [Touch]]) {
-        guard touchMap.count == 2 else { return }
-        guard
-            let initialTouchA,
-            let initialTouchB,
-            let lastTouchA = touchMap[initialTouchA.id]?.last,
-            let lastTouchB = touchMap[initialTouchB.id]?.last
-        else {
-            return
-        }
+    func update(ctx: inout SceneContext, intent: InputIntent) {
+        guard case let .transform(phase, data) = intent else { return }
+        guard let data else { return }
+        print("in transform system", phase)
         
         let inverse = ctx.renderContext.baseTransform.inverse
-        let initialPointA = initialTouchA.location.applying(inverse)
-        let currentPointA = lastTouchA.location.applying(inverse)
-        let initialPointB = initialTouchB.location.applying(inverse)
-        let currentPointB = lastTouchB.location.applying(inverse)
+        let initialPointA = data.startPointA.applying(inverse)
+        let currentPointA = data.currPointA.applying(inverse)
+        let initialPointB = data.startPointB.applying(inverse)
+        let currentPointB = data.currPointB.applying(inverse)
         
         // midpoint displacement
         let startCenter = (initialPointA - initialPointB) / 2 + initialPointB
