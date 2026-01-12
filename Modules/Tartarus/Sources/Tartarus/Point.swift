@@ -64,6 +64,12 @@ public extension Point {
     }
 }
 
+extension Point: Equatable {
+    public static func==(lhs: Point, rhs: Point) -> Bool {
+        lhs._value == rhs._value
+    }
+}
+
 // MARK: - Transformations
 public extension Point {
     func applying(_ transform: Transform) -> Point {

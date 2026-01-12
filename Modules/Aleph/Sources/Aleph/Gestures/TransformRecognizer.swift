@@ -22,7 +22,17 @@ class TransformRecognizer: GestureRecognizer {
         guard let lastA = a.last else { return nil }
         guard let lastB = b.last else { return nil }
         
+        if [lastA, lastB].contains(where: { $0.phase == .ended || $0.phase == .cancelled }) {
+            if isActive {
+                isActive = false
+                reset()
+                return .transform(.ended, nil)
+            }
+        }
+        
         if !isActive {
+            initialA = firstA.location
+            initialB = firstB.location
             isActive = true
             return .transform(
                 .began,
