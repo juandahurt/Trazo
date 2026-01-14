@@ -48,6 +48,8 @@ class Engine: NSObject {
                     intents.append(.transform(.translation(x: x, y: y)))
                 case .zoom(anchor: let anchor, scale: let scale):
                     intents.append(.transform(.zoom(anchor: anchor, scale: scale)))
+                case .rotation(anchor: let anchor, angle: let angle):
+                    intents.append(.transform(.rotation(anchor: anchor, angle: angle)))
                 }
             case .input(let inputEvent):
                 switch inputEvent {

@@ -43,6 +43,11 @@ public class CanvasViewController: UIViewController {
             action: #selector(onPinchGesture(_:))
         )
         transformGestures.append(pinchGesture)
+        let rotationGesture = UIRotationGestureRecognizer(
+            target: self,
+            action: #selector(onRotationGesture(_:))
+        )
+        transformGestures.append(rotationGesture)
         for gesture in transformGestures {
             gesture.delegate = self
             view.addGestureRecognizer(gesture)
@@ -86,6 +91,23 @@ extension CanvasViewController {
             )
         )
         gesture.scale = 1
+    }
+    
+    @objc
+    func onRotationGesture(_ gesture: UIRotationGestureRecognizer) {
+        let anchor = gesture.location(in: view)
+        engine?.enqueue(
+            .transform(
+                .rotation(
+                    anchor: .init(
+                        x: Float(anchor.x),
+                        y:  Float(anchor.y)
+                    ) * Float(view.contentScaleFactor),
+                    angle: Float(-gesture.rotation)
+                )
+            )
+        )
+        gesture.rotation = 0
     }
 }
 

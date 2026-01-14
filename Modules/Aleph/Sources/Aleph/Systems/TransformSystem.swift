@@ -16,6 +16,11 @@ class TransformSystem {
                 .concatenating(.init(scaledBy: newScale))
                 .concatenating(.init(translateByX: anchor.x, y: anchor.y))
             ctx.renderContext.transform = transform.concatenating(scaleTransform)
+        case .rotation(anchor: let anchor, angle: let angle):
+            let rotationTransform = Transform(translateByX: -anchor.x, y: -anchor.y)
+                .concatenating(.init(rotatedBy: angle))
+                .concatenating(.init(translateByX: anchor.x, y: anchor.y))
+            ctx.renderContext.transform = transform.concatenating(rotationTransform)
         }
     }
 }
