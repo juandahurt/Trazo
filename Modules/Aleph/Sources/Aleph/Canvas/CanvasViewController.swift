@@ -3,10 +3,6 @@ import Tartarus
 import UIKit
 
 public class CanvasViewController: UIViewController {
-//    let gestureController = GestureController()
-//    let transformer = Transformer()
-//    var renderer: CanvasRenderer?
-    
     let canvasSize: Size
     var engine: Engine?
     
@@ -28,7 +24,6 @@ public class CanvasViewController: UIViewController {
     }
     
     public override func viewDidLoad() {
-//        gestureController.delegate = self
         let fingerRecognizer = FingerGestureRecognizer()
         fingerRecognizer.fingerGestureDelegate = self
         view.addGestureRecognizer(fingerRecognizer)
@@ -36,47 +31,67 @@ public class CanvasViewController: UIViewController {
         pencilRecognizer.pencilGestureDelegate = self
         view.addGestureRecognizer(pencilRecognizer)
         
+        // MARK: Transforms gestures
+        var transformGestures: [UIGestureRecognizer] = []
+        let panGesture = UIPanGestureRecognizer(
+            target: self,
+            action: #selector(onPanGesture(_:))
+        )
+        transformGestures.append(panGesture)
+        let pinchGesture = UIPinchGestureRecognizer(
+            target: self,
+            action: #selector(onPinchGesture(_:))
+        )
+        transformGestures.append(pinchGesture)
+        for gesture in transformGestures {
+            gesture.delegate = self
+            view.addGestureRecognizer(gesture)
+        }
+        
         engine = .init(
             canvasSize: canvasSize * Float(view.contentScaleFactor)
         )
         (view as? MTKView)?.delegate = engine
-//        guard let renderer else { return }
-//        renderer.frameRequester = self
-//        renderer.notifyChange()
     }
 }
 
-// MARK: - Gesture delegate
-extension CanvasViewController: @preconcurrency GestureControllerDelegate {
-    func gestureControllerDidStartTransform(
-        _ controller: GestureController,
-        touchesMap: [Int : [Touch]]
-    ) {
-//        transformer.initialize(withTouches: touchesMap)
+extension CanvasViewController {
+    @objc
+    func onPanGesture(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: view)
+        engine?.enqueue(
+            .transform(
+                .translate(
+                    x: Float(translation.x),
+                    y: Float(translation.y)
+                )
+            )
+        )
+        gesture.setTranslation(.zero, in: view)
     }
     
-    func gestureControllerDidTransform(
-        _ controller: GestureController,
-        touchesMap: [Int : [Touch]]
-    ) {
-//        guard let renderer else { return }
-//        transformer.transform(currentTouches: touchesMap)
-//        renderer.updateCurrentTransform(transformer.transform)
-//        renderer.notifyChange()
+    @objc
+    func onPinchGesture(_ gesture: UIPinchGestureRecognizer) {
+        let anchor = gesture.location(in: view)
+        let scale = Float(gesture.scale)
+        engine?.enqueue(
+            .transform(
+                .zoom(
+                    anchor: .init(
+                        x: Float(anchor.x),
+                        y:  Float(anchor.y)
+                    ) * Float(view.contentScaleFactor),
+                    scale: scale
+                )
+            )
+        )
+        gesture.scale = 1
     }
-    
-    func gestureControllerDidStartPanWithFinger(
-        _ controller: GestureController,
-        touch: Touch
-    ) {
-//        renderer?.handleInput(touch)
-    }
-    
-    func gestureControllerDidPanWithFinger(
-        _ controller: GestureController,
-        touch: Touch
-    ) {
-//        renderer?.handleInput(touch)
+}
+
+extension CanvasViewController: UIGestureRecognizerDelegate {
+    public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
+        true
     }
 }
 
@@ -100,16 +115,6 @@ extension CanvasViewController: PencilGestureRecognizerDelegate {
 //        }
     }
 }
-
-extension CanvasViewController: @MainActor FrameRequester {
-    func requestFrame() {
-        DispatchQueue.main.async { [weak self] in
-            guard let self else { return }
-            view.setNeedsDisplay()
-        }
-    }
-}
-
 
 // MARK: - API
 public extension CanvasViewController {

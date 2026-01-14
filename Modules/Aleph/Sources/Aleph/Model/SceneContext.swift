@@ -2,12 +2,16 @@ import Tartarus
 
 struct SceneContext {
     var renderContext: RenderContext
+    var layersContext: LayersContext
+}
+
+struct LayersContext {
+    var layers: [Layer]
+    var currentLayerIndex: Int
 }
 
 struct RenderContext {
-    var baseTransform = Transform.identity
-    var currentTransform = Transform.identity
-    var transform: Transform { currentTransform.concatenating(baseTransform) }
+    var transform: Transform = .identity
     var projectionTransform: Transform = .identity
     
     var intermidiateTexture: TextureID

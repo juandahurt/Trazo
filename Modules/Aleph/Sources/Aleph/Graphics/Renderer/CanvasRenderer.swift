@@ -5,16 +5,7 @@ protocol FrameRequester: AnyObject {
     func requestFrame()
 }
 
-struct Layer {
-    var name: String
-    var isVisible = true
-    var texture: TextureID
-    
-    init(named name: String, texture: TextureID) {
-        self.name = name
-        self.texture = texture
-    }
-}
+
 
 struct CanvasState {
     var layers: [Layer]
@@ -22,7 +13,8 @@ struct CanvasState {
     var selectedBrush: Brush
     
     var visibleLayers: [Layer] {
-        layers.filter { $0.isVisible }
+//        layers.filter { $0.isVisible }
+        []
     }
     
     init(layers: [Layer], currentLayerIndex: Int) {

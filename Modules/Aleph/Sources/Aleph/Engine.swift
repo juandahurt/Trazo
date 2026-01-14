@@ -5,14 +5,7 @@ class Engine: NSObject {
     // MARK: Event queue
     var eventQueue: [Event] = []
     
-    // MARK: Input
-    private let inputTracker = InputTracker()
-    
-    // MARK: Gestures
-    private let gesturePipeline = GesturePipeline()
-    
     // MARK: Systems
-    let intentSystem = IntentSystem()
     let transformSystem = TransformSystem()
     
     // MARK: Rendering
@@ -35,8 +28,13 @@ class Engine: NSObject {
                 tileSize: tileSize,
                 rows: rows,
                 cols: cols
+            ),
+            layersContext: .init(
+                layers: [],
+                currentLayerIndex: -1
             )
         )
+        eventQueue.append(.lifeCycle(.load))
     }
     
     func tick(in view: MTKView) {
@@ -44,21 +42,30 @@ class Engine: NSObject {
         var intents: [Intent] = []
         for e in eventQueue {
             switch e {
+            case .transform(let transformEvent):
+                switch transformEvent {
+                case .translate(let x, let y):
+                    intents.append(.transform(.translation(x: x, y: y)))
+                case .zoom(anchor: let anchor, scale: let scale):
+                    intents.append(.transform(.zoom(anchor: anchor, scale: scale)))
+                }
             case .input(let inputEvent):
                 switch inputEvent {
-                case .touches(let touches):
-                    inputTracker.store(touches)
-                    let gestureIntents = gesturePipeline.process(inputTracker.touchMap)
-                    gestureIntents.forEach { intents.append(.input($0)) }
+                case .touches(let touches): break
                 }
-            case .lifeCycle(_): break
+            case .lifeCycle(let lifeCycleEvent):
+                switch lifeCycleEvent {
+                case .load:
+                    intents.append(.layer(.merge(.all)))
+                }
             }
         }
         // 2. update
         for intent in intents {
             switch intent {
-            case .input(let inputIntent):
-                transformSystem.update(ctx: &sceneContext, intent: inputIntent)
+            case .transform(let transformIntent):
+                transformSystem.update(ctx: &sceneContext, intent: transformIntent)
+            case .layer(let layerIntent): break
             }
         }
         // 3. build render plan
@@ -76,7 +83,6 @@ class Engine: NSObject {
     func endFrame() {
         // clear events
         eventQueue = []
-        inputTracker.removeEndedTouches()
     }
 }
 

@@ -1,12 +1,20 @@
-enum InputEvent {
-    case touches([Touch])
-}
-
-enum SceneLifeCycleEvent {
-    case load
-}
+import Tartarus
 
 enum Event {
-    case input(InputEvent)
-    case lifeCycle(SceneLifeCycleEvent)
+    enum Input {
+        case touches([Touch])
+    }
+
+    enum SceneLifeCycle {
+        case load
+    }
+
+    enum Transform {
+        case translate(x: Float, y: Float)
+        case zoom(anchor: Point, scale: Float)
+    }
+    
+    case input(Input)
+    case transform(Transform)
+    case lifeCycle(SceneLifeCycle)
 }
