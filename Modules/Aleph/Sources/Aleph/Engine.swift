@@ -31,7 +31,22 @@ class Engine: NSObject {
                 cols: cols
             ),
             layersContext: .init(
-                layers: [],
+                layers: [
+                    .init(
+                        named: "Background",
+                        texture: TextureManager.makeTexture(
+                            ofSize: canvasSize,
+                            label: "Background texture"
+                        )!
+                    ),
+                    .init(
+                        named: "Layer 1",
+                        texture: TextureManager.makeTexture(
+                            ofSize: canvasSize,
+                            label: "Layer 1 texture"
+                        )!
+                    )
+                ],
                 currentLayerIndex: -1
             ),
             dirtyContext: .init(dirtyIndices: [])
@@ -120,6 +135,8 @@ class RenderPlanBuilder {
             switch operation {
             case .fill(let color, let texture):
                 passes.append(FillPass(color: color, textureId: texture))
+            case .merge:
+                passes.append(MergePass())
             }
         }
         ctx.renderContext.operations = []

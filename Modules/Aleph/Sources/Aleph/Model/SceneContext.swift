@@ -18,6 +18,7 @@ struct LayersContext {
 struct RenderContext {
     enum RenderOperation {
         case fill(color: Color, texture: TextureID)
+        case merge
     }
     
     // MARK: Operations
@@ -30,6 +31,12 @@ struct RenderContext {
     // MARK: Textures
     var renderableTexture: TextureID
     
+    // MARK: Canvas
+    let canvasSize: Size
+    let tileSize: Size
+    let rows: Int
+    let cols: Int
+    
     init(
         canvasSize: Size,
         tileSize: Size,
@@ -40,5 +47,9 @@ struct RenderContext {
             ofSize: canvasSize,
             label: "Renderable texture"
         )!
+        self.canvasSize = canvasSize
+        self.tileSize = tileSize
+        self.rows = rows
+        self.cols = cols
     }
 }
