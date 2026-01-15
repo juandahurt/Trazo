@@ -67,8 +67,8 @@ extension CanvasViewController {
         engine?.enqueue(
             .transform(
                 .translate(
-                    x: Float(translation.x),
-                    y: Float(translation.y)
+                    x: Float(translation.x) * Float(view.contentScaleFactor),
+                    y: Float(translation.y) * Float(view.contentScaleFactor)
                 )
             )
         )

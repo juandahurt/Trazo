@@ -13,9 +13,9 @@ class PresentPass: RenderPass {
         descriptor.colorAttachments[0].texture = drawable.texture
         descriptor.colorAttachments[0].loadAction = .clear
         descriptor.colorAttachments[0].clearColor = .init(
-            red: 0.2,
-            green: 0.4,
-            blue: 0.2,
+            red: 0.9,
+            green: 0.9,
+            blue: 0.9,
             alpha: 1
         )
         guard
@@ -23,7 +23,7 @@ class PresentPass: RenderPass {
         else { return }
         encoder.setRenderPipelineState(pipelineState)
         if let texture = TextureManager.findTexture(
-            id: context.renderContext.intermidiateTexture
+            id: context.renderContext.renderableTexture
         ) {
             encoder.setFragmentTexture(texture, index: 3)
             

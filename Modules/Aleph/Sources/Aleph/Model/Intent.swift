@@ -13,6 +13,7 @@ enum Intent {
 
     enum Layer {
         case merge(Merge)
+        case fill(Color, Int)
         // case clear
     }
     case transform(Transform)

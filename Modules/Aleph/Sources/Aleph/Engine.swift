@@ -7,6 +7,7 @@ class Engine: NSObject {
     
     // MARK: Systems
     let transformSystem = TransformSystem()
+    let layersSystem = LayersSystem()
     
     // MARK: Rendering
     let planBuilder = RenderPlanBuilder()
@@ -32,7 +33,8 @@ class Engine: NSObject {
             layersContext: .init(
                 layers: [],
                 currentLayerIndex: -1
-            )
+            ),
+            dirtyContext: .init(dirtyIndices: [])
         )
         eventQueue.append(.lifeCycle(.load))
     }
@@ -58,6 +60,7 @@ class Engine: NSObject {
             case .lifeCycle(let lifeCycleEvent):
                 switch lifeCycleEvent {
                 case .load:
+                    intents.append(.layer(.fill(.white, 0)))
                     intents.append(.layer(.merge(.all)))
                 }
             }
@@ -67,11 +70,12 @@ class Engine: NSObject {
             switch intent {
             case .transform(let transformIntent):
                 transformSystem.update(ctx: &sceneContext, intent: transformIntent)
-            case .layer(let layerIntent): break
+            case .layer(let layerIntent):
+                layersSystem.update(ctx: &sceneContext, intent: layerIntent)
             }
         }
         // 3. build render plan
-        let passes = planBuilder.buildPlan(ctx: sceneContext)
+        let passes = planBuilder.buildPlan(ctx: &sceneContext)
         // 4. render
         planExecutor.excecute(passes, ctx: sceneContext, drawable: view.currentDrawable!)
         // 5. end frame
@@ -109,8 +113,19 @@ extension Engine: MTKViewDelegate {
 }
 
 class RenderPlanBuilder {
-    func buildPlan(ctx: SceneContext) -> [RenderPass] {
-        [PresentPass()]
+    func buildPlan(ctx: inout SceneContext) -> [RenderPass] {
+        var passes: [RenderPass] = []
+       
+        for operation in ctx.renderContext.operations {
+            switch operation {
+            case .fill(let color, let texture):
+                passes.append(FillPass(color: color, textureId: texture))
+            }
+        }
+        ctx.renderContext.operations = []
+        
+        passes.append(PresentPass())
+        return passes
     }
 }
 
