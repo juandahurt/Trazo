@@ -30,7 +30,9 @@ class FillPass: RenderPass {
             length: MemoryLayout<Float>.stride * 4,
             index: 1
         )
-        let (threadgroupsPerGrid, threadsPerThreadgroup) = calculateThreads(in: texture)
+        let (threadgroupsPerGrid, threadsPerThreadgroup) = calculateThreads(
+            in: context.renderContext.canvasSize
+        )
         encoder?.dispatchThreadgroups(
             threadgroupsPerGrid,
             threadsPerThreadgroup: threadsPerThreadgroup

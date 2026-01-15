@@ -23,6 +23,7 @@ let package = Package(
             dependencies: ["Tartarus"],
             resources: [
                 .process("Graphics/Shaders/Textures.metal"),
+                .process("Graphics/Shaders/Merge.metal"),
                 .process("Resources/shape-0.png"),
                 .process("Resources/shape-1.png"),
                 .process("Resources/shape-2.png"),

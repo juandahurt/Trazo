@@ -47,25 +47,6 @@ class MergePass: RenderPass {
                 using: commandBuffer,
                 renderContext: context.renderContext
             )
-            //            if index == currentLayerIndex && isDrawing {
-            //                merge(
-            //                    strokeTexture,
-            //                    with: layerTexture,
-            //                    on: outputTexture,
-            //                    using: commandBuffer,
-            //                    context: context,
-            //                    resources: resources
-            //                )
-            //            } else {
-            //                merge(
-            //                    outputTexture,
-            //                    with: layerTexture,
-            //                    on: outputTexture,
-            //                    using: commandBuffer,
-            //                    context: context,
-            //                    resources: resources
-            //                )
-            //            }
         }
     }
     
@@ -81,20 +62,69 @@ class MergePass: RenderPass {
         else {
             return
         }
+        let numTiles = 8
+        let dirtyTiles = [Int](repeatElement(0, count: numTiles)).map { _ in
+            Int.random(in: 0...120)
+        }
         let encoder = commandBuffer.makeComputeCommandEncoder()
         encoder?.setComputePipelineState(pipelineState)
         encoder?.setTexture(sourceTexture, index: 0)
         encoder?.setTexture(secondTexture, index: 1)
         encoder?.setTexture(destinationTexture, index: 2)
-        let (threadgroupsPerGrid, threadsPerThreadgroup) = calculateThreads(
-            in: sourceTexture
+        
+//        for dirtyTile in dirtyTiles {
+//            let (threadgroupsPerGrid, threadsPerThreadgroup) = calculateThreads(
+//                in: renderContext.tileSize
+//            )
+//            encoder?.dispatchThreadgroups(
+//                threadgroupsPerGrid,
+//                threadsPerThreadgroup: threadsPerThreadgroup
+//            )
+//        }
+//        
+//        encoder?.endEncoding()
+        
+        let tiles: [TileRect] = [
+            .init(
+                origin: .init(
+                    x: .random(in: 0...UInt32(renderContext.canvasSize.width)),
+                    y: .random(in: 0...UInt32(renderContext.canvasSize.height))
+                ),
+                size: .init(x: 64, y: 64)
+            ),
+        ]
+        let tileBuffer = GPU.device.makeBuffer(
+            bytes: tiles,
+            length: MemoryLayout<TileRect>.stride * tiles.count,
+            options: []
+        )!
+
+        encoder?.setBuffer(tileBuffer, offset: 0, index: 0)
+        
+        let tgPerTile = 4
+        let threadsPerTG = 16
+        let threadgroups = MTLSize(
+            width: tiles.count * tgPerTile,
+            height: tgPerTile,
+            depth: 1
         )
+
+        let threadsPerThreadgroup = MTLSize(
+            width: threadsPerTG,
+            height: threadsPerTG,
+            depth: 1
+        )
+
         encoder?.dispatchThreadgroups(
-            threadgroupsPerGrid,
+            threadgroups,
             threadsPerThreadgroup: threadsPerThreadgroup
         )
-        //        }
+
         encoder?.endEncoding()
-        commandBuffer.popDebugGroup()
     }
+}
+
+fileprivate struct TileRect {
+    var origin: SIMD2<UInt32>
+    var size: SIMD2<UInt32>
 }

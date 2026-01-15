@@ -1,4 +1,5 @@
 import MetalKit
+import Tartarus
 
 protocol RenderPass {
     func encode(
@@ -7,21 +8,21 @@ protocol RenderPass {
         drawable: CAMetalDrawable
     )
     
-    func calculateThreads(in texture: MTLTexture) -> (
+    func calculateThreads(in size: Size) -> (
         groupsPerGrid: MTLSize,
         threadsPerGroup: MTLSize
     )
 }
 
 extension RenderPass {
-    func calculateThreads(in texture: MTLTexture) -> (
+    func calculateThreads(in size: Size) -> (
         groupsPerGrid: MTLSize,
         threadsPerGroup: MTLSize
     ) {
-        let threadGroupLength = 8
+        let threadGroupLength = 16
         let threadsGroupsPerGrid = MTLSize(
-            width: (texture.width + threadGroupLength - 1) / threadGroupLength,
-            height: (texture.height + threadGroupLength - 1) / threadGroupLength,
+            width: (Int(size.width) + threadGroupLength - 1) / threadGroupLength,
+            height: (Int(size.height) + threadGroupLength - 1) / threadGroupLength,
             depth: 1
         )
         let threadsPerThreadGroup = MTLSize(

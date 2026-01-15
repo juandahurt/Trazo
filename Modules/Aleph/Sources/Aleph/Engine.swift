@@ -17,12 +17,12 @@ class Engine: NSObject {
     var sceneContext: SceneContext
     
     init(canvasSize: Size) {
-        let rows = 8
-        let cols = 8
         let tileSize = Size(
-            width: canvasSize.width / Float(cols),
-            height: canvasSize.height / Float(rows)
+            width: 64,
+            height: 64
         )
+        let rows = Int(ceil(canvasSize.width / tileSize.width))
+        let cols = Int(ceil(canvasSize.height / tileSize.height))
         sceneContext = .init(
             renderContext: .init(
                 canvasSize: canvasSize,
@@ -141,6 +141,7 @@ class RenderPlanBuilder {
         }
         ctx.renderContext.operations = []
         
+        passes.append(MergePass())
         passes.append(PresentPass())
         return passes
     }
