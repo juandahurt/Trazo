@@ -9,6 +9,10 @@ struct Color {
         b = value[2]
         a = value[3]
     }
+    
+    func withOpacity(_ a: Float) -> Color {
+        .init([r, g, b, a])
+    }
 }
 
 extension Color {
