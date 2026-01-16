@@ -33,6 +33,7 @@ struct RenderContext {
     enum RenderOperation {
         case fill(color: Color, texture: TextureID)
         case merge
+        case draw(segment: StrokeSegment)
     }
     
     // MARK: Operations

@@ -36,7 +36,8 @@ class MergePass: RenderPass {
         context: SceneContext
     ) {
         guard
-            let pipelineState = PipelinesManager.computePipeline(for: .merge)
+            let pipelineState = PipelinesManager.computePipeline(for: .merge),
+            !context.dirtyContext.dirtyIndices.isEmpty
         else {
             return
         }

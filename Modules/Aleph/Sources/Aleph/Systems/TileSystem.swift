@@ -43,9 +43,11 @@ class TileSystem {
                     }
                 }
             }
+            // TODO: append draw operation
         }
         ctx.strokeContext.segments = [] // clean segments
         ctx.dirtyContext.dirtyIndices = res
+        ctx.renderContext.operations.append(.merge)
     }
     
     private func index(row: Int, col: Int, cols: Int, rows: Int) -> Int? {

@@ -80,7 +80,7 @@ class Engine: NSObject {
                 switch lifeCycleEvent {
                 case .load:
                     intents.append(.layer(.fill(.white, 0)))
-                    intents.append(.layer(.merge(.all)))
+//                    intents.append(.layer(.merge(.all)))
                 }
             }
         }
@@ -145,6 +145,7 @@ class RenderPlanBuilder {
                 passes.append(FillPass(color: color, textureId: texture))
             case .merge:
                 passes.append(MergePass())
+            case .draw(segment: let segment): break // TODO: implement
             }
         }
         ctx.renderContext.operations = []
