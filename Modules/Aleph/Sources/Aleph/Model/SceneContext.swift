@@ -17,6 +17,7 @@ struct StrokeContext {
         pointSize: 20,
         opacity: 1
     )
+    var segments: [StrokeSegment] = []
 }
 
 struct DirtContext {

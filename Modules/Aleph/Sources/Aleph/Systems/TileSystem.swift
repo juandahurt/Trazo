@@ -1,10 +1,14 @@
 import Tartarus
 
 class TileSystem {
-    func invalidate(with segments: [StrokeSegment], rows: Int, cols: Int, tileSize: Size, ctm: Transform) -> Set<Int> {
+    func update(ctx: inout SceneContext) {
+        let segments = ctx.strokeContext.segments
+        let rows = ctx.renderContext.rows
+        let cols = ctx.renderContext.cols
+        let tileSize = ctx.renderContext.tileSize
         var res = Set<Int>()
         for segment in segments {
-            guard !segment.points.isEmpty else { return [] }
+            guard !segment.points.isEmpty else { continue }
             let bounds = segment.bounds
             let minX = bounds.x
             let minY = bounds.y
@@ -16,9 +20,6 @@ class TileSystem {
             
             let minRow = Int(minY / tileSize.height)
             let maxRow = Int(maxY / tileSize.height)
-            
-            
-            // TODO: fix crash when user tries to draw outside the grid
             
             if minCol == maxCol && minRow == maxRow {
                 // the segment is contained within one tile
@@ -43,10 +44,11 @@ class TileSystem {
                 }
             }
         }
-        return res
+        ctx.strokeContext.segments = [] // clean segments
+        ctx.dirtyContext.dirtyIndices = res
     }
     
-    func index(row: Int, col: Int, cols: Int, rows: Int) -> Int? {
+    private func index(row: Int, col: Int, cols: Int, rows: Int) -> Int? {
         guard row >= 0, row < rows else { return nil }
         let index = row * cols + col
         return index

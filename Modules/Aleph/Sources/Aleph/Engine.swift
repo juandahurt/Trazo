@@ -9,6 +9,7 @@ class Engine: NSObject {
     let transformSystem = TransformSystem()
     let layersSystem = LayersSystem()
     let strokeSystem = StrokeSystem()
+    let tileSystem = TileSystem()
     
     // MARK: Rendering
     let planBuilder = RenderPlanBuilder()
@@ -92,6 +93,7 @@ class Engine: NSObject {
                 layersSystem.update(ctx: &sceneContext, intent: layerIntent)
             case .draw(let touch):
                 strokeSystem.update(ctx: &sceneContext, touch: touch)
+                tileSystem.update(ctx: &sceneContext)
             }
         }
         // 3. build render plan

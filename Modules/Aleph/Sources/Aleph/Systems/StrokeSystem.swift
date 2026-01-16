@@ -12,8 +12,10 @@ class StrokeSystem {
             guard ctx.strokeContext.touches.count >= 3 else { return }
             if ctx.strokeContext.touches.count == 3 {
                 let segment = findFirstSegment(ctx: &ctx)
+                ctx.strokeContext.segments.append(segment)
             } else {
                 let segment = findMiddleSegment(ctx: &ctx)
+                ctx.strokeContext.segments.append(segment)
             }
         case .cancelled, .ended:
             ctx.strokeContext.touches = []
