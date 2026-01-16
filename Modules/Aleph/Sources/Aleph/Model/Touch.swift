@@ -19,9 +19,9 @@ struct Touch {
 import UIKit
 
 extension Touch {
-    init(touch: UITouch, in view: UIView) {
-        id = touch.hashValue
-        var cgLocation = touch.location(in: view)
+    init(gesture: UIPanGestureRecognizer, in view: UIView) {
+        id = gesture.hashValue
+        var cgLocation = gesture.location(in: view)
         let viewSize = Size(
             width: Float(view.bounds.width),
             height: Float(view.bounds.height)
@@ -31,16 +31,11 @@ extension Touch {
             y: Float(cgLocation.y)
         ) * Float(view.contentScaleFactor)
         
-//        location.x -= viewSize.width / 2
-//        location.y -= viewSize.height / 2
-//        location.y *= -1
-        
         self.location = location
-//        print(location)
         
-        phase = switch (touch.phase) {
+        phase = switch (gesture.state) {
         case .began: .began
-        case .moved: .moved
+        case .changed: .moved
         case .ended: .ended
         case .cancelled: .cancelled
         default: .stationary

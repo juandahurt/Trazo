@@ -2,9 +2,8 @@ import Tartarus
 
 enum Event {
     enum Input {
-        case touches([Touch])
+        case finger(Touch)
     }
-
     enum SceneLifeCycle {
         case load
     }
@@ -15,7 +14,7 @@ enum Event {
         case rotation(anchor: Point, angle: Float)
     }
     
-    case input(Input)
+    case touch(Input)
     case transform(Transform)
     case lifeCycle(SceneLifeCycle)
 }

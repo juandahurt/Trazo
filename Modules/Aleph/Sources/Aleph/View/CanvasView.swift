@@ -10,7 +10,6 @@ class CanvasView: MTKView {
             blue: 0.2,
             alpha: 1
         )
-//        preferredFramesPerSecond = 5
     }
 
     required init(coder: NSCoder) {

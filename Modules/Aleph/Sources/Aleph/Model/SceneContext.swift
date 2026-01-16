@@ -1,9 +1,22 @@
 import Tartarus
 
 struct SceneContext {
-    var renderContext: RenderContext
-    var layersContext: LayersContext
-    var dirtyContext: DirtContext
+    var renderContext:  RenderContext
+    var layersContext:  LayersContext
+    var dirtyContext:   DirtContext
+    var strokeContext:  StrokeContext
+}
+
+struct StrokeContext {
+    var touches: [Touch] = []
+    var offset: Float = 0
+    var brush = Brush(
+        shapeTextureID: 0, // TODO: pass correct values
+        granularityTextureID: 0,
+        spacing: 8,
+        pointSize: 20,
+        opacity: 1
+    )
 }
 
 struct DirtContext {
@@ -22,14 +35,14 @@ struct RenderContext {
     }
     
     // MARK: Operations
-    var operations: [RenderOperation] = []
+    var operations:             [RenderOperation] = []
     
     // MARK: Transforms
-    var transform: Transform = .identity
-    var projectionTransform: Transform = .identity
+    var transform:              Transform = .identity
+    var projectionTransform:    Transform = .identity
     
     // MARK: Textures
-    var renderableTexture: TextureID
+    var renderableTexture:      TextureID
     
     // MARK: Canvas
     let canvasSize: Size

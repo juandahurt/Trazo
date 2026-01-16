@@ -4,10 +4,12 @@ struct StrokeSegment {
     var bounds: Rect = .zero
     var points: [DrawablePoint] = []
     
-    mutating func add(point: DrawablePoint, ctm: Transform) {
+    mutating func add(point: DrawablePoint, transform: Transform) {
         // we need to take into account the current transformation
-        let pos = Point(x: point.position.x, y: point.position.y).applying(ctm.inverse)
-        let size = point.size * ctm.scale
+        let pos = Point(x: point.position.x, y: point.position.y).applying(
+            transform.inverse
+        )
+        let size = point.size * transform.scale
         defer { points.append(point) }
         guard !points.isEmpty else {
             bounds.x = pos.x

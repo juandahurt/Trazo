@@ -8,6 +8,7 @@ class Engine: NSObject {
     // MARK: Systems
     let transformSystem = TransformSystem()
     let layersSystem = LayersSystem()
+    let strokeSystem = StrokeSystem()
     
     // MARK: Rendering
     let planBuilder = RenderPlanBuilder()
@@ -49,7 +50,8 @@ class Engine: NSObject {
                 ],
                 currentLayerIndex: 1
             ),
-            dirtyContext: .init(dirtyIndices: [])
+            dirtyContext: .init(dirtyIndices: []),
+            strokeContext: StrokeContext()
         )
         eventQueue.append(.lifeCycle(.load))
     }
@@ -68,9 +70,10 @@ class Engine: NSObject {
                 case .rotation(anchor: let anchor, angle: let angle):
                     intents.append(.transform(.rotation(anchor: anchor, angle: angle)))
                 }
-            case .input(let inputEvent):
-                switch inputEvent {
-                case .touches(let touches): break
+            case .touch(let touchEvent):
+                switch touchEvent {
+                case .finger(let touch):
+                    intents.append(.draw(touch))
                 }
             case .lifeCycle(let lifeCycleEvent):
                 switch lifeCycleEvent {
@@ -87,6 +90,8 @@ class Engine: NSObject {
                 transformSystem.update(ctx: &sceneContext, intent: transformIntent)
             case .layer(let layerIntent):
                 layersSystem.update(ctx: &sceneContext, intent: layerIntent)
+            case .draw(let touch):
+                strokeSystem.update(ctx: &sceneContext, touch: touch)
             }
         }
         // 3. build render plan

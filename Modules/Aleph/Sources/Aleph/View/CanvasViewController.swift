@@ -26,10 +26,6 @@ public class CanvasViewController: UIViewController {
     }
     
     public override func viewDidLoad() {
-//        let pencilRecognizer = PencilGestureRecognizer()
-//        pencilRecognizer.pencilGestureDelegate = self
-//        view.addGestureRecognizer(pencilRecognizer)
-        
         // MARK: Transforms gestures
         var transformGestures: [UIGestureRecognizer] = []
         let panGesture = UIPanGestureRecognizer(
@@ -75,12 +71,12 @@ public class CanvasViewController: UIViewController {
 extension CanvasViewController {
     @objc
     func onDrawGesture(_ gesture: UIPanGestureRecognizer) {
-        print("on draw")
+        let touch = Touch(gesture: gesture, in: view)
+        engine?.enqueue(.touch(.finger(touch)))
     }
     
     @objc
     func onPanGesture(_ gesture: UIPanGestureRecognizer) {
-        print("on pan")
         let translation = gesture.translation(in: view)
         engine?.enqueue(
             .transform(
@@ -95,7 +91,6 @@ extension CanvasViewController {
     
     @objc
     func onPinchGesture(_ gesture: UIPinchGestureRecognizer) {
-        print("on pinch")
         let anchor = gesture.location(in: view)
         let scale = Float(gesture.scale)
         engine?.enqueue(
@@ -114,7 +109,6 @@ extension CanvasViewController {
     
     @objc
     func onRotationGesture(_ gesture: UIRotationGestureRecognizer) {
-        print("on rotation")
         let anchor = gesture.location(in: view)
         engine?.enqueue(
             .transform(
@@ -135,16 +129,6 @@ extension CanvasViewController: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
         simultaneosGestures.contains(gestureRecognizer) &&
         simultaneosGestures.contains(otherGestureRecognizer)
-    }
-}
-
-extension CanvasViewController: PencilGestureRecognizerDelegate {
-    func didReceivePencilTouches(_ touches: Set<UITouch>) {
-        // TODO: finish implementation
-//        let touches = touches.map { Touch(touch: $0, in: view) }
-//        for touch in touches {
-//            renderer?.handleInput(touch)
-//        }
     }
 }
 

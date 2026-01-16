@@ -18,4 +18,5 @@ enum Intent {
     }
     case transform(Transform)
     case layer(Layer)
+    case draw(Touch)
 }
