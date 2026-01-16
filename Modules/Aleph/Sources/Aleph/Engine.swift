@@ -21,8 +21,8 @@ class Engine: NSObject {
             width: 64,
             height: 64
         )
-        let rows = Int(ceil(canvasSize.width / tileSize.width))
-        let cols = Int(ceil(canvasSize.height / tileSize.height))
+        let rows = Int(ceil(canvasSize.height / tileSize.height))
+        let cols = Int(ceil(canvasSize.width / tileSize.width))
         sceneContext = .init(
             renderContext: .init(
                 canvasSize: canvasSize,
@@ -80,6 +80,7 @@ class Engine: NSObject {
                 }
             }
         }
+        intents.append(.layer(.merge(.all)))
         // 2. update
         for intent in intents {
             switch intent {
@@ -104,6 +105,7 @@ class Engine: NSObject {
     func endFrame() {
         // clear events
         eventQueue = []
+        sceneContext.dirtyContext.dirtyIndices = []
     }
 }
 
@@ -141,8 +143,8 @@ class RenderPlanBuilder {
         }
         ctx.renderContext.operations = []
         
-        passes.append(MergePass())
         passes.append(PresentPass())
+        
         return passes
     }
 }
