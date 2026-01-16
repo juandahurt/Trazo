@@ -6,6 +6,8 @@ public class CanvasViewController: UIViewController {
     let canvasSize: Size
     var engine: Engine?
     
+    var simultaneosGestures: [UIGestureRecognizer] = []
+    
     init(canvasSize: CGRect) {
         self.canvasSize = .init(
             width: Float(canvasSize.width),
@@ -24,12 +26,9 @@ public class CanvasViewController: UIViewController {
     }
     
     public override func viewDidLoad() {
-        let fingerRecognizer = FingerGestureRecognizer()
-        fingerRecognizer.fingerGestureDelegate = self
-        view.addGestureRecognizer(fingerRecognizer)
-        let pencilRecognizer = PencilGestureRecognizer()
-        pencilRecognizer.pencilGestureDelegate = self
-        view.addGestureRecognizer(pencilRecognizer)
+//        let pencilRecognizer = PencilGestureRecognizer()
+//        pencilRecognizer.pencilGestureDelegate = self
+//        view.addGestureRecognizer(pencilRecognizer)
         
         // MARK: Transforms gestures
         var transformGestures: [UIGestureRecognizer] = []
@@ -37,6 +36,8 @@ public class CanvasViewController: UIViewController {
             target: self,
             action: #selector(onPanGesture(_:))
         )
+        panGesture.minimumNumberOfTouches = 2
+        panGesture.maximumNumberOfTouches = 2
         transformGestures.append(panGesture)
         let pinchGesture = UIPinchGestureRecognizer(
             target: self,
@@ -48,9 +49,20 @@ public class CanvasViewController: UIViewController {
             action: #selector(onRotationGesture(_:))
         )
         transformGestures.append(rotationGesture)
+        
+        // MARK: Draw gesture
+        let drawGesture = FingerGestureRecognizer(
+            target: self,
+            action: #selector(onDrawGesture(_:))
+        )
+        drawGesture.minimumNumberOfTouches = 1
+        drawGesture.maximumNumberOfTouches = 1
+        view.addGestureRecognizer(drawGesture)
+        
         for gesture in transformGestures {
             gesture.delegate = self
             view.addGestureRecognizer(gesture)
+            simultaneosGestures.append(gesture)
         }
         
         engine = .init(
@@ -62,7 +74,13 @@ public class CanvasViewController: UIViewController {
 
 extension CanvasViewController {
     @objc
+    func onDrawGesture(_ gesture: UIPanGestureRecognizer) {
+        print("on draw")
+    }
+    
+    @objc
     func onPanGesture(_ gesture: UIPanGestureRecognizer) {
+        print("on pan")
         let translation = gesture.translation(in: view)
         engine?.enqueue(
             .transform(
@@ -77,6 +95,7 @@ extension CanvasViewController {
     
     @objc
     func onPinchGesture(_ gesture: UIPinchGestureRecognizer) {
+        print("on pinch")
         let anchor = gesture.location(in: view)
         let scale = Float(gesture.scale)
         engine?.enqueue(
@@ -95,6 +114,7 @@ extension CanvasViewController {
     
     @objc
     func onRotationGesture(_ gesture: UIRotationGestureRecognizer) {
+        print("on rotation")
         let anchor = gesture.location(in: view)
         engine?.enqueue(
             .transform(
@@ -113,18 +133,8 @@ extension CanvasViewController {
 
 extension CanvasViewController: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        true
-    }
-}
-
-// MARK: - Finger gesture delegate
-extension CanvasViewController: FingerGestureRecognizerDelegate {
-    func didReceiveFingerTouches(_ touches: Set<UITouch>) {
-        guard let engine else { return }
-        let touches = touches.map { Touch(touch: $0, in: view) }
-        engine.enqueue(.input(.touches(touches)))
-//        renderer.collectInput(touches)
-//        gestureController.handleFingerTouches(touches)
+        simultaneosGestures.contains(gestureRecognizer) &&
+        simultaneosGestures.contains(otherGestureRecognizer)
     }
 }
 

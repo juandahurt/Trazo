@@ -47,7 +47,7 @@ class Engine: NSObject {
                         )!
                     )
                 ],
-                currentLayerIndex: -1
+                currentLayerIndex: 1
             ),
             dirtyContext: .init(dirtyIndices: [])
         )
@@ -80,7 +80,6 @@ class Engine: NSObject {
                 }
             }
         }
-        intents.append(.layer(.merge(.all)))
         // 2. update
         for intent in intents {
             switch intent {
