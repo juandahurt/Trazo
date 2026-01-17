@@ -3,10 +3,11 @@ import Tartarus
 
 class StrokeSystem {
     func update(ctx: inout SceneContext, touch: Touch) {
+        // TODO: check if we are missing a segment at the end
         // 1. store the touch
         ctx.strokeContext.touches.append(touch)
-        print(ctx.strokeContext.touches.count)
         
+        // 2. generate segments
         switch touch.phase {
         case .moved:
             guard ctx.strokeContext.touches.count >= 3 else { return }
@@ -18,6 +19,14 @@ class StrokeSystem {
                 ctx.strokeContext.segments.append(segment)
             }
         case .cancelled, .ended:
+            if ctx.strokeContext.touches.count > 3 {
+                let segment = findMiddleSegment(ctx: &ctx)
+                ctx.strokeContext.segments.append(segment)
+            }
+            if ctx.strokeContext.touches.count > 2 {
+                let segment = findLastSegment(ctx: &ctx)
+                ctx.strokeContext.segments.append(segment)
+            }
             ctx.strokeContext.touches = []
             ctx.strokeContext.offset = 0
         default: break

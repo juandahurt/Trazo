@@ -47,10 +47,10 @@ struct RenderContext {
     var renderableTexture:      TextureID
     
     // MARK: Canvas
-    let canvasSize: Size
-    let tileSize: Size
-    let rows: Int
-    let cols: Int
+    let canvasSize:             Size
+    let tileSize:               Size
+    let rows:                   Int
+    let cols:                   Int
     
     init(
         canvasSize: Size,

@@ -51,7 +51,11 @@ class MergePass: RenderPass {
             let row = $0 / context.renderContext.cols
             let col = $0 % context.renderContext.cols
             let minX: UInt32 = UInt32(Float(col) * context.renderContext.tileSize.width)
-            let minY: UInt32 = UInt32(Float(row) * context.renderContext.tileSize.height)
+            let minY: UInt32 = UInt32(max(0,
+                context.renderContext.canvasSize.height - Float(
+                    row
+                ) * context.renderContext.tileSize.height - context.renderContext.tileSize.height)
+            )
             return .init(
                 origin: [minX, minY],
                 size: [
