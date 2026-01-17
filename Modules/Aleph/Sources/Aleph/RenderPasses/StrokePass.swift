@@ -45,7 +45,7 @@ class StrokePass: RenderPass {
                 length: MemoryLayout<Transform>.stride * tranforms.count
             )
         encoder.setVertexBuffer(buffer, offset: 0, index: 0)
-        var camera = context.renderContext.transform
+        var camera = context.renderContext.transform.inverse
         encoder.setVertexBytes(
             &camera,
             length: MemoryLayout<Transform.Matrix>.stride,

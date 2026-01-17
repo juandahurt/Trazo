@@ -15,10 +15,10 @@ struct Buffer {
              0.5,    0.5
         ]
         let textCoord: [Float] = [
-            0, 1,
-            1, 1,
             0, 0,
-            1, 0
+            1, 0,
+            0, 1,
+            1, 1
         ]
         let indices: [UInt16] = [
             0, 1, 2,
