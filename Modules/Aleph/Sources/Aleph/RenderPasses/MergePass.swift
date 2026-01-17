@@ -1,6 +1,12 @@
 import MetalKit
 
 class MergePass: RenderPass {
+    let isDrawing: Bool
+    
+    init(isDrawing: Bool) {
+        self.isDrawing = isDrawing
+    }
+    
     func encode(
         context: SceneContext,
         commandBuffer: any MTLCommandBuffer,
@@ -14,17 +20,28 @@ class MergePass: RenderPass {
             let layerTextureId = context.layersContext.layers[index].texture
             guard
                 let layerTexture = TextureManager.findTexture(id: layerTextureId),
-                let outputTexture = TextureManager.findTexture(id: context.renderContext.renderableTexture)
+                let outputTexture = TextureManager.findTexture(id: context.renderContext.renderableTexture),
+                let strokeTexture = TextureManager.findTexture(id: context.renderContext.strokeTexture)
             else {
                 return
             }
-            merge(
-                outputTexture,
-                with: layerTexture,
-                on: outputTexture,
-                using: commandBuffer,
-                context: context
-            )
+            if index == context.layersContext.currentLayerIndex && isDrawing {
+                merge(
+                    outputTexture,
+                    with: strokeTexture,
+                    on: outputTexture,
+                    using: commandBuffer,
+                    context: context
+                )
+            } else {
+                merge(
+                    outputTexture,
+                    with: layerTexture,
+                    on: outputTexture,
+                    using: commandBuffer,
+                    context: context
+                )
+            }
         }
     }
     

@@ -138,14 +138,15 @@ extension Engine: MTKViewDelegate {
 class RenderPlanBuilder {
     func buildPlan(ctx: inout SceneContext) -> [RenderPass] {
         var passes: [RenderPass] = []
-       
+        
         for operation in ctx.renderContext.operations {
             switch operation {
             case .fill(let color, let texture):
                 passes.append(FillPass(color: color, textureId: texture))
-            case .merge:
-                passes.append(MergePass())
-            case .draw(segment: let segment): break // TODO: implement
+            case .merge(let isDrawing):
+                passes.append(MergePass(isDrawing: isDrawing))
+            case .draw(let segment):
+                passes.append(StrokePass(segment: segment))
             }
         }
         ctx.renderContext.operations = []

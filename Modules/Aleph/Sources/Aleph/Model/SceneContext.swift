@@ -32,8 +32,8 @@ struct LayersContext {
 struct RenderContext {
     enum RenderOperation {
         case fill(color: Color, texture: TextureID)
-        case merge
-        case draw(segment: StrokeSegment)
+        case merge(isDrawing: Bool)
+        case draw(StrokeSegment)
     }
     
     // MARK: Operations
@@ -45,6 +45,7 @@ struct RenderContext {
     
     // MARK: Textures
     var renderableTexture:      TextureID
+    var strokeTexture:          TextureID
     
     // MARK: Canvas
     let canvasSize:             Size
@@ -61,6 +62,10 @@ struct RenderContext {
         renderableTexture = TextureManager.makeTexture(
             ofSize: canvasSize,
             label: "Renderable texture"
+        )!
+        strokeTexture = TextureManager.makeTexture(
+            ofSize: canvasSize,
+            label: "Stroke texture"
         )!
         self.canvasSize = canvasSize
         self.tileSize = tileSize
