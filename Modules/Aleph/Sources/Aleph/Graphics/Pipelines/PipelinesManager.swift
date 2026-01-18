@@ -3,7 +3,6 @@ import Metal
 class PipelinesManager {
     enum ComputeType: String, CaseIterable {
         case fill = "fill_color"
-        case colorize = "colorize"
         case merge = "merge"
     }
     
@@ -19,13 +18,13 @@ class PipelinesManager {
         }
         var vertexFunction: String {
             switch self {
-            case .drawTexture: "draw_texture_vert"
+            case .drawTexture: "draw_quad_vert"
             case .drawGrayscalePoints: "grayscale_point_vert"
             }
         }
         var fragmentFunction: String {
             switch self {
-            case .drawTexture: "draw_texture_frag"
+            case .drawTexture: "draw_quad_frag"
             case .drawGrayscalePoints: "grayscale_point_frag"
             }
         }

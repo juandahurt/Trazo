@@ -13,24 +13,24 @@ let package = Package(
         ),
     ],
     dependencies: [
-        .package(name: "Tartarus", path: "../Tartarus")
+        .package(name: "Tartarus", path: "../Tartarus"),
+        .package(name: "Caravaggio", path: "../Caravaggio")
     ],
     targets: [
         // Targets are the basic building blocks of a package, defining a module or a test suite.
         // Targets can depend on other targets in this package and products from dependencies.
         .target(
             name: "Aleph",
-            dependencies: ["Tartarus"],
+            dependencies: ["Tartarus", "Caravaggio"],
             resources: [
-                .process("Graphics/Shaders/Textures.metal"),
-                .process("Graphics/Shaders/Merge.metal"),
                 .process("Resources/shape-0.png"),
                 .process("Resources/shape-1.png"),
                 .process("Resources/shape-2.png"),
                 .process("Resources/shape-3.png"),
                 .process("Resources/gran-0.png"),
                 .process("Resources/gran-1.png"),
-            ]
+            ],
+            swiftSettings: [.interoperabilityMode(.C)]
         ),
 
     ]

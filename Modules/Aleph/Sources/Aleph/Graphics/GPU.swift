@@ -1,3 +1,4 @@
+import Caravaggio
 import Metal
 
 struct GPU {
@@ -10,7 +11,7 @@ struct GPU {
     static let commandQueue = GPU.device.makeCommandQueue()!
     
     static let library: MTLLibrary = {
-        let lib = try? device.makeDefaultLibrary(bundle: .module)
+        let lib = try? device.makeDefaultLibrary(bundle: Caravaggio.module)
         assert(lib != nil, "couldn't create default library")
         return lib!
     }()
