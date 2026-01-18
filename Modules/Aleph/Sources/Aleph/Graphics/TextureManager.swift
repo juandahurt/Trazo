@@ -6,9 +6,6 @@ public typealias TextureID = UInt
 final class TextureManager {
     nonisolated(unsafe)
     static private var textures: [TextureID: MTLTexture] = [:]
-   
-    nonisolated(unsafe)
-    static private var tiledTextures: [TextureID: Texture] = [:]
     
     nonisolated(unsafe)
     static private var currId: TextureID = 0
@@ -38,14 +35,6 @@ final class TextureManager {
         return texture
     }
     
-    static func findTiledTexture(id: TextureID) -> Texture? {
-        guard let tiledTexture = tiledTextures[id] else {
-            print("tiled texture \(id) not found")
-            return nil
-        }
-        return tiledTexture
-    }
-    
     static func makeTexture(ofSize size: Size, label: String? = nil) -> TextureID? {
         let descriptor = MTLTextureDescriptor()
         descriptor.pixelFormat = .rgba8Unorm
@@ -61,50 +50,9 @@ final class TextureManager {
         return storeTexture(texture)
     }
     
-    static func makeTiledTexture(
-        named name: String,
-        rows: Int,
-        columns: Int,
-        tileSize: Size,
-        canvasSize: Size
-    ) -> TextureID {
-        var tiledTexture = Texture(name: name)
-        for row in 0..<rows {
-            for col in 0..<columns {
-                var position = Point(
-                    x: Float(col) * tileSize.width,
-                    y: Float(row) * tileSize.height
-                )
-                if let textureId = makeTexture(
-                    ofSize: tileSize,
-                    label: "\(name) (\(row),\(col))"
-                ) {
-                    tiledTexture.tiles.append(
-                        .init(
-                            bounds: .init(
-                                x: position.x,
-                                y: position.y,
-                                width: tileSize.width,
-                                height: tileSize.height
-                            ),
-                            textureId: textureId
-                        )
-                    )
-                }
-            }
-        }
-        return storeTiledTexture(tiledTexture)
-    }
-    
     private static func storeTexture(_ texture: MTLTexture) -> TextureID {
         currId += 1
         textures[currId] = texture
-        return currId
-    }
-    
-    private static func storeTiledTexture(_ texture: Texture) -> TextureID {
-        currId += 1
-        tiledTextures[currId] = texture
         return currId
     }
 }
