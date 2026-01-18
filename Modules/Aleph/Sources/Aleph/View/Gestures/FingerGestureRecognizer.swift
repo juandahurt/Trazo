@@ -6,6 +6,6 @@ class FingerGestureRecognizer: UIPanGestureRecognizer {
        
         minimumNumberOfTouches = 1
         maximumNumberOfTouches = 1
-        allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
+        allowedTouchTypes = [UITouch.TouchType.pencil.rawValue as NSNumber]
     }
 }

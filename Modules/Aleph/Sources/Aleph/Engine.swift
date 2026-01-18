@@ -81,8 +81,9 @@ class Engine: NSObject {
             case .lifeCycle(let lifeCycleEvent):
                 switch lifeCycleEvent {
                 case .load:
+                    intents.append(.layer(.invalidate))
                     intents.append(.layer(.fill(.white, 0)))
-//                    intents.append(.layer(.merge(.all)))
+                    intents.append(.layer(.merge))
                 }
             }
         }
