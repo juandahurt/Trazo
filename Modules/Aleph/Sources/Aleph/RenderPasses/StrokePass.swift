@@ -19,6 +19,9 @@ class StrokePass: RenderPass {
         guard let strokeTexture = TextureManager.findTexture(
             id: context.renderContext.strokeTexture
         ) else { return }
+        guard let shapeTexture = TextureManager.findTexture(
+            id: context.strokeContext.brush.shapeTextureID
+        ) else { return }
         
         guard !segment.points.isEmpty else { return }
         let points: [DrawablePoint] = segment.points
@@ -79,8 +82,7 @@ class StrokePass: RenderPass {
             length: MemoryLayout<Color>.stride,
             index: 6
         )
-        //
-        //            encoder?.setFragmentTexture(shapeTexture, index: 0)
+        encoder.setFragmentTexture(shapeTexture, index: 0)
         //            encoder?.setFragmentTexture(granularityTexture, index: 1)
         encoder
             .drawIndexedPrimitives(
