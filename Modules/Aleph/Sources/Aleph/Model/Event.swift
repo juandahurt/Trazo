@@ -17,4 +17,5 @@ enum Event {
     case touch(Input)
     case transform(Transform)
     case lifeCycle(SceneLifeCycle)
+    case brush(Brush)
 }

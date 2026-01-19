@@ -134,23 +134,7 @@ extension CanvasViewController: UIGestureRecognizerDelegate {
 
 // MARK: - API
 public extension CanvasViewController {
-    func setSpacing(_ value: Float) {
-//        renderer?.canvasState.selectedBrush.spacing = value
-    }
-    
-    func setPointSize(_ value: Float) {
-//        renderer?.canvasState.selectedBrush.pointSize = value
-    }
-    
-    func setOpacity(_ value: Float) {
-//        renderer?.canvasState.selectedBrush.opacity = value
-    }
-    
-    func setShapeTexture(_ id: TextureID) {
-//        renderer?.canvasState.selectedBrush.shapeTextureID = id
-    }
-    
-    func setGranularityTexture(_ id: TextureID) {
-//        renderer?.canvasState.selectedBrush.granularityTextureID = id
+    func setBrush(_ brush: Brush) {
+        engine?.enqueue(.brush(brush))
     }
 }

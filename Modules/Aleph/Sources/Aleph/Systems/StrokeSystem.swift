@@ -2,34 +2,38 @@ import Foundation
 import Tartarus
 
 class StrokeSystem {
-    func update(ctx: inout SceneContext, touch: Touch) {
-        // TODO: check if we are missing a segment at the end
-        // 1. store the touch
-        ctx.strokeContext.touches.append(touch)
-        
-        // 2. generate segments
-        switch touch.phase {
-        case .moved:
-            guard ctx.strokeContext.touches.count >= 3 else { return }
-            if ctx.strokeContext.touches.count == 3 {
-                let segment = findFirstSegment(ctx: &ctx)
-                ctx.strokeContext.segments.append(segment)
-            } else {
-                let segment = findMiddleSegment(ctx: &ctx)
-                ctx.strokeContext.segments.append(segment)
+    func update(ctx: inout SceneContext, intent: Intent.Draw) {
+        switch intent {
+        case .touchReceived(let touch):
+            // 1. store the touch
+            ctx.strokeContext.touches.append(touch)
+            
+            // 2. generate segments
+            switch touch.phase {
+            case .moved:
+                guard ctx.strokeContext.touches.count >= 3 else { return }
+                if ctx.strokeContext.touches.count == 3 {
+                    let segment = findFirstSegment(ctx: &ctx)
+                    ctx.strokeContext.segments.append(segment)
+                } else {
+                    let segment = findMiddleSegment(ctx: &ctx)
+                    ctx.strokeContext.segments.append(segment)
+                }
+            case .cancelled, .ended:
+                if ctx.strokeContext.touches.count > 3 {
+                    let segment = findMiddleSegment(ctx: &ctx)
+                    ctx.strokeContext.segments.append(segment)
+                }
+                if ctx.strokeContext.touches.count > 2 {
+                    let segment = findLastSegment(ctx: &ctx)
+                    ctx.strokeContext.segments.append(segment)
+                }
+                ctx.strokeContext.touches = []
+                ctx.strokeContext.offset = 0
+            default: break
             }
-        case .cancelled, .ended:
-            if ctx.strokeContext.touches.count > 3 {
-                let segment = findMiddleSegment(ctx: &ctx)
-                ctx.strokeContext.segments.append(segment)
-            }
-            if ctx.strokeContext.touches.count > 2 {
-                let segment = findLastSegment(ctx: &ctx)
-                ctx.strokeContext.segments.append(segment)
-            }
-            ctx.strokeContext.touches = []
-            ctx.strokeContext.offset = 0
-        default: break
+        case .brushUpdate(let brush):
+            ctx.strokeContext.brush = brush
         }
     }
     

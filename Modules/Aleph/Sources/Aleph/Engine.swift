@@ -76,7 +76,7 @@ class Engine: NSObject {
             case .touch(let touchEvent):
                 switch touchEvent {
                 case .finger(let touch):
-                    intents.append(.draw(touch))
+                    intents.append(.draw(.touchReceived(touch)))
                 }
             case .lifeCycle(let lifeCycleEvent):
                 switch lifeCycleEvent {
@@ -85,6 +85,8 @@ class Engine: NSObject {
                     intents.append(.layer(.fill(.white, 0)))
                     intents.append(.layer(.merge))
                 }
+            case .brush(let brush):
+                intents.append(.draw(.brushUpdate(brush)))
             }
         }
         // 2. update
@@ -94,9 +96,11 @@ class Engine: NSObject {
                 transformSystem.update(ctx: &sceneContext, intent: transformIntent)
             case .layer(let layerIntent):
                 layersSystem.update(ctx: &sceneContext, intent: layerIntent)
-            case .draw(let touch):
-                strokeSystem.update(ctx: &sceneContext, touch: touch)
-                tileSystem.update(ctx: &sceneContext)
+            case .draw(let drawIntent):
+                strokeSystem.update(ctx: &sceneContext, intent: drawIntent)
+                if case .touchReceived(_) = drawIntent {
+                    tileSystem.update(ctx: &sceneContext)
+                }
             }
         }
         // 3. build render plan

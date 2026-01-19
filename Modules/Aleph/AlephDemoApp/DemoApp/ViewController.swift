@@ -35,10 +35,13 @@ struct ViewControllerWrapper: UIViewControllerRepresentable {
         _ viewController: ViewController,
         context: Context
     ) {
-        viewController.canvasViewController?.setSpacing(spacing)
-        viewController.canvasViewController?.setPointSize(pointSize)
-        viewController.canvasViewController?.setOpacity(opacity)
-        viewController.canvasViewController?.setShapeTexture(selectedShapeTexture)
-        viewController.canvasViewController?.setGranularityTexture(selectedGranularityTexture)
+        let brush = Brush(
+            shapeTextureID: selectedShapeTexture,
+            granularityTextureID: selectedGranularityTexture,
+            spacing: spacing,
+            pointSize: pointSize,
+            opacity: opacity
+        )
+        viewController.canvasViewController?.setBrush(brush)
     }
 }

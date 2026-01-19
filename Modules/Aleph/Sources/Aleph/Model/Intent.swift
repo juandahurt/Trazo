@@ -18,7 +18,12 @@ enum Intent {
         case load
     }
     
+    enum Draw {
+        case touchReceived(Touch)
+        case brushUpdate(Brush)
+    }
+    
     case transform(Transform)
     case layer(Layer)
-    case draw(Touch)
+    case draw(Draw)
 }
