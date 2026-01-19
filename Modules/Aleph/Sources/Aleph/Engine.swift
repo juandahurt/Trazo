@@ -115,6 +115,7 @@ class Engine: NSObject {
         // clear events
         eventQueue = []
         sceneContext.dirtyContext.dirtyIndices = []
+        sceneContext.strokeContext.segments = [] // clean segments
     }
 }
 

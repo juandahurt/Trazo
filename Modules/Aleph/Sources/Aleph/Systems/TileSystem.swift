@@ -45,7 +45,6 @@ class TileSystem {
             }
             ctx.renderContext.operations.append(.draw(segment))
         }
-        ctx.strokeContext.segments = [] // clean segments
         ctx.dirtyContext.dirtyIndices = res
         // before merging, we need to clean the renderable texture
         ctx.renderContext.operations.append(
