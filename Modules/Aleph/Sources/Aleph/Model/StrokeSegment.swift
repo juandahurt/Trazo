@@ -4,7 +4,7 @@ struct StrokeSegment {
     var bounds: Rect = .zero
     var points: [DrawablePoint] = []
     
-    mutating func add(point: DrawablePoint, transform: Transform) {
+    mutating func add(point: DrawablePoint, transform: Float4x4) {
         // we need to take into account the current transformation
         let pos = Point(x: point.position.x, y: point.position.y).applying(
             transform.inverse

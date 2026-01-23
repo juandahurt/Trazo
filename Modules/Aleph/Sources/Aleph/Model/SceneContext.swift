@@ -40,8 +40,8 @@ struct RenderContext {
     var operations:             [RenderOperation] = []
     
     // MARK: Transforms
-    var transform:              Transform = .identity
-    var projectionTransform:    Transform = .identity
+    var transform:              Float4x4 = .identity
+    var projectionTransform:    Float4x4 = .identity
     
     // MARK: Textures
     var renderableTexture:      TextureID

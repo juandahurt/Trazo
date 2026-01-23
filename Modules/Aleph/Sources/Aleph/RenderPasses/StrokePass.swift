@@ -36,8 +36,8 @@ class StrokePass: RenderPass {
        
         encoder.setRenderPipelineState(pipelineState)
         let buffer = Buffer.quad.vertexBuffer
-        let tranforms: [Transform] = points.map {
-            Transform.identity
+        let tranforms: [Float4x4] = points.map {
+            Float4x4.identity
                 .concatenating(.init(rotatedBy: $0.angle))
                 .concatenating(.init(scaledBy: $0.size * context.renderContext.transform.scale))
                 .concatenating(.init(translateByX: $0.position.x,y: $0.position.y))
@@ -45,19 +45,19 @@ class StrokePass: RenderPass {
         let transformsBuffer = GPU.device
             .makeBuffer(
                 bytes: tranforms,
-                length: MemoryLayout<Transform>.stride * tranforms.count
+                length: MemoryLayout<Float4x4>.stride * tranforms.count
             )
         encoder.setVertexBuffer(buffer, offset: 0, index: 0)
         var camera = context.renderContext.transform.inverse
         encoder.setVertexBytes(
             &camera,
-            length: MemoryLayout<Transform.Matrix>.stride,
+            length: MemoryLayout<Float4x4.Matrix>.stride,
             index: 1
         )
         var projection = context.renderContext.projectionTransform
         encoder.setVertexBytes(
             &projection,
-            length: MemoryLayout<Transform.Matrix>.stride,
+            length: MemoryLayout<Float4x4.Matrix>.stride,
             index: 2
         )
         var opacity = context.strokeContext.brush.opacity

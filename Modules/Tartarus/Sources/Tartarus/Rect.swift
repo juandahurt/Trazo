@@ -26,7 +26,7 @@ public extension Rect {
         y <= other.y + other.height
     }
     
-    func applying(_ transform: Transform) -> Rect {
+    func applying(_ transform: Float4x4) -> Rect {
         let p1 = Point(x: x, y: y).applying(transform)
         let p2 = Point(x: x  + width, y: y).applying(transform)
         let p3 = Point(x: x, y: y - height).applying(transform)

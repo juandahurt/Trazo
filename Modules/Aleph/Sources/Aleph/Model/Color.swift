@@ -1,8 +1,8 @@
 struct Color {
-    var r, g, b, a: Float
+    var r, g, b, a: Double
     
     @inlinable
-    init(_ value: [Float]) {
+    init(_ value: [Double]) {
         assert(value.count == 4, "color must have 4 values")
         r = value[0]
         g = value[1]
@@ -10,7 +10,7 @@ struct Color {
         a = value[3]
     }
     
-    func withOpacity(_ a: Float) -> Color {
+    func withOpacity(_ a: Double) -> Color {
         .init([r, g, b, a])
     }
 }

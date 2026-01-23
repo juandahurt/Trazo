@@ -71,18 +71,18 @@ public class CanvasViewController: UIViewController {
 extension CanvasViewController {
     @objc
     func onDrawGesture(_ gesture: UIPanGestureRecognizer) {
-        let touch = Touch(gesture: gesture, in: view)
-        engine?.enqueue(.touch(.finger(touch)))
+//        let touch = Touch(gesture: gesture, in: view)
+//        engine?.enqueue(.touch(.finger(touch)))
     }
     
     @objc
     func onPanGesture(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
         engine?.enqueue(
-            .transform(
-                .translate(
-                    x: Float(translation.x) * Float(view.contentScaleFactor),
-                    y: Float(translation.y) * Float(view.contentScaleFactor)
+            TransformCommand(
+                transform: .init(
+                    dx: Float(translation.x * view.contentScaleFactor),
+                    dy: Float(translation.y * view.contentScaleFactor)
                 )
             )
         )
@@ -91,37 +91,37 @@ extension CanvasViewController {
     
     @objc
     func onPinchGesture(_ gesture: UIPinchGestureRecognizer) {
-        let anchor = gesture.location(in: view)
-        let scale = Float(gesture.scale)
-        engine?.enqueue(
-            .transform(
-                .zoom(
-                    anchor: .init(
-                        x: Float(anchor.x),
-                        y:  Float(anchor.y)
-                    ) * Float(view.contentScaleFactor),
-                    scale: scale
-                )
-            )
-        )
-        gesture.scale = 1
+//        let anchor = gesture.location(in: view)
+//        let scale = Float(gesture.scale)
+//        engine?.enqueue(
+//            .transform(
+//                .zoom(
+//                    anchor: .init(
+//                        x: Float(anchor.x),
+//                        y:  Float(anchor.y)
+//                    ) * Float(view.contentScaleFactor),
+//                    scale: scale
+//                )
+//            )
+//        )
+//        gesture.scale = 1
     }
     
     @objc
     func onRotationGesture(_ gesture: UIRotationGestureRecognizer) {
-        let anchor = gesture.location(in: view)
-        engine?.enqueue(
-            .transform(
-                .rotation(
-                    anchor: .init(
-                        x: Float(anchor.x),
-                        y:  Float(anchor.y)
-                    ) * Float(view.contentScaleFactor),
-                    angle: Float(-gesture.rotation)
-                )
-            )
-        )
-        gesture.rotation = 0
+//        let anchor = gesture.location(in: view)
+//        engine?.enqueue(
+//            .transform(
+//                .rotation(
+//                    anchor: .init(
+//                        x: Float(anchor.x),
+//                        y:  Float(anchor.y)
+//                    ) * Float(view.contentScaleFactor),
+//                    angle: Float(-gesture.rotation)
+//                )
+//            )
+//        )
+//        gesture.rotation = 0
     }
 }
 
@@ -135,6 +135,6 @@ extension CanvasViewController: UIGestureRecognizerDelegate {
 // MARK: - API
 public extension CanvasViewController {
     func setBrush(_ brush: Brush) {
-        engine?.enqueue(.brush(brush))
+//        engine?.enqueue(.brush(brush))
     }
 }

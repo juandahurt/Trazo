@@ -7,24 +7,24 @@ class PipelinesManager {
     }
     
     enum RenderType: CaseIterable {
-        case drawTexture
+        case present
         case drawGrayscalePoints
         
         var label: String {
             switch self {
-            case .drawTexture: "draw_texture"
+            case .present: "present"
             case .drawGrayscalePoints: "draw_grayscale_points"
             }
         }
         var vertexFunction: String {
             switch self {
-            case .drawTexture: "draw_quad_vert"
+            case .present: "present_vert"
             case .drawGrayscalePoints: "grayscale_point_vert"
             }
         }
         var fragmentFunction: String {
             switch self {
-            case .drawTexture: "draw_quad_frag"
+            case .present: "present_frag"
             case .drawGrayscalePoints: "grayscale_point_frag"
             }
         }

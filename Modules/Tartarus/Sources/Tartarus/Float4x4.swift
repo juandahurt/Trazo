@@ -1,10 +1,10 @@
 import simd
 
-public struct Transform {
+public struct Float4x4 {
     public typealias Matrix = simd_float4x4
     var matrix: Matrix
     
-    public var inverse: Transform {
+    public var inverse: Float4x4 {
         return .init(matrix: matrix.inverse)
     }
     
@@ -14,14 +14,14 @@ public struct Transform {
 }
 
 // MARK: - Multiplication
-public extension Transform {
-    func concatenating(_ other: Transform) -> Transform {
-        Transform(matrix: other.matrix * matrix)
+public extension Float4x4 {
+    func concatenating(_ other: Float4x4) -> Float4x4 {
+        Float4x4(matrix: other.matrix * matrix)
     }
 }
 
 // MARK: - Useful initializers
-public extension Transform {
+public extension Float4x4 {
     init(ortho rect: Rect, near: Float, far: Float) {
         let left = rect.x
         let right = rect.x + rect.width
@@ -74,14 +74,14 @@ public extension Transform {
 }
 
 // MARK: - Static properties
-public extension Transform {
+public extension Float4x4 {
     nonisolated(unsafe)
-    static let identity = Transform(matrix: matrix_identity_float4x4)
+    static let identity = Float4x4(matrix: matrix_identity_float4x4)
 }
 // MARK: - CoreGraphics
 import CoreGraphics
 
-public extension Transform {
+public extension Float4x4 {
     func affineTransform() -> CGAffineTransform {
         .init(
             a:  CGFloat(matrix.columns.0.x),

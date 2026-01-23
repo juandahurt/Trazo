@@ -72,7 +72,7 @@ extension Point: Equatable {
 
 // MARK: - Transformations
 public extension Point {
-    func applying(_ transform: Transform) -> Point {
+    func applying(_ transform: Float4x4) -> Point {
         let transformedPoint = transform.matrix * [x, y, 0 ,1]
         return .init(x: transformedPoint.x, y: transformedPoint.y)
     }
