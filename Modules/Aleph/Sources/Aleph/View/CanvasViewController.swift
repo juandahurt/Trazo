@@ -91,37 +91,41 @@ extension CanvasViewController {
     
     @objc
     func onPinchGesture(_ gesture: UIPinchGestureRecognizer) {
-//        let anchor = gesture.location(in: view)
-//        let scale = Float(gesture.scale)
-//        engine?.enqueue(
-//            .transform(
-//                .zoom(
-//                    anchor: .init(
-//                        x: Float(anchor.x),
-//                        y:  Float(anchor.y)
-//                    ) * Float(view.contentScaleFactor),
-//                    scale: scale
-//                )
-//            )
-//        )
-//        gesture.scale = 1
+        var anchor = gesture.location(in: view)
+        anchor.x *= view.contentScaleFactor
+        anchor.y *= view.contentScaleFactor
+        let scale = Float(gesture.scale)
+        engine?.enqueue(
+            TransformCommand(
+                transform: .init(
+                    anchor: .init(
+                        x: Float(anchor.x),
+                        y: Float(anchor.y)
+                    ),
+                    scale: scale
+                )
+            )
+        )
+        gesture.scale = 1
     }
     
     @objc
     func onRotationGesture(_ gesture: UIRotationGestureRecognizer) {
-//        let anchor = gesture.location(in: view)
-//        engine?.enqueue(
-//            .transform(
-//                .rotation(
-//                    anchor: .init(
-//                        x: Float(anchor.x),
-//                        y:  Float(anchor.y)
-//                    ) * Float(view.contentScaleFactor),
-//                    angle: Float(-gesture.rotation)
-//                )
-//            )
-//        )
-//        gesture.rotation = 0
+        var anchor = gesture.location(in: view)
+        anchor.x *= view.contentScaleFactor
+        anchor.y *= view.contentScaleFactor
+        engine?.enqueue(
+            TransformCommand(
+                transform: .init(
+                    anchor: .init(
+                        x: Float(anchor.x),
+                        y: Float(anchor.y)
+                    ),
+                    rotation: Float(gesture.rotation)
+                )
+            )
+        )
+        gesture.rotation = 0
     }
 }
 

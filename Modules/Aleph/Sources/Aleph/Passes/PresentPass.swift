@@ -48,9 +48,8 @@ class PresentPass: Pass {
         )
         
         // MARK: Camera matrix
-        var cameraMatrix = ctx.cameraTransform.matrix
         encoder.setVertexBytes(
-            &cameraMatrix,
+            &ctx.cameraMatrix,
             length: MemoryLayout<Float4x4>.stride,
             index: 2
         )
