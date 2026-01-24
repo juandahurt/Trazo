@@ -2,11 +2,13 @@ import MetalKit
 import Tartarus
 
 class Engine: NSObject {
-    // MARK: Commands
+    private var lastTime: CFTimeInterval = 0
+    // MARK: Next frame
     private var pendingCommands: [Command] = []
+    private var liveAnimations: [Animation] = []
     
     // MARK: Context
-    private var ctx: Context
+    var ctx: Context
     
     // MARK: Rendering
     private var pendingPasses: [Pass] = []
@@ -30,6 +32,11 @@ class Engine: NSObject {
     func tick(dt: Float, view: MTKView) {
         // execute pending commands
         pendingCommands.forEach { $0.execute(context: ctx) }
+        // update animations
+        liveAnimations = liveAnimations.filter {
+            $0.update(dt: dt, ctx: ctx)
+            return $0.isAlive
+        }
         
         pendingPasses.append(PresentPass())
         
@@ -57,7 +64,10 @@ class Engine: NSObject {
 
 extension Engine: MTKViewDelegate {
     func draw(in view: MTKView) {
-        tick(dt: 0.16, view: view) // TODO: find actual delta time
+        let time = CACurrentMediaTime()
+        let dt = lastTime != 0 ? Float(time - lastTime) : 0
+        tick(dt: dt, view: view) // TODO: find actual delta time
+        lastTime = time
     }
     
     func mtkView(_ view: MTKView, drawableSizeWillChange size: CGSize) {
