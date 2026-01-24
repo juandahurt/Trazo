@@ -27,16 +27,13 @@ class Engine: NSObject {
         pendingCommands.append(command)
     }
     
-    /// <#Description#>
+    /// Frame loop
     /// - Parameter dt: Delta time
     func tick(dt: Float, view: MTKView) {
-        // execute pending commands
-        pendingCommands.forEach { $0.execute(context: ctx) }
-        // update animations
-        liveAnimations = liveAnimations.filter {
-            $0.update(dt: dt, ctx: ctx)
-            return $0.isAlive
-        }
+        ctx.frameAllocator.newFrame()
+        
+        executePendingCommands()
+        updateAnimations(dt: dt)
         
         pendingPasses.append(PresentPass())
         
@@ -44,6 +41,17 @@ class Engine: NSObject {
         
         pendingCommands = []
         pendingPasses = []
+    }
+    
+    private func executePendingCommands() {
+        pendingCommands.forEach { $0.execute(context: ctx) }
+    }
+    
+    private func updateAnimations(dt: Float) {
+        liveAnimations = liveAnimations.filter {
+            $0.update(dt: dt, ctx: ctx)
+            return $0.isAlive
+        }
     }
     
     func render(view: MTKView) {

@@ -12,6 +12,8 @@ class Context {
     var canvasTexture:          TextureID
     /// Canvas size
     var canvasSize:             Size
+    /// Memory allocator
+    let frameAllocator = FrameAllocator()
     
     init(
         clearColor: Color,
