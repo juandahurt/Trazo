@@ -34,11 +34,8 @@ class PresentPass: Pass {
             0, Float(texture.height), // bottom left
             Float(texture.width), Float(texture.height) // bottom right
         ]
-        let vertexBuffer = GPU.device.makeBuffer(
-            bytes: vertices,
-            length: MemoryLayout<Float>.stride * vertices.count
-        )
-        encoder.setVertexBuffer(vertexBuffer, offset: 0, index: 0)
+        let (vertexBuffer, offset) = ctx.frameAllocator.alloc(vertices)
+        encoder.setVertexBuffer(vertexBuffer, offset: offset, index: 0)
         
         // MARK: Texture buffer
         encoder.setVertexBuffer(

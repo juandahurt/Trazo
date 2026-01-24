@@ -29,4 +29,31 @@ class FrameAllocator {
         currentIndex = (currentIndex + 1) % bufferCount
         currentOffset = 0
     }
+    
+    func alloc<T>(_ data: [T]) -> (MTLBuffer, Int) {
+        let stride = MemoryLayout<T>.stride
+        let size = data.count * stride
+        let alignment = 256
+        let alignedOffset = alignOffset(currentOffset, to: alignment)
+        guard alignedOffset + size <= bufferSize else {
+            print("")
+            fatalError("out of bounds")
+        }
+        
+        let buffer = ringBuffers[currentIndex]
+        let pointer = buffer.contents()
+            .advanced(by: alignedOffset)
+            .assumingMemoryBound(to: T.self)
+        for index in data.indices {
+            pointer[index] = data[index]
+        }
+        
+        currentOffset += alignedOffset + size
+        
+        return (buffer, alignedOffset)
+    }
+    
+    private func alignOffset(_ offset: Int, to alignment: Int) -> Int {
+        return (offset + alignment - 1) & ~(alignment - 1)
+    }
 }
