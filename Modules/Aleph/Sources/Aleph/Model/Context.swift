@@ -13,7 +13,7 @@ class Context {
     /// Canvas size
     var canvasSize:             Size
     /// Memory allocator
-    let frameAllocator = FrameAllocator()
+    let bufferAllocator = BufferAllocator()
     
     init(
         clearColor: Color,

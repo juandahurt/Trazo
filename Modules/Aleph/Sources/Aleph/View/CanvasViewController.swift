@@ -47,13 +47,13 @@ public class CanvasViewController: UIViewController {
         transformGestures.append(rotationGesture)
         
         // MARK: Draw gesture
-        let drawGesture = FingerGestureRecognizer(
-            target: self,
-            action: #selector(onDrawGesture(_:))
-        )
-        drawGesture.minimumNumberOfTouches = 1
-        drawGesture.maximumNumberOfTouches = 1
-        view.addGestureRecognizer(drawGesture)
+//        let drawGesture = FingerGestureRecognizer(
+//            target: self,
+//            action: #selector(onDrawGesture(_:))
+//        )
+//        drawGesture.minimumNumberOfTouches = 1
+//        drawGesture.maximumNumberOfTouches = 1
+//        view.addGestureRecognizer(drawGesture)
         
         for gesture in transformGestures {
             gesture.delegate = self

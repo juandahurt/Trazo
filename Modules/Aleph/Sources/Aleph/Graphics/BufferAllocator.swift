@@ -1,12 +1,12 @@
 import Metal
 
-class FrameAllocator {
+class BufferAllocator {
     /// Big buffers to use. One per frame
     private var ringBuffers:    [MTLBuffer] = []
     /// Current buffer index
     private var currentIndex:   Int = 0
     /// Size of each buffer, 4MB by deafult
-    private var bufferSize:     Int = 4 * 1024 * 1024 // 4MB
+    private var bufferSize:     Int = 2 * 1024 * 1024 // 4MB
     /// Offset in the current buffer
     private var currentOffset:  Int = 0
     /// Number of buffers
@@ -36,7 +36,6 @@ class FrameAllocator {
         let alignment = 256
         let alignedOffset = alignOffset(currentOffset, to: alignment)
         guard alignedOffset + size <= bufferSize else {
-            print("")
             fatalError("out of bounds")
         }
         
@@ -49,6 +48,12 @@ class FrameAllocator {
         }
         
         currentOffset += alignedOffset + size
+        
+        print("-------")
+        print("Current index:", currentIndex)
+        print("Current offset:", currentOffset)
+        print("Usage: \(Float(currentOffset) / Float(bufferSize) * 100)%")
+        print("-------")
         
         return (buffer, alignedOffset)
     }

@@ -34,13 +34,20 @@ class PresentPass: Pass {
             0, Float(texture.height), // bottom left
             Float(texture.width), Float(texture.height) // bottom right
         ]
-        let (vertexBuffer, offset) = ctx.frameAllocator.alloc(vertices)
-        encoder.setVertexBuffer(vertexBuffer, offset: offset, index: 0)
+        let (vertexBuffer, vertexOffset) = ctx.bufferAllocator.alloc(vertices)
+        encoder.setVertexBuffer(vertexBuffer, offset: vertexOffset, index: 0)
         
         // MARK: Texture buffer
+        let textCoord: [Float] = [
+            0, 0,
+            1, 0,
+            0, 1,
+            1, 1
+        ]
+        let (textureBuffer, textureOffset) = ctx.bufferAllocator.alloc(textCoord)
         encoder.setVertexBuffer(
-            Buffer.quad.textureBuffer,
-            offset: 0,
+            textureBuffer,
+            offset: textureOffset,
             index: 1
         )
         
@@ -57,14 +64,19 @@ class PresentPass: Pass {
             length: MemoryLayout<Float4x4.Matrix>.stride,
             index: 3
         )
-        
+       
+        let indices: [UInt16] = [
+            0, 1, 2,
+            1, 2, 3
+        ]
+        let (indexBuffer, indexBufferOffset) = ctx.bufferAllocator.alloc(indices)
         encoder
             .drawIndexedPrimitives(
                 type: .triangle,
-                indexCount: Buffer.quad.indexCount,
+                indexCount: indices.count,
                 indexType: .uint16,
-                indexBuffer: Buffer.quad.indexBuffer,
-                indexBufferOffset: 0
+                indexBuffer: indexBuffer,
+                indexBufferOffset: indexBufferOffset
             )
         
         encoder.endEncoding()

@@ -30,7 +30,7 @@ class Engine: NSObject {
     /// Frame loop
     /// - Parameter dt: Delta time
     func tick(dt: Float, view: MTKView) {
-        ctx.frameAllocator.newFrame()
+        ctx.bufferAllocator.newFrame()
         
         executePendingCommands()
         updateAnimations(dt: dt)
