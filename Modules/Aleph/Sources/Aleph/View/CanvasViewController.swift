@@ -78,53 +78,33 @@ extension CanvasViewController {
     @objc
     func onPanGesture(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
-        engine?.enqueue(
-            TransformCommand(
-                transform: .init(
-                    dx: Float(translation.x * view.contentScaleFactor),
-                    dy: Float(translation.y * view.contentScaleFactor)
-                )
-            )
-        )
+        let dx = Float(translation.x * view.contentScaleFactor)
+        let dy = Float(translation.y * view.contentScaleFactor)
+        engine?.enqueue(TransformCommand.translate(dx: dx, dy: dy))
         gesture.setTranslation(.zero, in: view)
     }
     
     @objc
     func onPinchGesture(_ gesture: UIPinchGestureRecognizer) {
-        var anchor = gesture.location(in: view)
-        anchor.x *= view.contentScaleFactor
-        anchor.y *= view.contentScaleFactor
-        let scale = Float(gesture.scale)
-        engine?.enqueue(
-            TransformCommand(
-                transform: .init(
-                    anchor: .init(
-                        x: Float(anchor.x),
-                        y: Float(anchor.y)
-                    ),
-                    scale: scale
-                )
-            )
+        var location = gesture.location(in: view)
+        let anchor = Point(
+            x: Float(location.x * view.contentScaleFactor),
+            y: Float(location.x * view.contentScaleFactor)
         )
+        let scale = Float(gesture.scale)
+        engine?.enqueue(TransformCommand.pinch(anchor: anchor, scale: scale))
         gesture.scale = 1
     }
     
     @objc
     func onRotationGesture(_ gesture: UIRotationGestureRecognizer) {
-        var anchor = gesture.location(in: view)
-        anchor.x *= view.contentScaleFactor
-        anchor.y *= view.contentScaleFactor
-        engine?.enqueue(
-            TransformCommand(
-                transform: .init(
-                    anchor: .init(
-                        x: Float(anchor.x),
-                        y: Float(anchor.y)
-                    ),
-                    rotation: Float(gesture.rotation)
-                )
-            )
+        var location = gesture.location(in: view)
+        let anchor = Point(
+            x: Float(location.x * view.contentScaleFactor),
+            y: Float(location.x * view.contentScaleFactor)
         )
+        let angle = Float(gesture.rotation)
+        engine?.enqueue(TransformCommand.rotate(anchor: anchor, angle: angle))
         gesture.rotation = 0
     }
 }
