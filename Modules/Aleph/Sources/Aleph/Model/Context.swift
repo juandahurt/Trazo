@@ -13,7 +13,13 @@ class Context {
     /// Canvas size
     var canvasSize:             Size
     /// Memory allocator
-    let bufferAllocator = BufferAllocator()
+    let bufferAllocator =       BufferAllocator()
+    /// Current stroke
+    var activeStroke:           ActiveStroke?
+    /// Current working document
+    var document:               Document
+    /// Passes to be encoded
+    var pendingPasses:  [Pass] = []
     
     init(
         clearColor: Color,
@@ -26,5 +32,12 @@ class Context {
         self.clearColor = clearColor
         self.canvasTexture = canvasTexture
         self.canvasSize = canvasSize
+        self.document = .init(
+            layers: [
+                .init(named: "Background", size: canvasSize),
+                .init(named: "Layer 1", size: canvasSize)
+            ],
+            currentLayerIndex: 1
+        )
     }
 }

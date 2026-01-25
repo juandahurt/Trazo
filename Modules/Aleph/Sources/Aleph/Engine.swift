@@ -2,16 +2,15 @@ import MetalKit
 import Tartarus
 
 class Engine: NSObject {
-    private var lastTime: CFTimeInterval = 0
+    private var lastTime:           CFTimeInterval = 0
+    private var isRunning:          Bool = false
+    
     // MARK: Next frame
-    private var pendingCommands: [Command] = []
-    private var liveAnimations: [Animation] = []
+    private var pendingCommands:    [Command] = []
+    private var liveAnimations:     [Animation] = []
     
     // MARK: Context
-    var ctx: Context
-    
-    // MARK: Rendering
-    private var pendingPasses: [Pass] = []
+    var ctx:                        Context
    
     init(canvasSize: Size) {
         ctx = .init(
@@ -21,8 +20,18 @@ class Engine: NSObject {
         )
     }
     
-    /// <#Description#>
-    /// - Parameter command: <#command description#>
+    func ignite() {
+        pendingCommands.append(
+            FillCommand(
+                color: .white,
+                texture: ctx.document.currentLayer.texture
+            )
+        )
+        isRunning = true
+    }
+    
+    /// Enqueues a new command
+    /// - Parameter command: Command to be executed in the next frame
     func enqueue(_ command: Command) {
         pendingCommands.append(command)
     }
@@ -30,17 +39,18 @@ class Engine: NSObject {
     /// Frame loop
     /// - Parameter dt: Delta time
     func tick(dt: Float, view: MTKView) {
+        guard isRunning else { return }
         ctx.bufferAllocator.newFrame()
         
         executePendingCommands()
         updateAnimations(dt: dt)
         
-        pendingPasses.append(PresentPass())
+        ctx.pendingPasses.append(PresentPass())
         
         render(view: view)
         
         pendingCommands = []
-        pendingPasses = []
+        ctx.pendingPasses = []
     }
     
     private func executePendingCommands() {
@@ -58,7 +68,7 @@ class Engine: NSObject {
         guard let commandBuffer = GPU.commandQueue.makeCommandBuffer() else { return }
         guard let drawable = view.currentDrawable else { return }
         
-        for p in pendingPasses {
+        for p in ctx.pendingPasses {
             p.encode(
                 commandBuffer: commandBuffer,
                 drawable: drawable,
