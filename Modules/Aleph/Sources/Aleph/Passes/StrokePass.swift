@@ -1,99 +1,102 @@
-//import MetalKit
-//import Tartarus
-//
-//class StrokePass: RenderPass {
-//    let segment: StrokeSegment
-//    
-//    init(segment: StrokeSegment) {
-//        self.segment = segment
-//    }
-//    
-//    func encode(
-//        context: SceneContext,
-//        commandBuffer: any MTLCommandBuffer,
-//        drawable: any CAMetalDrawable
-//    ) {
-//        guard let pipelineState = PipelinesManager.renderPipeline(
-//            for: .drawGrayscalePoints
-//        ) else { return }
-//        guard let strokeTexture = TextureManager.findTexture(
-//            id: context.renderContext.strokeTexture
-//        ) else { return }
-//        guard let shapeTexture = TextureManager.findTexture(
-//            id: context.strokeContext.brush.shapeTextureID
-//        ) else { return }
-//        
-//        guard !segment.points.isEmpty else { return }
-//        let points: [DrawablePoint] = segment.points
-//        
-//        let descriptor = MTLRenderPassDescriptor()
-//        descriptor.colorAttachments[0].storeAction = .store
-//        descriptor.colorAttachments[0].loadAction = .load
-//        descriptor.colorAttachments[0].texture = strokeTexture
-//        
-//        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
-//        else { return }
-//       
-//        encoder.setRenderPipelineState(pipelineState)
-//        let buffer = Buffer.quad.vertexBuffer
-//        let tranforms: [Float4x4] = points.map {
-//            Float4x4.identity
-//                .concatenating(.init(rotatedBy: $0.angle))
-//                .concatenating(.init(scaledBy: $0.size * context.renderContext.transform.scale))
-//                .concatenating(.init(translateByX: $0.position.x,y: $0.position.y))
-//        }
-//        let transformsBuffer = GPU.device
-//            .makeBuffer(
-//                bytes: tranforms,
-//                length: MemoryLayout<Float4x4>.stride * tranforms.count
-//            )
-//        encoder.setVertexBuffer(buffer, offset: 0, index: 0)
-//        var camera = context.renderContext.transform.inverse
-//        encoder.setVertexBytes(
-//            &camera,
-//            length: MemoryLayout<Float4x4.Matrix>.stride,
-//            index: 1
-//        )
-//        var projection = context.renderContext.projectionTransform
-//        encoder.setVertexBytes(
-//            &projection,
-//            length: MemoryLayout<Float4x4.Matrix>.stride,
-//            index: 2
-//        )
-//        var opacity = context.strokeContext.brush.opacity
-//        encoder.setVertexBytes(
-//            &opacity,
-//            length: MemoryLayout<Float>.stride,
-//            index: 3
-//        )
-//        encoder.setVertexBuffer(
-//            transformsBuffer,
-//            offset: 0,
-//            index: 4
-//        )
-//        encoder.setVertexBuffer(
-//            Buffer.quad.textureBuffer,
-//            offset: 0,
-//            index: 5
-//        )
-//        var color = Color.blue
-//        encoder.setVertexBytes(
-//            &color,
-//            length: MemoryLayout<Color>.stride,
-//            index: 6
-//        )
-//        encoder.setFragmentTexture(shapeTexture, index: 0)
-//        //            encoder?.setFragmentTexture(granularityTexture, index: 1)
-//        encoder
-//            .drawIndexedPrimitives(
-//                type: .triangle,
-//                indexCount: Buffer.quad.indexCount,
-//                indexType: .uint16,
-//                indexBuffer: Buffer.quad.indexBuffer,
-//                indexBufferOffset: 0,
-//                instanceCount: points.count
-//            )
-//        
-//        encoder.endEncoding()
-//    }
-//}
+import MetalKit
+import Tartarus
+
+class StrokePass: Pass {
+    let segments: [StrokeSegment]
+    
+    init(segments: [StrokeSegment]) {
+        self.segments = segments
+    }
+    
+    func encode(
+        commandBuffer: any MTLCommandBuffer,
+        drawable: any CAMetalDrawable,
+        ctx: Context
+    ) {
+        guard let pipelineState = PipelinesManager.renderPipeline(
+            for: .drawGrayscalePoints
+        ) else { return }
+        guard let mtlTexture = TextureManager.findTexture(
+            id: ctx.document.currentLayer.texture
+        )
+        else { return }
+        
+        let descriptor = MTLRenderPassDescriptor()
+        descriptor.colorAttachments[0].storeAction = .store
+        descriptor.colorAttachments[0].loadAction = .load
+        descriptor.colorAttachments[0].texture = mtlTexture
+        
+        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
+        else { return }
+        
+        encoder.setRenderPipelineState(pipelineState)
+        
+        let vertices: [Float] = [
+            -0.5, -0.5,
+            -0.5,  0.5,
+             0.5, -0.5,
+             0.5,  0.5
+        ]
+        let (vertexBuffers, vertexOffset) = ctx.bufferAllocator.alloc(vertices)
+        encoder.setVertexBuffer(vertexBuffers, offset: vertexOffset, index: 0)
+        
+        encoder.setVertexBytes(
+            &ctx.cameraMatrix,
+            length: MemoryLayout<Float4x4>.stride,
+            index: 1
+        )
+        
+        encoder.setVertexBytes(
+            &ctx.projectionTransform,
+            length: MemoryLayout<Float4x4>.stride,
+            index: 2
+        )
+        
+        var opacity: Float = 1
+        encoder.setVertexBytes(
+            &opacity,
+            length: MemoryLayout<Float>.stride,
+            index: 3
+        )
+        
+        let points = segments.reduce([], { $0 + $1.points })
+        let transforms = points.map {
+            Float4x4(scaledBy: $0.size)
+                .concatenating(Float4x4(translateByX: $0.position.x, y: $0.position.y))
+        }
+        let (transformsBuffer, transformsOffset) = ctx.bufferAllocator.alloc(transforms)
+        encoder.setVertexBuffer(transformsBuffer, offset: transformsOffset, index: 4)
+
+        let textCoord: [Float] = [
+            0, 0,
+            1, 0,
+            0, 1,
+            1, 1
+        ]
+        let (textureBuffer, textureOffset) = ctx.bufferAllocator.alloc(textCoord)
+        encoder.setVertexBuffer(
+            textureBuffer,
+            offset: textureOffset,
+            index: 5
+        )
+        
+        var color = Color.blue
+        encoder.setVertexBytes(&color, length: MemoryLayout<Color>.size, index: 6)
+        
+        let indices: [UInt16] = [
+            0, 1, 2,
+            1, 2, 3
+        ]
+        let (indexBuffer, indexBufferOffset) = ctx.bufferAllocator.alloc(indices)
+        encoder
+            .drawIndexedPrimitives(
+                type: .triangle,
+                indexCount: indices.count,
+                indexType: .uint16,
+                indexBuffer: indexBuffer,
+                indexBufferOffset: indexBufferOffset,
+                instanceCount: points.count
+            )
+        encoder.endEncoding()
+    }
+}

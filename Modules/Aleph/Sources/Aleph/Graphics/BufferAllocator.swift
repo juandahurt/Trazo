@@ -49,11 +49,11 @@ class BufferAllocator {
         
         currentOffset += alignedOffset + size
         
-        print("-------")
-        print("Current index:", currentIndex)
-        print("Current offset:", currentOffset)
-        print("Usage: \(Float(currentOffset) / Float(bufferSize) * 100)%")
-        print("-------")
+//        print("-------")
+//        print("Current index:", currentIndex)
+//        print("Current offset:", currentOffset)
+//        print("Usage: \(Float(currentOffset) / Float(bufferSize) * 100)%")
+//        print("-------")
         
         return (buffer, alignedOffset)
     }

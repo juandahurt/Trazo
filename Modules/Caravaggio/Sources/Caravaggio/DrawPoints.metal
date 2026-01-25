@@ -34,7 +34,7 @@ fragment float4 grayscale_point_frag(GrayScalePoint pointData                   
 {
     constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
 //    float granAlpha = granularityTexture.sample(defaultSampler, pointData.uv).a;
-    float shapeAlpha = shapeTexture.sample(defaultSampler, pointData.uv).a;
-    float alpha = /*granAlpha **/ shapeAlpha * pointData.opacity;
+//    float shapeAlpha = shapeTexture.sample(defaultSampler, pointData.uv).a;
+    float alpha = /*granAlpha **/ /*shapeAlpha **/ pointData.opacity;
     return float4(pointData.color[0], pointData.color[1], pointData.color[2], alpha);
 }

@@ -1,11 +1,31 @@
 import UIKit
 
-class FingerGestureRecognizer: UIPanGestureRecognizer {
-    override init(target: Any?, action: Selector?) {
-        super.init(target: target, action: action)
+class FingerGestureRecognizer: UIGestureRecognizer {
+    var onTouchReceived: ((UITouch) -> Void)?
+    
+    init() {
+        super.init(target: nil, action: nil)
        
-        minimumNumberOfTouches = 1
-        maximumNumberOfTouches = 1
         allowedTouchTypes = [UITouch.TouchType.direct.rawValue as NSNumber]
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard let touch = touches.first else { return }
+        onTouchReceived?(touch)
+    }
+    
+    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard let touch = touches.first else { return }
+        onTouchReceived?(touch)
+    }
+    
+    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard let touch = touches.first else { return }
+        onTouchReceived?(touch)
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard let touch = touches.first else { return }
+        onTouchReceived?(touch)
     }
 }

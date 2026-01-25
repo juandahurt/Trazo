@@ -46,14 +46,10 @@ public class CanvasViewController: UIViewController {
         )
         transformGestures.append(rotationGesture)
         
-        // MARK: Draw gesture
-//        let drawGesture = FingerGestureRecognizer(
-//            target: self,
-//            action: #selector(onDrawGesture(_:))
-//        )
-//        drawGesture.minimumNumberOfTouches = 1
-//        drawGesture.maximumNumberOfTouches = 1
-//        view.addGestureRecognizer(drawGesture)
+        // MARK: Draw gestures
+        let fingerGesture = FingerGestureRecognizer()
+        fingerGesture.onTouchReceived = onFingerDrawGesture
+        view.addGestureRecognizer(fingerGesture)
         
         for gesture in transformGestures {
             gesture.delegate = self
@@ -65,16 +61,30 @@ public class CanvasViewController: UIViewController {
             canvasSize: canvasSize * Float(view.contentScaleFactor)
         )
         (view as? MTKView)?.delegate = engine
+        
+        engine?.ignite()
     }
 }
 
+
+// MARK: Draw gestures callbacks
 extension CanvasViewController {
-    @objc
-    func onDrawGesture(_ gesture: UIPanGestureRecognizer) {
-//        let touch = Touch(gesture: gesture, in: view)
-//        engine?.enqueue(.touch(.finger(touch)))
+    func onFingerDrawGesture(uiTouch: UITouch) {
+        let touch = Touch(touch: uiTouch, in: view)
+        switch touch.phase {
+        case .began:
+            engine?.enqueue(BeginStrokeCommand(touch: touch))
+        case .moved:
+            engine?.enqueue(AddPointToStrokeCommand(touch: touch))
+        case .ended, .cancelled:
+            engine?.enqueue(EndStrokeCommand(touch: touch))
+        default: break
+        }
     }
-    
+}
+
+// MARK: Tranform geestures callbacks
+extension CanvasViewController {
     @objc
     func onPanGesture(_ gesture: UIPanGestureRecognizer) {
         let translation = gesture.translation(in: view)
@@ -89,7 +99,7 @@ extension CanvasViewController {
         var location = gesture.location(in: view)
         let anchor = Point(
             x: Float(location.x * view.contentScaleFactor),
-            y: Float(location.x * view.contentScaleFactor)
+            y: Float(location.y * view.contentScaleFactor)
         )
         let scale = Float(gesture.scale)
         engine?.enqueue(TransformCommand.pinch(anchor: anchor, scale: scale))
@@ -101,7 +111,7 @@ extension CanvasViewController {
         var location = gesture.location(in: view)
         let anchor = Point(
             x: Float(location.x * view.contentScaleFactor),
-            y: Float(location.x * view.contentScaleFactor)
+            y: Float(location.y * view.contentScaleFactor)
         )
         let angle = Float(gesture.rotation)
         engine?.enqueue(TransformCommand.rotate(anchor: anchor, angle: angle))
