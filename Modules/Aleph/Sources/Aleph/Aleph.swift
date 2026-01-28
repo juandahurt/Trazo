@@ -29,7 +29,7 @@ public class Aleph {
     }()
     
     public static func load() {
-        PipelinesManager.load()
+        // TODO: load stuf (?)
     }
     
     public static func makeCanvas(in viewController: UIViewController) -> CanvasViewController {
