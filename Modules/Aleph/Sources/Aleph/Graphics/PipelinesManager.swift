@@ -1,100 +1,90 @@
 import Metal
 
 class PipelinesManager {
-    enum ComputeType: String, CaseIterable {
-        case fill = "fill_color"
-        case merge = "merge"
-    }
-    
-    enum RenderType: CaseIterable {
+    enum PipelineType {
         case present
-        case drawGrayscalePoints
+//        case stroke(BlendMode)
         
-        var label: String {
-            switch self {
-            case .present: "present"
-            case .drawGrayscalePoints: "draw_grayscale_points"
-            }
-        }
-        var vertexFunction: String {
+        var vertexFunctionName: String {
             switch self {
             case .present: "present_vert"
-            case .drawGrayscalePoints: "grayscale_point_vert"
             }
-        }
-        var fragmentFunction: String {
-            switch self {
-            case .present: "present_frag"
-            case .drawGrayscalePoints: "grayscale_point_frag"
-            }
-        }
-    }
-    
-    nonisolated(unsafe)
-    static var computePipelines: [ComputeType: MTLComputePipelineState] = [:]
-    
-    nonisolated(unsafe)
-    static var renderPipelines: [RenderType: MTLRenderPipelineState] = [:]
-    
-    static func load() {
-        for type in ComputeType.allCases {
-            guard let function = GPU.library.makeFunction(name: type.rawValue) else {
-                assert(false, "function \(type.rawValue) not found.")
-                return
-            }
-            guard
-                let state = try? GPU.device.makeComputePipelineState(function: function)
-            else {
-                assert(
-                    false,
-                    "compute pipeline state \(type.rawValue) could not be created."
-                )
-                return
-            }
-            computePipelines[type] = state
         }
         
-        for type in RenderType.allCases {
-            let descriptor = MTLRenderPipelineDescriptor()
-            descriptor.colorAttachments[0].pixelFormat = .rgba8Unorm
-            descriptor.vertexFunction = GPU.library
-                .makeFunction(name: type.vertexFunction)
-            descriptor.fragmentFunction = GPU.library
-                .makeFunction(name: type.fragmentFunction)
-            if type == .drawGrayscalePoints {
-                let vertexDesc = MTLVertexDescriptor()
-                let vertexDescriptor = MTLVertexDescriptor()
-                vertexDescriptor.attributes[0].format = .float2
-                
-                vertexDescriptor
-                    .layouts[0]
-                    .stride = MemoryLayout<SIMD2<Float>>.stride
-                
-                descriptor.vertexDescriptor = vertexDescriptor
-                descriptor.colorAttachments[0].isBlendingEnabled = true
-                descriptor.colorAttachments[0].rgbBlendOperation = .add
-                descriptor.colorAttachments[0].alphaBlendOperation = .add
-                descriptor.colorAttachments[0].sourceRGBBlendFactor = .sourceAlpha
-                descriptor.colorAttachments[0].destinationRGBBlendFactor = .oneMinusSourceAlpha
-                descriptor.colorAttachments[0].sourceAlphaBlendFactor = .one
-                descriptor.colorAttachments[0].destinationAlphaBlendFactor = .oneMinusSourceAlpha
+        var fragmentFunctionName: String {
+            switch self {
+            case .present: "present_frag"
             }
-            do {
-                let state = try GPU.device.makeRenderPipelineState(
-                    descriptor: descriptor
-                )
-                renderPipelines[type] = state
-            } catch {
-                assert(false, "render pipeline \(type.label) could not be created.")
+        }
+        
+        var blendMode: BlendMode {
+            switch self {
+            case .present: .none
             }
         }
     }
     
-    static func computePipeline(for type: ComputeType) -> MTLComputePipelineState? {
-        computePipelines[type]
-    }
+    nonisolated(unsafe)
+    static var cache: [PipelineType: MTLRenderPipelineState] = [:]
     
-    static func renderPipeline(for type: RenderType) -> MTLRenderPipelineState? {
-        renderPipelines[type]
+//    enum ComputeType: String, CaseIterable {
+//        case fill = "fill_color"
+//        case merge = "merge"
+//    }
+    
+//    enum RenderType: CaseIterable {
+//        case present
+//        case drawGrayscalePoints
+//        
+//        var label: String {
+//            switch self {
+//            case .present: "present"
+//            case .drawGrayscalePoints: "draw_grayscale_points"
+//            }
+//        }
+//        var vertexFunction: String {
+//            switch self {
+//            case .present: "present_vert"
+//            case .drawGrayscalePoints: "grayscale_point_vert"
+//            }
+//        }
+//        var fragmentFunction: String {
+//            switch self {
+//            case .present: "present_frag"
+//            case .drawGrayscalePoints: "grayscale_point_frag"
+//            }
+//        }
+//    }
+    
+//    nonisolated(unsafe)
+//    static var computePipelines: [ComputeType: MTLComputePipelineState] = [:]
+//    
+//    nonisolated(unsafe)
+//    static var renderPipelines: [RenderType: MTLRenderPipelineState] = [:]
+    
+    static func load() {}
+    
+    static func pipeline(for type: PipelineType) -> MTLRenderPipelineState? {
+        if let pipelineState = cache[type] {
+            return pipelineState
+        }
+        
+        let descriptor = MTLRenderPipelineDescriptor()
+        descriptor.colorAttachments[0].pixelFormat = .rgba8Unorm
+        descriptor.colorAttachments[0].apply(mode: type.blendMode)
+        
+        let vertexFunction = GPU.library.makeFunction(name: type.vertexFunctionName)
+        descriptor.vertexFunction = vertexFunction
+        let fragmentFunction = GPU.library.makeFunction(name: type.fragmentFunctionName)
+        descriptor.fragmentFunction = fragmentFunction
+        
+        do {
+            let pipelineState = try GPU.device.makeRenderPipelineState(descriptor: descriptor)
+            cache[type] = pipelineState
+            return pipelineState
+        } catch {
+            debugPrint(error)
+            return nil
+        }
     }
 }

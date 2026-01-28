@@ -7,7 +7,7 @@ class PresentPass: Pass {
         drawable: any CAMetalDrawable,
         ctx: Context
     ) {
-        guard let pipelineState = PipelinesManager.renderPipeline(for: .present)
+        guard let pipelineState = PipelinesManager.pipeline(for: .present)
         else { return }
         
         let descriptor = MTLRenderPassDescriptor()
