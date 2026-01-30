@@ -47,7 +47,7 @@ class BufferAllocator {
             pointer[index] = data[index]
         }
         
-        currentOffset += alignedOffset + size
+        currentOffset = alignedOffset + size
         
         print("-------")
         print("Allocating:", size)
