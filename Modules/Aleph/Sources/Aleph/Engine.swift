@@ -48,8 +48,10 @@ class Engine: NSObject {
         executePendingCommands()
         updateAnimations(dt: dt)
         
-        ctx.pendingPasses.append(PresentPass())
-        
+        if !currentCommands.isEmpty {
+            ctx.pendingPasses.append(PresentPass())
+        }
+            
         render(view: view)
         endFrame()
     }

@@ -71,15 +71,7 @@ public class CanvasViewController: UIViewController {
 extension CanvasViewController {
     func onFingerDrawGesture(uiTouch: UITouch) {
         let touch = Touch(touch: uiTouch, in: view)
-        switch touch.phase {
-        case .began:
-            engine?.enqueue(BeginStrokeCommand(touch: touch))
-        case .moved:
-            engine?.enqueue(AddPointToStrokeCommand(touch: touch))
-        case .ended, .cancelled:
-            engine?.enqueue(EndStrokeCommand(touch: touch))
-        default: break
-        }
+        engine?.enqueue(StrokeCommand(touch: touch))
     }
 }
 
