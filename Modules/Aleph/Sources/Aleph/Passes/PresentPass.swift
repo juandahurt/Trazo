@@ -64,7 +64,10 @@ class PresentPass: Pass {
             length: MemoryLayout<Float4x4.Matrix>.stride,
             index: 3
         )
-       
+      
+        // MARK: Canvas texture
+        encoder.setFragmentTexture(texture, index: 3)
+        
         let indices: [UInt16] = [
             0, 1, 2,
             1, 2, 3

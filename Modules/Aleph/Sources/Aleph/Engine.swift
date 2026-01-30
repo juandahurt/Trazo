@@ -14,7 +14,7 @@ class Engine: NSObject {
    
     init(canvasSize: Size) {
         ctx = .init(
-            clearColor: .blue,
+            clearColor: .init([0.95, 0.95, 0.95, 1]),
             canvasTexture: TextureManager.makeTexture(ofSize: canvasSize)!,
             canvasSize: canvasSize
         )
