@@ -5,8 +5,11 @@ class Engine: NSObject {
     private var lastTime:           CFTimeInterval = 0
     private var isRunning:          Bool = false
     
+    // MARK: Commands
+    private var currentCommands:    [Command] = []
+    private var nextCommands:       [Command] = []
+    
     // MARK: Next frame
-    private var pendingCommands:    [Command] = []
     private var liveAnimations:     [Animation] = []
     
     // MARK: Context
@@ -21,7 +24,7 @@ class Engine: NSObject {
     }
     
     func ignite() {
-        pendingCommands.append(
+        nextCommands.append(
             FillCommand(
                 color: .white,
                 texture: ctx.document.currentLayer.texture
@@ -33,7 +36,7 @@ class Engine: NSObject {
     /// Enqueues a new command
     /// - Parameter command: Command to be executed in the next frame
     func enqueue(_ command: Command) {
-        pendingCommands.append(command)
+        nextCommands.append(command)
     }
     
     /// Frame loop
@@ -48,13 +51,21 @@ class Engine: NSObject {
         ctx.pendingPasses.append(PresentPass())
         
         render(view: view)
-        
-        pendingCommands = []
+        endFrame()
+    }
+    
+    private func endFrame() {
+        swapCommands()
         ctx.pendingPasses = []
     }
     
+    private func swapCommands() {
+        currentCommands = nextCommands
+        nextCommands = []
+    }
+    
     private func executePendingCommands() {
-        pendingCommands.forEach { $0.execute(context: ctx) }
+        currentCommands.forEach { $0.execute(context: ctx) }
     }
     
     private func updateAnimations(dt: Float) {
