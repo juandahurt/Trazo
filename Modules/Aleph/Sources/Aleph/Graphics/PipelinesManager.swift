@@ -3,11 +3,13 @@ import Metal
 enum PipelineType: Hashable {
     case present
     case stroke(BlendMode)
+    case merge(BlendMode)
     
     var vertexFunctionName: String {
         switch self {
         case .present: "present_vert"
         case .stroke: "stroke_vert"
+        case .merge: "merge_vert"
         }
     }
     
@@ -15,6 +17,7 @@ enum PipelineType: Hashable {
         switch self {
         case .present: "present_frag"
         case .stroke: "stroke_frag"
+        case .merge: "merge_frag"
         }
     }
     
@@ -22,6 +25,7 @@ enum PipelineType: Hashable {
         switch self {
         case .present: .none
         case .stroke(let blendMode): blendMode
+        case .merge(let blendMode): blendMode
         }
     }
 }
