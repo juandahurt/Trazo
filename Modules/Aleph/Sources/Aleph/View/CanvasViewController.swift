@@ -71,7 +71,7 @@ public class CanvasViewController: UIViewController {
 extension CanvasViewController {
     func onFingerDrawGesture(uiTouch: UITouch) {
         let touch = Touch(touch: uiTouch, in: view)
-        engine?.enqueue(StrokeCommand(touch: touch))
+        engine?.enqueue(.stroke(touch))
     }
 }
 
@@ -82,7 +82,7 @@ extension CanvasViewController {
         let translation = gesture.translation(in: view)
         let dx = Float(translation.x * view.contentScaleFactor)
         let dy = Float(translation.y * view.contentScaleFactor)
-        engine?.enqueue(TransformCommand.translate(dx: dx, dy: dy))
+        engine?.enqueue(.transform(.translate(dx: dx, dy: dy)))
         gesture.setTranslation(.zero, in: view)
     }
     
@@ -94,7 +94,7 @@ extension CanvasViewController {
             y: Float(location.y * view.contentScaleFactor)
         )
         let scale = Float(gesture.scale)
-        engine?.enqueue(TransformCommand.pinch(anchor: anchor, scale: scale))
+        engine?.enqueue(.transform(.scale(anchor, scale)))
         gesture.scale = 1
     }
     
@@ -105,8 +105,8 @@ extension CanvasViewController {
             x: Float(location.x * view.contentScaleFactor),
             y: Float(location.y * view.contentScaleFactor)
         )
-        let angle = Float(gesture.rotation)
-        engine?.enqueue(TransformCommand.rotate(anchor: anchor, angle: angle))
+        let rotation = Float(gesture.rotation)
+        engine?.enqueue(.transform(.rotate(anchor, rotation)))
         gesture.rotation = 0
     }
 }

@@ -1,7 +1,7 @@
 import Foundation
 import Tartarus
 
-class StrokeCommand: Command {
+class StrokeCommand: Commandable {
     let touch: Touch
     
     init(touch: Touch) {

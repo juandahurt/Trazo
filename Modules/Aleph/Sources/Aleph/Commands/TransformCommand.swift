@@ -1,6 +1,6 @@
 import Tartarus
 
-class TransformCommand: Command {
+class TransformCommand: Commandable {
     let transform: Transform
     
     init(transform: Transform) {

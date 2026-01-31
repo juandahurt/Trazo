@@ -24,12 +24,7 @@ class Engine: NSObject {
     }
     
     func ignite() {
-        nextCommands.append(
-            FillCommand(
-                color: .white,
-                texture: ctx.document.currentLayer.texture
-            )
-        )
+        nextCommands.append(.layer(.fill(ctx.document.currentLayer.texture, .white)))
         isRunning = true
     }
     
@@ -67,7 +62,7 @@ class Engine: NSObject {
     }
     
     private func executePendingCommands() {
-        currentCommands.forEach { $0.execute(context: ctx) }
+        currentCommands.forEach { $0.instance.execute(context: ctx) }
     }
     
     private func updateAnimations(dt: Float) {

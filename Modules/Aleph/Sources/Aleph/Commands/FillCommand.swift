@@ -1,4 +1,4 @@
-class FillCommand: Command {
+class FillCommand: Commandable {
     let color: Color
     let texture: TextureID
     
