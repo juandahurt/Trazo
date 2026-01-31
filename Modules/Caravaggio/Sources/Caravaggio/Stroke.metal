@@ -6,7 +6,7 @@ struct stroke_fragment_input {
     float4 position [[position]];
     float opacity;
     float2 uv;
-    float3 color;
+    float4 color;
 };
 
 vertex stroke_fragment_input stroke_vert(constant float2* positions           [[buffer(0)]],
@@ -15,7 +15,7 @@ vertex stroke_fragment_input stroke_vert(constant float2* positions           [[
                                            constant float& opacity              [[buffer(3)]],
                                            constant float4x4* transforms        [[buffer(4)]],
                                            constant float2* uv                  [[buffer(5)]],
-                                           constant float3& color               [[buffer(6)]],
+                                           constant float4& color               [[buffer(6)]],
                                            uint vertexId                        [[vertex_id]],
                                            uint instanceId                      [[instance_id]])
 {

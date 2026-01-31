@@ -18,13 +18,16 @@ class Engine: NSObject {
     init(canvasSize: Size) {
         ctx = .init(
             clearColor: .init([0.95, 0.95, 0.95, 1]),
-            canvasTexture: TextureManager.makeTexture(ofSize: canvasSize)!,
+            canvasTexture: TextureManager.makeTexture(
+                ofSize: canvasSize,
+                label: "Canvas Texture"
+            )!,
             canvasSize: canvasSize
         )
     }
     
     func ignite() {
-        nextCommands.append(.layer(.fill(ctx.document.currentLayer.texture, .white)))
+        nextCommands.append(.layer(.fill(ctx.document.layers.first!.texture, .white)))
         isRunning = true
     }
     

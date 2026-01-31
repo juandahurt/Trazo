@@ -1,8 +1,10 @@
+import Metal
+
 struct Color {
-    var r, g, b, a: Double
+    var r, g, b, a: Float
     
     @inlinable
-    init(_ value: [Double]) {
+    init(_ value: [Float]) {
         assert(value.count == 4, "color must have 4 values")
         r = value[0]
         g = value[1]
@@ -10,7 +12,11 @@ struct Color {
         a = value[3]
     }
     
-    func withOpacity(_ a: Double) -> Color {
+    var mtlClearColor: MTLClearColor {
+        .init(red: Double(r), green: Double(g), blue: Double(b), alpha: Double(a))
+    }
+    
+    func withOpacity(_ a: Float) -> Color {
         .init([r, g, b, a])
     }
 }

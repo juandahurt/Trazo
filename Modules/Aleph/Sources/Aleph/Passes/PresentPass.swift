@@ -11,12 +11,7 @@ class PresentPass: Pass {
         else { return }
         
         let descriptor = MTLRenderPassDescriptor()
-        descriptor.colorAttachments[0].clearColor = .init(
-            red: ctx.clearColor.r,
-            green: ctx.clearColor.g,
-            blue: ctx.clearColor.b,
-            alpha: ctx.clearColor.a
-        )
+        descriptor.colorAttachments[0].clearColor = ctx.clearColor.mtlClearColor
         descriptor.colorAttachments[0].loadAction = .clear
         descriptor.colorAttachments[0].texture = drawable.texture
         guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)

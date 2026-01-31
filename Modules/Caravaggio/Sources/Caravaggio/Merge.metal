@@ -8,11 +8,12 @@ struct merge_fragment_input {
 };
 
 vertex merge_fragment_input merge_vert(
-                                       constant float2* positions   [[buffer(0)]],
-                                       constant float2* text_coords  [[buffer(1)]],
-                                       uint vid                     [[vertex_id]]) {
+                                       constant float2* positions       [[buffer(0)]],
+                                       constant float2* text_coords     [[buffer(1)]],
+                                       constant float4x4& proj_matrix   [[buffer(2)]],
+                                       uint vid                         [[vertex_id]]) {
     return {
-        .position = float4(positions[vid], 0, 1),
+        .position = proj_matrix * float4(positions[vid], 0, 1),
         .text_coord = text_coords[vid]
     };
 }
