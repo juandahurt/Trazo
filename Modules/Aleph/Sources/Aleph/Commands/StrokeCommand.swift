@@ -54,6 +54,9 @@ class StrokeCommand: Commandable {
             }
         default: break
         }
+        
+        // merge layers after drawing
+        context.pendingPasses.append(MergePass())
     }
     
     private func findFirstSegment(ctx: Context) -> StrokeSegment? {
