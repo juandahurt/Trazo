@@ -13,6 +13,7 @@ class StrokePass: Pass {
         drawable: any CAMetalDrawable,
         ctx: Context
     ) {
+        commandBuffer.pushDebugGroup("Stroke")
         guard let pipelineState = PipelinesManager.pipeline(for: .stroke(.normal)) else {
             return
         }
@@ -98,5 +99,6 @@ class StrokePass: Pass {
                 instanceCount: points.count
             )
         encoder.endEncoding()
+        commandBuffer.popDebugGroup()
     }
 }
