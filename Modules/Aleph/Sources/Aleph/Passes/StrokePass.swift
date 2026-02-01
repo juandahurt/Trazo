@@ -104,25 +104,25 @@ class StrokePass: Pass {
             )
         )
         
-        if #available(iOS 13.0, *) {
-            let rect = dirtyArea
-            let shape = CAShapeLayer()
-            shape.path = .init(
-                rect: .init(
-                    x: CGFloat(
-                        rect.x / 2
-                    ),
-                    y: CGFloat(rect.y / 2),
-                    width: CGFloat(rect.width),
-                    height: CGFloat(rect.height)
-                ),
-                transform: nil
-            )
-            shape.fillColor = UIColor.blue.cgColor.copy(alpha: 0.1)
-            drawable.layer.addSublayer(shape)
-        } else {
-            // Fallback on earlier versions
-        }
+//        if #available(iOS 13.0, *) {
+//            let rect = dirtyArea
+//            let shape = CAShapeLayer()
+//            shape.path = .init(
+//                rect: .init(
+//                    x: CGFloat(
+//                        rect.x / 2
+//                    ),
+//                    y: CGFloat(rect.y / 2),
+//                    width: CGFloat(rect.width),
+//                    height: CGFloat(rect.height)
+//                ),
+//                transform: nil
+//            )
+//            shape.fillColor = UIColor.blue.cgColor.copy(alpha: 0.1)
+//            drawable.layer.addSublayer(shape)
+//        } else {
+//            // Fallback on earlier versions
+//        }
         
         encoder
             .drawIndexedPrimitives(

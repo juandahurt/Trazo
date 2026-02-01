@@ -2,6 +2,12 @@ import MetalKit
 import Tartarus
 
 class MergePass: Pass {
+    let dirtyArea: Rect
+    
+    init(dirtyArea: Rect) {
+        self.dirtyArea = dirtyArea
+    }
+    
     func encode(
         commandBuffer: any MTLCommandBuffer,
         drawable: any CAMetalDrawable,
@@ -68,12 +74,14 @@ class MergePass: Pass {
             
             encoder.setFragmentTexture(layerTexture, index: 0)
             
-            if let activeStroke = ctx.activeStroke {
-                
-            }
-//            encoder.setScissorRect(
-//                .init(x: 100, y: 100, width: 500, height: 500)
-//            )
+            encoder.setScissorRect(
+                .init(
+                    x: Int(dirtyArea.x),
+                    y: Int(dirtyArea.y),
+                    width: Int(dirtyArea.width),
+                    height: Int(dirtyArea.height)
+                )
+            )
             
             encoder
                 .drawIndexedPrimitives(

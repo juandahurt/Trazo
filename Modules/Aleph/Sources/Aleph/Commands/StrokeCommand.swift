@@ -11,6 +11,7 @@ class StrokeCommand: Commandable {
     func execute(context: Context) {
         var touch = touch
         touch.location = touch.location.applying(context.cameraMatrix.inverse)
+        var segments: [StrokeSegment] = []
         
         switch touch.phase {
         case .began:
@@ -23,6 +24,7 @@ class StrokeCommand: Commandable {
             
             if activeStroke.touches.count == 3 {
                 if let segment = findFirstSegment(ctx: context), !segment.points.isEmpty {
+                    segments.append(segment)
                     context.pendingPasses.append(
                         StrokePass(segments: [segment])
                     )
@@ -31,6 +33,7 @@ class StrokeCommand: Commandable {
             
             if activeStroke.touches.count > 3 {
                 if let segment = findMidSegment(ctx: context), !segment.points.isEmpty {
+                    segments.append(segment)
                     context.pendingPasses.append(
                         StrokePass(segments: [segment])
                     )
@@ -42,6 +45,7 @@ class StrokeCommand: Commandable {
             
             if activeStroke.touches.count > 3 {
                 if let segment = findMidSegment(ctx: context), !segment.points.isEmpty {
+                    segments.append(segment)
                     context.pendingPasses.append(
                         StrokePass(segments: [segment])
                     )
@@ -50,6 +54,7 @@ class StrokeCommand: Commandable {
             
             if activeStroke.touches.count > 2 {
                 if let segment = findLastSegment(ctx: context), !segment.points.isEmpty {
+                    segments.append(segment)
                     context.pendingPasses.append(
                         StrokePass(segments: [segment])
                     )
@@ -59,7 +64,15 @@ class StrokeCommand: Commandable {
         }
         
         // merge layers after drawing
-        context.pendingPasses.append(MergePass())
+        let dirtyArea = segments.boundsUnion().clip(
+            .init(
+                x: 0,
+                y: 0,
+                width: context.canvasSize.width,
+                height: context.canvasSize.height
+            )
+        )
+        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea))
     }
     
     private func findFirstSegment(ctx: Context) -> StrokeSegment? {
@@ -102,7 +115,7 @@ class StrokeCommand: Commandable {
         // find the correct `t` values along the curve
         var currT: Float = 0
         let scale = ctx.cameraMatrix.scale
-        let spacing: Float = 10
+        let spacing: Float = 30
         let pointSize: Float = 10
         var prevPoint = curve.point(at: 0)
         while let t = findTForNextPoint(
