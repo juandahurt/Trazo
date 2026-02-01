@@ -39,4 +39,27 @@ public extension Rect {
         
         return Rect(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
     }
+    
+    func union(_ rect: Rect) -> Rect {
+        let minX = min(rect.x, x)
+        let maxX = max(rect.x, x)
+        let minY = min(rect.y, y)
+        let maxY = max(rect.y, y)
+        
+        let width = maxX == minX ? width : maxX - minX
+        let height = maxY == minY ? height : maxY - minY
+        
+        return Rect(x: minX, y: minY, width: width, height: height)
+    }
+    
+    func clip(_ rect: Rect) -> Rect {
+        guard intersects(with: rect) else { return .zero }
+       
+        let minX = x < rect.x ? rect.x : x
+        let maxX = x + width > rect.x + rect.width ? rect.x + rect.width : x + width
+        let minY = y < rect.y ? rect.y : y
+        let maxY = y + height > rect.y + rect.height ? rect.y + rect.height : y + height
+        
+        return .init(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+    }
 }

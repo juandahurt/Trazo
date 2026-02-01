@@ -9,17 +9,16 @@ struct stroke_fragment_input {
     float4 color;
 };
 
-vertex stroke_fragment_input stroke_vert(constant float2* positions           [[buffer(0)]],
-                                           constant float4x4& modelMatrix       [[buffer(1)]],
-                                           constant float4x4& projectionMatrix  [[buffer(2)]],
-                                           constant float& opacity              [[buffer(3)]],
-                                           constant float4x4* transforms        [[buffer(4)]],
-                                           constant float2* uv                  [[buffer(5)]],
-                                           constant float4& color               [[buffer(6)]],
+vertex stroke_fragment_input stroke_vert(constant float2* positions             [[buffer(0)]],
+                                           constant float4x4& projectionMatrix  [[buffer(1)]],
+                                           constant float& opacity              [[buffer(2)]],
+                                           constant float4x4* transforms        [[buffer(3)]],
+                                           constant float2* uv                  [[buffer(4)]],
+                                           constant float4& color               [[buffer(5)]],
                                            uint vertexId                        [[vertex_id]],
                                            uint instanceId                      [[instance_id]])
 {
-    float4 position = projectionMatrix * modelMatrix * transforms[instanceId] * float4(positions[vertexId], 0, 1);
+    float4 position = projectionMatrix * /*modelMatrix **/ transforms[instanceId] * float4(positions[vertexId], 0, 1);
     return {
         .position = position,
         .opacity = opacity,

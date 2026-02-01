@@ -7,7 +7,6 @@ class MergePass: Pass {
         drawable: any CAMetalDrawable,
         ctx: Context
     ) {
-        print("merge")
         commandBuffer.pushDebugGroup("Merge")
         guard let canvasTexture = TextureManager.findTexture(id: ctx.canvasTexture) else { return }
         
@@ -68,6 +67,13 @@ class MergePass: Pass {
             ) else { return }
             
             encoder.setFragmentTexture(layerTexture, index: 0)
+            
+            if let activeStroke = ctx.activeStroke {
+                
+            }
+//            encoder.setScissorRect(
+//                .init(x: 100, y: 100, width: 500, height: 500)
+//            )
             
             encoder
                 .drawIndexedPrimitives(

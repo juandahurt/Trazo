@@ -9,6 +9,9 @@ class StrokeCommand: Commandable {
     }
     
     func execute(context: Context) {
+        var touch = touch
+        touch.location = touch.location.applying(context.cameraMatrix.inverse)
+        
         switch touch.phase {
         case .began:
             context.activeStroke = .init()
@@ -105,7 +108,7 @@ class StrokeCommand: Commandable {
         while let t = findTForNextPoint(
             in: curve,
             startingAt: currT,
-            spaceBetweenPoints: spacing * scale,
+            spaceBetweenPoints: spacing,
             ctx: ctx
         ) {
             let currentPoint = curve.point(at: t)
