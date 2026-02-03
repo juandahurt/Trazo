@@ -42,9 +42,9 @@ public extension Rect {
     
     func union(_ rect: Rect) -> Rect {
         let minX = min(rect.x, x)
-        let maxX = max(rect.x, x)
+        let maxX = max(rect.x + rect.width, x + width)
         let minY = min(rect.y, y)
-        let maxY = max(rect.y, y)
+        let maxY = max(rect.y + rect.height, y + height)
         
         let width = maxX == minX ? width : maxX - minX
         let height = maxY == minY ? height : maxY - minY
@@ -61,5 +61,14 @@ public extension Rect {
         let maxY = y + height > rect.y + rect.height ? rect.y + rect.height : y + height
         
         return .init(x: minX, y: minY, width: maxX - minX, height: maxY - minY)
+    }
+}
+
+extension Rect: Equatable {
+    public static func ==(lhs: Rect, rhs: Rect)  -> Bool {
+        lhs.x == rhs.x &&
+        lhs.y == rhs.y &&
+        lhs.width == rhs.width &&
+        lhs.height == rhs.height
     }
 }

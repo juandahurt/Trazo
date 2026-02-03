@@ -57,6 +57,7 @@ class StrokePass: Pass {
         let points = segments.reduce([], { $0 + $1.points })
         let transforms = points.map {
             Float4x4(scaledBy: $0.size)
+                .concatenating(.init(rotatedBy: $0.angle))
                 .concatenating(Float4x4(translateByX: $0.position.x, y: $0.position.y))
         }
         let (transformsBuffer, transformsOffset) = ctx.bufferAllocator.alloc(transforms)
@@ -86,8 +87,8 @@ class StrokePass: Pass {
         let (indexBuffer, indexBufferOffset) = ctx.bufferAllocator.alloc(indices)
    
         
-        
-        let dirtyArea = segments.boundsUnion().clip(
+        let union = segments.boundsUnion()
+        let dirtyArea = union.clip(
             .init(
                 x: 0,
                 y: 0,

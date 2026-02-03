@@ -13,6 +13,7 @@ enum Command {
     
     enum Layer {
         case fill(TextureID, Color)
+        case merge(Rect)
     }
     
     case transform(Transform)
@@ -34,6 +35,8 @@ enum Command {
             switch layer {
             case .fill(let texture, let color):
                 FillCommand(color: color, texture: texture)
+            case .merge(let area):
+                MergeCommand(dirtyArea: area)
             }
         case .stroke(let touch):
             StrokeCommand(touch: touch)

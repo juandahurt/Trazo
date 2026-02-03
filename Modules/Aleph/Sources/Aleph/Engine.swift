@@ -28,6 +28,18 @@ class Engine: NSObject {
     
     func ignite() {
         nextCommands.append(.layer(.fill(ctx.document.layers.first!.texture, .white)))
+        nextCommands.append(
+            .layer(
+                .merge(
+                    .init(
+                        x: 0,
+                        y: 0,
+                        width: ctx.canvasSize.width,
+                        height: ctx.canvasSize.height
+                    )
+                )
+            )
+        )
         isRunning = true
     }
     
