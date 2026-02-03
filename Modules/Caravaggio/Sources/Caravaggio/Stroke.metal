@@ -18,7 +18,7 @@ vertex stroke_fragment_input stroke_vert(constant float2* positions             
                                            uint vertexId                        [[vertex_id]],
                                            uint instanceId                      [[instance_id]])
 {
-    float4 position = projectionMatrix * /*modelMatrix **/ transforms[instanceId] * float4(positions[vertexId], 0, 1);
+    float4 position = projectionMatrix * transforms[instanceId] * float4(positions[vertexId], 0, 1);
     return {
         .position = position,
         .opacity = opacity,
@@ -27,13 +27,13 @@ vertex stroke_fragment_input stroke_vert(constant float2* positions             
     };
 }
 
-fragment float4 stroke_frag(stroke_fragment_input input                    [[stage_in]],
-                                     texture2d<float, access::sample> shapeTexture  [[texture(0)]])
-//                                      texture2d<float, access::sample> granularityTexture [[texture(1)]])
+fragment float4 stroke_frag(stroke_fragment_input input                         [[stage_in]],
+                            texture2d<float, access::sample> shapeTexture       [[texture(0)]],
+                            texture2d<float, access::sample> granularityTexture [[texture(1)]])
 {
     constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
-//    float granAlpha = granularityTexture.sample(defaultSampler, pointData.uv).a;
-//    float shapeAlpha = shapeTexture.sample(defaultSampler, pointData.uv).a;
-    float alpha = /*granAlpha **/ /*shapeAlpha **/ input.opacity;
+    float granAlpha = granularityTexture.sample(defaultSampler, input.uv).a;
+    float shapeAlpha = shapeTexture.sample(defaultSampler, input.uv).a;
+    float alpha = granAlpha * shapeAlpha * input.opacity;
     return float4(input.color[0], input.color[1], input.color[2], alpha);
 }

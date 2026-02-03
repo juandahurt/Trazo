@@ -20,6 +20,8 @@ class Context {
     var document:               Document
     /// Passes to be encoded
     var pendingPasses:  [Pass] = []
+    /// Current brush
+    var brush: Brush
     
     init(
         clearColor: Color,
@@ -38,6 +40,13 @@ class Context {
                 .init(named: "Layer 1", size: canvasSize)
             ],
             currentLayerIndex: 1
+        )
+        self.brush = .init(
+            shapeTextureID: 0,
+            granularityTextureID: 0,
+            spacing: 0,
+            pointSize: 0,
+            opacity: 0
         )
     }
 }

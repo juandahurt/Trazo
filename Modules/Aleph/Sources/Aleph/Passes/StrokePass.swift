@@ -47,7 +47,7 @@ class StrokePass: Pass {
             index: 1
         )
         
-        var opacity: Float = 1
+        var opacity: Float = ctx.brush.opacity
         encoder.setVertexBytes(
             &opacity,
             length: MemoryLayout<Float>.stride,
@@ -86,6 +86,14 @@ class StrokePass: Pass {
         ]
         let (indexBuffer, indexBufferOffset) = ctx.bufferAllocator.alloc(indices)
    
+        guard let shapeTexture = TextureManager.findTexture(id: ctx.brush.shapeTextureID)
+        else { return }
+        encoder.setFragmentTexture(shapeTexture, index: 0)
+        
+        guard let granuralityTexture = TextureManager.findTexture(
+            id: ctx.brush.granularityTextureID
+        ) else { return }
+        encoder.setFragmentTexture(granuralityTexture, index: 1)
         
         let union = segments.boundsUnion()
         let dirtyArea = union.clip(

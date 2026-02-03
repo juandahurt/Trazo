@@ -121,6 +121,6 @@ extension CanvasViewController: UIGestureRecognizerDelegate {
 // MARK: - API
 public extension CanvasViewController {
     func setBrush(_ brush: Brush) {
-//        engine?.enqueue(.brush(brush))
+        engine?.ctx.brush = brush
     }
 }
