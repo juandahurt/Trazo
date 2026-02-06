@@ -76,7 +76,7 @@ class StrokePass: Pass {
             index: 4
         )
         
-        var color = Color.blue
+        var color = Color([0.19, 0.211, 0.219, 1])
         encoder.setVertexBytes(&color, length: MemoryLayout<Color>.size, index: 5)
        
         // MARK: Index buffer
