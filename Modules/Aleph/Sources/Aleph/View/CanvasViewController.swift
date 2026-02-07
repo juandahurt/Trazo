@@ -97,14 +97,28 @@ extension CanvasViewController {
     
     @objc
     func onPinchGesture(_ gesture: UIPinchGestureRecognizer) {
+        guard let engine = engine else { return }
+        
         let location = gesture.location(in: view)
         let anchor = Point(
             x: Float(location.x * view.contentScaleFactor),
             y: Float(location.y * view.contentScaleFactor)
         )
         let scale = Float(gesture.scale)
-        engine?.enqueue(.transform(.scale(anchor, scale)))
+        let velocity = Float(gesture.velocity)
+        engine.enqueue(.transform(.scale(anchor, scale)))
         gesture.scale = 1
+        
+        if gesture.state == .ended, velocity < -6 {
+            engine.enqueue(
+                TransformAnimation(
+                    fromValue: engine.ctx.cameraTransform,
+                    toValue: Transform(dx: 0, dy: 0, scale: 1),
+                    duration: 0.35,
+                    easingType: .easeOut
+                )
+            )
+        }
     }
     
     @objc

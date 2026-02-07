@@ -9,7 +9,7 @@ class Engine: NSObject {
     private var currentCommands:    [Command] = []
     private var nextCommands:       [Command] = []
     
-    // MARK: Next frame
+    // MARK: Animations
     private var liveAnimations:     [Animation] = []
     
     // MARK: Context
@@ -49,6 +49,10 @@ class Engine: NSObject {
         nextCommands.append(command)
     }
     
+    func enqueue(_ animation: Animation) {
+        liveAnimations.append(animation)
+    }
+    
     /// Frame loop
     /// - Parameter dt: Delta time
     func tick(dt: Float, view: MTKView) {
@@ -65,7 +69,7 @@ class Engine: NSObject {
     }
     
     private func draw(_ view: MTKView) {
-        guard !currentCommands.isEmpty else { return }
+//        guard !currentCommands.isEmpty || liveAnimations.isEmpty else { return }
         render(view: view)
     }
     
