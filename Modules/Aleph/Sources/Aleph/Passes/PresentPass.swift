@@ -78,7 +78,5 @@ class PresentPass: Pass {
             )
         
         encoder.endEncoding()
-        
-        commandBuffer.present(drawable)
     }
 }

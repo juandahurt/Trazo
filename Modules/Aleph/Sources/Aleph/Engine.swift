@@ -54,18 +54,19 @@ class Engine: NSObject {
     func tick(dt: Float, view: MTKView) {
         guard isRunning else { return }
         ctx.bufferAllocator.newFrame()
-        
+        update(dt)
+        draw(view)
+        endFrame()
+    }
+    
+    private func update(_ dt: Float) {
         executePendingCommands()
         updateAnimations(dt: dt)
-        
-        if !currentCommands.isEmpty {
-            ctx.pendingPasses.append(PresentPass())
-        }
-            
+    }
+    
+    private func draw(_ view: MTKView) {
+        guard !currentCommands.isEmpty else { return }
         render(view: view)
-        endFrame()
-        print(currentCommands.count)
-        print(nextCommands.count)
     }
     
     private func endFrame() {
@@ -93,6 +94,8 @@ class Engine: NSObject {
         guard let commandBuffer = GPU.commandQueue.makeCommandBuffer() else { return }
         guard let drawable = view.currentDrawable else { return }
         
+        ctx.pendingPasses.append(PresentPass())
+        
         for p in ctx.pendingPasses {
             p.encode(
                 commandBuffer: commandBuffer,
@@ -101,6 +104,7 @@ class Engine: NSObject {
             )
         }
         
+        commandBuffer.present(drawable)
         commandBuffer.commit()
     }
 }

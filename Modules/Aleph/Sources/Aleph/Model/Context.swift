@@ -44,9 +44,9 @@ class Context {
         self.brush = .init(
             shapeTextureID: 0,
             granularityTextureID: 0,
-            spacing: 0,
-            pointSize: 0,
-            opacity: 0
+            spacing: 2,
+            pointSize: 5,
+            opacity: 1
         )
     }
 }

@@ -6,6 +6,12 @@ class ViewController: UIViewController {
     private var brushItem: UIBarButtonItem!
     private var eraserItem: UIBarButtonItem!
     
+    private var alephViewController: CanvasViewController!
+    private var shapeTextures: [TextureID] = []
+    private var granularityTextures: [TextureID] = []
+    
+    private var currentBrush: Brush!
+    
     override var prefersStatusBarHidden: Bool {
         true
     }
@@ -15,11 +21,22 @@ class ViewController: UIViewController {
     }
     
     override func viewDidLoad() {
-        let canvasViewController = Aleph.makeCanvas(in: self)
+        alephViewController = Aleph.makeCanvas(in: self)
+        shapeTextures = Aleph.debugShapeTextures
+        granularityTextures = Aleph.debugGranularityTextures
+        
+        currentBrush = .init(
+            shapeTextureID: shapeTextures[0],
+            granularityTextureID: granularityTextures[0],
+            spacing: 5,
+            pointSize: 8,
+            opacity: 1
+        )
+        alephViewController.setBrush(currentBrush)
         
         view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
-        setupBrushPropertiesView()
-        setupToolbar()
+//        setupBrushPropertiesView()
+//        setupToolbar()
     }
     
     func setupToolbar() {
