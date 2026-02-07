@@ -12,10 +12,22 @@ class ViewController: UIViewController {
     
     private var currentBrush: Brush!
     
-    override var prefersStatusBarHidden: Bool {
+    public override var prefersStatusBarHidden: Bool {
         true
     }
 
+    public override var prefersHomeIndicatorAutoHidden: Bool {
+        true
+    }
+
+    public override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
+        .all
+    }
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     required init?(coder: NSCoder) {
         super.init(coder: coder)
     }

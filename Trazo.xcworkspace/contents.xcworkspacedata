@@ -2,6 +2,9 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:Modules/Aleph">
+   </FileRef>
+   <FileRef
       location = "container:Trazo.xcodeproj">
    </FileRef>
 </Workspace>

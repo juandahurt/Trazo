@@ -31,7 +31,8 @@ public class Aleph {
     public static func load() {
         // TODO: load stuf (?)
     }
-    
+   
+    @MainActor
     public static func makeCanvas(in viewController: UIViewController) -> CanvasViewController {
         let canvasViewController = CanvasViewController(
             canvasSize: viewController.view.frame
