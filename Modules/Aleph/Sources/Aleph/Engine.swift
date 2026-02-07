@@ -64,6 +64,8 @@ class Engine: NSObject {
             
         render(view: view)
         endFrame()
+        print(currentCommands.count)
+        print(nextCommands.count)
     }
     
     private func endFrame() {

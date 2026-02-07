@@ -7,7 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		BC8FE9F32DEBC88900A5B24D /* TCanvas in Frameworks */ = {isa = PBXBuildFile; productRef = BC8FE9F22DEBC88900A5B24D /* TCanvas */; };
+		2F6640782F36B89B0088CF45 /* Aleph in Frameworks */ = {isa = PBXBuildFile; productRef = 2F6640772F36B89B0088CF45 /* Aleph */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXCopyFilesBuildPhase section */
@@ -53,7 +53,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				BC8FE9F32DEBC88900A5B24D /* TCanvas in Frameworks */,
+				2F6640782F36B89B0088CF45 /* Aleph in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -97,7 +97,7 @@
 			);
 			name = Trazo;
 			packageProductDependencies = (
-				BC8FE9F22DEBC88900A5B24D /* TCanvas */,
+				2F6640772F36B89B0088CF45 /* Aleph */,
 			);
 			productName = Trazo;
 			productReference = 2FCD94262D24649600413760 /* Trazo.app */;
@@ -128,7 +128,7 @@
 			mainGroup = 2FCD941D2D24649600413760;
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
-				BC8FE9F12DEBC88900A5B24D /* XCLocalSwiftPackageReference "Modules/TCanvas" */,
+				2F6640762F36B89B0088CF45 /* XCLocalSwiftPackageReference "Modules/Aleph" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 2FCD94272D24649600413760 /* Products */;
@@ -176,7 +176,6 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -185,9 +184,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.juandahurt.Trazo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -206,7 +209,6 @@
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
 				INFOPLIST_KEY_UIRequiresFullScreen = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait";
-				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = UIInterfaceOrientationPortrait;
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -215,9 +217,13 @@
 				MARKETING_VERSION = 1.0;
 				PRODUCT_BUNDLE_IDENTIFIER = dev.juandahurt.Trazo;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -366,16 +372,16 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		BC8FE9F12DEBC88900A5B24D /* XCLocalSwiftPackageReference "Modules/TCanvas" */ = {
+		2F6640762F36B89B0088CF45 /* XCLocalSwiftPackageReference "Modules/Aleph" */ = {
 			isa = XCLocalSwiftPackageReference;
-			relativePath = Modules/TCanvas;
+			relativePath = Modules/Aleph;
 		};
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
-		BC8FE9F22DEBC88900A5B24D /* TCanvas */ = {
+		2F6640772F36B89B0088CF45 /* Aleph */ = {
 			isa = XCSwiftPackageProductDependency;
-			productName = TCanvas;
+			productName = Aleph;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

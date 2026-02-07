@@ -4,13 +4,4 @@
    <FileRef
       location = "container:Trazo.xcodeproj">
    </FileRef>
-   <FileRef
-      location = "container:Modules/TGraphics">
-   </FileRef>
-   <FileRef
-      location = "container:Modules/TCanvas">
-   </FileRef>
-   <FileRef
-      location = "group:Modules/TTypes">
-   </FileRef>
 </Workspace>
