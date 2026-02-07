@@ -51,6 +51,10 @@ public class CanvasViewController: UIViewController {
         fingerGesture.onTouchReceived = onFingerDrawGesture
         view.addGestureRecognizer(fingerGesture)
         
+        let pencilGesture = PencilGestureRecognizer()
+        pencilGesture.onTouchReceived = onPencilDrawGesture
+        view.addGestureRecognizer(pencilGesture)
+        
         for gesture in transformGestures {
             gesture.delegate = self
             view.addGestureRecognizer(gesture)
@@ -73,6 +77,11 @@ extension CanvasViewController {
         let touch = Touch(touch: uiTouch, in: view)
         engine?.enqueue(.stroke(touch))
     }
+    
+    func onPencilDrawGesture(uiTouch: UITouch) {
+        let touch = Touch(touch: uiTouch, in: view)
+        engine?.enqueue(.stroke(touch))
+    }
 }
 
 // MARK: Tranform geestures callbacks
@@ -88,7 +97,7 @@ extension CanvasViewController {
     
     @objc
     func onPinchGesture(_ gesture: UIPinchGestureRecognizer) {
-        var location = gesture.location(in: view)
+        let location = gesture.location(in: view)
         let anchor = Point(
             x: Float(location.x * view.contentScaleFactor),
             y: Float(location.y * view.contentScaleFactor)
@@ -100,7 +109,7 @@ extension CanvasViewController {
     
     @objc
     func onRotationGesture(_ gesture: UIRotationGestureRecognizer) {
-        var location = gesture.location(in: view)
+        let location = gesture.location(in: view)
         let anchor = Point(
             x: Float(location.x * view.contentScaleFactor),
             y: Float(location.y * view.contentScaleFactor)
