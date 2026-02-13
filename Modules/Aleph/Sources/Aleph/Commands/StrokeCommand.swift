@@ -114,9 +114,7 @@ class StrokeCommand: Commandable {
         var segment = StrokeSegment()
         // find the correct `t` values along the curve
         var currT: Float = 0
-        let scale = ctx.cameraMatrix.scale
         let spacing: Float = ctx.brush.spacing
-        let pointSize: Float = 10
         var prevPoint = curve.point(at: 0)
         while let t = findTForNextPoint(
             in: curve,
@@ -132,7 +130,7 @@ class StrokeCommand: Commandable {
                     position: [currentPoint.x, currentPoint.y],
                     size: ctx.brush.pointSize,
                     opacity: ctx.brush.opacity,
-                    angle: angle * .random(in: 0...1)
+                    angle: angle * .random(in: (-2 * .pi)...(2 * .pi))
                 ),
                 transform: ctx.cameraMatrix
             )

@@ -74,7 +74,8 @@ public class CanvasViewController: UIViewController {
 // MARK: Draw gestures callbacks
 extension CanvasViewController {
     func onFingerDrawGesture(uiTouch: UITouch) {
-        let touch = Touch(touch: uiTouch, in: view)
+        var touch = Touch(touch: uiTouch, in: view)
+        touch.force = 1
         engine?.enqueue(.stroke(touch))
     }
     

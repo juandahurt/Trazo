@@ -4,6 +4,7 @@ struct Touch {
     var id: Int
     var location: Point
     var phase: Phase
+    var force: Float
     
     enum Phase {
         case began
@@ -19,19 +20,18 @@ struct Touch {
 import UIKit
 
 extension Touch {
+    @MainActor
     init(touch: UITouch, in view: UIView) {
         id = touch.hashValue
-        var cgLocation = touch.location(in: view)
-        let viewSize = Size(
-            width: Float(view.bounds.width),
-            height: Float(view.bounds.height)
-        ) * Float(view.contentScaleFactor)
-        var location = .init(
+        let cgLocation = touch.location(in: view)
+        let location = .init(
             x: Float(cgLocation.x),
             y: Float(cgLocation.y)
         ) * Float(view.contentScaleFactor)
         
         self.location = location
+        
+        force = Float(touch.force)
         
         phase = switch (touch.phase) {
         case .began: .began
