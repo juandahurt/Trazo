@@ -5,6 +5,9 @@
       location = "group:Modules/Aleph">
    </FileRef>
    <FileRef
+      location = "group:Modules/Caravaggio">
+   </FileRef>
+   <FileRef
       location = "group:Modules/Tartarus">
    </FileRef>
    <FileRef
