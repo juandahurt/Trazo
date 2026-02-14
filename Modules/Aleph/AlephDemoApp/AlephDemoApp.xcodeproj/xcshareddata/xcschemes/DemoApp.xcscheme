@@ -15,10 +15,10 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "2FCD94252D24649600413760"
-               BuildableName = "Trazo.app"
-               BlueprintName = "Trazo"
-               ReferencedContainer = "container:Trazo.xcodeproj">
+               BlueprintIdentifier = "2F491AF92EE3A79700A47F98"
+               BuildableName = "DemoApp.app"
+               BlueprintName = "DemoApp"
+               ReferencedContainer = "container:AlephDemoApp.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -44,10 +44,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2FCD94252D24649600413760"
-            BuildableName = "Trazo.app"
-            BlueprintName = "Trazo"
-            ReferencedContainer = "container:Trazo.xcodeproj">
+            BlueprintIdentifier = "2F491AF92EE3A79700A47F98"
+            BuildableName = "DemoApp.app"
+            BlueprintName = "DemoApp"
+            ReferencedContainer = "container:AlephDemoApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </LaunchAction>
@@ -61,10 +61,10 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "2FCD94252D24649600413760"
-            BuildableName = "Trazo.app"
-            BlueprintName = "Trazo"
-            ReferencedContainer = "container:Trazo.xcodeproj">
+            BlueprintIdentifier = "2F491AF92EE3A79700A47F98"
+            BuildableName = "DemoApp.app"
+            BlueprintName = "DemoApp"
+            ReferencedContainer = "container:AlephDemoApp.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

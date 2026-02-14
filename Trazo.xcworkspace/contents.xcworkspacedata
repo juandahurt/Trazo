@@ -2,15 +2,15 @@
 <Workspace
    version = "1.0">
    <FileRef
+      location = "group:Modules/Aleph">
+   </FileRef>
+   <FileRef
+      location = "group:Modules/Caravaggio">
+   </FileRef>
+   <FileRef
+      location = "group:Modules/Tartarus">
+   </FileRef>
+   <FileRef
       location = "container:Trazo.xcodeproj">
-   </FileRef>
-   <FileRef
-      location = "container:Modules/TGraphics">
-   </FileRef>
-   <FileRef
-      location = "container:Modules/TCanvas">
-   </FileRef>
-   <FileRef
-      location = "group:Modules/TTypes">
    </FileRef>
 </Workspace>

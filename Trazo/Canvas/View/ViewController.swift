@@ -1,40 +1,54 @@
-//
-//  ViewController.swift
-//  Trazo
-//
-//  Created by Juan Hurtado on 31/12/24.
-//
-
+import Aleph
 import Combine
 import UIKit
 
-import TCanvas
-
 class ViewController: UIViewController {
-    var brush = TCBrush.normal
-    let canvas: TCanvas
-    var selectedTool: TCToolType
-    
     private var brushItem: UIBarButtonItem!
     private var eraserItem: UIBarButtonItem!
     
-    override var prefersStatusBarHidden: Bool {
+    private var alephViewController: CanvasViewController!
+    private var shapeTextures: [TextureID] = []
+    private var granularityTextures: [TextureID] = []
+    
+    private var currentBrush: Brush!
+    
+    public override var prefersStatusBarHidden: Bool {
         true
     }
 
+    public override var prefersHomeIndicatorAutoHidden: Bool {
+        true
+    }
+
+    public override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
+        .all
+    }
+
+    init() {
+        super.init(nibName: nil, bundle: nil)
+    }
+    
     required init?(coder: NSCoder) {
-        let canvasConfig = TCConfig(isTransformEnabled: true, brush: brush)
-        canvas = .init(config: canvasConfig)
-        selectedTool = canvas.selectedTool
         super.init(coder: coder)
     }
     
     override func viewDidLoad() {
-        canvas.load(in: view)
+        alephViewController = Aleph.makeCanvas(in: self)
+        shapeTextures = Aleph.debugShapeTextures
+        granularityTextures = Aleph.debugGranularityTextures
+        
+        currentBrush = .init(
+            shapeTextureID: shapeTextures[0],
+            granularityTextureID: granularityTextures[0],
+            spacing: 5,
+            pointSize: 8,
+            opacity: 1
+        )
+        alephViewController.setBrush(currentBrush)
         
         view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
-        setupBrushPropertiesView()
-        setupToolbar()
+//        setupBrushPropertiesView()
+//        setupToolbar()
     }
     
     func setupToolbar() {
@@ -53,14 +67,14 @@ class ViewController: UIViewController {
             target: self,
             action: #selector(onEraserItemTap)
         )
-        eraserItem.tintColor = .white.withAlphaComponent(selectedTool == .erase ? 1 : 0.4)
+//        eraserItem.tintColor = .white.withAlphaComponent(selectedTool == .erase ? 1 : 0.4)
         brushItem = UIBarButtonItem(
             image: .init(systemName: "paintbrush.pointed.fill"),
             style: .plain,
             target: self,
             action: #selector(onBrushItemTap)
         )
-        brushItem.tintColor = .white.withAlphaComponent(selectedTool == .draw ? 1 : 0.4)
+//        brushItem.tintColor = .white.withAlphaComponent(selectedTool == .draw ? 1 : 0.4)
         toolbar.setItems([space, brushItem, eraserItem, space], animated: false)
         view.addSubview(toolbar)
         
@@ -75,16 +89,16 @@ class ViewController: UIViewController {
     func setupBrushPropertiesView() {
         let brushPropertiesView = BrushPropertiesView()
         
-        brushPropertiesView.onOpacityChange = { [weak self] in
-            guard let self else { return }
-            brush.opacity = $0
-            canvas.updateBrush(with: brush)
-        }
-        brushPropertiesView.onSizeChange = { [weak self] in
-            guard let self else { return }
-            brush.size = $0
-            canvas.updateBrush(with: brush)
-        }
+//        brushPropertiesView.onOpacityChange = { [weak self] in
+//            guard let self else { return }
+//            brush.opacity = $0
+//            canvas.updateBrush(with: brush)
+//        }
+//        brushPropertiesView.onSizeChange = { [weak self] in
+//            guard let self else { return }
+//            brush.size = $0
+//            canvas.updateBrush(with: brush)
+//        }
         
         view.addSubview(brushPropertiesView)
         
@@ -100,17 +114,17 @@ class ViewController: UIViewController {
 extension ViewController {
     @objc
     func onBrushItemTap() {
-        selectedTool = .draw
-        canvas.selectedTool = .draw
-        brushItem.tintColor = brushItem.tintColor?.withAlphaComponent(1)
-        eraserItem.tintColor = eraserItem.tintColor?.withAlphaComponent(0.5)
+//        selectedTool = .draw
+//        canvas.selectedTool = .draw
+//        brushItem.tintColor = brushItem.tintColor?.withAlphaComponent(1)
+//        eraserItem.tintColor = eraserItem.tintColor?.withAlphaComponent(0.5)
     }
     
     @objc
     func onEraserItemTap() {
-        selectedTool = .erase
-        canvas.selectedTool = .erase
-        brushItem.tintColor = brushItem.tintColor?.withAlphaComponent(0.5)
-        eraserItem.tintColor = eraserItem.tintColor?.withAlphaComponent(1)
+//        selectedTool = .erase
+//        canvas.selectedTool = .erase
+//        brushItem.tintColor = brushItem.tintColor?.withAlphaComponent(0.5)
+//        eraserItem.tintColor = eraserItem.tintColor?.withAlphaComponent(1)
     }
 }
