@@ -5,6 +5,9 @@
       location = "group:Modules/Aleph">
    </FileRef>
    <FileRef
+      location = "group:Modules/Tartarus">
+   </FileRef>
+   <FileRef
       location = "container:Trazo.xcodeproj">
    </FileRef>
 </Workspace>
