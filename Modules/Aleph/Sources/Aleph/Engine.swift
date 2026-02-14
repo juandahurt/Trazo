@@ -6,8 +6,7 @@ class Engine: NSObject {
     private var isRunning:          Bool = false
     
     // MARK: Commands
-    private var currentCommands:    [Command] = []
-    private var nextCommands:       [Command] = []
+    private var commands:    [Command] = []
     
     // MARK: Animations
     private var liveAnimations:     [Animation] = []
@@ -27,8 +26,8 @@ class Engine: NSObject {
     }
     
     func ignite() {
-        nextCommands.append(.layer(.fill(ctx.document.layers.first!.texture, .white)))
-        nextCommands.append(
+        commands.append(.layer(.fill(ctx.document.layers.first!.texture, .white)))
+        commands.append(
             .layer(
                 .merge(
                     .init(
@@ -46,7 +45,7 @@ class Engine: NSObject {
     /// Enqueues a new command
     /// - Parameter command: Command to be executed in the next frame
     func enqueue(_ command: Command) {
-        nextCommands.append(command)
+        commands.append(command)
     }
     
     func enqueue(_ animation: Animation) {
@@ -69,22 +68,18 @@ class Engine: NSObject {
     }
     
     private func draw(_ view: MTKView) {
-        guard !currentCommands.isEmpty || liveAnimations.isEmpty else { return }
+        guard !commands.isEmpty || !liveAnimations.isEmpty else { return }
         render(view: view)
     }
     
     private func endFrame() {
-        swapCommands()
+        liveAnimations = liveAnimations.filter { $0.isAlive }
         ctx.pendingPasses = []
-    }
-    
-    private func swapCommands() {
-        currentCommands = nextCommands
-        nextCommands = []
+        commands = []
     }
     
     private func executePendingCommands() {
-        currentCommands.forEach { $0.instance.execute(context: ctx) }
+        commands.forEach { $0.instance.execute(context: ctx) }
     }
     
     private func updateAnimations(dt: Float) {

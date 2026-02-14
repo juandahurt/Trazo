@@ -9,22 +9,54 @@ struct stroke_fragment_input {
     float4 color;
 };
 
-vertex stroke_fragment_input stroke_vert(constant float2* positions             [[buffer(0)]],
-                                           constant float4x4& projectionMatrix  [[buffer(1)]],
-                                           constant float& opacity              [[buffer(2)]],
-                                           constant float4x4* transforms        [[buffer(3)]],
-                                           constant float2* uv                  [[buffer(4)]],
-                                           constant float4& color               [[buffer(5)]],
-                                           uint vertexId                        [[vertex_id]],
-                                           uint instanceId                      [[instance_id]])
+struct drawable_point {
+    float2 position;
+    float size;
+    float opacity;
+    float angle;
+};
+
+vertex stroke_fragment_input stroke_vert(constant float2* vertices            [[buffer(0)]],
+                                         constant float4x4& projectionMatrix  [[buffer(1)]],
+                                         constant float& opacity              [[buffer(2)]],
+                                         constant drawable_point* points      [[buffer(3)]],
+                                         constant float2* uv                  [[buffer(4)]],
+                                         constant float4& color               [[buffer(5)]],
+                                         uint vertexId                        [[vertex_id]],
+                                         uint instanceId                      [[instance_id]])
 {
-    float4 position = projectionMatrix * transforms[instanceId] * float4(positions[vertexId], 0, 1);
-    return {
-        .position = position,
-        .opacity = opacity,
-        .uv = uv[vertexId],
-        .color = color
-    };
+        drawable_point p = points[instanceId];
+        float cosA = cos(p.angle);
+        float sinA = sin(p.angle);
+        
+        float4x4 scale = float4x4(
+            float4(p.size, 0, 0, 0),
+            float4(0, p.size, 0, 0),
+            float4(0, 0, 1, 0),
+            float4(0, 0, 0, 1)
+        );
+        float4x4 rotation = float4x4(
+            float4( cosA, sinA, 0, 0),
+            float4(-sinA, cosA, 0, 0),
+            float4(0,     0,    1, 0),
+            float4(0,     0,    0, 1)
+        );
+        float4x4 translation = float4x4(
+            float4(1, 0, 0, 0),
+            float4(0, 1, 0, 0),
+            float4(0, 0, 1, 0),
+            float4(p.position.x, p.position.y, 0, 1)
+        );
+        
+        float4x4 transform = translation * rotation * scale;
+        float4 position = projectionMatrix * transform * float4(vertices[vertexId], 0, 1);
+        
+        return {
+            .position = position,
+            .opacity = p.opacity,
+            .uv = uv[vertexId],
+            .color = color
+        };;
 }
 
 fragment float4 stroke_frag(stroke_fragment_input input                         [[stage_in]],

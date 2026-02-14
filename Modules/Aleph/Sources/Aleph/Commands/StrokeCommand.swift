@@ -25,18 +25,12 @@ class StrokeCommand: Commandable {
             if activeStroke.touches.count == 3 {
                 if let segment = findFirstSegment(ctx: context), !segment.points.isEmpty {
                     segments.append(segment)
-                    context.pendingPasses.append(
-                        StrokePass(segments: [segment])
-                    )
                 }
             }
             
             if activeStroke.touches.count > 3 {
                 if let segment = findMidSegment(ctx: context), !segment.points.isEmpty {
                     segments.append(segment)
-                    context.pendingPasses.append(
-                        StrokePass(segments: [segment])
-                    )
                 }
             }
         case .ended, .cancelled:
@@ -46,18 +40,12 @@ class StrokeCommand: Commandable {
             if activeStroke.touches.count > 3 {
                 if let segment = findMidSegment(ctx: context), !segment.points.isEmpty {
                     segments.append(segment)
-                    context.pendingPasses.append(
-                        StrokePass(segments: [segment])
-                    )
                 }
             }
             
             if activeStroke.touches.count > 2 {
                 if let segment = findLastSegment(ctx: context), !segment.points.isEmpty {
                     segments.append(segment)
-                    context.pendingPasses.append(
-                        StrokePass(segments: [segment])
-                    )
                 }
             }
         default: break
@@ -72,6 +60,9 @@ class StrokeCommand: Commandable {
                 height: context.canvasSize.height
             )
         )
+        
+        guard !segments.isEmpty else { return }
+        context.pendingPasses.append(StrokePass(segments: segments))
         context.pendingPasses.append(MergePass(dirtyArea: dirtyArea))
     }
     

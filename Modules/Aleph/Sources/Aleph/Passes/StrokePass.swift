@@ -55,13 +55,8 @@ class StrokePass: Pass {
         )
         
         let points = segments.reduce([], { $0 + $1.points })
-        let transforms = points.map {
-            Float4x4(scaledBy: $0.size)
-                .concatenating(.init(rotatedBy: $0.angle))
-                .concatenating(Float4x4(translateByX: $0.position.x, y: $0.position.y))
-        }
-        let (transformsBuffer, transformsOffset) = ctx.bufferAllocator.alloc(transforms)
-        encoder.setVertexBuffer(transformsBuffer, offset: transformsOffset, index: 3)
+        let (pointsBuffer, pointsOffset) = ctx.bufferAllocator.alloc(points)
+        encoder.setVertexBuffer(pointsBuffer, offset: pointsOffset, index: 3)
 
         let textCoord: [Float] = [
             0, 0,
@@ -152,7 +147,7 @@ extension Collection where Element == StrokeSegment {
     func boundsUnion() -> Rect {
         guard let first else { return .zero }
         
-        var firstRect = first.bounds
+        let firstRect = first.bounds
         
         return reduce(firstRect, { $0.union($1.bounds) })
     }

@@ -7,6 +7,7 @@ public class CanvasViewController: UIViewController {
     var engine: Engine?
     
     var simultaneosGestures: [UIGestureRecognizer] = []
+    var pencilIsActive = false
     
     init(canvasSize: CGRect) {
         self.canvasSize = .init(
@@ -49,10 +50,12 @@ public class CanvasViewController: UIViewController {
         // MARK: Draw gestures
         let fingerGesture = FingerGestureRecognizer()
         fingerGesture.onTouchReceived = onFingerDrawGesture
+        fingerGesture.delegate = self
         view.addGestureRecognizer(fingerGesture)
         
         let pencilGesture = PencilGestureRecognizer()
         pencilGesture.onTouchReceived = onPencilDrawGesture
+        pencilGesture.delegate = self
         view.addGestureRecognizer(pencilGesture)
         
         for gesture in transformGestures {
@@ -74,12 +77,14 @@ public class CanvasViewController: UIViewController {
 // MARK: Draw gestures callbacks
 extension CanvasViewController {
     func onFingerDrawGesture(uiTouch: UITouch) {
+        if pencilIsActive { return }
         var touch = Touch(touch: uiTouch, in: view)
         touch.force = 1
         engine?.enqueue(.stroke(touch))
     }
     
     func onPencilDrawGesture(uiTouch: UITouch) {
+        pencilIsActive = uiTouch.phase != .ended && uiTouch.phase != .cancelled
         let touch = Touch(touch: uiTouch, in: view)
         engine?.enqueue(.stroke(touch))
     }
@@ -137,7 +142,8 @@ extension CanvasViewController {
 
 extension CanvasViewController: UIGestureRecognizerDelegate {
     public func gestureRecognizer(_ gestureRecognizer: UIGestureRecognizer, shouldRecognizeSimultaneouslyWith otherGestureRecognizer: UIGestureRecognizer) -> Bool {
-        simultaneosGestures.contains(gestureRecognizer) &&
+        if pencilIsActive { return false }
+        return simultaneosGestures.contains(gestureRecognizer) &&
         simultaneosGestures.contains(otherGestureRecognizer)
     }
 }
