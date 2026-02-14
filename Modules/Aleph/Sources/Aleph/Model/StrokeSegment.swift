@@ -5,7 +5,7 @@ struct StrokeSegment {
     var points: [DrawablePoint] = []
     let padding: Float = 2.0  // Ajusta este valor según necesites
     
-    mutating func add(point: DrawablePoint, transform: Float4x4) {
+    mutating func add(point: DrawablePoint) {
         // we need to take into account the current transformation
         let pos = Point(x: point.position.x, y: point.position.y)
         let size = point.size

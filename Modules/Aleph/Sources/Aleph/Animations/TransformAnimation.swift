@@ -1,3 +1,5 @@
+import Tartarus
+
 class TransformAnimation: Animation {
     override func update(dt: Float, ctx: Context) {
         guard let fromValue = fromValue as? Transform else { return }
@@ -30,9 +32,5 @@ class TransformAnimation: Animation {
         }
         
         ctx.cameraMatrix = ctx.cameraTransform.matrix
-    }
-    
-    func lerp(t: Float, v0: Float, v1: Float) -> Float {
-        (1 - t) * v0 + t * v1
     }
 }

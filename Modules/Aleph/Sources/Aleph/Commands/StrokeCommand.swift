@@ -112,14 +112,13 @@ class StrokeCommand: Commandable {
    
     private func segment(for curve: BezierCurve, ctx: Context) -> StrokeSegment {
         var segment = StrokeSegment()
+        guard let activeStroke = ctx.activeStroke else { return segment }
         // find the correct `t` values along the curve
-        var currT: Float = 0
-        let spacing: Float = ctx.brush.spacing
         var prevPoint = curve.point(at: 0)
+        var dist = activeStroke.offset == 0 ? ctx.brush.spacing : activeStroke.offset
         while let t = findTForNextPoint(
+            atDist: dist,
             in: curve,
-            startingAt: currT,
-            spaceBetweenPoints: spacing,
             ctx: ctx
         ) {
             let currentPoint = curve.point(at: t)
@@ -131,58 +130,29 @@ class StrokeCommand: Commandable {
                     size: ctx.brush.pointSize,
                     opacity: ctx.brush.opacity,
                     angle: angle * .random(in: (-2 * .pi)...(2 * .pi))
-                ),
-                transform: ctx.cameraMatrix
+                )
             )
-            currT = t
             prevPoint = currentPoint
+            dist += ctx.brush.spacing
         }
         return segment
     }
     
     private func findTForNextPoint(
+        atDist dist: Float,
         in curve: BezierCurve,
-        startingAt t0: Float,
-        spaceBetweenPoints: Float,
         ctx: Context
     ) -> Float? {
         guard let activeStroke = ctx.activeStroke else { return nil }
-        let targetLength: Float = activeStroke.offset == 0 ? spaceBetweenPoints : activeStroke.offset
-        let lengthToTheEndOfSegment = curve.length(from: t0, to: 1)
+        let distToTheEndOfSegment = curve.totalDistance
         
-        if lengthToTheEndOfSegment < targetLength {
+        if distToTheEndOfSegment < dist {
             // it exceeds the length to the end of the segment
             // this difference will be used as target distance in the next segment
-            activeStroke.offset = targetLength - lengthToTheEndOfSegment
+            activeStroke.offset = dist - distToTheEndOfSegment
             return nil
         }
-        
-        let numberOfTimesToBisect = 20
-        var bottom: Float = t0
-        var top: Float = 1
-        var mid: Float = bottom + ((top - bottom) / 2)
-        
-        for _ in 0..<numberOfTimesToBisect {
-            // it doesn't necesarly need to loop that number of times,
-            // most of the times will get the correct value way before that
-            // number of iterations
-            let length = curve.length(from: t0, to: mid)
-            let diff = abs(length - targetLength)
-            if diff <= 0.5 {
-                activeStroke.offset = 0
-                return mid
-            }
-            if length > targetLength {
-                // move downwards
-                top = mid
-                mid = bottom + ((top - bottom) / 2)
-            }
-            if length < targetLength {
-                // move upwards
-                bottom = mid
-                mid += ((top - mid) / 2)
-            }
-        }
-        return nil
+        activeStroke.offset = 0
+        return curve.t(atDistance: dist)
     }
 }

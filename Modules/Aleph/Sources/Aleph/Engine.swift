@@ -69,7 +69,7 @@ class Engine: NSObject {
     }
     
     private func draw(_ view: MTKView) {
-//        guard !currentCommands.isEmpty || liveAnimations.isEmpty else { return }
+        guard !currentCommands.isEmpty || liveAnimations.isEmpty else { return }
         render(view: view)
     }
     
@@ -88,10 +88,7 @@ class Engine: NSObject {
     }
     
     private func updateAnimations(dt: Float) {
-        liveAnimations = liveAnimations.filter {
-            $0.update(dt: dt, ctx: ctx)
-            return $0.isAlive
-        }
+        liveAnimations.forEach { $0.update(dt: dt, ctx: ctx) }
     }
     
     func render(view: MTKView) {
@@ -117,7 +114,7 @@ extension Engine: MTKViewDelegate {
     func draw(in view: MTKView) {
         let time = CACurrentMediaTime()
         let dt = lastTime != 0 ? Float(time - lastTime) : 0
-        tick(dt: dt, view: view) // TODO: find actual delta time
+        tick(dt: dt, view: view)
         lastTime = time
     }
     
