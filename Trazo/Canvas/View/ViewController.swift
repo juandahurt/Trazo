@@ -39,11 +39,11 @@ class ViewController: UIViewController {
         
         currentBrush = .init(
             shapeTextureID: shapeTextures[3],
-            granularityTextureID: granularityTextures[1],
+            granularityTextureID: granularityTextures[0],
             spacing: 2,
             pointSize: 8,
             opacity: 1,
-            blendMode: .normal
+            blendMode: .lighten
         )
         alephViewController.setBrush(currentBrush)
         

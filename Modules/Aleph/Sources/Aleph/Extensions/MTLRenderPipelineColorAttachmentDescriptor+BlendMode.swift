@@ -10,6 +10,14 @@ extension MTLRenderPipelineColorAttachmentDescriptor {
             rgbBlendOperation = .add
             sourceAlphaBlendFactor = .one
             destinationAlphaBlendFactor = .one
+        case .lighten:
+            isBlendingEnabled = true
+            rgbBlendOperation = .max
+            alphaBlendOperation = .max
+            sourceRGBBlendFactor = .one
+            destinationRGBBlendFactor = .one
+            sourceAlphaBlendFactor = .one
+            destinationAlphaBlendFactor = .one
         case .none:
             isBlendingEnabled = false
         }
