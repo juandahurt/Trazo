@@ -21,6 +21,10 @@ class Engine: NSObject {
                 ofSize: canvasSize,
                 label: "Canvas Texture"
             )!,
+            strokeTexture: TextureManager.makeTexture(
+                ofSize: canvasSize,
+                label: "Stroke Texture"
+            )!,
             canvasSize: canvasSize
         )
     }

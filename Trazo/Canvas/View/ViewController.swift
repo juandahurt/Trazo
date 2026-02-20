@@ -42,7 +42,8 @@ class ViewController: UIViewController {
             granularityTextureID: granularityTextures[1],
             spacing: 2,
             pointSize: 8,
-            opacity: 1
+            opacity: 1,
+            blendMode: .normal
         )
         alephViewController.setBrush(currentBrush)
         

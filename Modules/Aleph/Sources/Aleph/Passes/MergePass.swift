@@ -3,9 +3,11 @@ import Tartarus
 
 class MergePass: Pass {
     let dirtyArea: Rect
+    let isDrawing: Bool
     
-    init(dirtyArea: Rect) {
+    init(dirtyArea: Rect, isDrawing: Bool) {
         self.dirtyArea = dirtyArea
+        self.isDrawing = isDrawing
     }
     
     func encode(
@@ -68,11 +70,18 @@ class MergePass: Pass {
             else { return }
             encoder.setRenderPipelineState(pipelineState)
             
-            guard let layerTexture = TextureManager.findTexture(
-                id: ctx.document.layers[index].texture
-            ) else { return }
-            
-            encoder.setFragmentTexture(layerTexture, index: 0)
+            if isDrawing && index == ctx.document.currentLayerIndex {
+                guard let strokeTexture = TextureManager.findTexture(id: ctx.strokeTexture)
+                else { return }
+                
+                encoder.setFragmentTexture(strokeTexture, index: 0)
+            } else {
+                guard let layerTexture = TextureManager.findTexture(
+                    id: ctx.document.layers[index].texture
+                ) else { return }
+                
+                encoder.setFragmentTexture(layerTexture, index: 0)
+            }
             
             encoder.setScissorRect(
                 .init(

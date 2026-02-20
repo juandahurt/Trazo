@@ -63,7 +63,7 @@ class StrokeCommand: Commandable {
         
         guard !segments.isEmpty else { return }
         context.pendingPasses.append(StrokePass(segments: segments))
-        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea))
+        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea, isDrawing: true))
     }
     
     private func findFirstSegment(ctx: Context) -> StrokeSegment? {
