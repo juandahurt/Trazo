@@ -38,8 +38,8 @@ class ViewController: UIViewController {
         granularityTextures = Aleph.debugGranularityTextures
         
         currentBrush = .init(
-            shapeTextureID: shapeTextures[3],
-            granularityTextureID: granularityTextures[0],
+            shapeTextureID: shapeTextures[0],
+            granularityTextureID: granularityTextures[1],
             spacing: 2,
             pointSize: 8,
             opacity: 1,

@@ -120,7 +120,7 @@ class StrokeCommand: Commandable {
                     position: [currentPoint.x, currentPoint.y],
                     size: ctx.brush.pointSize,
                     opacity: ctx.brush.opacity,
-                    angle: angle
+                    angle: 0
                 )
             )
             prevPoint = currentPoint
