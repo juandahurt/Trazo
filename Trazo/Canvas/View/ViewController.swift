@@ -47,7 +47,6 @@ class ViewController: UIViewController {
         )
         alephViewController.setBrush(currentBrush)
         
-        view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
         setupBrushPropertiesView()
 //        setupToolbar()
     }
