@@ -119,8 +119,8 @@ class StrokeCommand: Commandable {
                 point: .init(
                     position: [currentPoint.x, currentPoint.y],
                     size: ctx.brush.pointSize,
-                    opacity: ctx.brush.opacity,
-                    angle: angle * .random(in: (-2 * .pi)...(2 * .pi))
+                    opacity: ctx.brush.opacity * .random(in: 0.5...1),
+                    angle: angle * .random(in: (.pi / 2)...(.pi))
                 )
             )
             prevPoint = currentPoint
