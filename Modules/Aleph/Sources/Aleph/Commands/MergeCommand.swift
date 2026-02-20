@@ -8,6 +8,6 @@ class MergeCommand: Commandable {
     }
     
     func execute(context: Context) {
-        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea))
+        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea, isDrawing: false))
     }
 }

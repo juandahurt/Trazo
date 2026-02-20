@@ -21,6 +21,10 @@ class Engine: NSObject {
                 ofSize: canvasSize,
                 label: "Canvas Texture"
             )!,
+            strokeTexture: TextureManager.makeTexture(
+                ofSize: canvasSize,
+                label: "Stroke Texture"
+            )!,
             canvasSize: canvasSize
         )
     }
@@ -54,6 +58,7 @@ class Engine: NSObject {
     
     /// Frame loop
     /// - Parameter dt: Delta time
+    @MainActor
     func tick(dt: Float, view: MTKView) {
         guard isRunning else { return }
         ctx.bufferAllocator.newFrame()
@@ -67,6 +72,7 @@ class Engine: NSObject {
         updateAnimations(dt: dt)
     }
     
+    @MainActor
     private func draw(_ view: MTKView) {
         guard !commands.isEmpty || !liveAnimations.isEmpty else { return }
         render(view: view)
@@ -86,6 +92,7 @@ class Engine: NSObject {
         liveAnimations.forEach { $0.update(dt: dt, ctx: ctx) }
     }
     
+    @MainActor
     func render(view: MTKView) {
         guard let commandBuffer = GPU.commandQueue.makeCommandBuffer() else { return }
         guard let drawable = view.currentDrawable else { return }
@@ -102,6 +109,83 @@ class Engine: NSObject {
         
         commandBuffer.present(drawable)
         commandBuffer.commit()
+        
+//        view.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+//        guard let activeStroke = ctx.activeStroke else { return }
+//        guard var lastTouch = activeStroke.touches.first else { return }
+//        for touch in activeStroke.touches.dropFirst() {
+//            let path = UIBezierPath()
+//            path
+//                .move(
+//                    to: .init(
+//                        x: CGFloat(lastTouch.location.x),
+//                        y: CGFloat(lastTouch.location.y)
+//                    )
+//                )
+//            path
+//                .addLine(
+//                    to: .init(
+//                        x: CGFloat(touch.location.x),
+//                        y: CGFloat(touch.location.y)
+//                    )
+//                )
+//            let shape = CAShapeLayer()
+//            shape.path = path.cgPath
+//            shape.strokeColor = UIColor.blue.cgColor
+//            let scale = view.contentScaleFactor
+//            let scaleDown = CATransform3DMakeScale(1 / scale, 1 / scale, 1 / scale)
+//            let transform = CATransform3DConcat(
+//                ctx.cameraMatrix.caTransform3d(),
+//                scaleDown
+//            )
+//            shape.transform = transform
+//            view.layer.addSublayer(shape)
+//            
+//            let size = 5.0
+//            let indicatorPath = UIBezierPath(
+//                rect: .init(
+//                    x: CGFloat(touch.location.x) - size / 2,
+//                    y: CGFloat(touch.location.y) - size / 2,
+//                    width: size,
+//                    height: size
+//                )
+//            )
+//            
+//            let indicator = CAShapeLayer()
+//            indicator.path = indicatorPath.cgPath
+//            indicator.fillColor = UIColor.blue.cgColor
+//            indicator.transform = transform
+//            indicator.opacity = 0.5
+//            
+//            let pulse = CABasicAnimation()
+//            pulse.fromValue = 0.5
+//            pulse.toValue = 0
+//            pulse.duration = 1
+//            pulse.keyPath = "opacity"
+//            pulse.isRemovedOnCompletion = false
+//            pulse.repeatCount = .infinity
+//            pulse.autoreverses = true
+//            
+//            let movement = CABasicAnimation()
+//            movement.keyPath = "transform"
+//            let toTranslation = CATransform3DMakeTranslation(
+//                CGFloat(touch.location.x - lastTouch.location.x),
+//                CGFloat(touch.location.y - lastTouch.location.y),
+//                0
+//            )
+//            let toTransform = CATransform3DConcat(transform, toTranslation)
+//            movement.fromValue = transform
+//            movement.toValue = toTransform
+//            movement.duration = 1
+//            movement.autoreverses = true
+//            movement.repeatCount = .infinity
+//            
+//            indicator.add(pulse, forKey: "pulse")
+////            indicator.add(movement, forKey: "movement")
+//            view.layer.addSublayer(indicator)
+//            
+//            lastTouch = touch
+//        }
     }
 }
 

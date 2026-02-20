@@ -63,7 +63,7 @@ class StrokeCommand: Commandable {
         
         guard !segments.isEmpty else { return }
         context.pendingPasses.append(StrokePass(segments: segments))
-        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea))
+        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea, isDrawing: true))
     }
     
     private func findFirstSegment(ctx: Context) -> StrokeSegment? {
@@ -120,7 +120,7 @@ class StrokeCommand: Commandable {
                     position: [currentPoint.x, currentPoint.y],
                     size: ctx.brush.pointSize,
                     opacity: ctx.brush.opacity,
-                    angle: angle * .random(in: (-2 * .pi)...(2 * .pi))
+                    angle: 0
                 )
             )
             prevPoint = currentPoint

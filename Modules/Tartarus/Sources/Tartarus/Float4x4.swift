@@ -93,3 +93,16 @@ public extension Float4x4 {
         )
     }
 }
+
+import QuartzCore
+
+public extension Float4x4 {
+    func caTransform3d() -> CATransform3D {
+        CATransform3D(
+                m11: CGFloat(matrix.columns.0.x), m12: CGFloat(matrix.columns.0.y), m13: CGFloat(matrix.columns.0.z), m14: CGFloat(matrix.columns.0.w),
+                m21: CGFloat(matrix.columns.1.x), m22: CGFloat(matrix.columns.1.y), m23: CGFloat(matrix.columns.1.z), m24: CGFloat(matrix.columns.1.w),
+                m31: CGFloat(matrix.columns.2.x), m32: CGFloat(matrix.columns.2.y), m33: CGFloat(matrix.columns.2.z), m34: CGFloat(matrix.columns.2.w),
+                m41: CGFloat(matrix.columns.3.x), m42: CGFloat(matrix.columns.3.y), m43: CGFloat(matrix.columns.3.z), m44: CGFloat(matrix.columns.3.w)
+            )
+    }
+}

@@ -14,11 +14,11 @@ class StrokePass: Pass {
         ctx: Context
     ) {
         commandBuffer.pushDebugGroup("Stroke")
-        guard let pipelineState = PipelinesManager.pipeline(for: .stroke(.normal)) else {
+        guard let pipelineState = PipelinesManager.pipeline(for: .stroke(ctx.brush.blendMode)) else {
             return
         }
         guard let mtlTexture = TextureManager.findTexture(
-            id: ctx.document.currentLayer.texture
+            id: ctx.strokeTexture
         )
         else { return }
         

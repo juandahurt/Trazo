@@ -10,6 +10,8 @@ class Context {
     var clearColor:             Color
     /// Main texture
     var canvasTexture:          TextureID
+    /// Stroke texture
+    var strokeTexture:          TextureID
     /// Canvas size
     var canvasSize:             Size
     /// Memory allocator
@@ -19,13 +21,14 @@ class Context {
     /// Current working document
     var document:               Document
     /// Passes to be encoded
-    var pendingPasses:  [Pass] = []
+    var pendingPasses:          [Pass] = []
     /// Current brush
-    var brush: Brush
+    var brush:                  Brush
     
     init(
         clearColor: Color,
         canvasTexture: TextureID,
+        strokeTexture: TextureID,
         canvasSize: Size
     ) {
         self.cameraMatrix = .identity
@@ -33,6 +36,7 @@ class Context {
         self.projectionTransform = .identity
         self.clearColor = clearColor
         self.canvasTexture = canvasTexture
+        self.strokeTexture = strokeTexture
         self.canvasSize = canvasSize
         self.document = .init(
             layers: [
@@ -46,7 +50,8 @@ class Context {
             granularityTextureID: 0,
             spacing: 2,
             pointSize: 5,
-            opacity: 1
+            opacity: 1,
+            blendMode: .normal
         )
     }
 }

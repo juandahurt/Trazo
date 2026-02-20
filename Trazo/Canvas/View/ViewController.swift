@@ -39,15 +39,16 @@ class ViewController: UIViewController {
         
         currentBrush = .init(
             shapeTextureID: shapeTextures[0],
-            granularityTextureID: granularityTextures[0],
-            spacing: 5,
+            granularityTextureID: granularityTextures[1],
+            spacing: 2,
             pointSize: 8,
-            opacity: 1
+            opacity: 1,
+            blendMode: .lighten
         )
         alephViewController.setBrush(currentBrush)
         
         view.backgroundColor = .init(red: 45 / 255, green: 45 / 255, blue: 45 / 255, alpha: 1)
-//        setupBrushPropertiesView()
+        setupBrushPropertiesView()
 //        setupToolbar()
     }
     
@@ -89,16 +90,16 @@ class ViewController: UIViewController {
     func setupBrushPropertiesView() {
         let brushPropertiesView = BrushPropertiesView()
         
-//        brushPropertiesView.onOpacityChange = { [weak self] in
-//            guard let self else { return }
-//            brush.opacity = $0
-//            canvas.updateBrush(with: brush)
-//        }
-//        brushPropertiesView.onSizeChange = { [weak self] in
-//            guard let self else { return }
-//            brush.size = $0
-//            canvas.updateBrush(with: brush)
-//        }
+        brushPropertiesView.onOpacityChange = { [weak self] in
+            guard let self else { return }
+            currentBrush.opacity = $0
+            alephViewController.setBrush(currentBrush)
+        }
+        brushPropertiesView.onSizeChange = { [weak self] in
+            guard let self else { return }
+            currentBrush.pointSize = $0
+            alephViewController.setBrush(currentBrush)
+        }
         
         view.addSubview(brushPropertiesView)
         
