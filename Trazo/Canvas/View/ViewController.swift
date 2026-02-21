@@ -39,7 +39,7 @@ class ViewController: UIViewController {
         
         currentBrush = .init(
             shapeTextureID: shapeTextures[0],
-            granularityTextureID: granularityTextures[1],
+            granularityTextureID: granularityTextures[0],
             spacing: 2,
             pointSize: 8,
             opacity: 1,
@@ -47,9 +47,21 @@ class ViewController: UIViewController {
         )
         alephViewController.setBrush(currentBrush)
         
-        setupBrushPropertiesView()
-//        setupToolbar()
+        addSidebar()
     }
+    
+    func addSidebar() {
+        let sidebarView = SidebarView()
+        view.addSubview(sidebarView)
+        
+        NSLayoutConstraint.activate([
+            sidebarView.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            sidebarView.widthAnchor.constraint(equalToConstant: 56),
+            sidebarView.heightAnchor.constraint(equalTo: view.heightAnchor, multiplier: 0.54),
+            sidebarView.leadingAnchor.constraint(equalTo: view.leadingAnchor)
+        ])
+    }
+    
     
     func setupToolbar() {
         let appearence = UIToolbarAppearance()
