@@ -3,14 +3,13 @@ import Combine
 import UIKit
 
 class ViewController: UIViewController {
-    private var brushItem: UIBarButtonItem!
-    private var eraserItem: UIBarButtonItem!
+    private var alephViewController:    CanvasViewController!
+    private var shapeTextures:          [TextureID] = []
+    private var granularityTextures:    [TextureID] = []
     
-    private var alephViewController: CanvasViewController!
-    private var shapeTextures: [TextureID] = []
-    private var granularityTextures: [TextureID] = []
+    private var currentBrush:           Brush!
     
-    private var currentBrush: Brush!
+    private var sidebarView:            SidebarView!
     
     public override var prefersStatusBarHidden: Bool {
         true
@@ -18,10 +17,6 @@ class ViewController: UIViewController {
 
     public override var prefersHomeIndicatorAutoHidden: Bool {
         true
-    }
-
-    public override var preferredScreenEdgesDeferringSystemGestures: UIRectEdge {
-        .all
     }
 
     init() {
@@ -37,21 +32,21 @@ class ViewController: UIViewController {
         shapeTextures = Aleph.debugShapeTextures
         granularityTextures = Aleph.debugGranularityTextures
         
+        addSidebar()
+        
         currentBrush = .init(
-            shapeTextureID: shapeTextures[0],
+            shapeTextureID: shapeTextures[3],
             granularityTextureID: granularityTextures[0],
-            spacing: 2,
-            pointSize: 8,
-            opacity: 1,
+            spacing: 5,
+            pointSize: Float(sidebarView.sizeSlider.value),
+            opacity: Float(sidebarView.opacitySlider.value),
             blendMode: .lighten
         )
         alephViewController.setBrush(currentBrush)
-        
-        addSidebar()
     }
     
     func addSidebar() {
-        let sidebarView = SidebarView()
+        sidebarView = SidebarView()
         
         sidebarView.onSizeValueChange = { [weak self] in
             guard let self else { return }
