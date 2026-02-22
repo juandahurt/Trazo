@@ -13,6 +13,7 @@ class SliderView: UIControl {
     var value:          CGFloat
     
     var didSetupLayers: Bool = false
+    var isEditing:      Bool = false
     
     init(minValue: CGFloat, maxValue: CGFloat, value: CGFloat) {
         trackLayer = CAShapeLayer()
@@ -41,6 +42,14 @@ class SliderView: UIControl {
         
         super.init(frame: .zero)
         setup()
+    }
+    
+    private var currentThickness: CGFloat {
+        isEditing ? thickness * 2 : thickness
+    }
+    
+    private var currentCornerRadius: CGFloat {
+        isEditing ? cornerRadius * 2 : cornerRadius
     }
     
     required init?(coder: NSCoder) {
@@ -76,13 +85,15 @@ class SliderView: UIControl {
     private func layoutTrackLayer() {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
+        CATransaction.setAnimationDuration(0.2)
         trackLayer.anchorPoint = .init(x: 0.5, y: 1)
         trackLayer.bounds = .init(
             x: 0,
             y: 0,
-            width: thickness,
+            width: currentThickness,
             height: bounds.height
         )
+        trackLayer.cornerRadius = currentCornerRadius
         trackLayer.position = .init(x: bounds.midX, y: bounds.maxY)
         CATransaction.commit()
     }
@@ -90,13 +101,15 @@ class SliderView: UIControl {
     private func layoutValueLayer() {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
+        CATransaction.setAnimationDuration(0.2)
         valueLayer.anchorPoint = .init(x: 0.5, y: 1)
         valueLayer.bounds = .init(
             x: 0,
             y: 0,
-            width: thickness,
+            width: currentThickness,
             height: t * bounds.height
         )
+        valueLayer.cornerRadius = currentCornerRadius
         valueLayer.position = .init(x: bounds.midX, y: bounds.maxY)
         CATransaction.commit()
     }
@@ -107,6 +120,8 @@ extension SliderView {
     func updateValue(usingLocation location: CGPoint) {
         t = min(1, max(0, 1 - (location.y / bounds.height)))
         value = lerp(t: t, v0: minValue, v1: maxValue)
+        
+        sendActions(for: .valueChanged)
     }
 }
 
@@ -115,7 +130,9 @@ extension SliderView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
+        isEditing = true
         updateValue(usingLocation: location)
+        layoutTrackLayer()
         layoutValueLayer()
     }
     
@@ -123,6 +140,13 @@ extension SliderView {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
         updateValue(usingLocation: location)
+        layoutValueLayer()
+        layoutTrackLayer()
+    }
+    
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        isEditing = false
+        layoutTrackLayer()
         layoutValueLayer()
     }
 }
