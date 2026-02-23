@@ -48,7 +48,7 @@ private extension SidebarView {
     func addSizeSlider() {
         sizeSlider = SliderView(
             minValue: 8,
-            maxValue: 40,
+            maxValue: 80,
             value: 10
         )
         sizeSlider

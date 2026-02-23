@@ -2,8 +2,8 @@ import Tartarus
 import UIKit
 
 class SliderView: UIControl {
-    let thickness:      CGFloat = 6
-    let cornerRadius:   CGFloat = 3
+    let thickness:      CGFloat = 10
+    let cornerRadius:   CGFloat = 5
     var trackLayer:     CAShapeLayer
     var valueLayer:     CAShapeLayer
     var t:              CGFloat
@@ -13,7 +13,6 @@ class SliderView: UIControl {
     var value:          CGFloat
     
     var didSetupLayers: Bool = false
-    var isEditing:      Bool = false
     
     init(minValue: CGFloat, maxValue: CGFloat, value: CGFloat) {
         trackLayer = CAShapeLayer()
@@ -45,11 +44,11 @@ class SliderView: UIControl {
     }
     
     private var currentThickness: CGFloat {
-        isEditing ? thickness * 2 : thickness
+        thickness * 2
     }
     
     private var currentCornerRadius: CGFloat {
-        isEditing ? cornerRadius * 2 : cornerRadius
+        cornerRadius * 2
     }
     
     required init?(coder: NSCoder) {
@@ -130,7 +129,6 @@ extension SliderView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         guard let touch = touches.first else { return }
         let location = touch.location(in: self)
-        isEditing = true
         updateValue(usingLocation: location)
         layoutTrackLayer()
         layoutValueLayer()
@@ -145,7 +143,6 @@ extension SliderView {
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        isEditing = false
         layoutTrackLayer()
         layoutValueLayer()
     }

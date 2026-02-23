@@ -36,7 +36,7 @@ class ViewController: UIViewController {
         
         currentBrush = .init(
             shapeTextureID: shapeTextures[3],
-            granularityTextureID: granularityTextures[0],
+            granularityTextureID: granularityTextures[1],
             spacing: 5,
             pointSize: Float(sidebarView.sizeSlider.value),
             opacity: Float(sidebarView.opacitySlider.value),
