@@ -16,93 +16,97 @@ class MergePass: Pass {
         ctx: Context
     ) {
         commandBuffer.pushDebugGroup("Merge")
-        guard let canvasTexture = TextureManager.findTexture(id: ctx.canvasTexture) else { return }
-        
-        let descriptor = MTLRenderPassDescriptor()
-        descriptor.colorAttachments[0].texture = canvasTexture
-        descriptor.colorAttachments[0].loadAction = .load
-        descriptor.colorAttachments[0].storeAction = .store
-        guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
-        else { return }
-        
-        // MARK: Vertices buffer
-        let vertices: [Float] = [
-            0, 0,// top left
-            Float(canvasTexture.width), 0, // top right
-            0, Float(canvasTexture.height), // bottom left
-            Float(canvasTexture.width), Float(canvasTexture.height) // bottom right
-        ]
-        let (vertexBuffer, vertexOffset) = ctx.bufferAllocator.alloc(vertices)
-        encoder.setVertexBuffer(vertexBuffer, offset: vertexOffset, index: 0)
-        
-        // MARK: Texture coords buffer
-        let textCoord: [Float] = [
-            0, 0,
-            1, 0,
-            0, 1,
-            1, 1
-        ]
-        let (textureBuffer, textureOffset) = ctx.bufferAllocator.alloc(textCoord)
-        encoder.setVertexBuffer(
-            textureBuffer,
-            offset: textureOffset,
-            index: 1
-        )
-        
-        // MARK: Indices
-        let indices: [UInt16] = [
-            0, 1, 2,
-            1, 2, 3
-        ]
-        let (indexBuffer, indexBufferOffset) = ctx.bufferAllocator.alloc(indices)
+        let targetTiles = ctx.canvasGrid.tiles(intersecting: dirtyArea)
+        guard !targetTiles.isEmpty else { return }
        
-        // MARK: Projection matrix
-        encoder.setVertexBytes(
-            &ctx.projectionTransform,
-            length: MemoryLayout<Float4x4.Matrix>.stride,
-            index: 2
+        let rect = Rect(
+            x: 0,
+            y: 0,
+            width: Float(TileGrid.tileSize),
+            height: Float(TileGrid.tileSize)
+        )
+        var projectionMatrix = Float4x4(
+            ortho: rect,
+            near: 0,
+            far: 1
         )
         
-        // MARK: Merge loop
-        for index in 0..<ctx.document.layers.count {
-            // TODO: use layer's blend mode
-            guard let pipelineState = PipelinesManager.pipeline(for: .merge(.normal))
+        for canvasTile in targetTiles {
+            guard let tileTexture = TextureManager.findTexture(id: canvasTile.textureId)
             else { return }
-            encoder.setRenderPipelineState(pipelineState)
+            let descriptor = MTLRenderPassDescriptor()
+            descriptor.colorAttachments[0].texture = tileTexture
+            descriptor.colorAttachments[0].loadAction = .load
+            descriptor.colorAttachments[0].storeAction = .store
             
-            if isDrawing && index == ctx.document.currentLayerIndex {
-                guard let strokeTexture = TextureManager.findTexture(id: ctx.strokeTexture)
-                else { return }
-                
-                encoder.setFragmentTexture(strokeTexture, index: 0)
-            } else {
-                guard let layerTexture = TextureManager.findTexture(
-                    id: ctx.document.layers[index].texture
-                ) else { return }
-                
-                encoder.setFragmentTexture(layerTexture, index: 0)
-            }
+            guard let encoder = commandBuffer.makeRenderCommandEncoder(
+                descriptor: descriptor
+            ) else { return }
             
-            encoder.setScissorRect(
-                .init(
-                    x: Int(dirtyArea.x),
-                    y: Int(dirtyArea.y),
-                    width: Int(dirtyArea.width),
-                    height: Int(dirtyArea.height)
-                )
+            encoder.setVertexBytes(
+                &projectionMatrix,
+                length: MemoryLayout<Float4x4>.stride,
+                index: 2
             )
             
-            encoder
-                .drawIndexedPrimitives(
-                    type: .triangle,
-                    indexCount: indices.count,
-                    indexType: .uint16,
-                    indexBuffer: indexBuffer,
-                    indexBufferOffset: indexBufferOffset
-                )
+            // quad vertices
+            let origin = Point(x: 0, y: 0)
+            let tileSize = Float(TileGrid.tileSize)
+            let vertices: [Float] = [
+                origin.x,               origin.y,           // top-left
+                origin.x + tileSize,    origin.y,           // top-right
+                origin.x,               origin.y + tileSize,// bottom-left
+                origin.x + tileSize,    origin.y + tileSize // bottom-right
+            ]
+            let (verticesBuffer, verticesOffset) = ctx.bufferAllocator.alloc(vertices)
+            encoder.setVertexBuffer(verticesBuffer, offset: verticesOffset, index: 0)
+            
+            let textCoord: [Float] = [
+                0, 0,
+                1, 0,
+                0, 1,
+                1, 1
+            ]
+            let (textureBuffer, textureOffset) = ctx.bufferAllocator.alloc(textCoord)
+            encoder.setVertexBuffer(textureBuffer, offset: textureOffset, index: 1)
+            
+            let indices: [UInt16] = [
+                0, 1, 2,
+                1, 2, 3
+            ]
+            let (indicesBuffer, indicesOffset) = ctx.bufferAllocator.alloc(indices)
+            
+            for (index, layer) in ctx.document.layers.enumerated() {
+                guard let pipelineState = PipelinesManager.pipeline(for: .merge(.normal))
+                else { return }
+                
+                encoder.setRenderPipelineState(pipelineState)
+                
+                let sourceTile: Tile
+                
+                if isDrawing && index == ctx.document.currentLayerIndex {
+                    sourceTile = ctx.strokeGrid.tiles[canvasTile.row][canvasTile.col]
+                } else {
+                    sourceTile = layer.tileGrid.tiles[canvasTile.row][canvasTile.col]
+                }
+                
+                guard let sourceTileTexture = TextureManager.findTexture(
+                    id: sourceTile.textureId
+                ) else { return }
+                encoder.setFragmentTexture(sourceTileTexture, index: 0)
+                encoder
+                    .drawIndexedPrimitives(
+                        type: .triangle,
+                        indexCount: indices.count,
+                        indexType: .uint16,
+                        indexBuffer: indicesBuffer,
+                        indexBufferOffset: indicesOffset
+                    )
+                canvasTile.isDirty = false
+            }
+            encoder.endEncoding()
         }
         
-        encoder.endEncoding()
         commandBuffer.popDebugGroup()
     }
 }

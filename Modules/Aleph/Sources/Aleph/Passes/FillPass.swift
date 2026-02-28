@@ -2,12 +2,12 @@ import MetalKit
 
 class FillPass: Pass {
     let color: Color
-    let texture: TextureID
+    let tileGrid: TileGrid
 
     
-    init(color: Color, texture: TextureID) {
+    init(color: Color, tileGrid: TileGrid) {
         self.color = color
-        self.texture = texture
+        self.tileGrid = tileGrid
     }
     
     func encode(
@@ -15,12 +15,17 @@ class FillPass: Pass {
         drawable: any CAMetalDrawable,
         ctx: Context
     ) {
-        guard let mtlTexture = TextureManager.findTexture(id: texture) else { return }
-        let descriptor = MTLRenderPassDescriptor()
-        descriptor.colorAttachments[0].clearColor = color.mtlClearColor
-        descriptor.colorAttachments[0].loadAction = .clear
-        descriptor.colorAttachments[0].texture = mtlTexture
-        let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
-        encoder?.endEncoding()
+        for tile in tileGrid.flatTiles {
+            guard let mtlTexture = TextureManager.findTexture(id: tile.textureId) else { return }
+            let descriptor = MTLRenderPassDescriptor()
+            descriptor.colorAttachments[0].clearColor = color.mtlClearColor
+            descriptor.colorAttachments[0].loadAction = .clear
+            descriptor.colorAttachments[0].texture = mtlTexture
+            
+            let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
+            encoder?.endEncoding()
+            
+            tile.isDirty = true
+        }
     }
 }

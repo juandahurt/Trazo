@@ -2,17 +2,20 @@ import Foundation
 import Tartarus
 
 class Context {
-    /// Canvas camera transform
+    // MARK: - Transforms
     var cameraMatrix:           Float4x4
     var cameraTransform:        Transform
-    /// projection transform
     var projectionTransform:    Float4x4
+    
     /// Clear color
     var clearColor:             Color
+    
+    // MARK: - Tile grids
     /// Main texture
-    var canvasTexture:          TextureID
+    var canvasGrid:             TileGrid
     /// Stroke texture
-    var strokeTexture:          TextureID
+    var strokeGrid:             TileGrid
+    
     /// Canvas size
     var canvasSize:             Size
     /// Memory allocator
@@ -26,18 +29,13 @@ class Context {
    
     var strokeContext:          StrokeContext
     
-    init(
-        clearColor: Color,
-        canvasTexture: TextureID,
-        strokeTexture: TextureID,
-        canvasSize: Size
-    ) {
+    init(clearColor: Color,canvasSize: Size) {
         self.cameraMatrix = .identity
         self.cameraTransform = Transform()
         self.projectionTransform = .identity
         self.clearColor = clearColor
-        self.canvasTexture = canvasTexture
-        self.strokeTexture = strokeTexture
+        canvasGrid = .init(canvasSize: canvasSize)
+        strokeGrid = .init(canvasSize: canvasSize)
         self.canvasSize = canvasSize
         self.document = .init(
             layers: [

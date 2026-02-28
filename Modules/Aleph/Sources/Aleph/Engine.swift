@@ -19,33 +19,12 @@ class Engine: NSObject {
     init(canvasSize: Size) {
         ctx = .init(
             clearColor: .init([0.062, 0.062, 0.066, 1]),
-            canvasTexture: TextureManager.makeTexture(
-                ofSize: canvasSize,
-                label: "Canvas Texture"
-            )!,
-            strokeTexture: TextureManager.makeTexture(
-                ofSize: canvasSize,
-                label: "Stroke Texture"
-            )!,
             canvasSize: canvasSize
         )
         strokeProcessor = .init(context: ctx)
     }
     
     func ignite() {
-        commands.append(.layer(.fill(ctx.document.layers.first!.texture, .white)))
-        commands.append(
-            .layer(
-                .merge(
-                    .init(
-                        x: 0,
-                        y: 0,
-                        width: ctx.canvasSize.width,
-                        height: ctx.canvasSize.height
-                    )
-                )
-            )
-        )
         isRunning = true
     }
     

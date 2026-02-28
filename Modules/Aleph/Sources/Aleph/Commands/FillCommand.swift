@@ -1,13 +1,14 @@
 class FillCommand: Commandable {
     let color: Color
-    let texture: TextureID
+    let layerIndex: Int
     
-    init(color: Color, texture: TextureID) {
+    init(color: Color, layerIndex: Int) {
         self.color = color
-        self.texture = texture
+        self.layerIndex = layerIndex
     }
     
     func execute(context: Context) {
-        context.pendingPasses.append(FillPass(color: color, texture: texture))
+        let tileGrid = context.document.layers[layerIndex].tileGrid
+        context.pendingPasses.append(FillPass(color: color, tileGrid: tileGrid))
     }
 }
