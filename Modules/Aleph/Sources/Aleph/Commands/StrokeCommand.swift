@@ -50,20 +50,8 @@ class StrokeCommand: Commandable {
             }
         default: break
         }
-        
-        // merge layers after drawing
-        let dirtyArea = segments.boundsUnion().clip(
-            .init(
-                x: 0,
-                y: 0,
-                width: context.canvasSize.width,
-                height: context.canvasSize.height
-            )
-        )
-        
         guard !segments.isEmpty else { return }
-        context.pendingPasses.append(StrokePass(segments: segments))
-        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea, isDrawing: true))
+        context.strokeContext.addSegments(segments)
     }
     
     private func findFirstSegment(ctx: Context) -> StrokeSegment? {
