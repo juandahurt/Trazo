@@ -15,11 +15,11 @@ class StrokeCommand: Commandable {
         
         switch touch.phase {
         case .began:
-            context.activeStroke = .init()
-            context.activeStroke?.touches.append(touch)
+            context.strokeContext.activeStroke = .init()
+            context.strokeContext.activeStroke?.touches.append(touch)
         case .moved:
-            guard let activeStroke = context.activeStroke else { return }
-            context.activeStroke?.touches.append(touch)
+            guard let activeStroke = context.strokeContext.activeStroke else { return }
+            context.strokeContext.activeStroke?.touches.append(touch)
             guard activeStroke.touches.count >= 3 else { return }
             
             if activeStroke.touches.count == 3 {
@@ -34,8 +34,8 @@ class StrokeCommand: Commandable {
                 }
             }
         case .ended, .cancelled:
-            context.activeStroke?.touches.append(touch)
-            guard let activeStroke = context.activeStroke else { return }
+            context.strokeContext.activeStroke?.touches.append(touch)
+            guard let activeStroke = context.strokeContext.activeStroke else { return }
             
             if activeStroke.touches.count > 3 {
                 if let segment = findMidSegment(ctx: context), !segment.points.isEmpty {
@@ -55,7 +55,7 @@ class StrokeCommand: Commandable {
     }
     
     private func findFirstSegment(ctx: Context) -> StrokeSegment? {
-        guard let activeStroke = ctx.activeStroke else { return nil }
+        guard let activeStroke = ctx.strokeContext.activeStroke else { return nil }
         let curve = BezierCurve(
             p0: activeStroke.touches[0].location,
             p1: activeStroke.touches[0].location,
@@ -66,7 +66,7 @@ class StrokeCommand: Commandable {
     }
     
     private func findMidSegment(ctx: Context) -> StrokeSegment? {
-        guard let activeStroke = ctx.activeStroke else { return nil }
+        guard let activeStroke = ctx.strokeContext.activeStroke else { return nil }
         let index = activeStroke.touches.count - 3
         let curve = BezierCurve(
             p0: activeStroke.touches[index - 1].location,
@@ -78,7 +78,7 @@ class StrokeCommand: Commandable {
     }
     
     private func findLastSegment(ctx: Context) -> StrokeSegment? {
-        guard let activeStroke = ctx.activeStroke else { return nil }
+        guard let activeStroke = ctx.strokeContext.activeStroke else { return nil }
         let index = activeStroke.touches.count - 1
         let curve = BezierCurve(
             p0: activeStroke.touches[index - 1].location,
@@ -91,7 +91,7 @@ class StrokeCommand: Commandable {
    
     private func segment(for curve: BezierCurve, ctx: Context) -> StrokeSegment {
         var segment = StrokeSegment()
-        guard let activeStroke = ctx.activeStroke else { return segment }
+        guard let activeStroke = ctx.strokeContext.activeStroke else { return segment }
         // find the correct `t` values along the curve
         var prevPoint = curve.point(at: 0)
         var dist = activeStroke.offset == 0 ? ctx.brush.spacing : activeStroke.offset
@@ -122,7 +122,7 @@ class StrokeCommand: Commandable {
         in curve: BezierCurve,
         ctx: Context
     ) -> Float? {
-        guard let activeStroke = ctx.activeStroke else { return nil }
+        guard let activeStroke = ctx.strokeContext.activeStroke else { return nil }
         let distToTheEndOfSegment = curve.totalDistance
         
         if distToTheEndOfSegment < dist {

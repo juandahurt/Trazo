@@ -17,8 +17,6 @@ class Context {
     var canvasSize:             Size
     /// Memory allocator
     let bufferAllocator =       BufferAllocator()
-    /// Current stroke
-    var activeStroke:           ActiveStroke?
     /// Current working document
     var document:               Document
     /// Passes to be encoded
@@ -61,8 +59,10 @@ class Context {
 }
 
 class StrokeContext {
-    private var readySegments: [StrokeSegment] = []
-    private let lock = NSLock()
+    /// Current stroke
+    var activeStroke:           ActiveStroke?
+    private var readySegments:  [StrokeSegment] = []
+    private let lock =          NSLock()
     
     func addSegments(_ segments: [StrokeSegment]) {
         lock.lock()

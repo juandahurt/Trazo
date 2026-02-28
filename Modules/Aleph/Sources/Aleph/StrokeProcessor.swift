@@ -9,9 +9,8 @@ class StrokeProcessor {
     }
     
     func push(_ touch: Touch) {
-        queue.async { [weak self] in
-            guard let self else { return }
-            print("inside stroke queue", "main thread", Thread.isMainThread)
+        let context = context
+        queue.async {
             StrokeCommand(touch: touch).execute(context: context)
         }
     }
