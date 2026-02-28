@@ -14,6 +14,8 @@ class Engine: NSObject {
     // MARK: Context
     var ctx:                        Context
    
+    let strokeProcessor:            StrokeProcessor
+    
     init(canvasSize: Size) {
         ctx = .init(
             clearColor: .init([0.062, 0.062, 0.066, 1]),
@@ -27,6 +29,7 @@ class Engine: NSObject {
             )!,
             canvasSize: canvasSize
         )
+        strokeProcessor = .init(context: ctx)
     }
     
     func ignite() {
@@ -49,7 +52,12 @@ class Engine: NSObject {
     /// Enqueues a new command
     /// - Parameter command: Command to be executed in the next frame
     func enqueue(_ command: Command) {
-        commands.append(command)
+        switch command {
+        case .stroke(let touch):
+            strokeProcessor.push(touch)
+        default:
+            commands.append(command)
+        }
     }
     
     func enqueue(_ animation: Animation) {
@@ -69,12 +77,30 @@ class Engine: NSObject {
     
     private func update(_ dt: Float) {
         executePendingCommands()
+       
+        // handle ready-to-render segments
+        let segments = ctx.strokeContext.drainSegments()
+        if !segments.isEmpty {
+            let dirtyArea = segments.boundsUnion().clip(
+                .init(
+                    x: 0,
+                    y: 0,
+                    width: ctx.canvasSize.width,
+                    height: ctx.canvasSize.height
+                )
+            )
+            ctx.pendingPasses.append(StrokePass(segments: segments))
+            ctx.pendingPasses.append(MergePass(dirtyArea: dirtyArea, isDrawing: true))
+        }
+        
         updateAnimations(dt: dt)
     }
     
     @MainActor
     private func draw(_ view: MTKView) {
-        guard !commands.isEmpty || !liveAnimations.isEmpty else { return }
+        guard !commands.isEmpty || !liveAnimations.isEmpty || !ctx.pendingPasses.isEmpty else {
+            return
+        }
         render(view: view)
     }
     

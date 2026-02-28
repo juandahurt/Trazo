@@ -1,3 +1,4 @@
+import Foundation
 import Tartarus
 
 class Context {
@@ -16,14 +17,14 @@ class Context {
     var canvasSize:             Size
     /// Memory allocator
     let bufferAllocator =       BufferAllocator()
-    /// Current stroke
-    var activeStroke:           ActiveStroke?
     /// Current working document
     var document:               Document
     /// Passes to be encoded
     var pendingPasses:          [Pass] = []
     /// Current brush
     var brush:                  Brush
+   
+    var strokeContext:          StrokeContext
     
     init(
         clearColor: Color,
@@ -53,5 +54,27 @@ class Context {
             opacity: 1,
             blendMode: .normal
         )
+        self.strokeContext = .init()
+    }
+}
+
+class StrokeContext {
+    /// Current stroke
+    var activeStroke:           ActiveStroke?
+    private var readySegments:  [StrokeSegment] = []
+    private let lock =          NSLock()
+    
+    func addSegments(_ segments: [StrokeSegment]) {
+        lock.lock()
+        readySegments.append(contentsOf: segments)
+        lock.unlock()
+    }
+    
+    func drainSegments() -> [StrokeSegment] {
+        lock.lock()
+        let segments = readySegments
+        readySegments = []
+        lock.unlock()
+        return segments
     }
 }
