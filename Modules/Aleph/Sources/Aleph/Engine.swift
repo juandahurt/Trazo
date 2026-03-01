@@ -25,6 +25,7 @@ class Engine: NSObject {
     }
     
     func ignite() {
+        commands.append(.layer(.fill(0, .white)))
         isRunning = true
     }
     
