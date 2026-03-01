@@ -57,6 +57,16 @@ class Engine: NSObject {
     private func update(_ dt: Float) {
         executePendingCommands()
        
+        if ctx.strokeContext.shouldClearStrokeGrid {
+            ctx.pendingPasses.append(
+                FillPass(
+                    color: .clear,
+                    tileGrid: ctx.strokeGrid
+                )
+            )
+            ctx.strokeContext.setShouldClearStrokeGrid(false)
+        }
+        
         // handle ready-to-render segments
         let segments = ctx.strokeContext.drainSegments()
         if !segments.isEmpty {
