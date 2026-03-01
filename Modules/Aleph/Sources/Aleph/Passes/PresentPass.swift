@@ -17,20 +17,7 @@ class PresentPass: Pass {
         guard let encoder = commandBuffer.makeRenderCommandEncoder(descriptor: descriptor)
         else { return }
         
-        guard let texture = TextureManager.findTexture(id: ctx.canvasTexture)
-        else { return }
-        
         encoder.setRenderPipelineState(pipelineState)
-        
-        // MARK: Vertex buffer
-        let vertices: [Float] = [
-            0, 0,// top left
-            Float(texture.width), 0, // top right
-            0, Float(texture.height), // bottom left
-            Float(texture.width), Float(texture.height) // bottom right
-        ]
-        let (vertexBuffer, vertexOffset) = ctx.bufferAllocator.alloc(vertices)
-        encoder.setVertexBuffer(vertexBuffer, offset: vertexOffset, index: 0)
         
         // MARK: Texture buffer
         let textCoord: [Float] = [
@@ -59,23 +46,39 @@ class PresentPass: Pass {
             length: MemoryLayout<Float4x4.Matrix>.stride,
             index: 3
         )
-      
-        // MARK: Canvas texture
-        encoder.setFragmentTexture(texture, index: 3)
         
         let indices: [UInt16] = [
             0, 1, 2,
             1, 2, 3
         ]
         let (indexBuffer, indexBufferOffset) = ctx.bufferAllocator.alloc(indices)
-        encoder
-            .drawIndexedPrimitives(
-                type: .triangle,
-                indexCount: indices.count,
-                indexType: .uint16,
-                indexBuffer: indexBuffer,
-                indexBufferOffset: indexBufferOffset
-            )
+        
+        
+        let tileSize = Float(TileGrid.tileSize)
+        for tile in ctx.canvasGrid.flatTiles {
+            let origin = tile.origin
+            
+            let vertices: [Float] = [
+                origin.x,               origin.y,
+                origin.x + tileSize,    origin.y,
+                origin.x,               origin.y + tileSize,
+                origin.x + tileSize,    origin.y + tileSize
+            ]
+            let (vertexBuffer, vertexOffset) = ctx.bufferAllocator.alloc(vertices)
+            encoder.setVertexBuffer(vertexBuffer, offset: vertexOffset, index: 0)
+            guard let texture = TextureManager.findTexture(id: tile.textureId)
+            else { return }
+            encoder.setFragmentTexture(texture, index: 3)
+            
+            encoder
+                .drawIndexedPrimitives(
+                    type: .triangle,
+                    indexCount: indices.count,
+                    indexType: .uint16,
+                    indexBuffer: indexBuffer,
+                    indexBufferOffset: indexBufferOffset
+                )
+        }
         
         encoder.endEncoding()
     }

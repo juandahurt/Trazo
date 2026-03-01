@@ -2,10 +2,10 @@ import Tartarus
 
 struct Layer {
     var name: String
-    var texture: TextureID
+    var tileGrid: TileGrid
     
     init(named name: String, size: Size) {
         self.name = name
-        self.texture = TextureManager.makeTexture(ofSize: size, label: name)!
+        self.tileGrid = TileGrid(canvasSize: size)
     }
 }
