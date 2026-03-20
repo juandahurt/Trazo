@@ -16,6 +16,8 @@ class Context {
     /// Stroke texture
     var strokeGrid:             TileGrid
     
+    var compositeTextureId:     TextureID
+    
     /// Canvas size
     var canvasSize:             Size
     /// Memory allocator
@@ -33,9 +35,14 @@ class Context {
         self.cameraMatrix = .identity
         self.cameraTransform = Transform()
         self.projectionTransform = .identity
+        
         self.clearColor = clearColor
+        
         canvasGrid = .init(canvasSize: canvasSize)
         strokeGrid = .init(canvasSize: canvasSize)
+        
+        compositeTextureId = TextureManager.makeTexture(ofSize: canvasSize)!
+        
         self.canvasSize = canvasSize
         self.document = .init(
             layers: [
@@ -57,10 +64,14 @@ class Context {
 }
 
 class StrokeContext {
-    /// Current stroke
+    private(set) var shouldClearStrokeGrid:  Bool = false
     var activeStroke:           ActiveStroke?
     private var readySegments:  [StrokeSegment] = []
     private let lock =          NSLock()
+    
+    func setShouldClearStrokeGrid(_ value: Bool) {
+        shouldClearStrokeGrid = value
+    }
     
     func addSegments(_ segments: [StrokeSegment]) {
         lock.lock()

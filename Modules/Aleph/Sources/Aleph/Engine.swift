@@ -25,6 +25,20 @@ class Engine: NSObject {
     }
     
     func ignite() {
+        commands.append(.layer(.fill(0, .white)))
+        commands
+            .append(
+                .layer(
+                    .merge(
+                        .init(
+                            x: 0,
+                            y: 0,
+                            width: ctx.canvasSize.width,
+                            height: ctx.canvasSize.height
+                        )
+                    )
+                )
+            )
         isRunning = true
     }
     
@@ -57,6 +71,16 @@ class Engine: NSObject {
     private func update(_ dt: Float) {
         executePendingCommands()
        
+        if ctx.strokeContext.shouldClearStrokeGrid {
+            ctx.pendingPasses.append(
+                FillPass(
+                    color: .clear,
+                    tileGrid: ctx.strokeGrid
+                )
+            )
+            ctx.strokeContext.setShouldClearStrokeGrid(false)
+        }
+        
         // handle ready-to-render segments
         let segments = ctx.strokeContext.drainSegments()
         if !segments.isEmpty {

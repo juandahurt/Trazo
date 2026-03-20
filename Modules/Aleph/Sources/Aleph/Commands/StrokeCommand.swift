@@ -17,13 +17,7 @@ class StrokeCommand: Commandable {
         case .began:
             context.strokeContext.activeStroke = .init()
             context.strokeContext.activeStroke?.touches.append(touch)
-            
-            context.pendingPasses.append(
-                FillPass(
-                    color: .clear,
-                    tileGrid: context.strokeGrid
-                )
-            )
+            context.strokeContext.setShouldClearStrokeGrid(true)
         case .moved:
             guard let activeStroke = context.strokeContext.activeStroke else { return }
             context.strokeContext.activeStroke?.touches.append(touch)
