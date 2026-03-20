@@ -26,6 +26,19 @@ class Engine: NSObject {
     
     func ignite() {
         commands.append(.layer(.fill(0, .white)))
+        commands
+            .append(
+                .layer(
+                    .merge(
+                        .init(
+                            x: 0,
+                            y: 0,
+                            width: ctx.canvasSize.width,
+                            height: ctx.canvasSize.height
+                        )
+                    )
+                )
+            )
         isRunning = true
     }
     
