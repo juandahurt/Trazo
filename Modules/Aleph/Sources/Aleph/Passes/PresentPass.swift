@@ -53,32 +53,26 @@ class PresentPass: Pass {
         ]
         let (indexBuffer, indexBufferOffset) = ctx.bufferAllocator.alloc(indices)
         
+        let vertices: [Float] = [
+            0,                      0,
+            ctx.canvasSize.width,   0,
+            0,                      ctx.canvasSize.height,
+            ctx.canvasSize.width,   ctx.canvasSize.height
+        ]
+        let (vertexBuffer, vertexOffset) = ctx.bufferAllocator.alloc(vertices)
+        encoder.setVertexBuffer(vertexBuffer, offset: vertexOffset, index: 0)
+        guard let texture = TextureManager.findTexture(id: ctx.compositeTextureId)
+        else { return }
+        encoder.setFragmentTexture(texture, index: 3)
         
-        let tileSize = Float(TileGrid.tileSize)
-        for tile in ctx.canvasGrid.flatTiles {
-            let origin = tile.origin
-            
-            let vertices: [Float] = [
-                origin.x,               origin.y,
-                origin.x + tileSize,    origin.y,
-                origin.x,               origin.y + tileSize,
-                origin.x + tileSize,    origin.y + tileSize
-            ]
-            let (vertexBuffer, vertexOffset) = ctx.bufferAllocator.alloc(vertices)
-            encoder.setVertexBuffer(vertexBuffer, offset: vertexOffset, index: 0)
-            guard let texture = TextureManager.findTexture(id: tile.textureId)
-            else { return }
-            encoder.setFragmentTexture(texture, index: 3)
-            
-            encoder
-                .drawIndexedPrimitives(
-                    type: .triangle,
-                    indexCount: indices.count,
-                    indexType: .uint16,
-                    indexBuffer: indexBuffer,
-                    indexBufferOffset: indexBufferOffset
-                )
-        }
+        encoder
+            .drawIndexedPrimitives(
+                type: .triangle,
+                indexCount: indices.count,
+                indexType: .uint16,
+                indexBuffer: indexBuffer,
+                indexBufferOffset: indexBufferOffset
+            )
         
         encoder.endEncoding()
     }

@@ -107,6 +107,42 @@ class MergePass: Pass {
             encoder.endEncoding()
         }
         
+        guard let blitEncoder = commandBuffer.makeBlitCommandEncoder() else { return }
+        guard let compositeTexture = TextureManager.findTexture(
+            id: ctx.compositeTextureId
+        ) else { return }
+        for tile in targetTiles {
+            guard let tileTexture = TextureManager.findTexture(id: tile.textureId)
+            else { return }
+            
+            let tileSize = TileGrid.tileSize
+            let destX = Int(tile.origin.x)
+            let destY = Int(tile.origin.y)
+            let copyWidth = min(tileSize, compositeTexture.width - destX)
+            let copyHeight = min(tileSize, compositeTexture.height - destY)
+            
+            blitEncoder.copy(
+                 from: tileTexture,
+                 sourceSlice: 0,
+                 sourceLevel: 0,
+                 sourceOrigin: MTLOrigin(x: 0, y: 0, z: 0),
+                 sourceSize: MTLSize(
+                    width: copyWidth,
+                    height: copyHeight,
+                    depth: 1
+                 ),
+                 to: compositeTexture,
+                 destinationSlice: 0,
+                 destinationLevel: 0,
+                 destinationOrigin: MTLOrigin(
+                    x: destX,
+                    y: destY,
+                    z: 0
+                 )
+             )
+        }
+        blitEncoder.endEncoding()
+        
         commandBuffer.popDebugGroup()
     }
 }
