@@ -16,19 +16,19 @@ class PencilGestureRecognizer: UIGestureRecognizer {
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
         guard let touch = touches.first else { return }
-        event.coalescedTouches(for: touch)?.forEach {
-            onTouchReceived?($0)
-        }
-        onTouchReceived?(touch)
+        let touches = event.coalescedTouches(for: touch) ?? [touch]
+        touches.forEach { onTouchReceived?($0) }
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
         guard let touch = touches.first else { return }
-        onTouchReceived?(touch)
+        let touches = event.coalescedTouches(for: touch) ?? [touch]
+        touches.forEach { onTouchReceived?($0) }
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
         guard let touch = touches.first else { return }
-        onTouchReceived?(touch)
+        let touches = event.coalescedTouches(for: touch) ?? [touch]
+        touches.forEach { onTouchReceived?($0) }
     }
 }

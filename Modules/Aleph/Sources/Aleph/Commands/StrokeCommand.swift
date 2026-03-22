@@ -16,11 +16,11 @@ class StrokeCommand: Commandable {
         switch touch.phase {
         case .began:
             context.strokeContext.activeStroke = .init()
-            context.strokeContext.activeStroke?.touches.append(touch)
+            context.strokeContext.activeStroke?.add(touch: touch)
             context.strokeContext.setShouldClearStrokeGrid(true)
         case .moved:
             guard let activeStroke = context.strokeContext.activeStroke else { return }
-            context.strokeContext.activeStroke?.touches.append(touch)
+            context.strokeContext.activeStroke?.add(touch: touch)
             guard activeStroke.touches.count >= 3 else { return }
             
             if activeStroke.touches.count == 3 {
@@ -35,7 +35,7 @@ class StrokeCommand: Commandable {
                 }
             }
         case .ended, .cancelled:
-            context.strokeContext.activeStroke?.touches.append(touch)
+            context.strokeContext.activeStroke?.add(touch: touch)
             guard let activeStroke = context.strokeContext.activeStroke else { return }
             
             if activeStroke.touches.count > 3 {

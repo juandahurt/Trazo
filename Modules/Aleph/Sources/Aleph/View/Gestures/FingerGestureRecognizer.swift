@@ -10,21 +10,25 @@ class FingerGestureRecognizer: UIGestureRecognizer {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard touches.count == 1 else { return }
         guard let touch = touches.first else { return }
         onTouchReceived?(touch)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard touches.count == 1 else { return }
         guard let touch = touches.first else { return }
         onTouchReceived?(touch)
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard touches.count == 1 else { return }
         guard let touch = touches.first else { return }
         onTouchReceived?(touch)
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        guard touches.count == 1 else { return }
         guard let touch = touches.first else { return }
         onTouchReceived?(touch)
     }
