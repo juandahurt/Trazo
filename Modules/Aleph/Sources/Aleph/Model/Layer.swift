@@ -6,6 +6,6 @@ struct Layer {
     
     init(named name: String, size: Size) {
         self.name = name
-        self.tileGrid = TileGrid(canvasSize: size)
+        self.tileGrid = TileGrid(canvasSize: size, named: "Layer \(name)")
     }
 }

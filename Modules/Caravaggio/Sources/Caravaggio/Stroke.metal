@@ -67,5 +67,5 @@ fragment float4 stroke_frag(stroke_fragment_input input                         
     float granAlpha = granularityTexture.sample(defaultSampler, input.uv).a;
     float shapeAlpha = shapeTexture.sample(defaultSampler, input.uv).a;
     float alpha = granAlpha * shapeAlpha * input.opacity;
-    return float4(input.color[0], input.color[1], input.color[2], alpha);
+    return float4(input.color.r * alpha, input.color.g * alpha, input.color.b * alpha, alpha);
 }

@@ -35,7 +35,7 @@ class ViewController: UIViewController {
         addSidebar()
         
         currentBrush = .init(
-            shapeTextureID: shapeTextures[3],
+            shapeTextureID: shapeTextures[0],
             granularityTextureID: granularityTextures[1],
             spacing: 5,
             pointSize: Float(sidebarView.sizeSlider.value),

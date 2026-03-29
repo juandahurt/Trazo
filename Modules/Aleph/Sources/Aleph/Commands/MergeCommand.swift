@@ -8,6 +8,13 @@ class MergeCommand: Commandable {
     }
     
     func execute(context: Context) {
-        context.pendingPasses.append(MergePass(dirtyArea: dirtyArea, isDrawing: false))
+        context.pendingPasses.append(
+            MergePass(
+                dirtyArea: dirtyArea,
+                sourceGrids: context.document.layers.map { $0.tileGrid },
+                destinationGrid: context.canvasGrid,
+                blitDestination: context.compositeTextureId
+            )
+        )
     }
 }
