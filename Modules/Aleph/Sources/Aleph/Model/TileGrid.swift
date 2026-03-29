@@ -4,6 +4,7 @@ import Tartarus
 class TileGrid {
     static let tileSize = 64
     
+    let name: String
     let cols: Int
     let rows: Int
     
@@ -17,7 +18,7 @@ class TileGrid {
         flatTiles.filter { $0.isDirty }
     }
     
-    init(canvasSize: Size) {
+    init(canvasSize: Size, named name: String) {
         let tileSize = Self.tileSize
         
         let canvasWidth = Int(canvasSize.width)
@@ -25,6 +26,7 @@ class TileGrid {
         
         cols = (canvasWidth + tileSize - 1) / tileSize
         rows = (canvasHeight + tileSize - 1) / tileSize
+        self.name = name
         tiles = buildGrid()
     }
    
@@ -73,7 +75,10 @@ class TileGrid {
         )
         return (0..<rows).map { row in
             (0..<cols).map { col in
-                let texture = TextureManager.makeTexture(ofSize: size)
+                let texture = TextureManager.makeTexture(
+                    ofSize: size,
+                    label: "\(name) (\(row), \(col)"
+                )
                 return Tile(col: col, row: row, textureId: texture!)
             }
         }

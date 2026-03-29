@@ -3,11 +3,24 @@ import Tartarus
 
 class MergePass: Pass {
     let dirtyArea: Rect
-    let isDrawing: Bool
     
-    init(dirtyArea: Rect, isDrawing: Bool) {
+    let sourceGrids: [TileGrid]
+    let destinationGrid: TileGrid
+    let blitDestination: TextureID?
+    let mustClearBackground: Bool
+    
+    init(
+        dirtyArea: Rect,
+        sourceGrids: [TileGrid],
+        destinationGrid: TileGrid,
+        blitDestination: TextureID?,
+        mustClearBackground: Bool = false
+    ) {
         self.dirtyArea = dirtyArea
-        self.isDrawing = isDrawing
+        self.sourceGrids = sourceGrids
+        self.destinationGrid = destinationGrid
+        self.blitDestination = blitDestination
+        self.mustClearBackground = mustClearBackground
     }
     
     func encode(
@@ -15,8 +28,8 @@ class MergePass: Pass {
         drawable: any CAMetalDrawable,
         ctx: Context
     ) {
-        commandBuffer.pushDebugGroup("Merge")
-        let targetTiles = ctx.canvasGrid.tiles(intersecting: dirtyArea)
+        commandBuffer.pushDebugGroup("Merge to \(destinationGrid.name)")
+        let targetTiles = destinationGrid.tiles(intersecting: dirtyArea)
         guard !targetTiles.isEmpty else { return }
        
         let rect = Rect(
@@ -36,7 +49,8 @@ class MergePass: Pass {
             else { return }
             let descriptor = MTLRenderPassDescriptor()
             descriptor.colorAttachments[0].texture = tileTexture
-            descriptor.colorAttachments[0].loadAction = .load
+            descriptor.colorAttachments[0].clearColor = Color.clear.mtlClearColor
+            descriptor.colorAttachments[0].loadAction = mustClearBackground ? .clear : .load
             descriptor.colorAttachments[0].storeAction = .store
             
             guard let encoder = commandBuffer.makeRenderCommandEncoder(
@@ -76,19 +90,13 @@ class MergePass: Pass {
             ]
             let (indicesBuffer, indicesOffset) = ctx.bufferAllocator.alloc(indices)
             
-            for (index, layer) in ctx.document.layers.enumerated() {
+            for sourceGrid in sourceGrids {
                 guard let pipelineState = PipelinesManager.pipeline(for: .merge(.normal))
                 else { return }
                 
                 encoder.setRenderPipelineState(pipelineState)
                 
-                let sourceTile: Tile
-                
-                if isDrawing && index == ctx.document.currentLayerIndex {
-                    sourceTile = ctx.strokeGrid.tiles[canvasTile.row][canvasTile.col]
-                } else {
-                    sourceTile = layer.tileGrid.tiles[canvasTile.row][canvasTile.col]
-                }
+                let sourceTile = sourceGrid.tiles[canvasTile.row][canvasTile.col]
                 
                 guard let sourceTileTexture = TextureManager.findTexture(
                     id: sourceTile.textureId
@@ -107,10 +115,14 @@ class MergePass: Pass {
             encoder.endEncoding()
         }
         
+        guard let blitDestination else { return }
         guard let blitEncoder = commandBuffer.makeBlitCommandEncoder() else { return }
         guard let compositeTexture = TextureManager.findTexture(
-            id: ctx.compositeTextureId
-        ) else { return }
+            id: blitDestination
+        ) else {
+            commandBuffer.popDebugGroup()
+            return
+        }
         for tile in targetTiles {
             guard let tileTexture = TextureManager.findTexture(id: tile.textureId)
             else { return }

@@ -38,8 +38,8 @@ class Context {
         
         self.clearColor = clearColor
         
-        canvasGrid = .init(canvasSize: canvasSize)
-        strokeGrid = .init(canvasSize: canvasSize)
+        canvasGrid = .init(canvasSize: canvasSize, named: "Canvas")
+        strokeGrid = .init(canvasSize: canvasSize, named: "Stroke")
         
         compositeTextureId = TextureManager.makeTexture(ofSize: canvasSize)!
         
@@ -65,12 +65,17 @@ class Context {
 
 class StrokeContext {
     private(set) var shouldClearStrokeGrid:  Bool = false
+    private(set) var shouldUpdateLayerGrid:  Bool = false
     var activeStroke:           ActiveStroke?
     private var readySegments:  [StrokeSegment] = []
     private let lock =          NSLock()
     
     func setShouldClearStrokeGrid(_ value: Bool) {
         shouldClearStrokeGrid = value
+    }
+    
+    func setShouldUpdateLayerGrid(_ value: Bool) {
+        shouldUpdateLayerGrid = value
     }
     
     func addSegments(_ segments: [StrokeSegment]) {

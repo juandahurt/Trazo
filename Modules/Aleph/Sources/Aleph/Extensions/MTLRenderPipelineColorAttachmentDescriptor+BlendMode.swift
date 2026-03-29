@@ -5,11 +5,12 @@ extension MTLRenderPipelineColorAttachmentDescriptor {
         switch mode {
         case .normal:
             isBlendingEnabled = true
-            sourceRGBBlendFactor = .sourceAlpha
+            sourceRGBBlendFactor = .one
             destinationRGBBlendFactor = .oneMinusSourceAlpha
             rgbBlendOperation = .add
             sourceAlphaBlendFactor = .one
-            destinationAlphaBlendFactor = .one
+            destinationAlphaBlendFactor = .oneMinusSourceAlpha
+            alphaBlendOperation = .add
         case .lighten:
             isBlendingEnabled = true
             rgbBlendOperation = .max

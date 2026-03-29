@@ -49,6 +49,7 @@ class StrokeCommand: Commandable {
                     segments.append(segment)
                 }
             }
+            context.strokeContext.setShouldUpdateLayerGrid(true)
         default: break
         }
         guard !segments.isEmpty else { return }

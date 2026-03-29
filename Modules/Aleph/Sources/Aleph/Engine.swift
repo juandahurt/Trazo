@@ -93,7 +93,40 @@ class Engine: NSObject {
                 )
             )
             ctx.pendingPasses.append(StrokePass(segments: segments))
-            ctx.pendingPasses.append(MergePass(dirtyArea: dirtyArea, isDrawing: true))
+            var sourceGrids = ctx.document.layers.map { $0.tileGrid }
+            sourceGrids
+                .insert(
+                    ctx.strokeGrid,
+                    at: ctx.document.currentLayerIndex + 1
+                )
+            ctx.pendingPasses.append(
+                MergePass(
+                    dirtyArea: dirtyArea,
+                    sourceGrids: sourceGrids,
+                    destinationGrid: ctx.canvasGrid,
+                    blitDestination: ctx.compositeTextureId,
+                    mustClearBackground: true
+                )
+            )
+        }
+        
+        if ctx.strokeContext.shouldUpdateLayerGrid {
+            // TODO: not use the whole canvas here
+            let wholeCanvas = Rect(
+                x: 0,
+                y: 0,
+                width: ctx.canvasSize.width,
+                height: ctx.canvasSize.height
+            )
+            ctx.pendingPasses.append(
+                MergePass(
+                    dirtyArea: wholeCanvas,
+                    sourceGrids: [ctx.strokeGrid],
+                    destinationGrid: ctx.document.currentLayer.tileGrid,
+                    blitDestination: nil
+                )
+            )
+            ctx.strokeContext.setShouldUpdateLayerGrid(false)
         }
         
         updateAnimations(dt: dt)
