@@ -16,16 +16,16 @@ class Engine: NSObject {
    
     // MARK: Systems
     let strokeSystem:               StrokeSystem = .init()
-    let systems:                    [System]
+    let renderSystem:               RenderSystem = .init()
+    lazy var systems:               [System] = {
+        [strokeSystem, renderSystem]
+    }()
     
     init(canvasSize: Size) {
         ctx = .init(
             clearColor: .init([0.062, 0.062, 0.066, 1]),
             canvasSize: canvasSize
         )
-        systems = [
-            strokeSystem
-        ]
     }
     
     func ignite() {
@@ -74,8 +74,6 @@ class Engine: NSObject {
     
     private func update(_ dt: Float) {
         systems.forEach { $0.update(ctx: ctx) }
-//        executePendingCommands()
-//       
 //        if ctx.strokeContext.shouldClearStrokeGrid {
 //            ctx.pendingPasses.append(
 //                FillPass(
@@ -85,35 +83,7 @@ class Engine: NSObject {
 //            )
 //            ctx.strokeContext.setShouldClearStrokeGrid(false)
 //        }
-//        
-        // handle ready-to-render segments
-        let segments = ctx.strokeContext.drainSegments()
-        if !segments.isEmpty {
-            let dirtyArea = segments.boundsUnion().clip(
-                .init(
-                    x: 0,
-                    y: 0,
-                    width: ctx.canvasSize.width,
-                    height: ctx.canvasSize.height
-                )
-            )
-            ctx.pendingPasses.append(StrokePass(segments: segments))
-            var sourceGrids = ctx.document.layers.map { $0.tileGrid }
-            sourceGrids
-                .insert(
-                    ctx.strokeGrid,
-                    at: ctx.document.currentLayerIndex + 1
-                )
-            ctx.pendingPasses.append(
-                MergePass(
-                    dirtyArea: dirtyArea,
-                    sourceGrids: sourceGrids,
-                    destinationGrid: ctx.canvasGrid,
-                    blitDestination: ctx.compositeTextureId,
-                    mustClearBackground: true
-                )
-            )
-        }
+//
 //        
 //        if ctx.strokeContext.shouldUpdateLayerGrid {
 //            // TODO: not use the whole canvas here
@@ -146,10 +116,6 @@ class Engine: NSObject {
         liveAnimations = liveAnimations.filter { $0.isAlive }
         ctx.pendingPasses = []
         commands = []
-    }
-    
-    private func executePendingCommands() {
-        commands.forEach { $0.instance.execute(context: ctx) }
     }
     
     private func updateAnimations(dt: Float) {

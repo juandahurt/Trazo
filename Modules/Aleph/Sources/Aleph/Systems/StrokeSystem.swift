@@ -58,7 +58,9 @@ class StrokeSystem: System {
             default: break
             }
             guard !segments.isEmpty else { return }
+            
             ctx.strokeContext.addSegments(segments)
+            ctx.renderContext.enqueue(.stroke)
         }
     }
     
