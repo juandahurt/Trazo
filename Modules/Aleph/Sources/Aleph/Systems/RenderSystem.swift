@@ -38,6 +38,29 @@ class RenderSystem: System {
                         )
                     )
                 }
+                if ctx.strokeContext.shouldClearStrokeGrid {
+                    ctx.pendingPasses.append(
+                        FillPass(
+                            color: .clear,
+                            tileGrid: ctx.strokeGrid
+                        )
+                    )
+                    ctx.strokeContext.setShouldClearStrokeGrid(false)
+                }
+                
+                if ctx.strokeContext.shouldUpdateLayerGrid {
+                    if let activeStroke = ctx.strokeContext.activeStroke, let accArea = activeStroke.accArea {
+                        ctx.pendingPasses.append(
+                            MergePass(
+                                dirtyArea: accArea,
+                                sourceGrids: [ctx.strokeGrid],
+                                destinationGrid: ctx.document.currentLayer.tileGrid,
+                                blitDestination: nil
+                            )
+                        )
+                    }
+                    ctx.strokeContext.setShouldUpdateLayerGrid(false)
+                }
 
             case .fill(let layerIndex, let color):
                 let tileGrid = ctx.document.layers[layerIndex].tileGrid

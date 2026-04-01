@@ -73,35 +73,6 @@ class Engine: NSObject {
     
     private func update(_ dt: Float) {
         systems.forEach { $0.update(dt: dt, ctx: ctx) }
-//        if ctx.strokeContext.shouldClearStrokeGrid {
-//            ctx.pendingPasses.append(
-//                FillPass(
-//                    color: .clear,
-//                    tileGrid: ctx.strokeGrid
-//                )
-//            )
-//            ctx.strokeContext.setShouldClearStrokeGrid(false)
-//        }
-//
-//        
-//        if ctx.strokeContext.shouldUpdateLayerGrid {
-//            // TODO: not use the whole canvas here
-//            let wholeCanvas = Rect(
-//                x: 0,
-//                y: 0,
-//                width: ctx.canvasSize.width,
-//                height: ctx.canvasSize.height
-//            )
-//            ctx.pendingPasses.append(
-//                MergePass(
-//                    dirtyArea: wholeCanvas,
-//                    sourceGrids: [ctx.strokeGrid],
-//                    destinationGrid: ctx.document.currentLayer.tileGrid,
-//                    blitDestination: nil
-//                )
-//            )
-//            ctx.strokeContext.setShouldUpdateLayerGrid(false)
-//        }
     }
     
     @MainActor
@@ -132,7 +103,29 @@ class Engine: NSObject {
         commandBuffer.present(drawable)
         commandBuffer.commit()
         
-//        view.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        view.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        guard let activeStroke = ctx.strokeContext.activeStroke else { return }
+        guard let accArea = activeStroke.accArea else { return }
+        
+        let shape = CAShapeLayer()
+        shape.path = .init(
+            rect: .init(
+                x: CGFloat(accArea.x),
+                y: CGFloat(accArea.y),
+                width: CGFloat(accArea.width),
+                height: CGFloat(accArea.height)
+            ),
+            transform: nil
+        )
+        shape.fillColor = UIColor.blue.withAlphaComponent(0.3).cgColor
+        let scale = view.contentScaleFactor
+        let scaleDown = CATransform3DMakeScale(1 / scale, 1 / scale, 1 / scale)
+        let transform = CATransform3DConcat(
+            ctx.cameraMatrix.caTransform3d(),
+            scaleDown
+        )
+        shape.transform = transform
+        view.layer.addSublayer(shape)
 //        guard let activeStroke = ctx.activeStroke else { return }
 //        guard var lastTouch = activeStroke.touches.first else { return }
 //        for touch in activeStroke.touches.dropFirst() {

@@ -40,7 +40,7 @@ class ViewController: UIViewController {
             spacing: 5,
             pointSize: Float(sidebarView.sizeSlider.value),
             opacity: Float(sidebarView.opacitySlider.value),
-            blendMode: .lighten
+            blendMode: .normal
         )
         alephViewController.setBrush(currentBrush)
     }

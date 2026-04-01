@@ -56,9 +56,11 @@ class StrokeSystem: System {
                 ctx.strokeContext.setShouldUpdateLayerGrid(true)
             default: break
             }
-            guard !segments.isEmpty else { return }
             
-            ctx.strokeContext.addSegments(segments)
+            if !segments.isEmpty {
+                ctx.strokeContext.addSegments(segments)
+                ctx.strokeContext.activeStroke?.addArea(segments.boundsUnion())
+            }
             ctx.renderContext.enqueue(.stroke)
         }
     }
