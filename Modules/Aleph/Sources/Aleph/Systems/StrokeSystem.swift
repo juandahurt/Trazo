@@ -13,8 +13,7 @@ class StrokeSystem: System {
     }
     
     func update(ctx: Context) {
-        while !unhandledTouches.isEmpty {
-            var touch = unhandledTouches.removeFirst()
+        while var touch = unhandledTouches.popFirst() {
             touch.location = touch.location.applying(ctx.cameraMatrix.inverse)
             var segments: [StrokeSegment] = []
             
