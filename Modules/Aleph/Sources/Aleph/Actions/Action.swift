@@ -1,10 +1,6 @@
 import Tartarus
 
-protocol Commandable {
-    func execute(context: Context)
-}
-
-enum Command {
+enum Action {
     enum Transform {
         case translate(dx: Float, dy: Float)
         case rotate(Point, Float)

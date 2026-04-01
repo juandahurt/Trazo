@@ -1,8 +1,12 @@
+import Tartarus
+
 class RenderSystem: System {
     enum Operation {
         case stroke
+        case fill(layerIndex: Int, color: Color)
+        case mergeAllLayers(dirtyArea: Rect)
     }
-    
+
     func update(dt: Float, ctx: Context) {
         while let operation = ctx.renderContext.operationQueue.popFirst() {
             switch operation {
@@ -34,6 +38,21 @@ class RenderSystem: System {
                         )
                     )
                 }
+
+            case .fill(let layerIndex, let color):
+                let tileGrid = ctx.document.layers[layerIndex].tileGrid
+                ctx.pendingPasses.append(FillPass(color: color, tileGrid: tileGrid))
+
+            case .mergeAllLayers(let dirtyArea):
+                ctx.pendingPasses.append(
+                    MergePass(
+                        dirtyArea: dirtyArea,
+                        sourceGrids: ctx.document.layers.map { $0.tileGrid },
+                        destinationGrid: ctx.canvasGrid,
+                        blitDestination: ctx.compositeTextureId,
+                        mustClearBackground: true
+                    )
+                )
             }
         }
     }

@@ -12,8 +12,9 @@ class Engine: NSObject {
     let strokeSystem:               StrokeSystem = .init()
     let renderSystem:               RenderSystem = .init()
     let animationSystem:            AnimationSystem = .init()
+    let transformSystem:            TransformSystem = .init()
     lazy var systems:               [System] = {
-        [strokeSystem, animationSystem, renderSystem]
+        [strokeSystem, transformSystem, animationSystem, renderSystem]
     }()
     
     init(canvasSize: Size) {
@@ -24,31 +25,34 @@ class Engine: NSObject {
     }
     
     func ignite() {
-//        commands.append(.layer(.fill(0, .white)))
-//        commands
-//            .append(
-//                .layer(
-//                    .merge(
-//                        .init(
-//                            x: 0,
-//                            y: 0,
-//                            width: ctx.canvasSize.width,
-//                            height: ctx.canvasSize.height
-//                        )
-//                    )
-//                )
-//            )
+        ctx.renderContext.enqueue(.fill(layerIndex: 0, color: .white))
+        ctx.renderContext.enqueue(
+            .mergeAllLayers(
+                dirtyArea: .init(x: 0, y: 0, width: ctx.canvasSize.width, height: ctx.canvasSize.height)
+            )
+        )
         isRunning = true
     }
     
-    /// Enqueues a new command
-    /// - Parameter command: Command to be executed in the next frame
-    func enqueue(_ command: Command) {
-        switch command {
+    func enqueue(_ action: Action) {
+        switch action {
         case .stroke(let touch):
             strokeSystem.push(touch)
-        default: break
-//            commands.append(command)
+        case .layer(.fill(let index, let color)):
+            ctx.renderContext.enqueue(.fill(layerIndex: index, color: color))
+        case .layer(.merge(let dirtyArea)):
+            ctx.renderContext.enqueue(.mergeAllLayers(dirtyArea: dirtyArea))
+        case .transform(let transformType):
+            let newTransform: Transform
+            switch transformType {
+            case .translate(dx: let dx, dy: let dy):
+                newTransform = Transform(dx: dx, dy: dy)
+            case .scale(let anchor, let scale):
+                newTransform = Transform(anchor: anchor, scale: scale)
+            case .rotate(let anchor, let rotation):
+                newTransform = Transform(anchor: anchor, rotation: rotation)
+            }
+            transformSystem.enqueue(newTransform)
         }
     }
     
