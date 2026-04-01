@@ -6,7 +6,7 @@ class Engine: NSObject {
     private var isRunning:          Bool = false
     
     // MARK: Commands
-    private var commands:    [Command] = []
+    private var commands:           [Command] = []
     
     // MARK: Animations
     private var liveAnimations:     [Animation] = []
@@ -14,14 +14,18 @@ class Engine: NSObject {
     // MARK: Context
     var ctx:                        Context
    
-    let strokeProcessor:            StrokeProcessor
+    // MARK: Systems
+    let strokeSystem:               StrokeSystem = .init()
+    let systems:                    [System]
     
     init(canvasSize: Size) {
         ctx = .init(
             clearColor: .init([0.062, 0.062, 0.066, 1]),
             canvasSize: canvasSize
         )
-        strokeProcessor = .init(context: ctx)
+        systems = [
+            strokeSystem
+        ]
     }
     
     func ignite() {
@@ -47,7 +51,7 @@ class Engine: NSObject {
     func enqueue(_ command: Command) {
         switch command {
         case .stroke(let touch):
-            strokeProcessor.push(touch)
+            strokeSystem.push(touch)
         default:
             commands.append(command)
         }
@@ -69,18 +73,19 @@ class Engine: NSObject {
     }
     
     private func update(_ dt: Float) {
-        executePendingCommands()
-       
-        if ctx.strokeContext.shouldClearStrokeGrid {
-            ctx.pendingPasses.append(
-                FillPass(
-                    color: .clear,
-                    tileGrid: ctx.strokeGrid
-                )
-            )
-            ctx.strokeContext.setShouldClearStrokeGrid(false)
-        }
-        
+        systems.forEach { $0.update(ctx: ctx) }
+//        executePendingCommands()
+//       
+//        if ctx.strokeContext.shouldClearStrokeGrid {
+//            ctx.pendingPasses.append(
+//                FillPass(
+//                    color: .clear,
+//                    tileGrid: ctx.strokeGrid
+//                )
+//            )
+//            ctx.strokeContext.setShouldClearStrokeGrid(false)
+//        }
+//        
         // handle ready-to-render segments
         let segments = ctx.strokeContext.drainSegments()
         if !segments.isEmpty {
@@ -109,34 +114,31 @@ class Engine: NSObject {
                 )
             )
         }
-        
-        if ctx.strokeContext.shouldUpdateLayerGrid {
-            // TODO: not use the whole canvas here
-            let wholeCanvas = Rect(
-                x: 0,
-                y: 0,
-                width: ctx.canvasSize.width,
-                height: ctx.canvasSize.height
-            )
-            ctx.pendingPasses.append(
-                MergePass(
-                    dirtyArea: wholeCanvas,
-                    sourceGrids: [ctx.strokeGrid],
-                    destinationGrid: ctx.document.currentLayer.tileGrid,
-                    blitDestination: nil
-                )
-            )
-            ctx.strokeContext.setShouldUpdateLayerGrid(false)
-        }
-        
-        updateAnimations(dt: dt)
+//        
+//        if ctx.strokeContext.shouldUpdateLayerGrid {
+//            // TODO: not use the whole canvas here
+//            let wholeCanvas = Rect(
+//                x: 0,
+//                y: 0,
+//                width: ctx.canvasSize.width,
+//                height: ctx.canvasSize.height
+//            )
+//            ctx.pendingPasses.append(
+//                MergePass(
+//                    dirtyArea: wholeCanvas,
+//                    sourceGrids: [ctx.strokeGrid],
+//                    destinationGrid: ctx.document.currentLayer.tileGrid,
+//                    blitDestination: nil
+//                )
+//            )
+//            ctx.strokeContext.setShouldUpdateLayerGrid(false)
+//        }
+//        
+//        updateAnimations(dt: dt)
     }
     
     @MainActor
     private func draw(_ view: MTKView) {
-        guard !commands.isEmpty || !liveAnimations.isEmpty || !ctx.pendingPasses.isEmpty else {
-            return
-        }
         render(view: view)
     }
     
