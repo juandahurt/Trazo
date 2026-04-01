@@ -5,20 +5,15 @@ class Engine: NSObject {
     private var lastTime:           CFTimeInterval = 0
     private var isRunning:          Bool = false
     
-    // MARK: Commands
-    private var commands:           [Command] = []
-    
-    // MARK: Animations
-    private var liveAnimations:     [Animation] = []
-    
     // MARK: Context
     var ctx:                        Context
    
     // MARK: Systems
     let strokeSystem:               StrokeSystem = .init()
     let renderSystem:               RenderSystem = .init()
+    let animationSystem:            AnimationSystem = .init()
     lazy var systems:               [System] = {
-        [strokeSystem, renderSystem]
+        [strokeSystem, animationSystem, renderSystem]
     }()
     
     init(canvasSize: Size) {
@@ -29,20 +24,20 @@ class Engine: NSObject {
     }
     
     func ignite() {
-        commands.append(.layer(.fill(0, .white)))
-        commands
-            .append(
-                .layer(
-                    .merge(
-                        .init(
-                            x: 0,
-                            y: 0,
-                            width: ctx.canvasSize.width,
-                            height: ctx.canvasSize.height
-                        )
-                    )
-                )
-            )
+//        commands.append(.layer(.fill(0, .white)))
+//        commands
+//            .append(
+//                .layer(
+//                    .merge(
+//                        .init(
+//                            x: 0,
+//                            y: 0,
+//                            width: ctx.canvasSize.width,
+//                            height: ctx.canvasSize.height
+//                        )
+//                    )
+//                )
+//            )
         isRunning = true
     }
     
@@ -52,13 +47,13 @@ class Engine: NSObject {
         switch command {
         case .stroke(let touch):
             strokeSystem.push(touch)
-        default:
-            commands.append(command)
+        default: break
+//            commands.append(command)
         }
     }
     
     func enqueue(_ animation: Animation) {
-        liveAnimations.append(animation)
+        ctx.liveAnimations.append(animation)
     }
     
     /// Frame loop
@@ -73,7 +68,7 @@ class Engine: NSObject {
     }
     
     private func update(_ dt: Float) {
-        systems.forEach { $0.update(ctx: ctx) }
+        systems.forEach { $0.update(dt: dt, ctx: ctx) }
 //        if ctx.strokeContext.shouldClearStrokeGrid {
 //            ctx.pendingPasses.append(
 //                FillPass(
@@ -103,8 +98,6 @@ class Engine: NSObject {
 //            )
 //            ctx.strokeContext.setShouldUpdateLayerGrid(false)
 //        }
-//        
-//        updateAnimations(dt: dt)
     }
     
     @MainActor
@@ -113,13 +106,8 @@ class Engine: NSObject {
     }
     
     private func endFrame() {
-        liveAnimations = liveAnimations.filter { $0.isAlive }
+        ctx.liveAnimations = ctx.liveAnimations.filter { $0.isAlive }
         ctx.pendingPasses = []
-        commands = []
-    }
-    
-    private func updateAnimations(dt: Float) {
-        liveAnimations.forEach { $0.update(dt: dt, ctx: ctx) }
     }
     
     @MainActor

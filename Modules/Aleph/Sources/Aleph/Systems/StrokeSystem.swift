@@ -2,7 +2,7 @@ import Foundation
 import Tartarus
 
 protocol System {
-    func update(ctx: Context)
+    func update(dt: Float, ctx: Context)
 }
 
 class StrokeSystem: System {
@@ -12,7 +12,7 @@ class StrokeSystem: System {
         unhandledTouches.append(touch)
     }
     
-    func update(ctx: Context) {
+    func update(dt: Float, ctx: Context) {
         while var touch = unhandledTouches.popFirst() {
             touch.location = touch.location.applying(ctx.cameraMatrix.inverse)
             var segments: [StrokeSegment] = []

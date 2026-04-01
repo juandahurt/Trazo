@@ -3,7 +3,7 @@ class RenderSystem: System {
         case stroke
     }
     
-    func update(ctx: Context) {
+    func update(dt: Float, ctx: Context) {
         while let operation = ctx.renderContext.operationQueue.popFirst() {
             switch operation {
             case .stroke:

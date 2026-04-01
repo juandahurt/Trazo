@@ -26,6 +26,7 @@ class Context {
     var document:               Document
     /// Passes to be encoded
     var pendingPasses:          [Pass] = []
+    var liveAnimations:         [Animation] = []
     /// Current brush
     var brush:                  Brush
    
