@@ -83,6 +83,7 @@ class Engine: NSObject {
     private func endFrame() {
         ctx.liveAnimations = ctx.liveAnimations.filter { $0.isAlive }
         ctx.pendingPasses = []
+        ctx.deferredPasses = []
     }
     
     @MainActor
@@ -102,30 +103,38 @@ class Engine: NSObject {
         
         commandBuffer.present(drawable)
         commandBuffer.commit()
-        
-        view.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
-        guard let activeStroke = ctx.strokeContext.activeStroke else { return }
-        guard let accArea = activeStroke.accArea else { return }
-        
-        let shape = CAShapeLayer()
-        shape.path = .init(
-            rect: .init(
-                x: CGFloat(accArea.x),
-                y: CGFloat(accArea.y),
-                width: CGFloat(accArea.width),
-                height: CGFloat(accArea.height)
-            ),
-            transform: nil
-        )
-        shape.fillColor = UIColor.blue.withAlphaComponent(0.3).cgColor
-        let scale = view.contentScaleFactor
-        let scaleDown = CATransform3DMakeScale(1 / scale, 1 / scale, 1 / scale)
-        let transform = CATransform3DConcat(
-            ctx.cameraMatrix.caTransform3d(),
-            scaleDown
-        )
-        shape.transform = transform
-        view.layer.addSublayer(shape)
+
+        if !ctx.deferredPasses.isEmpty {
+            guard let bakeCB = GPU.commandQueue.makeCommandBuffer() else { return }
+            for p in ctx.deferredPasses {
+                p.encode(commandBuffer: bakeCB, drawable: drawable, ctx: ctx)
+            }
+            bakeCB.commit()
+        }
+
+//        view.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+//        guard let activeStroke = ctx.strokeContext.activeStroke else { return }
+//        guard let accArea = activeStroke.accArea else { return }
+//        
+//        let shape = CAShapeLayer()
+//        shape.path = .init(
+//            rect: .init(
+//                x: CGFloat(accArea.x),
+//                y: CGFloat(accArea.y),
+//                width: CGFloat(accArea.width),
+//                height: CGFloat(accArea.height)
+//            ),
+//            transform: nil
+//        )
+//        shape.fillColor = UIColor.blue.withAlphaComponent(0.3).cgColor
+//        let scale = view.contentScaleFactor
+//        let scaleDown = CATransform3DMakeScale(1 / scale, 1 / scale, 1 / scale)
+//        let transform = CATransform3DConcat(
+//            ctx.cameraMatrix.caTransform3d(),
+//            scaleDown
+//        )
+//        shape.transform = transform
+//        view.layer.addSublayer(shape)
 //        guard let activeStroke = ctx.activeStroke else { return }
 //        guard var lastTouch = activeStroke.touches.first else { return }
 //        for touch in activeStroke.touches.dropFirst() {

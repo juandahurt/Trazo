@@ -50,7 +50,7 @@ class RenderSystem: System {
                 
                 if ctx.strokeContext.shouldUpdateLayerGrid {
                     if let activeStroke = ctx.strokeContext.activeStroke, let accArea = activeStroke.accArea {
-                        ctx.pendingPasses.append(
+                        ctx.deferredPasses.append(
                             MergePass(
                                 dirtyArea: accArea,
                                 sourceGrids: [ctx.strokeGrid],
