@@ -5,56 +5,59 @@ class Engine: NSObject {
     private var lastTime:           CFTimeInterval = 0
     private var isRunning:          Bool = false
     
-    // MARK: Commands
-    private var commands:    [Command] = []
-    
-    // MARK: Animations
-    private var liveAnimations:     [Animation] = []
-    
     // MARK: Context
     var ctx:                        Context
    
-    let strokeProcessor:            StrokeProcessor
+    // MARK: Systems
+    let strokeSystem:               StrokeSystem = .init()
+    let renderSystem:               RenderSystem = .init()
+    let animationSystem:            AnimationSystem = .init()
+    let transformSystem:            TransformSystem = .init()
+    lazy var systems:               [System] = {
+        [strokeSystem, transformSystem, animationSystem, renderSystem]
+    }()
     
     init(canvasSize: Size) {
         ctx = .init(
             clearColor: .init([0.062, 0.062, 0.066, 1]),
             canvasSize: canvasSize
         )
-        strokeProcessor = .init(context: ctx)
     }
     
     func ignite() {
-        commands.append(.layer(.fill(0, .white)))
-        commands
-            .append(
-                .layer(
-                    .merge(
-                        .init(
-                            x: 0,
-                            y: 0,
-                            width: ctx.canvasSize.width,
-                            height: ctx.canvasSize.height
-                        )
-                    )
-                )
+        ctx.renderContext.enqueue(.fill(layerIndex: 0, color: .white))
+        ctx.renderContext.enqueue(
+            .mergeAllLayers(
+                dirtyArea: .init(x: 0, y: 0, width: ctx.canvasSize.width, height: ctx.canvasSize.height)
             )
+        )
         isRunning = true
     }
     
-    /// Enqueues a new command
-    /// - Parameter command: Command to be executed in the next frame
-    func enqueue(_ command: Command) {
-        switch command {
+    func enqueue(_ action: Action) {
+        switch action {
         case .stroke(let touch):
-            strokeProcessor.push(touch)
-        default:
-            commands.append(command)
+            strokeSystem.push(touch)
+        case .layer(.fill(let index, let color)):
+            ctx.renderContext.enqueue(.fill(layerIndex: index, color: color))
+        case .layer(.merge(let dirtyArea)):
+            ctx.renderContext.enqueue(.mergeAllLayers(dirtyArea: dirtyArea))
+        case .transform(let transformType):
+            let newTransform: Transform
+            switch transformType {
+            case .translate(dx: let dx, dy: let dy):
+                newTransform = Transform(dx: dx, dy: dy)
+            case .scale(let anchor, let scale):
+                newTransform = Transform(anchor: anchor, scale: scale)
+            case .rotate(let anchor, let rotation):
+                newTransform = Transform(anchor: anchor, rotation: rotation)
+            }
+            transformSystem.enqueue(newTransform)
         }
     }
     
     func enqueue(_ animation: Animation) {
-        liveAnimations.append(animation)
+        ctx.liveAnimations.append(animation)
     }
     
     /// Frame loop
@@ -69,89 +72,17 @@ class Engine: NSObject {
     }
     
     private func update(_ dt: Float) {
-        executePendingCommands()
-       
-        if ctx.strokeContext.shouldClearStrokeGrid {
-            ctx.pendingPasses.append(
-                FillPass(
-                    color: .clear,
-                    tileGrid: ctx.strokeGrid
-                )
-            )
-            ctx.strokeContext.setShouldClearStrokeGrid(false)
-        }
-        
-        // handle ready-to-render segments
-        let segments = ctx.strokeContext.drainSegments()
-        if !segments.isEmpty {
-            let dirtyArea = segments.boundsUnion().clip(
-                .init(
-                    x: 0,
-                    y: 0,
-                    width: ctx.canvasSize.width,
-                    height: ctx.canvasSize.height
-                )
-            )
-            ctx.pendingPasses.append(StrokePass(segments: segments))
-            var sourceGrids = ctx.document.layers.map { $0.tileGrid }
-            sourceGrids
-                .insert(
-                    ctx.strokeGrid,
-                    at: ctx.document.currentLayerIndex + 1
-                )
-            ctx.pendingPasses.append(
-                MergePass(
-                    dirtyArea: dirtyArea,
-                    sourceGrids: sourceGrids,
-                    destinationGrid: ctx.canvasGrid,
-                    blitDestination: ctx.compositeTextureId,
-                    mustClearBackground: true
-                )
-            )
-        }
-        
-        if ctx.strokeContext.shouldUpdateLayerGrid {
-            // TODO: not use the whole canvas here
-            let wholeCanvas = Rect(
-                x: 0,
-                y: 0,
-                width: ctx.canvasSize.width,
-                height: ctx.canvasSize.height
-            )
-            ctx.pendingPasses.append(
-                MergePass(
-                    dirtyArea: wholeCanvas,
-                    sourceGrids: [ctx.strokeGrid],
-                    destinationGrid: ctx.document.currentLayer.tileGrid,
-                    blitDestination: nil
-                )
-            )
-            ctx.strokeContext.setShouldUpdateLayerGrid(false)
-        }
-        
-        updateAnimations(dt: dt)
+        systems.forEach { $0.update(dt: dt, ctx: ctx) }
     }
     
     @MainActor
     private func draw(_ view: MTKView) {
-        guard !commands.isEmpty || !liveAnimations.isEmpty || !ctx.pendingPasses.isEmpty else {
-            return
-        }
         render(view: view)
     }
     
     private func endFrame() {
-        liveAnimations = liveAnimations.filter { $0.isAlive }
+        ctx.liveAnimations = ctx.liveAnimations.filter { $0.isAlive }
         ctx.pendingPasses = []
-        commands = []
-    }
-    
-    private func executePendingCommands() {
-        commands.forEach { $0.instance.execute(context: ctx) }
-    }
-    
-    private func updateAnimations(dt: Float) {
-        liveAnimations.forEach { $0.update(dt: dt, ctx: ctx) }
     }
     
     @MainActor
@@ -172,7 +103,29 @@ class Engine: NSObject {
         commandBuffer.present(drawable)
         commandBuffer.commit()
         
-//        view.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        view.layer.sublayers?.forEach { $0.removeFromSuperlayer() }
+        guard let activeStroke = ctx.strokeContext.activeStroke else { return }
+        guard let accArea = activeStroke.accArea else { return }
+        
+        let shape = CAShapeLayer()
+        shape.path = .init(
+            rect: .init(
+                x: CGFloat(accArea.x),
+                y: CGFloat(accArea.y),
+                width: CGFloat(accArea.width),
+                height: CGFloat(accArea.height)
+            ),
+            transform: nil
+        )
+        shape.fillColor = UIColor.blue.withAlphaComponent(0.3).cgColor
+        let scale = view.contentScaleFactor
+        let scaleDown = CATransform3DMakeScale(1 / scale, 1 / scale, 1 / scale)
+        let transform = CATransform3DConcat(
+            ctx.cameraMatrix.caTransform3d(),
+            scaleDown
+        )
+        shape.transform = transform
+        view.layer.addSublayer(shape)
 //        guard let activeStroke = ctx.activeStroke else { return }
 //        guard var lastTouch = activeStroke.touches.first else { return }
 //        for touch in activeStroke.touches.dropFirst() {

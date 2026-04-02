@@ -1,59 +1,68 @@
 import Foundation
 import Tartarus
 
-class StrokeCommand: Commandable {
-    let touch: Touch
+protocol System {
+    func update(dt: Float, ctx: Context)
+}
+
+class StrokeSystem: System {
+    private var unhandledTouches: [Touch] = []
     
-    init(touch: Touch) {
-        self.touch = touch
+    func push(_ touch: Touch) {
+        unhandledTouches.append(touch)
     }
     
-    func execute(context: Context) {
-        var touch = touch
-        touch.location = touch.location.applying(context.cameraMatrix.inverse)
-        var segments: [StrokeSegment] = []
-        
-        switch touch.phase {
-        case .began:
-            context.strokeContext.activeStroke = .init()
-            context.strokeContext.activeStroke?.add(touch: touch)
-            context.strokeContext.setShouldClearStrokeGrid(true)
-        case .moved:
-            guard let activeStroke = context.strokeContext.activeStroke else { return }
-            context.strokeContext.activeStroke?.add(touch: touch)
-            guard activeStroke.touches.count >= 3 else { return }
+    func update(dt: Float, ctx: Context) {
+        while var touch = unhandledTouches.popFirst() {
+            touch.location = touch.location.applying(ctx.cameraMatrix.inverse)
+            var segments: [StrokeSegment] = []
             
-            if activeStroke.touches.count == 3 {
-                if let segment = findFirstSegment(ctx: context), !segment.points.isEmpty {
-                    segments.append(segment)
+            switch touch.phase {
+            case .began:
+                ctx.strokeContext.activeStroke = .init()
+                ctx.strokeContext.activeStroke?.add(touch: touch)
+                ctx.strokeContext.setShouldClearStrokeGrid(true)
+            case .moved:
+                guard let activeStroke = ctx.strokeContext.activeStroke else { return }
+                ctx.strokeContext.activeStroke?.add(touch: touch)
+                guard activeStroke.touches.count >= 3 else { return }
+                
+                if activeStroke.touches.count == 3 {
+                    if let segment = findFirstSegment(ctx: ctx), !segment.points.isEmpty {
+                        segments.append(segment)
+                    }
                 }
+                
+                if activeStroke.touches.count > 3 {
+                    if let segment = findMidSegment(ctx: ctx), !segment.points.isEmpty {
+                        segments.append(segment)
+                    }
+                }
+            case .ended, .cancelled:
+                ctx.strokeContext.activeStroke?.add(touch: touch)
+                guard let activeStroke = ctx.strokeContext.activeStroke else { return }
+                
+                if activeStroke.touches.count > 3 {
+                    if let segment = findMidSegment(ctx: ctx), !segment.points.isEmpty {
+                        segments.append(segment)
+                    }
+                }
+                
+                if activeStroke.touches.count > 2 {
+                    if let segment = findLastSegment(ctx: ctx), !segment.points.isEmpty {
+                        segments.append(segment)
+                    }
+                }
+                ctx.strokeContext.setShouldUpdateLayerGrid(true)
+            default: break
             }
             
-            if activeStroke.touches.count > 3 {
-                if let segment = findMidSegment(ctx: context), !segment.points.isEmpty {
-                    segments.append(segment)
-                }
+            if !segments.isEmpty {
+                ctx.strokeContext.addSegments(segments)
+                ctx.strokeContext.activeStroke?.addArea(segments.boundsUnion())
             }
-        case .ended, .cancelled:
-            context.strokeContext.activeStroke?.add(touch: touch)
-            guard let activeStroke = context.strokeContext.activeStroke else { return }
-            
-            if activeStroke.touches.count > 3 {
-                if let segment = findMidSegment(ctx: context), !segment.points.isEmpty {
-                    segments.append(segment)
-                }
-            }
-            
-            if activeStroke.touches.count > 2 {
-                if let segment = findLastSegment(ctx: context), !segment.points.isEmpty {
-                    segments.append(segment)
-                }
-            }
-            context.strokeContext.setShouldUpdateLayerGrid(true)
-        default: break
+            ctx.renderContext.enqueue(.stroke)
         }
-        guard !segments.isEmpty else { return }
-        context.strokeContext.addSegments(segments)
     }
     
     private func findFirstSegment(ctx: Context) -> StrokeSegment? {

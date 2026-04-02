@@ -26,10 +26,12 @@ class Context {
     var document:               Document
     /// Passes to be encoded
     var pendingPasses:          [Pass] = []
+    var liveAnimations:         [Animation] = []
     /// Current brush
     var brush:                  Brush
    
     var strokeContext:          StrokeContext
+    var renderContext:          RenderContext
     
     init(clearColor: Color,canvasSize: Size) {
         self.cameraMatrix = .identity
@@ -60,6 +62,7 @@ class Context {
             blendMode: .normal
         )
         self.strokeContext = .init()
+        self.renderContext = . init()
     }
 }
 
@@ -68,7 +71,6 @@ class StrokeContext {
     private(set) var shouldUpdateLayerGrid:  Bool = false
     var activeStroke:           ActiveStroke?
     private var readySegments:  [StrokeSegment] = []
-    private let lock =          NSLock()
     
     func setShouldClearStrokeGrid(_ value: Bool) {
         shouldClearStrokeGrid = value
@@ -79,16 +81,20 @@ class StrokeContext {
     }
     
     func addSegments(_ segments: [StrokeSegment]) {
-        lock.lock()
         readySegments.append(contentsOf: segments)
-        lock.unlock()
     }
     
     func drainSegments() -> [StrokeSegment] {
-        lock.lock()
         let segments = readySegments
         readySegments = []
-        lock.unlock()
         return segments
+    }
+}
+
+class RenderContext {
+    var operationQueue: [RenderSystem.Operation] = []
+    
+    func enqueue(_ operation: RenderSystem.Operation) {
+        operationQueue.append(operation)
     }
 }
