@@ -26,6 +26,8 @@ class Context {
     var document:               Document
     /// Passes to be encoded
     var pendingPasses:          [Pass] = []
+    /// Passes encoded in a separate command buffer after the display frame
+    var deferredPasses:         [Pass] = []
     var liveAnimations:         [Animation] = []
     /// Current brush
     var brush:                  Brush

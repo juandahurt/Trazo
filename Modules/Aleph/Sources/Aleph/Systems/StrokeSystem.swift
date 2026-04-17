@@ -21,19 +21,27 @@ class StrokeSystem: System {
             case .began:
                 ctx.strokeContext.activeStroke = .init()
                 ctx.strokeContext.activeStroke?.add(touch: touch)
-                ctx.strokeContext.setShouldClearStrokeGrid(true)
+                var dot = StrokeSegment()
+                dot.add(point: .init(
+                    position: [touch.location.x, touch.location.y],
+                    size: ctx.brush.pointSize,
+                    opacity: ctx.brush.opacity,
+                    angle: 0
+                ))
+                segments.append(dot)
             case .moved:
                 guard let activeStroke = ctx.strokeContext.activeStroke else { return }
                 ctx.strokeContext.activeStroke?.add(touch: touch)
-                guard activeStroke.touches.count >= 3 else { return }
-                
-                if activeStroke.touches.count == 3 {
+
+                if activeStroke.touches.count == 2 {
+                    if let segment = findInitialSegment(ctx: ctx), !segment.points.isEmpty {
+                        segments.append(segment)
+                    }
+                } else if activeStroke.touches.count == 3 {
                     if let segment = findFirstSegment(ctx: ctx), !segment.points.isEmpty {
                         segments.append(segment)
                     }
-                }
-                
-                if activeStroke.touches.count > 3 {
+                } else if activeStroke.touches.count > 3 {
                     if let segment = findMidSegment(ctx: ctx), !segment.points.isEmpty {
                         segments.append(segment)
                     }
@@ -54,6 +62,7 @@ class StrokeSystem: System {
                     }
                 }
                 ctx.strokeContext.setShouldUpdateLayerGrid(true)
+                ctx.strokeContext.setShouldClearStrokeGrid(true)
             default: break
             }
             
@@ -65,6 +74,17 @@ class StrokeSystem: System {
         }
     }
     
+    private func findInitialSegment(ctx: Context) -> StrokeSegment? {
+        guard let activeStroke = ctx.strokeContext.activeStroke else { return nil }
+        let curve = BezierCurve(
+            p0: activeStroke.touches[0].location,
+            p1: activeStroke.touches[0].location,
+            p2: activeStroke.touches[1].location,
+            p3: activeStroke.touches[1].location
+        )
+        return segment(for: curve, ctx: ctx)
+    }
+
     private func findFirstSegment(ctx: Context) -> StrokeSegment? {
         guard let activeStroke = ctx.strokeContext.activeStroke else { return nil }
         let curve = BezierCurve(
