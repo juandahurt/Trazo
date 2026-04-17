@@ -38,15 +38,6 @@ class RenderSystem: System {
                         )
                     )
                 }
-                if ctx.strokeContext.shouldClearStrokeGrid {
-                    ctx.pendingPasses.append(
-                        FillPass(
-                            color: .clear,
-                            tileGrid: ctx.strokeGrid
-                        )
-                    )
-                    ctx.strokeContext.setShouldClearStrokeGrid(false)
-                }
                 
                 if ctx.strokeContext.shouldUpdateLayerGrid {
                     if let activeStroke = ctx.strokeContext.activeStroke, let accArea = activeStroke.accArea {
@@ -60,6 +51,16 @@ class RenderSystem: System {
                         )
                     }
                     ctx.strokeContext.setShouldUpdateLayerGrid(false)
+                }
+                
+                if ctx.strokeContext.shouldClearStrokeGrid {
+                    guard let accArea = ctx.strokeContext.activeStroke?.accArea else {
+                        return
+                    }
+                    ctx.deferredPasses.append(
+                        FillPass(color: .clear, tileGrid: ctx.strokeGrid, dirtyArea: accArea)
+                    )
+                    ctx.strokeContext.setShouldClearStrokeGrid(false)
                 }
 
             case .fill(let layerIndex, let color):
