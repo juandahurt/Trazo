@@ -112,19 +112,25 @@ extension CanvasViewController {
         )
         let scale = Float(gesture.scale)
         let velocity = Float(gesture.velocity)
-        engine.enqueue(.transform(.scale(anchor, scale)))
-        gesture.scale = 1
         
         if gesture.state == .ended, velocity < -6 {
             engine.enqueue(
                 TransformAnimation(
                     fromValue: engine.ctx.cameraTransform,
-                    toValue: Transform(dx: 0, dy: 0, scale: 1),
-                    duration: 0.35,
+                    toValue: Transform(
+                        anchor: .init(x: canvasSize.width / 2, y: canvasSize.height / 2),
+                        dx: 0,
+                        dy: 0,
+                        scale: 1
+                    ),
+                    duration: 0.4,
                     easingType: .easeOut
                 )
             )
+        } else {
+            engine.enqueue(.transform(.scale(anchor, scale)))
         }
+        gesture.scale = 1
     }
     
     @objc
