@@ -6,6 +6,7 @@ struct stroke_fragment_input {
     float4 position [[position]];
     float opacity;
     float2 uv;
+    float2 gran_uv;
     float4 color;
 };
 
@@ -22,13 +23,14 @@ vertex stroke_fragment_input stroke_vert(constant float2* vertices            [[
                                          constant drawable_point* points      [[buffer(3)]],
                                          constant float2* uv                  [[buffer(4)]],
                                          constant float4& color               [[buffer(5)]],
+                                         constant float2& canvasSize          [[buffer(6)]],
                                          uint vertexId                        [[vertex_id]],
                                          uint instanceId                      [[instance_id]])
 {
         drawable_point p = points[instanceId];
         float cosA = cos(p.angle);
         float sinA = sin(p.angle);
-        
+
         float4x4 scale = float4x4(
             float4(p.size, 0, 0, 0),
             float4(0, p.size, 0, 0),
@@ -47,25 +49,28 @@ vertex stroke_fragment_input stroke_vert(constant float2* vertices            [[
             float4(0, 0, 1, 0),
             float4(p.position.x, p.position.y, 0, 1)
         );
-        
+
         float4x4 transform = translation * rotation * scale;
-        float4 position = projectionMatrix * transform * float4(vertices[vertexId], 0, 1);
-        
+        float4 canvasPos = transform * float4(vertices[vertexId], 0, 1);
+        float4 position = projectionMatrix * canvasPos;
+
         return {
             .position = position,
             .opacity = p.opacity,
             .uv = uv[vertexId],
+            .gran_uv = canvasPos.xy / canvasSize,
             .color = color
-        };;
+        };
 }
 
 fragment float4 stroke_frag(stroke_fragment_input input                         [[stage_in]],
                             texture2d<float, access::sample> shapeTexture       [[texture(0)]],
                             texture2d<float, access::sample> granularityTexture [[texture(1)]])
 {
-    constexpr sampler defaultSampler(coord::normalized, address::clamp_to_edge, filter::linear);
-    float granAlpha = granularityTexture.sample(defaultSampler, input.uv).a;
-    float shapeAlpha = shapeTexture.sample(defaultSampler, input.uv).a;
+    constexpr sampler shapeSampler(coord::normalized, address::clamp_to_edge, filter::linear);
+    constexpr sampler granSampler(coord::normalized, address::clamp_to_edge, filter::linear);
+    float granAlpha = granularityTexture.sample(granSampler, input.gran_uv).a;
+    float shapeAlpha = shapeTexture.sample(shapeSampler, input.uv).a;
     float alpha = granAlpha * shapeAlpha * input.opacity;
     return float4(input.color.r * alpha, input.color.g * alpha, input.color.b * alpha, alpha);
 }

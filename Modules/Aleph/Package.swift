@@ -31,6 +31,7 @@ let package = Package(
                 .process("Resources/shape-5.png"),
                 .process("Resources/gran-0.png"),
                 .process("Resources/gran-1.png"),
+                .process("Resources/gran-2.png"),
             ],
             swiftSettings: [.interoperabilityMode(.C)]
         ),
