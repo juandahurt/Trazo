@@ -35,12 +35,12 @@ class ViewController: UIViewController {
         addSidebar()
         
         currentBrush = .init(
-            shapeTextureID: shapeTextures[3],
+            shapeTextureID: shapeTextures[0],
             granularityTextureID: granularityTextures[0],
             spacing: 1,
             pointSize: Float(sidebarView.sizeSlider.value),
             opacity: Float(sidebarView.opacitySlider.value),
-            blendMode: .lighten
+            blendMode: .normal
         )
         alephViewController.setBrush(currentBrush)
     }

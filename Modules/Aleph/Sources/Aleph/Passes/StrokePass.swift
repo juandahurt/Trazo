@@ -64,6 +64,7 @@ class StrokePass: Pass {
         let (iBuf, iOff) = ctx.bufferAllocator.alloc(indices)
 
         var opacity: Float = ctx.brush.opacity
+        var canvasSize: SIMD2<Float> = .init(ctx.canvasSize.width, ctx.canvasSize.height)
         // TODO: use selected color
         var color = Color([0.19, 0.211, 0.219, 1])
 
@@ -92,8 +93,9 @@ class StrokePass: Pass {
                 length: MemoryLayout<Float4x4.Matrix>.stride,
                 index: 1
             )
-            encoder.setVertexBytes(&opacity, length: MemoryLayout<Float>.stride, index: 2)
-            encoder.setVertexBytes(&color,   length: MemoryLayout<Color>.size,   index: 5)
+            encoder.setVertexBytes(&opacity,     length: MemoryLayout<Float>.stride,          index: 2)
+            encoder.setVertexBytes(&color,       length: MemoryLayout<Color>.size,            index: 5)
+            encoder.setVertexBytes(&canvasSize,  length: MemoryLayout<SIMD2<Float>>.stride,   index: 6)
 
             encoder.setFragmentTexture(shapeTexture,       index: 0)
             encoder.setFragmentTexture(granularityTexture, index: 1)
